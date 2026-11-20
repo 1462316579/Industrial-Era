@@ -10,9 +10,9 @@ use std::fs;
 use std::path::Path;
 
 const FILE: &str = "servers.dat";
-/// Industrial Era's official survival server, named as the game lists it. Its address comes from
+/// IndustrialEra's official survival server, named as the game lists it. Its address comes from
 /// `launcher/links.json` on main (`backend::Links`), so a move to a new host needs no release.
-pub const OFFICIAL_NAME: &str = "Industrial Era Official";
+pub const OFFICIAL_NAME: &str = "IndustrialEra Official";
 /// The official server's address until links.json is read, and when it can't be.
 pub const OFFICIAL_ADDRESS: &str = industrial_era_telemetry::server_status::OFFICIAL_ADDRESS;
 /// Addresses the official server had before: lists that still hold one are moved to the current one.

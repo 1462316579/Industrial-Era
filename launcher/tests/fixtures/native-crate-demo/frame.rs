@@ -1,5 +1,5 @@
 // The first frame: shows that the crate, both data folders and the post-build step reached the
-// game, in the log and in the mod's folder (`industrial-era-mods/.industrial-era-mod-data/crate_demo/proof.txt`).
+// game, in the log and in the mod's folder (`industrial_era-mods/.industrial_era-mod-data/crate_demo/proof.txt`).
 fn crate_demo_frame(game: &mut crate::game::Game<'_>) {
     use std::sync::atomic::{AtomicBool, Ordering};
     static DONE: AtomicBool = AtomicBool::new(false);

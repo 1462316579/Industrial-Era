@@ -37,7 +37,7 @@ pub(super) const TEXTURES: [&str; 24] = [
     "book",
 ];
 
-/// Colours offered as icons: Industrial Era's accent and a few that sit beside it in both themes.
+/// Colours offered as icons: IndustrialEra's accent and a few that sit beside it in both themes.
 const COLOURS: [&str; 8] = [
     "#5b3fd6", "#3f7fd6", "#2f9e8f", "#4f9e2f", "#c9a227", "#d9732f", "#c4405a", "#7d7591",
 ];
@@ -53,9 +53,9 @@ pub(super) struct InstanceDialog {
     pub(super) picture: Option<Option<instance_icons::Chosen>>,
     pub(super) error: Option<String>,
     pub(super) busy: bool,
-    /// Industrial Era, or the Java game it plays.
+    /// IndustrialEra, or the Java game it plays.
     pub(super) java: new_instance::JavaChoice,
-    /// The Industrial Era version it keeps (`Instance::version`); None follows the launcher's.
+    /// The IndustrialEra version it keeps (`Instance::version`); None follows the launcher's.
     pub(super) pin: Option<String>,
     /// The loader logo `picture` was made from, when it was one.
     pub(super) logo: Option<&'static str>,
@@ -232,9 +232,9 @@ impl Launcher {
                         summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
                     )
                 }
-                InstanceKind::Pack => (false, tr("From Industrial Era's registry").into()),
+                InstanceKind::Pack => (false, tr("From IndustrialEra's registry").into()),
             };
-            // Java instances have nothing of Industrial Era's to prepare: no state square.
+            // Java instances have nothing of IndustrialEra's to prepare: no state square.
             let state = (matches!(i.kind, InstanceKind::Default | InstanceKind::Own)
                 && i.java.is_none())
             .then_some(if prepared { t.success } else { t.warn });
@@ -326,17 +326,17 @@ impl Launcher {
             .map(|p| p.as_ref().map(|c| c.png.clone()));
         let editing = d.editing.clone();
         let copy = selected.filter(|_| d.copy);
-        // The Industrial Era version is Industrial Era's instances' alone: a Java one plays its own game.
+        // The IndustrialEra version is IndustrialEra's instances' alone: a Java one plays its own game.
         let plays_horizon = match &editing {
             Some(id) => self
                 .instances
                 .list
                 .iter()
                 .any(|i| &i.id == id && i.java.is_none()),
-            None => d.java.kind == new_instance::NewKind::Industrial Era,
+            None => d.java.kind == new_instance::NewKind::IndustrialEra,
         };
         // A new Java instance: what it plays, and its name when none is typed.
-        let java = (editing.is_none() && d.java.kind != new_instance::NewKind::Industrial Era)
+        let java = (editing.is_none() && d.java.kind != new_instance::NewKind::IndustrialEra)
             .then(|| d.java.clone());
         let minecraft = java.as_ref().map(|j| {
             j.minecraft(match &self.instances.versions {
@@ -431,11 +431,11 @@ impl Launcher {
             d.busy,
             d.java.kind,
         );
-        let java = !editing && kind != new_instance::NewKind::Industrial Era;
+        let java = !editing && kind != new_instance::NewKind::IndustrialEra;
         let n = t.night;
         let from = self
             .selected_instance()
-            .map_or_else(|| "Industrial Era".into(), |i| i.name.clone());
+            .map_or_else(|| "IndustrialEra".into(), |i| i.name.clone());
         let row = |label: &'static str, control: AnyElement| {
             div()
                 .flex()
@@ -539,7 +539,7 @@ impl Launcher {
                     .into_any_element(),
             );
         }
-        // Nothing chosen: the instance's mark (its loader's, Industrial Era's), when it has one.
+        // Nothing chosen: the instance's mark (its loader's, IndustrialEra's), when it has one.
         let mark = instance.as_ref().and_then(|i| self.instance_mark(i, 28.));
         tiles.push(
             tile("instance-icon-none".into(), icon.is_none() && !pictured)
@@ -809,7 +809,7 @@ impl Launcher {
 }
 
 impl Launcher {
-    /// Delete…, for every instance but Industrial Era's own (the game's home); not while a game runs.
+    /// Delete…, for every instance but IndustrialEra's own (the game's home); not while a game runs.
     fn delete_button(&self, instance: &Instance, cx: &mut Context<Self>) -> Option<Stateful<Div>> {
         if instance.kind == InstanceKind::Default {
             return None;
@@ -879,7 +879,7 @@ impl Launcher {
             Ok((_, saved)) => {
                 self.instances.confirm_delete = None;
                 self.instances.delete_error = None;
-                // Play starts Industrial Era again; the window's copy of the settings says so too.
+                // Play starts IndustrialEra again; the window's copy of the settings says so too.
                 if self.settings.instance.as_deref() == Some(id) {
                     self.settings.instance = None;
                     self.save_settings();

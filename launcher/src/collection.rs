@@ -188,10 +188,10 @@ impl Launcher {
             .child(
                 text(theme::HEADING)
                     .text_color(t.ink)
-                    .child(tr("Help make Industrial Era faster and steadier?")),
+                    .child(tr("Help make IndustrialEra faster and steadier?")),
             )
             .child(text(theme::UI).text_color(t.muted).child(tr(
-                "Industrial Era can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
+                "IndustrialEra can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
             )))
             .child(
                 div()

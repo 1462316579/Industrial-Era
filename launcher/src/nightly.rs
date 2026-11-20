@@ -1,4 +1,4 @@
-//! Nightly (docs/release-flow.md): the only build Industrial Era ships since 2026-10-28, main plus the pull
+//! Nightly (docs/release-flow.md): the only build IndustrialEra ships since 2026-10-28, main plus the pull
 //! requests the trusted reviewers picked, published as the `nightly` pre-release a few times a day.
 //! Every launcher installs it as its update (`backend::industrial_era_update`), as its own version
 //! `nightly-<date>-<commit>`, beside the player's worlds, which it never touches. Its checksums must
@@ -105,7 +105,7 @@ mod tests {
             name: name.into(),
             body: String::new(),
             date: date.into(),
-            asset: Some(("https://example/industrial-era.zip".into(), 1)),
+            asset: Some(("https://example/industrial_era.zip".into(), 1)),
             prerelease: true,
             nightly: None,
         }

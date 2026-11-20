@@ -75,7 +75,7 @@ impl Build {
         })
     }
 
-    /// The Industrial Era it was built on, as a player reads it (`industrial_era_label`).
+    /// The IndustrialEra it was built on, as a player reads it (`industrial_era_label`).
     pub fn industrial_era(&self) -> String {
         industrial_era_label(&self.base)
     }
@@ -89,7 +89,7 @@ impl Build {
     }
 }
 
-/// A release or Nightly as a player reads it beside "Industrial Era": `v0.2.93` as it is,
+/// A release or Nightly as a player reads it beside "IndustrialEra": `v0.2.93` as it is,
 /// `nightly-2026-10-29-4baa571` as `Nightly 2026-10-29`.
 pub fn industrial_era_label(version: &str) -> String {
     match crate::nightly::date_of(version) {
@@ -183,7 +183,7 @@ fn parse_built(about: &serde_json::Value) -> Vec<Mod> {
 pub fn fingerprint(home: &Path, version: Option<&str>) -> String {
     let mut out = format!("{}\n{version:?}\n", home.display());
     // The on/off list (`browser::java::is_enabled`).
-    out += &fs::read_to_string(home.join("industrial-era-mods.txt")).unwrap_or_default();
+    out += &fs::read_to_string(home.join("industrial_era-mods.txt")).unwrap_or_default();
     for path in hnmods(home)
         .into_iter()
         .flat_map(|p| [p.clone(), p.with_extension("origin.json")])
@@ -240,11 +240,11 @@ mod tests {
                 .join(native_mods::INSTALLED)
                 .join(format!("{file}.hnmod"));
             let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
-            let manifest = serde_json::json!({"schema":1,"id":id,"version":"1.2","game":"26.3","industrial-era":pin,"mixins":pin});
+            let manifest = serde_json::json!({"schema":1,"id":id,"version":"1.2","game":"26.3","industrial_era":pin,"mixins":pin});
             let source = format!("[mod]\nid = \"{id}\"\nversion = \"1.2\"\n[compatibility]\nindustrial_era_revision = \"{pin}\"\n");
             for (name, bytes) in [
-                ("industrial-era-native.json".into(), manifest.to_string()),
-                (format!("mixins/{id}/industrial-era-mixin.toml"), source),
+                ("industrial_era-native.json".into(), manifest.to_string()),
+                (format!("mixins/{id}/industrial_era-mixin.toml"), source),
             ] {
                 zip.start_file(name, zip::write::SimpleFileOptions::default())
                     .unwrap();
@@ -375,7 +375,7 @@ mod tests {
     #[test]
     fn native_mods_json_gives_the_built_mods() {
         let about = serde_json::json!({
-            "base": "v0.1.0", "industrial-era": "abc", "rust": "1.99.1",
+            "base": "v0.1.0", "industrial_era": "abc", "rust": "1.99.1",
             "mods": [{"id": "zoom", "version": "2.1"}, {"id": "x"}, {"id": "y", "version": "1", "sha256": "ab"}],
         });
         assert_eq!(parse_built(&about), [m("zoom", "2.1"), d("y", "1", "ab")]);
@@ -390,7 +390,10 @@ mod tests {
             industrial_era_label("nightly-2026-10-29-4baa571"),
             "Nightly 2026-10-29"
         );
-        assert_eq!(industrial_era_label("nightly-2026-10-29"), "Nightly 2026-10-29");
+        assert_eq!(
+            industrial_era_label("nightly-2026-10-29"),
+            "Nightly 2026-10-29"
+        );
         let build = Build {
             base: "nightly-2026-10-28-0c02067".into(),
         };
@@ -405,9 +408,9 @@ mod tests {
 
     #[test]
     fn only_hnmods_in_the_native_folder_are_native() {
-        assert!(is_native_file("industrial-era-native-mods/veinminer.hnmod"));
-        assert!(!is_native_file("industrial-era-native-mods-old/x.hnmod"));
-        assert!(!is_native_file("industrial-era-mods/zoom.hmod"));
+        assert!(is_native_file("industrial_era-native-mods/veinminer.hnmod"));
+        assert!(!is_native_file("industrial_era-native-mods-old/x.hnmod"));
+        assert!(!is_native_file("industrial_era-mods/zoom.hmod"));
         assert!(!is_native_file("resourcepacks/x.zip"));
     }
 

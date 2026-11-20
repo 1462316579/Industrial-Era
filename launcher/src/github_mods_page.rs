@@ -321,7 +321,7 @@ impl Launcher {
             .p(px(16.))
             .text_size(px(theme::UI.px))
             .text_color(t.ink)
-            .child(caps(tr("Not reviewed by the Industrial Era registry")).text_color(t.danger))
+            .child(caps(tr("Not reviewed by the IndustrialEra registry")).text_color(t.danger))
             .child(what)
             .child(
                 tr("Native mods run with full access to this computer. Read the source before you install it."),
@@ -472,10 +472,13 @@ impl Launcher {
         right = right.child(
             switch(format!("native-switch-{id}"), on, &t).on_click(cx.listener(
                 move |this, _: &ClickEvent, _, cx| {
-                    this.mods.message =
-                        industrial_era_launcher::browser::java::set_enabled(&this.mods.home(), &id, !on)
-                            .err()
-                            .map(Err);
+                    this.mods.message = industrial_era_launcher::browser::java::set_enabled(
+                        &this.mods.home(),
+                        &id,
+                        !on,
+                    )
+                    .err()
+                    .map(Err);
                     this.instance_mods_changed();
                     cx.notify();
                 },

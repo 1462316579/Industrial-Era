@@ -220,7 +220,8 @@ impl Source for Modrinth {
 
     fn project(&self, id: &str) -> Result<Project, String> {
         let p = get(&format!("{API}/project/{}", encode(id)))?;
-        parse_project(&p).ok_or_else(|| format!("Modrinth: {id} is not a pack Industrial Era loads."))
+        parse_project(&p)
+            .ok_or_else(|| format!("Modrinth: {id} is not a pack IndustrialEra loads."))
     }
 
     fn versions(&self, project: &Project) -> Result<Vec<Version>, String> {

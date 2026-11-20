@@ -3,7 +3,7 @@ use std::io::Write;
 
 fn scratch(name: &str) -> PathBuf {
     let root = std::env::temp_dir().join(format!(
-        "industrial-era-launcher-datapacks-{name}-{}",
+        "industrial_era-launcher-datapacks-{name}-{}",
         std::process::id()
     ));
     let _ = fs::remove_dir_all(&root);

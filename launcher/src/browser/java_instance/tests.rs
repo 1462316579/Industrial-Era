@@ -107,7 +107,7 @@ fn target(minecraft: &str, loader: Option<&str>) -> Target {
 
 fn home(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!(
-        "industrial-era-java-instance-{name}-{}",
+        "industrial_era-java-instance-{name}-{}",
         std::process::id()
     ));
     let _ = fs::remove_dir_all(&dir);

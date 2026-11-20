@@ -291,10 +291,10 @@ impl Launcher {
 
     /// The orders the current source can sort by, "Best match" first.
     fn mods_sorts(&self) -> Vec<(Option<Sort>, &'static str)> {
-        let own =
-            self.mods.source == SourceId::IndustrialEra && self.mods.java_for(self.mods.kind).is_none();
+        let own = self.mods.source == SourceId::IndustrialEra
+            && self.mods.java_for(self.mods.kind).is_none();
         let all: &[Sort] = if own {
-            &browser::industrial_era: :SORTS
+            &browser::industrial_era::SORTS
         } else {
             &Sort::ALL
         };
@@ -661,7 +661,7 @@ impl Launcher {
             .child(head);
         // Registry projects are rated on the site, signed in with GitHub (one rating per account).
         if p.source == SourceId::IndustrialEra {
-            let url = browser::industrial_era: :rate_url(&p.id);
+            let url = browser::industrial_era::rate_url(&p.id);
             page = page.child(
                 div()
                     .flex()

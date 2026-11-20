@@ -1,6 +1,6 @@
 //! The Servers page: create a server in one dialog, then start, stop and watch it, give friends its
 //! address, manage who may join, change its settings, back it up and update it, all with buttons. Every
-//! action runs `industrial-era-server` or calls the running server's control API (`industrial_era_launcher::servers`).
+//! action runs `industrial_era-server` or calls the running server's control API (`industrial_era_launcher::servers`).
 use super::line_edit::{self, Key, LineEdit};
 use super::*;
 use industrial_era_launcher::heads;
@@ -330,7 +330,7 @@ pub(super) fn stop_on_quit() {
 }
 
 /// The player's own name, to let them in on a friends-only server: the Microsoft account that plays,
-/// else the name the game made up for them (`industrial-era-player.txt`).
+/// else the name the game made up for them (`industrial_era-player.txt`).
 fn own_name(accounts: &Accounts) -> Option<String> {
     accounts
         .selected()
@@ -359,7 +359,7 @@ fn backup_label(b: &Backup) -> (String, String) {
         "auto" => "Automatic".to_string(),
         "manual" => "Made by hand".to_string(),
         "before-update" => "Before an update".to_string(),
-        // industrial-era-server writes the tag with dashes (before-v2026-10-19-10).
+        // industrial_era-server writes the tag with dashes (before-v2026-10-19-10).
         k if k.starts_with("before-v")
             && k[8..].chars().all(|c| c.is_ascii_digit() || c == '-') =>
         {
@@ -406,7 +406,7 @@ impl Launcher {
         });
     }
 
-    /// `industrial-era-server <args>` on the open server, as a job.
+    /// `industrial_era-server <args>` on the open server, as a job.
     fn server_command(&mut self, label: &str, args: Vec<String>) {
         let Some(dir) = self.servers.open.clone() else {
             return;
@@ -668,7 +668,7 @@ impl Launcher {
         });
     }
 
-    /// Queues a setting for `industrial-era-server config set`; they go one batch at a time.
+    /// Queues a setting for `industrial_era-server config set`; they go one batch at a time.
     fn set_setting(&mut self, key: &str, value: String) {
         self.servers.queued.retain(|(k, _)| k != key);
         self.servers.queued.push((key.to_string(), value));
@@ -751,7 +751,9 @@ impl Launcher {
             Fix::Prepare => match self.selected().cloned() {
                 Some(tag) if backend::is_prepared(&tag) => {
                     self.server_job("Copying the game files", move |log| {
-                        log(format!("Copying the game files prepared for Industrial Era {tag}"));
+                        log(format!(
+                            "Copying the game files prepared for IndustrialEra {tag}"
+                        ));
                         servers::set_up(&tag)
                             .map(|_| "The game files are ready. Press Start again.".to_string())
                             .map_err(Problem::plain)
@@ -1317,8 +1319,8 @@ impl Launcher {
         std::thread::spawn(move || {
             let result = (|| {
                 if servers::program().is_none() {
-                    let tag =
-                        tag.ok_or_else(|| Problem::plain("Install a Industrial Era version first."))?;
+                    let tag = tag
+                        .ok_or_else(|| Problem::plain("Install a IndustrialEra version first."))?;
                     servers::set_up(&tag).map_err(Problem::plain)?;
                 }
                 if !dir.join("server.toml").is_file() {
@@ -2211,7 +2213,7 @@ impl Launcher {
             return div().child(centered(
                 if self.older_horizon() {
                     tr(
-                        "This server's Industrial Era is too old to show its settings here. Update it on \
+                        "This server's IndustrialEra is too old to show its settings here. Update it on \
                      the Backups tab, then they appear.",
                     )
                 } else {
@@ -2488,7 +2490,7 @@ impl Launcher {
         }
         self.setting_row(
             "Delete server",
-            tr("Remove this server from Industrial Era and move its worlds, settings and backups to the trash.").into(),
+            tr("Remove this server from IndustrialEra and move its worlds, settings and backups to the trash.").into(),
             controls.into_any_element(),
         )
         .items_start()
@@ -2554,13 +2556,13 @@ impl Launcher {
         });
         let about = match (&available, &check, &status.update_last) {
             (Some(tag), _, _) => trf(
-                "Update available: Industrial Era {tag} (this server runs {release}). Updating backs up \
+                "Update available: IndustrialEra {tag} (this server runs {release}). Updating backs up \
                  the world first, and goes back by itself if the new version doesn't start.",
                 &[("tag", tag), ("release", &release)],
             ),
-            (None, Some(_), _) => trf("Up to date: Industrial Era {release}.", &[("release", &release)]),
-            (None, None, Some((last, _))) => format!("Industrial Era {release}. {last}"),
-            (None, None, None) => format!("Industrial Era {release}."),
+            (None, Some(_), _) => trf("Up to date: IndustrialEra {release}.", &[("release", &release)]),
+            (None, None, Some((last, _))) => format!("IndustrialEra {release}. {last}"),
+            (None, None, None) => format!("IndustrialEra {release}."),
         };
         let control = match available {
             Some(tag) => {
@@ -2570,7 +2572,7 @@ impl Launcher {
                         this.servers.update = None;
                         if let Some(dir) = this.servers.open.clone() {
                             let done = format!(
-                                "Updated to Industrial Era {tag}. The world was backed up first (Backups)."
+                                "Updated to IndustrialEra {tag}. The world was backed up first (Backups)."
                             );
                             this.server_job(format!("Updating to {tag}"), move |log| {
                                 servers::run_streamed(&dir, &["update"], log).map(|_| done)
@@ -2614,7 +2616,11 @@ impl Launcher {
             .flex_col()
             .border_t_1()
             .border_color(t.rule)
-            .child(self.setting_row("This server's Industrial Era", about, control.into_any_element()));
+            .child(self.setting_row(
+                "This server's IndustrialEra",
+                about,
+                control.into_any_element(),
+            ));
         if self.servers.setting("updates", "keep").is_some() {
             rows = rows.child(self.setting_row(
                 "Older versions kept",
@@ -2632,7 +2638,7 @@ impl Launcher {
             .child(rows)
     }
 
-    /// The server's details came back without its settings: its industrial-era-server predates
+    /// The server's details came back without its settings: its industrial_era-server predates
     /// `config` (and `backups --json`).
     fn older_horizon(&self) -> bool {
         self.servers.service.is_some() && self.servers.config.is_none()
@@ -2742,7 +2748,7 @@ impl Launcher {
         if self.older_horizon() {
             return tab
                 .child(text(theme::UI).text_color(t.muted).child(tr(
-                    "This server's Industrial Era is too old to list its backups here: they're in its \
+                    "This server's IndustrialEra is too old to list its backups here: they're in its \
                      backups folder. Update it below.",
                 )))
                 .child(self.updates_section(status, cx));

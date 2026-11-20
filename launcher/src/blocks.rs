@@ -22,7 +22,9 @@ impl gpui::AssetSource for Assets {
         let name = path
             .strip_prefix("icons/")
             .and_then(|p| p.strip_suffix(".svg"));
-        Ok(name.and_then(industrial_era_theme::icons::get).map(Cow::Borrowed))
+        Ok(name
+            .and_then(industrial_era_theme::icons::get)
+            .map(Cow::Borrowed))
     }
 
     fn list(&self, _path: &str) -> gpui::Result<Vec<SharedString>> {

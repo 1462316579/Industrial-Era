@@ -209,23 +209,23 @@ fn mixin(id: &str, pin: bool) -> String {
 fn mod_folders_are_found_wherever_they_are_and_not_searched_inside() {
     let root = tree("find");
     write(
-        &root.join("native/zoom/industrial-era-mixin.toml"),
+        &root.join("native/zoom/industrial_era-mixin.toml"),
         &mixin("zoom", true),
     );
     write(
-        &root.join("native/zoom/src/industrial-era-mixin.toml"),
+        &root.join("native/zoom/src/industrial_era-mixin.toml"),
         &mixin("inner", true),
     );
     write(
-        &root.join("native/keys/industrial-era-mixin.toml"),
+        &root.join("native/keys/industrial_era-mixin.toml"),
         &mixin("keys", true),
     );
     write(
-        &root.join("target/debug/industrial-era-mixin.toml"),
+        &root.join("target/debug/industrial_era-mixin.toml"),
         &mixin("built", true),
     );
     write(
-        &root.join(".git/x/industrial-era-mixin.toml"),
+        &root.join(".git/x/industrial_era-mixin.toml"),
         &mixin("hidden", true),
     );
     let ids: Vec<String> = find_mods(&root)
@@ -241,7 +241,10 @@ fn mod_folders_are_found_wherever_they_are_and_not_searched_inside() {
 #[test]
 fn a_mod_folder_packs_into_a_bundle_the_registry_checks_accept() {
     let root = tree("pack");
-    write(&root.join("industrial-era-mixin.toml"), &mixin("zoom", true));
+    write(
+        &root.join("industrial_era-mixin.toml"),
+        &mixin("zoom", true),
+    );
     write(&root.join("src/zoom.rs"), "pub fn f() {}");
     write(&root.join("data/a.json"), "{}");
     write(&root.join("README.md"), "# Zoom");
@@ -274,7 +277,10 @@ fn a_mod_folder_packs_into_a_bundle_the_registry_checks_accept() {
 #[test]
 fn a_mod_with_no_pinned_industrial_era_commit_is_refused_with_the_fix() {
     let root = tree("unpinned");
-    write(&root.join("industrial-era-mixin.toml"), &mixin("zoom", false));
+    write(
+        &root.join("industrial_era-mixin.toml"),
+        &mixin("zoom", false),
+    );
     let err = pack(&find_mods(&root).unwrap()[0]).unwrap_err();
     assert!(err.contains("industrial_era_revision"), "{err}");
     let _ = fs::remove_dir_all(root);
@@ -285,11 +291,14 @@ fn an_unpacked_hnmod_keeps_its_pins_and_hook_points_and_ships_only_sources() {
     let root = tree("unpacked");
     let manifest = json!({
         "schema": 1, "id": "zoom", "version": "0.1.0", "game": "26.3",
-        "industrial-era": SHA, "mixins": SHA2, "hooks": 3,
+        "industrial_era": SHA, "mixins": SHA2, "hooks": 3,
     });
-    write(&root.join("industrial-era-native.json"), &manifest.to_string());
     write(
-        &root.join("mixins/zoom/industrial-era-mixin.toml"),
+        &root.join("industrial_era-native.json"),
+        &manifest.to_string(),
+    );
+    write(
+        &root.join("mixins/zoom/industrial_era-mixin.toml"),
         &mixin("zoom", true),
     );
     let bundle = &find_mods(&root).unwrap()[0];
@@ -310,13 +319,13 @@ fn an_unpacked_hnmod_keeps_its_pins_and_hook_points_and_ships_only_sources() {
     assert_eq!(again.sha256, packed.sha256);
     // A manifest and a mixin file that pin different commits are refused when found.
     write(
-        &root.join("mixins/zoom/industrial-era-mixin.toml"),
+        &root.join("mixins/zoom/industrial_era-mixin.toml"),
         &format!(
             "{}[compatibility]\nindustrial_era_revision = \"{SHA2}\"\n",
             mixin("zoom", false)
         ),
     );
-    assert!(find_mods(&root).unwrap_err().contains("pins Industrial Era"));
+    assert!(find_mods(&root).unwrap_err().contains("pins IndustrialEra"));
     let _ = fs::remove_dir_all(root);
 }
 
@@ -344,7 +353,10 @@ fn several_mods_list_and_ask_which() {
 fn installing_records_the_origin_and_updates_follow_releases_or_the_head() {
     let home = tree("install");
     let source = tree("install-src");
-    write(&source.join("industrial-era-mixin.toml"), &mixin("zoom", true));
+    write(
+        &source.join("industrial_era-mixin.toml"),
+        &mixin("zoom", true),
+    );
     let bytes = pack(&find_mods(&source).unwrap()[0]).unwrap();
     let ready = checked(&bytes, &source.join("out")).unwrap();
     let found = Resolved {

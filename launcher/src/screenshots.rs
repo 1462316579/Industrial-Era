@@ -66,8 +66,10 @@ mod tests {
 
     #[test]
     fn lists_pictures_newest_first() {
-        let home =
-            std::env::temp_dir().join(format!("industrial-era-launcher-shots-{}", std::process::id()));
+        let home = std::env::temp_dir().join(format!(
+            "industrial_era-launcher-shots-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&home);
         let dir = folder(&home);
         fs::create_dir_all(dir.join("not-a-picture.png")).unwrap();

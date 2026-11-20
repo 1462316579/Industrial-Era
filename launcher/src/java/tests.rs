@@ -2,7 +2,8 @@
 use super::*;
 
 fn scratch(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("industrial-era-java-{name}-{}", std::process::id()));
+    let dir =
+        std::env::temp_dir().join(format!("industrial_era-java-{name}-{}", std::process::id()));
     let _ = fs::remove_dir_all(&dir);
     dir
 }

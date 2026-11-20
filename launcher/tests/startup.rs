@@ -10,12 +10,13 @@ use std::{
 };
 
 fn fixture() -> PathBuf {
-    let root = std::env::temp_dir().join(format!("industrial-era-startup-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!("industrial_era-startup-{}", std::process::id()));
     for folder in ["game/telemetry", "launcher", "data", "config", "probes"] {
         fs::create_dir_all(root.join(folder)).unwrap();
     }
     fs::write(root.join("launcher/settings.json"), r#"{"skip_opening":true,"install_new_versions":false,"desktop_entry":false,"ping_notice_seen":true}"#).unwrap();
-    let consent = serde_json::json!({"version":industrial_era_telemetry::CONSENT_VERSION,"choices":{}});
+    let consent =
+        serde_json::json!({"version":industrial_era_telemetry::CONSENT_VERSION,"choices":{}});
     fs::write(
         root.join("game/telemetry/consent.json"),
         consent.to_string(),

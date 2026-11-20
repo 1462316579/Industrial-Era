@@ -1,7 +1,7 @@
 //! Imported modpacks, on the Mods page's Modpacks tab: import a pack, read its coverage report,
 //! port what this computer can and play it as its own profile (`industrial_era_launcher::modpacks`).
 use super::*;
-use industrial_era_launcher::browser::industrial_era: :pack as industrial_era_pack;
+use industrial_era_launcher::browser::industrial_era::pack as industrial_era_pack;
 use industrial_era_launcher::modpacks::{self, Imported};
 use industrial_era_port_pack::report::Status;
 use std::path::PathBuf;
@@ -171,7 +171,7 @@ impl Launcher {
             .child(pick("import-folder", "Import an instance folder…", true))
             .child(text(theme::CAPTION).w_full().text_color(t.muted).child(tr(
                 ".mrpack (Modrinth), .zip (CurseForge), or a Prism, MultiMC or CurseForge instance. \
-                 Industrial Era ports what it can on this computer, from your own downloads, and plays \
+                 IndustrialEra ports what it can on this computer, from your own downloads, and plays \
                  the pack as its own profile. Nothing is uploaded or shared.",
             )));
         let mut page = div()
@@ -229,7 +229,7 @@ impl Launcher {
         }
     }
 
-    /// The modpacks installed from Industrial Era's registry: each plays its own profile.
+    /// The modpacks installed from IndustrialEra's registry: each plays its own profile.
     fn registry_pack_rows(&self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let mut list = div().flex().flex_col();
@@ -281,7 +281,7 @@ impl Launcher {
                     )),
                 );
             let detail = trf(
-                "{version} from Industrial Era's registry, its own profile: {mods}",
+                "{version} from IndustrialEra's registry, its own profile: {mods}",
                 &[("version", &p.version), ("mods", &p.mods.join(", "))],
             );
             list = list.child(index_row(
@@ -451,7 +451,7 @@ impl Launcher {
             notes.push(trf("Left off: {line}.", &[("line", line)]));
         }
         if !can_play {
-            notes.push(tr("Playing needs a prepared Industrial Era version (Play page).").into());
+            notes.push(tr("Playing needs a prepared IndustrialEra version (Play page).").into());
         }
         let mut rows: Vec<&industrial_era_port_pack::report::Row> = p
             .rows

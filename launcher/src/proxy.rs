@@ -3,14 +3,14 @@
 //! `proxy` in `settings.json`) wins; without it the usual `HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY`
 //! and `NO_PROXY` variables apply, so a launcher started from a shell that has them needs nothing.
 //!
-//! What goes through it: Industrial Era's releases and the launcher's own update, Minecraft's files and
-//! Java from Mojang, Modrinth, CurseForge, Industrial Era's mod registry, pictures, Microsoft sign-in,
+//! What goes through it: IndustrialEra's releases and the launcher's own update, Minecraft's files and
+//! Java from Mojang, Modrinth, CurseForge, IndustrialEra's mod registry, pictures, Microsoft sign-in,
 //! Tailscale's API, and the jars a modpack import downloads. A local address never does, and the
 //! Servers page's calls to a game server's API (`servers.rs`) build their agent without it: they
 //! are on loopback and asked every second.
 //!
-//! Which hosts are reached directly, and how an address is read, are `industrial-era-port-pack`'s rules
-//! (`crates/industrial-era-port-pack/src/net.rs`): the jars an import fetches are downloaded there, and
+//! Which hosts are reached directly, and how an address is read, are `industrial_era-port-pack`'s rules
+//! (`crates/industrial_era-port-pack/src/net.rs`): the jars an import fetches are downloaded there, and
 //! the same hosts have to be left alone on both sides. This module adds what is the launcher's
 //! own — the setting in `settings.json`, kept in memory so a request doesn't read the file — and
 //! hands the address to the parts that build their agents.
@@ -53,7 +53,7 @@ pub fn refuse(spec: &str) -> Option<String> {
     }
     if industrial_era_port_pack::net::socks(spec) {
         return Some(format!(
-            "{} is a SOCKS proxy; Industrial Era downloads through an HTTP proxy, such as the \
+            "{} is a SOCKS proxy; IndustrialEra downloads through an HTTP proxy, such as the \
              http:// address your proxy app also listens on.",
             industrial_era_port_pack::net::redacted(spec)
         ));
@@ -71,7 +71,7 @@ pub fn refuse(spec: &str) -> Option<String> {
     None
 }
 
-/// Tells the parts that build their own agents (`industrial-era-port-pack`) which proxy to use, and keeps
+/// Tells the parts that build their own agents (`industrial_era-port-pack`) which proxy to use, and keeps
 /// the setting for the launcher's own requests. Called with what `settings.json` holds: at start,
 /// and whenever the player changes the setting.
 ///
@@ -140,7 +140,7 @@ mod tests {
         assert!(refuse("socks5://127.0.0.1:7891").is_some());
     }
 
-    /// The reason is shown under the field and printed by `industrial-era-launcher settings set`.
+    /// The reason is shown under the field and printed by `industrial_era-launcher settings set`.
     #[test]
     fn a_refused_address_keeps_its_credentials_to_itself() {
         let why = refuse("socks5://user:secret@127.0.0.1:7891").unwrap();

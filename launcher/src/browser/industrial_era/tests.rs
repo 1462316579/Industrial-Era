@@ -1,9 +1,9 @@
 //! The registry source against the sample index of `industrial_era_mods::index`
-//! (`crates/industrial-era-mods/tests/index/`), its files served from disk.
+//! (`crates/industrial_era-mods/tests/index/`), its files served from disk.
 use super::*;
 
 fn fixtures() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial-era-mods/tests/index")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial_era-mods/tests/index")
 }
 
 /// The sample index with its files on disk, as a local test registry lists them.
@@ -21,7 +21,7 @@ fn sample() -> Index {
 
 fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!(
-        "industrial-era-launcher-registry-{name}-{}",
+        "industrial_era-launcher-registry-{name}-{}",
         std::process::id()
     ));
     let _ = fs::remove_dir_all(&dir);
@@ -50,25 +50,28 @@ fn native_registry_entries_are_mods_that_say_they_run_native_code() {
     assert!(found.iter().any(|p| p.id == index.projects[0].id));
     let entry = |file: &str| {
         serde_json::from_value::<installed::Entry>(serde_json::json!({
-            "source": "industrial-era", "project": "p", "slug": "p", "title": "P", "kind": "mod",
+            "source": "industrial_era", "project": "p", "slug": "p", "title": "P", "kind": "mod",
             "version": "1", "number": "1", "file": file, "checksum": "", "page": ""
         }))
         .unwrap()
     };
     assert_eq!(
-        mod_id(&entry("industrial-era-native-mods/veinminer.hnmod")),
+        mod_id(&entry("industrial_era-native-mods/veinminer.hnmod")),
         Some("veinminer")
     );
-    assert_eq!(mod_id(&entry("industrial-era-mods/zoom.hmod")), Some("zoom"));
+    assert_eq!(
+        mod_id(&entry("industrial_era-mods/zoom.hmod")),
+        Some("zoom")
+    );
 }
 
 #[test]
 fn only_horizons_own_projects_go_without_the_not_endorsed_line() {
     let mut p = sample().projects[0].clone();
-    p.authors = vec!["Industrial Era".into()];
-    p.source = "https://github.com/industrial-era-rust/industrial-era-mod-zoom".into();
+    p.authors = vec!["IndustrialEra".into()];
+    p.source = "https://github.com/industrial_era-rust/industrial_era-mod-zoom".into();
     assert!(official(&p));
-    p.source = "https://github.com/someone/industrial-era-mod-zoom".into();
+    p.source = "https://github.com/someone/industrial_era-mod-zoom".into();
     assert!(!official(&p), "the name alone doesn't make it official");
     p.authors = vec!["levzzz5154".into()];
     assert!(!official(&p));
@@ -145,12 +148,12 @@ fn installs_checked_turns_on_and_removes() {
     let e = install_from(&index, true, None, &p, &home, &|_, _| {}).unwrap_err();
     assert_eq!(e, format!("Coordinates HUD {NEEDS_PORT}."));
     let done = put(&index, true, &home).unwrap();
-    assert_eq!(done[0].file, "industrial-era-mods/coords_hud.hmod");
+    assert_eq!(done[0].file, "industrial_era-mods/coords_hud.hmod");
     assert_eq!(done[0].skipped, [format!("its code ({NEEDS_PORT})")]);
     assert_eq!(done[0].verdict.as_deref(), Some("Verified"));
     assert!(done[0].checksum.starts_with("SHA-256:e1135345"));
-    assert!(home.join("industrial-era-mods/coords_hud.hmod").is_file());
-    let list = fs::read_to_string(home.join("industrial-era-mods.txt")).unwrap();
+    assert!(home.join("industrial_era-mods/coords_hud.hmod").is_file());
+    let list = fs::read_to_string(home.join("industrial_era-mods.txt")).unwrap();
     assert_eq!(list, "mod.coords_hud:true\n");
     assert_eq!(
         fs::read_dir(home.join("mod-browser/downloads"))
@@ -172,33 +175,35 @@ fn installs_checked_turns_on_and_removes() {
     let said = turn_off_revoked(&revoked, &home);
     assert_eq!(said, ["Coordinates HUD was taken down and is off: Test."]);
     assert_eq!(
-        fs::read_to_string(home.join("industrial-era-mods.txt")).unwrap(),
+        fs::read_to_string(home.join("industrial_era-mods.txt")).unwrap(),
         ""
     );
 
     installed::remove(&home, "coords_hud").unwrap();
-    assert!(!home.join("industrial-era-mods/coords_hud.hmod").exists());
+    assert!(!home.join("industrial_era-mods/coords_hud.hmod").exists());
     assert!(installed::Installed::load(&home).entries.is_empty());
     fs::remove_dir_all(&home).unwrap();
 }
 
 #[test]
 fn a_mod_that_turned_native_keeps_its_hmod_until_removed() {
-    assert!(stays(true, "industrial-era-mods/coords_hud.hmod"));
-    assert!(!stays(false, "industrial-era-mods/coords_hud.hmod"));
-    assert!(!stays(true, "industrial-era-native-mods/coords_hud.hnmod"));
+    assert!(stays(true, "industrial_era-mods/coords_hud.hmod"));
+    assert!(!stays(false, "industrial_era-mods/coords_hud.hmod"));
+    assert!(!stays(true, "industrial_era-native-mods/coords_hud.hnmod"));
     let index = sample();
     let home = scratch("turned-native");
     put(&index, true, &home).unwrap();
     // As install_version leaves it after the native update.
     let mut list = installed::Installed::load(&home);
-    list.entries[0].file = "industrial-era-native-mods/coords_hud.hnmod".into();
+    list.entries[0].file = "industrial_era-native-mods/coords_hud.hnmod".into();
     list.save(&home).unwrap();
-    fs::create_dir_all(home.join("industrial-era-native-mods")).unwrap();
-    fs::write(home.join("industrial-era-native-mods/coords_hud.hnmod"), "").unwrap();
+    fs::create_dir_all(home.join("industrial_era-native-mods")).unwrap();
+    fs::write(home.join("industrial_era-native-mods/coords_hud.hnmod"), "").unwrap();
     installed::remove(&home, "coords_hud").unwrap();
-    assert!(!home.join("industrial-era-native-mods/coords_hud.hnmod").exists());
-    assert!(!home.join("industrial-era-mods/coords_hud.hmod").exists());
+    assert!(!home
+        .join("industrial_era-native-mods/coords_hud.hnmod")
+        .exists());
+    assert!(!home.join("industrial_era-mods/coords_hud.hmod").exists());
     fs::remove_dir_all(&home).unwrap();
 }
 
@@ -212,8 +217,8 @@ fn installs_a_shader_pack_into_shaderpacks() {
     assert_eq!(done[0].file, "shaderpacks/glow-1.0.0.hshader");
     assert_eq!(done[0].kind, Kind::Shader);
     assert!(home.join("shaderpacks/glow-1.0.0.hshader").is_file());
-    // Not a mod: nothing turns on in industrial-era-mods.txt; the game's Shader Packs page picks it.
-    assert!(!home.join("industrial-era-mods.txt").exists());
+    // Not a mod: nothing turns on in industrial_era-mods.txt; the game's Shader Packs page picks it.
+    assert!(!home.join("industrial_era-mods.txt").exists());
 
     let mut revoked = index.clone();
     revoked.revoked.push(index::Revoked {
@@ -247,14 +252,14 @@ fn refuses_a_changed_file_a_taken_id_and_local_files_from_the_real_registry() {
     tampered.projects[0].versions[0].file.url = cozy;
     let e = put(&tampered, true, &home).unwrap_err();
     assert!(e.contains("larger than its source says"), "{e}");
-    assert!(!home.join("industrial-era-mods").exists());
+    assert!(!home.join("industrial_era-mods").exists());
 
     let e = put(&index, false, &home).unwrap_err();
     assert!(e.contains("file servers"), "{e}");
 
-    fs::create_dir_all(home.join("industrial-era-mods/coords_hud")).unwrap();
+    fs::create_dir_all(home.join("industrial_era-mods/coords_hud")).unwrap();
     let e = put(&index, true, &home).unwrap_err();
-    assert!(e.contains("already in industrial-era-mods"), "{e}");
+    assert!(e.contains("already in industrial_era-mods"), "{e}");
 
     let mut taken_down = index.clone();
     taken_down.revoked.push(index::Revoked {
@@ -273,8 +278,11 @@ fn registry_versions_run_when_made_for_this_game() {
     use super::super::{pick, support, Support};
     let v = |game: &str| vec![game.to_owned()];
     let industrial_era = vec![LOADER.to_owned()];
-    assert_eq!(support(Kind::Mod, &v(GAME), &industrial-era), Support::Works);
-    assert!(!support(Kind::Mod, &v("26.2"), &industrial-era).installable());
+    assert_eq!(
+        support(Kind::Mod, &v(GAME), &industrial_era),
+        Support::Works
+    );
+    assert!(!support(Kind::Mod, &v("26.2"), &industrial_era).installable());
     let index = sample();
     let versions = |id: &str| -> Vec<Version> {
         let p = index.project(id).unwrap();
@@ -323,7 +331,7 @@ fn versions_for_a_newer_industrial_era_are_not_installed() {
     let e = newest(&index, p, Some(0)).unwrap_err();
     assert_eq!(
         e,
-        "Coordinates HUD needs a newer Industrial Era than the game you play: update it first."
+        "Coordinates HUD needs a newer IndustrialEra than the game you play: update it first."
     );
     assert!(newest(&index, p, Some(1)).is_ok());
     assert!(newest(&index, p, None).is_ok());

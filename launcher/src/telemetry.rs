@@ -22,7 +22,7 @@ pub const SWITCHES: [(Kind, &str, &str); 4] = [
     (
         Kind::Crash,
         "Crash reports",
-        "When the game crashes: the error, where in Industrial Era's code it happened, your graphics adapter and settings. No log, no world or server, no user name in paths.",
+        "When the game crashes: the error, where in IndustrialEra's code it happened, your graphics adapter and settings. No log, no world or server, no user name in paths.",
     ),
     (
         Kind::Bug,
@@ -43,9 +43,9 @@ pub const NEVER: &str = "Never sent: your account name or UUID, world names, ser
 /// decision, 2026-10-22: count everyone, and tell them). Shown on the first-run question, in
 /// Settings, and once on the Play page to players who answered before it existed.
 pub const PING_NAME: &str = "\"I'm playing\" ping";
-pub const PING: &str = "While you play, the game sends an anonymous \"I'm playing\" ping once a minute, so the launcher can show how many people play Industrial Era right now. It holds: a random number made when the game starts and forgotten when it closes, the Industrial Era version, your OS (Linux, macOS or Windows), and whether you have a world open to LAN or friends. It doesn't hold: your account, your install ID, world or server names, or anything you do in the game, and the server doesn't keep your IP address. It is sent whatever the switches say.";
+pub const PING: &str = "While you play, the game sends an anonymous \"I'm playing\" ping once a minute, so the launcher can show how many people play IndustrialEra right now. It holds: a random number made when the game starts and forgotten when it closes, the IndustrialEra version, your OS (Linux, macOS or Windows), and whether you have a world open to LAN or friends. It doesn't hold: your account, your install ID, world or server names, or anything you do in the game, and the server doesn't keep your IP address. It is sent whatever the switches say.";
 
-/// How many play Industrial Era now (exact), if the server says.
+/// How many play IndustrialEra now (exact), if the server says.
 pub fn playing_now() -> Option<u64> {
     let endpoint = industrial_era_telemetry::endpoint()?;
     industrial_era_telemetry::live::fetch(&endpoint)
@@ -172,8 +172,8 @@ pub fn preview() -> (String, String) {
             "v2026.10.15",
             Payload::Crash(Crash {
                 system: system.clone(),
-                error: "panicked at crates/industrial-era-client/src/game.rs:120:9: …".into(),
-                stack: "industrial_era_client::game::Game::tick (crates/industrial-era-client/src/game.rs:120:9)"
+                error: "panicked at crates/industrial_era-client/src/game.rs:120:9: …".into(),
+                stack: "industrial_era_client::game::Game::tick (crates/industrial_era-client/src/game.rs:120:9)"
                     .into(),
                 thread: "Render thread".into(),
                 details: vec![("Graphics".into(), "Apple M4 Pro (Metal)".into())],
@@ -430,8 +430,8 @@ mod tests {
             Some("https://playhorizon.dev/stats")
         );
         assert_eq!(
-            stats_url("https://example.org/industrial-era/").as_deref(),
-            Some("https://example.org/industrial-era/stats")
+            stats_url("https://example.org/industrial_era/").as_deref(),
+            Some("https://example.org/industrial_era/stats")
         );
         assert_eq!(stats_url(""), None);
         assert_eq!(stats_url("javascript:alert(1)"), None);

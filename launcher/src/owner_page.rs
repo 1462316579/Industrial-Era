@@ -68,11 +68,11 @@ impl Launcher {
                     .child(tr("Sign in to play").to_string()),
             )
             .child(line(
-                "Industrial Era needs a Microsoft account that owns Minecraft: Java Edition, like other launchers.",
+                "IndustrialEra needs a Microsoft account that owns Minecraft: Java Edition, like other launchers.",
                 n.ink_soft,
             ))
             .child(line(
-                "No Minecraft install needed: Industrial Era downloads it from Mojang for your account.",
+                "No Minecraft install needed: IndustrialEra downloads it from Mojang for your account.",
                 n.ink_soft,
             ))
             .child(line(

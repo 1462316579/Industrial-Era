@@ -100,7 +100,8 @@ impl Launcher {
                 line(tr("Asking Mojang for its versions…").into(), ink::QUIET),
             ),
             VersionList::Failed(e) => list_box("mc-versions", 264.).child(
-                line(e.clone(), ink::FULL).text_color(ui::color(industrial_era_theme::glass::DANGER)),
+                line(e.clone(), ink::FULL)
+                    .text_color(ui::color(industrial_era_theme::glass::DANGER)),
             ),
             VersionList::Ready(versions) => {
                 let rows: Vec<_> = versions

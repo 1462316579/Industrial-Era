@@ -20,7 +20,7 @@ pub(super) enum HomeMenu {
 }
 
 impl Launcher {
-    /// The head: what Home shows above its tabs. `tag`: the Industrial Era version it plays (empty for a
+    /// The head: what Home shows above its tabs. `tag`: the IndustrialEra version it plays (empty for a
     /// Java instance); `prepared`: whether that version's files are ready.
     pub(super) fn glass_home_head(
         &mut self,
@@ -233,7 +233,8 @@ impl Launcher {
             (Some(p), _, _) => Some((tr("Updating"), Some(p))),
             (_, true, _) => Some((
                 tr("Preparing"),
-                industrial_era_launcher::mojang::progress().map(|(d, n)| d as f32 / n.max(1) as f32),
+                industrial_era_launcher::mojang::progress()
+                    .map(|(d, n)| d as f32 / n.max(1) as f32),
             )),
             (_, _, Some(_)) => Some((tr("Starting"), None)),
             _ => None,
@@ -389,7 +390,8 @@ impl Launcher {
                         "Stay on {version}",
                         &[(
                             "version",
-                            &industrial_era_launcher::nightly::label(tag).unwrap_or(tag.to_string()),
+                            &industrial_era_launcher::nightly::label(tag)
+                                .unwrap_or(tag.to_string()),
                         )],
                     ),
                     locked || !ready,
@@ -579,7 +581,7 @@ impl Launcher {
     }
 
     /// The folder button and its ⋯ (`FolderGroup`), which shows under the pointer or while its
-    /// menu is open: the instance's folder, its screenshots, and (Industrial Era) the Minecraft folder.
+    /// menu is open: the instance's folder, its screenshots, and (IndustrialEra) the Minecraft folder.
     fn folder_group(&self, industrial_era: bool, cx: &mut Context<Self>) -> Option<Div> {
         let t = self.theme;
         let instance = self.selected_instance()?;
@@ -664,7 +666,7 @@ impl Launcher {
                     Some(shots),
                 ),
             ];
-            if industrial-era {
+            if industrial_era {
                 items.push((
                     "folder-minecraft",
                     tr("Choose the Minecraft folder"),
@@ -788,5 +790,5 @@ enum PlayItem {
 
 /// The command that plays instance `id` without the window, as its desktop shortcut runs it.
 fn launch_command(id: &str) -> String {
-    format!("industrial-era-launcher play --instance {id}")
+    format!("industrial_era-launcher play --instance {id}")
 }

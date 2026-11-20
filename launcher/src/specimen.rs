@@ -101,7 +101,7 @@ pub fn render(t: &Theme) -> Div {
         .flex_col()
         .gap(px(14.))
         .w(px(600.))
-        .child(mono(muted).child("industrial-era-theme · night · Bricolage Grotesque"))
+        .child(mono(muted).child("industrial_era-theme · night · Bricolage Grotesque"))
         .child(text(night::DISPLAY, ink).child("Survival with friends"))
         .child(text(night::TITLE, ink).child("Java · Fabric 0.16.9 · 142 mods"))
         .child(
@@ -109,7 +109,7 @@ pub fn render(t: &Theme) -> Div {
                 .child("Downloads 26.3 and Java 21, about 600 MB. Cancel any time: it picks up where it stopped."),
         )
         .child(text(night::CAPTION, muted).child("Last played 2 hours ago · 41 h in total · world “Spring Valley”"))
-        .child(mono(muted).child("~/Library/Application Support/industrial-era/instances/survival-with-friends"))
+        .child(mono(muted).child("~/Library/Application Support/industrial_era/instances/survival-with-friends"))
         .child(weights)
         .child(text(night::UI, ink_soft).child("Zürich · Łódź · Ærøskøbing · Brașov · Ça va · 0123456789"))
         .child(

@@ -41,8 +41,8 @@ fn measure(rows: &Rc<RefCell<HashMap<String, Bounds<Pixels>>>>, id: String) -> i
 }
 
 impl Launcher {
-    /// An instance's icon (`InstanceIcon`), `size` square with no frame: Industrial Era's mark tile for
-    /// Industrial Era's own instance; else its picture or the block chosen for it, round at 26 %; else
+    /// An instance's icon (`InstanceIcon`), `size` square with no frame: IndustrialEra's mark tile for
+    /// IndustrialEra's own instance; else its picture or the block chosen for it, round at 26 %; else
     /// its loader's or Minecraft's mark; else its initial on its colour (the accent when none was
     /// chosen), as `ColorTile` draws it.
     pub(super) fn glass_instance_icon(&mut self, i: &Instance, size: f32) -> AnyElement {
@@ -148,7 +148,7 @@ impl Launcher {
                     summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
                 )
             }
-            InstanceKind::Pack => (Tone::Off, tr("From Industrial Era's registry").into()),
+            InstanceKind::Pack => (Tone::Off, tr("From IndustrialEra's registry").into()),
         }
     }
 
@@ -902,7 +902,7 @@ impl Launcher {
                     },
                 )),
             );
-        // Industrial Era's own instance can't be deleted, nor one while a game runs.
+        // IndustrialEra's own instance can't be deleted, nor one while a game runs.
         let can_delete = instance.kind != InstanceKind::Default
             && self.client.is_none()
             && self.starting_client.is_none();

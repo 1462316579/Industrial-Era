@@ -1,14 +1,14 @@
-//! The Mods page: search Industrial Era's own registry for mods and shader packs made for Industrial Era, or
+//! The Mods page: search IndustrialEra's own registry for mods and shader packs made for IndustrialEra, or
 //! Modrinth for resource packs (a Java instance's mods too), see where each comes
-//! from and how well it runs (a Java mod's jar is checked first; a Industrial Era mod says whether it is
-//! signed and what it may do), install it with its checksum checked, turn Industrial Era mods on and
+//! from and how well it runs (a Java mod's jar is checked first; a IndustrialEra mod says whether it is
+//! signed and what it may do), install it with its checksum checked, turn IndustrialEra mods on and
 //! off, and update or remove what was installed (`industrial_era_launcher::browser`). Imported modpacks
 //! are listed on its Modpacks tab.
 use super::line_edit::{self, Key, LineEdit};
 use super::*;
 use industrial_era_launcher::browser::{
-    self, industrial-era, installed, java, java_instance, Kind as PackKind, Project, Query, SourceId,
-    Support,
+    self, industrial_era, installed, java, java_instance, Kind as PackKind, Project, Query,
+    SourceId, Support,
 };
 use industrial_era_launcher::modpacks;
 use industrial_era_launcher::native_status;
@@ -25,7 +25,7 @@ const KINDS: [(PackKind, &str, &str); 5] = [
     (PackKind::Shader, "Shader packs", "zap"),
     (PackKind::DataPack, "Data packs", "notes"),
 ];
-/// The kinds with a tab: Industrial Era's registry's, and Modrinth's resource packs. Modrinth's mods and
+/// The kinds with a tab: IndustrialEra's registry's, and Modrinth's resource packs. Modrinth's mods and
 /// data packs aren't usable yet; the Modpacks tab shows while the sidebar has it open.
 const SHOWN: [PackKind; 3] = [PackKind::Mod, PackKind::ResourcePack, PackKind::Shader];
 /// Java mods checked at once.
@@ -33,7 +33,7 @@ const CHECKING: usize = 2;
 /// The sources to pick from on the Resource packs and Modpacks tabs; CurseForge is shown beside them as coming soon.
 const SOURCES: [(SourceId, &str); 2] = [
     (SourceId::Modrinth, "Modrinth"),
-    (SourceId::IndustrialEra, "Industrial Era"),
+    (SourceId::IndustrialEra, "IndustrialEra"),
 ];
 const PAGE: usize = 20;
 
@@ -45,7 +45,7 @@ pub(super) enum Event {
     Updates(HashMap<(SourceId, String), String>),
     /// A Java mod's check: its jar read, or why it couldn't be.
     Checked((SourceId, String), Result<Box<Check>, String>),
-    /// What a Industrial Era registry project says before install: signed or not, what it may do.
+    /// What a IndustrialEra registry project says before install: signed or not, what it may do.
     About(HashMap<String, Vec<String>>),
     /// Registry files taken down that the launcher turned off.
     TakenDown(Vec<String>),
@@ -102,7 +102,7 @@ pub(super) struct Mods {
     native_files: std::cell::RefCell<Option<(String, Vec<native_status::Installed>)>>,
     /// Java mods' checks, by source and project.
     pub(super) checks: HashMap<(SourceId, String), Checking>,
-    /// Industrial Era registry projects' trust and capabilities, by id ([`industrial_era: :trust_and_capabilities`]).
+    /// IndustrialEra registry projects' trust and capabilities, by id ([`industrial_era::trust_and_capabilities`]).
     pub(super) about: HashMap<String, Vec<String>>,
     /// The project page, filters and images.
     pub(super) browse: super::mods_project::Browse,
@@ -224,7 +224,8 @@ impl Mods {
             return Support::Works;
         }
         let metadata = p.support();
-        if p.kind != PackKind::Mod || p.source == SourceId::IndustrialEra || !metadata.installable() {
+        if p.kind != PackKind::Mod || p.source == SourceId::IndustrialEra || !metadata.installable()
+        {
             return metadata;
         }
         match self.checks.get(&(p.source, p.id.clone())) {
@@ -250,7 +251,7 @@ fn count(n: u64) -> String {
 /// mean and how many; None while the ratings aren't known.
 pub(super) fn stars(id: &str, t: &theme::Theme) -> Option<Div> {
     let row = div().flex().items_center().gap(px(2.));
-    Some(match industrial_era: :rating(id)? {
+    Some(match industrial_era::rating(id)? {
         None => row.text_color(t.muted).child(tr("No ratings yet")),
         Some(r) => {
             let lit = r.average.round() as usize;
@@ -435,7 +436,7 @@ impl Launcher {
                 ..Query::new(m.text.text(), m.kind)
             },
         };
-        // A Java instance's files are Modrinth's; Industrial Era's registry is for Industrial Era.
+        // A Java instance's files are Modrinth's; IndustrialEra's registry is for IndustrialEra.
         let source = match m.java_for(m.kind) {
             Some(_) => SourceId::Modrinth,
             None => m.source,
@@ -448,7 +449,7 @@ impl Launcher {
             let about: HashMap<String, Vec<String>> = match (&result, source) {
                 (Ok(found), SourceId::IndustrialEra) => found
                     .iter()
-                    .map(|p| (p.id.clone(), industrial_era: :trust_and_capabilities(&p.id)))
+                    .map(|p| (p.id.clone(), industrial_era::trust_and_capabilities(&p.id)))
                     .collect(),
                 _ => HashMap::new(),
             };
@@ -460,7 +461,7 @@ impl Launcher {
     }
 
     /// Reads the registry's index again when something installed came from it, and turns off
-    /// what it took down since (`industrial_era: :turn_off_revoked`).
+    /// what it took down since (`industrial_era::turn_off_revoked`).
     fn mods_taken_down(&mut self) {
         if !self
             .mods
@@ -473,17 +474,17 @@ impl Launcher {
         let tx = self.mods.tx.clone();
         let home = self.mods.home();
         std::thread::spawn(move || {
-            let Ok(index) = industrial_era: :index() else {
+            let Ok(index) = industrial_era::index() else {
                 return;
             };
-            let lines = industrial_era: :turn_off_revoked(&index, &home);
+            let lines = industrial_era::turn_off_revoked(&index, &home);
             if !lines.is_empty() {
                 let _ = tx.send(Event::TakenDown(lines));
             }
         });
     }
 
-    /// Turns a Industrial Era mod the browser installed on or off, as the game's Options > Mods does;
+    /// Turns a IndustrialEra mod the browser installed on or off, as the game's Options > Mods does;
     /// in a Java instance, renames its file.
     pub(super) fn mods_switch(&mut self, e: &installed::Entry) {
         let home = self.mods.home();
@@ -498,11 +499,11 @@ impl Launcher {
             }));
             return;
         }
-        let Some(id) = industrial_era: :mod_id(e) else {
+        let Some(id) = industrial_era::mod_id(e) else {
             return;
         };
         let on = !java::is_enabled(&home, id);
-        let revoked = industrial_era: :known_index().and_then(|index| {
+        let revoked = industrial_era::known_index().and_then(|index| {
             let hash = e.checksum.trim_start_matches("SHA-256:");
             index.revoked(&e.project, hash).map(|r| r.reason.clone())
         });
@@ -677,7 +678,7 @@ impl Launcher {
         // The first native mod: the trust notice, before anything is installed.
         let first_native = source == SourceId::IndustrialEra
             && !self.settings.native_mods_noticed
-            && industrial_era: :is_native_mod(&id);
+            && industrial_era::is_native_mod(&id);
         if first_native {
             self.mods.native_notice = Some((source, id, known));
             return;
@@ -697,7 +698,7 @@ impl Launcher {
         let java = self.mods.java.clone();
         let instance = self
             .selected_instance()
-            .map_or_else(|| "Industrial Era".to_string(), |i| i.name.clone());
+            .map_or_else(|| "IndustrialEra".to_string(), |i| i.name.clone());
         let world = self.mods.world.clone().and_then(|path| {
             let (_, name) = self.mods.worlds.iter().find(|(p, _)| *p == path)?;
             Some((path, name.clone()))
@@ -746,10 +747,10 @@ impl Launcher {
                     }
                     modpack = p.kind == PackKind::Modpack;
                     if modpack && p.source == SourceId::IndustrialEra {
-                        let pack = industrial_era: :pack::install(&p.id, &progress)?;
+                        let pack = industrial_era::pack::install(&p.id, &progress)?;
                         if let Some(url) = &p.icon {
                             industrial_era_launcher::instances::adopt_icon(
-                                &industrial_era: :pack::home(&pack.work),
+                                &industrial_era::pack::home(&pack.work),
                                 url,
                             );
                         }
@@ -792,7 +793,7 @@ impl Launcher {
                     }
                     if p.source == SourceId::IndustrialEra && p.kind == PackKind::Mod {
                         return Ok(format!(
-                            "Installed {} into industrial-era-mods and turned it on, checksum checked \
+                            "Installed {} into industrial_era-mods and turned it on, checksum checked \
                              (Options > Mods in the game).",
                             names.join(", ")
                         ));
@@ -800,7 +801,7 @@ impl Launcher {
                     if p.kind == PackKind::Mod {
                         let skipped = done.last().map_or(0, |e| e.skipped.len());
                         return Ok(format!(
-                            "Ported {} into industrial-era-mods and turned on (Options > Mods in the \
+                            "Ported {} into industrial_era-mods and turned on (Options > Mods in the \
                              game).{}",
                             names.join(", "),
                             if skipped > 0 {
@@ -901,7 +902,7 @@ impl Launcher {
         }
         let header = page_header(
             "Mods",
-            "Mods and shader packs made for Industrial Era from its own reviewed registry, and \
+            "Mods and shader packs made for IndustrialEra from its own reviewed registry, and \
              resource packs from Modrinth. Each file is checked against its source's checksum \
              before it reaches your game folder.",
             &t,
@@ -952,7 +953,7 @@ impl Launcher {
         let java = self.mods.java_for(self.mods.kind).is_some();
         let source_note = (source_for(self.mods.kind) == SourceId::Modrinth && !java)
             .then(|| div().flex().child(self.mods_source_switch(cx)));
-        // The registry lists only what was made for Industrial Era: no "everything", no Modrinth filters,
+        // The registry lists only what was made for IndustrialEra: no "everything", no Modrinth filters,
         // only its sort.
         let registry = self.mods.source == SourceId::IndustrialEra && !java;
         let filters = (!registry).then(|| self.mods_filters(cx));
@@ -996,7 +997,7 @@ impl Launcher {
                 .child(section_title("Browse modpacks", "search", &t));
         }
         body = body.child(controls);
-        // Native mods from a GitHub link: Industrial Era instances, on the Mods tab.
+        // Native mods from a GitHub link: IndustrialEra instances, on the Mods tab.
         if self.mods.kind == PackKind::Mod && self.mods.java.is_none() {
             body = body.child(self.github_panel(cx));
         }
@@ -1270,7 +1271,8 @@ impl Launcher {
                 _ if e.kind != PackKind::Mod => None,
                 Some(_) => Some(java_instance::is_on(&self.mods.home(), e)),
                 None if e.source == SourceId::IndustrialEra => Some(
-                    industrial_era: :mod_id(e).is_some_and(|id| java::is_enabled(&self.mods.home(), id)),
+                    industrial_era::mod_id(e)
+                        .is_some_and(|id| java::is_enabled(&self.mods.home(), id)),
                 ),
                 None => None,
             };
@@ -1407,8 +1409,8 @@ impl Launcher {
     }
 
     /// The selected instance's native build (docs/native-mods.md): which build it plays, the
-    /// Industrial Era it was built on, and whether it holds the native mods turned on (Up to date,
-    /// Needs rebuild, Not built), with Build, and Update when a newer Industrial Era is installed. Both
+    /// IndustrialEra it was built on, and whether it holds the native mods turned on (Up to date,
+    /// Needs rebuild, Not built), with Build, and Update when a newer IndustrialEra is installed. Both
     /// open the trust warning first (`native_warning`). A build under way, or its error, shows
     /// only on the instance it is for.
     pub(super) fn native_build(&self, cx: &mut Context<Self>) -> Option<Div> {
@@ -1476,7 +1478,7 @@ impl Launcher {
         }
         if let (Some(tag), Some(build)) = (&version, &build) {
             detail = detail.child(div().text_color(t.muted).child(trf(
-                "Plays {build}, built on Industrial Era {version}.",
+                "Plays {build}, built on IndustrialEra {version}.",
                 &[("build", tag), ("version", &build.industrial_era())],
             )));
         }
@@ -1509,7 +1511,7 @@ impl Launcher {
                 button(
                     "native-update",
                     trf(
-                        "Rebuild on Industrial Era {version}",
+                        "Rebuild on IndustrialEra {version}",
                         &[("version", &native_status::industrial_era_label(&newer))],
                     ),
                     Kind::Secondary,
@@ -1604,11 +1606,11 @@ impl Launcher {
                     &t,
                 );
             } else if m.source == SourceId::IndustrialEra {
-                tr("Nothing in Industrial Era's registry matches yet.")
+                tr("Nothing in IndustrialEra's registry matches yet.")
             } else if m.everything {
                 tr("Nothing found.")
             } else {
-                tr("Nothing found that runs in Industrial Era. Show everything lists the rest.")
+                tr("Nothing found that runs in IndustrialEra. Show everything lists the rest.")
             };
             return centered(line, &t);
         }
@@ -1745,7 +1747,7 @@ impl Launcher {
     }
 }
 
-/// Where a kind's tab searches first: Industrial Era's registry, but Modrinth for resource packs and
+/// Where a kind's tab searches first: IndustrialEra's registry, but Modrinth for resource packs and
 /// modpacks.
 fn source_for(kind: PackKind) -> SourceId {
     match kind {
@@ -1755,7 +1757,7 @@ fn source_for(kind: PackKind) -> SourceId {
 }
 
 impl Launcher {
-    /// The source switch: Modrinth or Industrial Era's registry, CurseForge shown as coming soon and not
+    /// The source switch: Modrinth or IndustrialEra's registry, CurseForge shown as coming soon and not
     /// clickable, like the Microsoft account's "Coming soon".
     fn mods_source_switch(&self, cx: &mut Context<Self>) -> Stateful<Div> {
         let this = cx.entity().downgrade();

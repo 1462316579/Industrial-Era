@@ -8,8 +8,10 @@ use std::{
 pub fn console_probe() -> &'static Path {
     static PROBE: OnceLock<PathBuf> = OnceLock::new();
     PROBE.get_or_init(|| {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-console-probe-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial_era-console-probe-{}",
+            std::process::id()
+        ));
         fs::create_dir_all(&root).unwrap();
         let executable = root.join("console-probe.exe");
         let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/support/console_probe.rs");

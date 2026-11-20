@@ -30,13 +30,13 @@ pub fn matches(line: &str, search: &str) -> bool {
 }
 
 /// The names to take out of a log: the account names and offline names, the offline player
-/// name kept in each game folder (`industrial-era-player.txt`), and the computer's user name.
+/// name kept in each game folder (`industrial_era-player.txt`), and the computer's user name.
 pub fn names(homes: &[&Path]) -> Vec<String> {
     let accounts = crate::account::Accounts::load();
     let mut names: Vec<String> = accounts.accounts.into_iter().map(|a| a.name).collect();
     names.extend(accounts.offline);
     for home in homes {
-        if let Ok(name) = std::fs::read_to_string(home.join("industrial-era-player.txt")) {
+        if let Ok(name) = std::fs::read_to_string(home.join("industrial_era-player.txt")) {
             names.push(name.trim().to_string());
         }
     }
@@ -124,7 +124,7 @@ pub struct Shared {
 
 /// Uploads `text` (already [`private`]) and returns its link.
 pub fn share(text: &str) -> Result<Shared, String> {
-    let body = serde_json::json!({ "content": fit(text), "source": "Industrial Era launcher" });
+    let body = serde_json::json!({ "content": fit(text), "source": "IndustrialEra launcher" });
     let answer: serde_json::Value = ureq::post(&format!("{}/log", api()))
         .send_json(body)
         .map_err(|e| format!("mclo.gs didn't take the log: {e}"))?

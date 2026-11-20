@@ -1,5 +1,5 @@
-//! Industrial Era's own registry (docs/api/mod-index.md): mods, modpacks and resource packs made for
-//! Industrial Era, reviewed as pull requests in industrial-era-rust/industrial-era-mods. One file lists them all,
+//! IndustrialEra's own registry (docs/api/mod-index.md): mods, modpacks and resource packs made for
+//! IndustrialEra, reviewed as pull requests in industrial_era-rust/industrial_era-mods. One file lists them all,
 //! `index.json`; every download is checked against it before it reaches the game folder
 //! (`industrial_era_mods::index::check_file`: size, SHA-256, the author's signature, the file's own
 //! manifest), and files the index says were taken down are refused and turned off.
@@ -14,21 +14,22 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-/// Where the registry publishes its index (GitHub Pages of industrial-era-rust/industrial-era-mods).
-pub const INDEX_URL: &str = "https://industrial-era-rust.github.io/industrial-era-mods/index.json";
+/// Where the registry publishes its index (GitHub Pages of industrial_era-rust/industrial_era-mods).
+pub const INDEX_URL: &str = "https://industrial_era-rust.github.io/industrial_era-mods/index.json";
 /// The registry's pages on the website, `<SITE>/<id>`.
 const SITE: &str = "https://playhorizon.dev/mods";
 /// The report form of a project.
-const REPORT: &str = "https://github.com/industrial-era-rust/industrial-era-mods/issues/new?template=report.yml";
+const REPORT: &str =
+    "https://github.com/industrial_era-rust/industrial_era-mods/issues/new?template=report.yml";
 /// The loader name the browser gives registry versions, so `support` and `pick` know them.
-pub const LOADER: &str = "industrial-era";
+pub const LOADER: &str = "industrial_era";
 /// How long a fetched index is used before it is fetched again.
 const FRESH: Duration = Duration::from_secs(600);
 /// Larger than any index should be.
 const MAX_INDEX: u64 = 16 << 20;
 /// The last index fetched, kept in the game folder for when the registry can't be reached.
-const CACHE: &str = "mod-browser/industrial-era-index.json";
-/// Players' ratings of every project (the registry service, crates/industrial-era-mod-registry).
+const CACHE: &str = "mod-browser/industrial_era-index.json";
+/// Players' ratings of every project (the registry service, crates/industrial_era-mod-registry).
 const RATINGS_URL: &str = "https://playhorizon.dev/api/mods/ratings";
 /// Where a player rates a project: the site's GitHub sign-in, which comes back to its page.
 /// The launcher has no GitHub account of its own.
@@ -227,10 +228,12 @@ fn kind_of(kind: &index::Kind) -> Option<Kind> {
 /// Where the registry's mod policy is: who owns and answers for a project, takedowns.
 pub const POLICY: &str = "https://playhorizon.dev/mods/policy";
 
-/// Whether the Industrial Era project made `p` (the mod policy's "Official": author Industrial Era, source in
-/// the industrial-era-rust organisation).
+/// Whether the IndustrialEra project made `p` (the mod policy's "Official": author IndustrialEra, source in
+/// the industrial_era-rust organisation).
 pub fn official(p: &index::Project) -> bool {
-    p.authors == ["Industrial Era"] && p.source.starts_with("https://github.com/industrial-era-rust/")
+    p.authors == ["IndustrialEra"]
+        && p.source
+            .starts_with("https://github.com/industrial_era-rust/")
 }
 
 /// What the player reads about a registry project before installing it: who made it, whether its
@@ -244,10 +247,10 @@ pub fn trust_and_capabilities(id: &str) -> Vec<String> {
         return Vec::new();
     };
     let mut lines = vec![if official(p) {
-        "Made by Industrial Era".to_owned()
+        "Made by IndustrialEra".to_owned()
     } else {
         format!(
-            "Made by {}. Not made or endorsed by the Industrial Era project ({POLICY})",
+            "Made by {}. Not made or endorsed by the IndustrialEra project ({POLICY})",
             p.authors.join(", ")
         )
     }];
@@ -262,7 +265,7 @@ pub fn trust_and_capabilities(id: &str) -> Vec<String> {
         if let Some(v) = p.versions.first() {
             let pin = v.api.split('/').nth(1).unwrap_or_default();
             lines.push(format!(
-                "Built by the launcher on Industrial Era {}",
+                "Built by the launcher on IndustrialEra {}",
                 &pin[..pin.len().min(7)]
             ));
         }
@@ -419,10 +422,10 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(id)
-            .ok_or_else(|| format!("{id} isn't in Industrial Era's registry."))?;
+            .ok_or_else(|| format!("{id} isn't in IndustrialEra's registry."))?;
         project_of(p).ok_or_else(|| {
             format!(
-                "{} is a {} in Industrial Era's registry: this launcher can't install those yet.",
+                "{} is a {} in IndustrialEra's registry: this launcher can't install those yet.",
                 p.name,
                 p.kind.name()
             )
@@ -433,7 +436,7 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(&project.id)
-            .ok_or_else(|| format!("{} isn't in Industrial Era's registry.", project.title))?;
+            .ok_or_else(|| format!("{} isn't in IndustrialEra's registry.", project.title))?;
         let level = crate::backend::game_mod_api_level();
         Ok(p.versions
             .iter()
@@ -446,7 +449,7 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(&project.id)
-            .ok_or_else(|| format!("{} isn't in Industrial Era's registry.", project.title))?;
+            .ok_or_else(|| format!("{} isn't in IndustrialEra's registry.", project.title))?;
         let newest = p.versions.first();
         let mut body = p.description.clone();
         if let Some(v) = newest.filter(|v| !v.capabilities.is_empty()) {
@@ -557,14 +560,14 @@ fn relative(kind: Kind, id: &str, file_name: &str) -> Result<String, String> {
         Kind::ResourcePack => Ok(format!("resourcepacks/{file_name}")),
         Kind::Shader => Ok(format!("shaderpacks/{file_name}")),
         Kind::Modpack => Err("A modpack installs as its own profile (pack::install).".into()),
-        Kind::DataPack => Err("Industrial Era's registry has no data packs.".into()),
+        Kind::DataPack => Err("IndustrialEra's registry has no data packs.".into()),
     }
 }
 
 /// Installs a registry project into the game folder `home`: its newest version for this game that
 /// the game the player runs can load, downloaded into `mod-browser/downloads/`, checked against
-/// the index, then moved into place. A mod is `industrial-era-mods/<id>.hmod`, turned on in
-/// `industrial-era-mods.txt`.
+/// the index, then moved into place. A mod is `industrial_era-mods/<id>.hmod`, turned on in
+/// `industrial_era-mods.txt`.
 pub fn install(
     project: &Project,
     home: &Path,
@@ -585,7 +588,7 @@ fn install_from(
 ) -> Result<Vec<installed::Entry>, String> {
     let p = index
         .project(&project.id)
-        .ok_or_else(|| format!("{} isn't in Industrial Era's registry.", project.title))?;
+        .ok_or_else(|| format!("{} isn't in IndustrialEra's registry.", project.title))?;
     let v = newest(index, p, level)?;
     if needs_port(v) {
         return Err(format!("{} {NEEDS_PORT}.", p.name));
@@ -617,8 +620,8 @@ fn newest<'a>(
     })
 }
 
-const NEEDS_NEWER: &str = "needs a newer Industrial Era than the game you play";
-const NEEDS_PORT: &str = "needs a native port: Industrial Era doesn't run WebAssembly mods any more";
+const NEEDS_NEWER: &str = "needs a newer IndustrialEra than the game you play";
+const NEEDS_PORT: &str = "needs a native port: IndustrialEra doesn't run WebAssembly mods any more";
 
 /// Whether version `v` is a WebAssembly mod with code: a `.hmod` that may do more than add
 /// content. The registry keeps it for the modpacks that need it; a modpack installs it with its
@@ -742,8 +745,8 @@ fn stays(native: bool, old: &str) -> bool {
     native && old.ends_with(".hmod")
 }
 
-/// The mod id of an installed mod (`industrial-era-mods/<id>`, `industrial-era-mods/<id>.hmod` or
-/// `industrial-era-native-mods/<id>.hnmod`).
+/// The mod id of an installed mod (`industrial_era-mods/<id>`, `industrial_era-mods/<id>.hmod` or
+/// `industrial_era-native-mods/<id>.hnmod`).
 pub fn mod_id(entry: &installed::Entry) -> Option<&str> {
     if let Some(rest) = entry.file.strip_prefix(crate::native_mods::INSTALLED) {
         return rest.strip_prefix('/')?.strip_suffix(".hnmod");

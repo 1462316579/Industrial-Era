@@ -1,4 +1,4 @@
-//! The instance dialog in the glass look (the mockup's `InstanceModal`, industrial-era-site
+//! The instance dialog in the glass look (the mockup's `InstanceModal`, industrial_era-site
 //! `components/launcher/instance-modal.tsx`): one plate round at 28 over the dimmed page. On the
 //! left, what the instance will be (its icon, name and what it plays) and its kind; on the right,
 //! what it plays, its name and group, and its icon; Cancel and Create at the foot. Dark
@@ -33,7 +33,7 @@ pub(super) fn loaders() -> Vec<Loader> {
 /// What an existing instance plays.
 fn kind_of(i: &Instance) -> NewKind {
     match &i.java {
-        None => NewKind::Industrial Era,
+        None => NewKind::IndustrialEra,
         Some(j) if j.loader.is_some() => NewKind::Modded,
         Some(_) => NewKind::Vanilla,
     }
@@ -267,17 +267,17 @@ impl Launcher {
         self.instances.dialog.as_ref()?.java.minecraft(versions)
     }
 
-    /// The Industrial Era version an instance plays: the one it keeps, else the launcher's.
+    /// The IndustrialEra version an instance plays: the one it keeps, else the launcher's.
     fn draft_horizon(&self) -> Option<String> {
         let pin = self.instances.dialog.as_ref()?.pin.clone();
         pin.or_else(|| self.launcher_version().cloned())
     }
 
-    /// The mark an instance shows when nothing is chosen: Industrial Era's, the grass block, its
+    /// The mark an instance shows when nothing is chosen: IndustrialEra's, the grass block, its
     /// loader's logo.
     fn auto_mark(&mut self, kind: NewKind, loader: Loader, size: f32) -> AnyElement {
         let mark = match kind {
-            NewKind::Industrial Era => {
+            NewKind::IndustrialEra => {
                 return ui::mark_tile(size, self.look.accent_soft).into_any_element()
             }
             NewKind::Vanilla => self.vanilla_icon().and_then(|grass| {
@@ -378,9 +378,9 @@ impl Launcher {
             )],
         );
         let mut summary = match kind {
-            NewKind::Industrial Era => match self.draft_horizon() {
-                Some(tag) => format!("Industrial Era · {}", version_label(&tag)),
-                None => "Industrial Era".into(),
+            NewKind::IndustrialEra => match self.draft_horizon() {
+                Some(tag) => format!("IndustrialEra · {}", version_label(&tag)),
+                None => "IndustrialEra".into(),
             },
             NewKind::Vanilla => format!("{} · {minecraft}", tr("Vanilla")),
             NewKind::Modded => format!("{} · {minecraft}", loader.name()),
@@ -391,7 +391,7 @@ impl Launcher {
         }
         let icon = self.draft_icon(editing, kind, &name, 88.);
         let note = match kind {
-            NewKind::Industrial Era => {
+            NewKind::IndustrialEra => {
                 tr("Its own worlds and packs. Your options and player name come along.")
             }
             _ => tr("Play downloads the game from Mojang the first time, with the Java it needs."),
@@ -399,7 +399,7 @@ impl Launcher {
         // An instance keeps its kind: editing shows only its own.
         let kinds: Vec<NewKind> = match editing {
             Some(_) => vec![kind],
-            None => vec![NewKind::Industrial Era, NewKind::Vanilla, NewKind::Modded],
+            None => vec![NewKind::IndustrialEra, NewKind::Vanilla, NewKind::Modded],
         };
         let names: Vec<&str> = loaders().iter().map(|l| l.name()).collect();
         let modded = match names.split_last() {
@@ -413,10 +413,10 @@ impl Launcher {
         let mut cards = Vec::new();
         for k in kinds {
             let (id, title, note) = match k {
-                NewKind::Industrial Era => (
-                    "industrial-era",
-                    tr("Industrial Era"),
-                    tr("Minecraft rebuilt in Rust, with Industrial Era mods").to_string(),
+                NewKind::IndustrialEra => (
+                    "industrial_era",
+                    tr("IndustrialEra"),
+                    tr("Minecraft rebuilt in Rust, with IndustrialEra mods").to_string(),
                 ),
                 NewKind::Vanilla => (
                     "vanilla",
@@ -557,7 +557,7 @@ impl Launcher {
         let (busy, copy, error) = (d.busy, d.copy, d.error.clone());
         let title = match (editing, kind) {
             (Some(i), _) => trf("Edit {name}", &[("name", &i.name)]),
-            (None, NewKind::Industrial Era) => tr("A new Industrial Era instance").into(),
+            (None, NewKind::IndustrialEra) => tr("A new IndustrialEra instance").into(),
             (None, NewKind::Vanilla) => tr("A new vanilla instance").into(),
             (None, NewKind::Modded) => tr("A new modded instance").into(),
         };
@@ -625,7 +625,7 @@ impl Launcher {
             .pb(px(32.))
             .overflow_y_scroll();
         match (editing, kind) {
-            (_, NewKind::Industrial Era) => {
+            (_, NewKind::IndustrialEra) => {
                 body = body.child(self.industrial_era_versions(cx));
                 if editing.is_none() {
                     body = body.child(self.start_from(copy, cx));
@@ -768,7 +768,7 @@ impl Launcher {
             .child(buttons.flex_none())
     }
 
-    /// Industrial Era's installed versions; the launcher's is the newest, and the one an instance
+    /// IndustrialEra's installed versions; the launcher's is the newest, and the one an instance
     /// that keeps none follows.
     fn industrial_era_versions(&mut self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
@@ -784,7 +784,7 @@ impl Launcher {
                 let on = chosen.as_ref() == Some(&tag);
                 let date = industrial_era_launcher::nightly::date_of(&tag).map(str::to_string);
                 let pick = tag.clone();
-                list_choice(format!("industrial-era-version-{tag}"), on, &t)
+                list_choice(format!("industrial_era-version-{tag}"), on, &t)
                     .py(px(12.))
                     .child(choice_text(version_label(&tag), date.unwrap_or_default()).flex_1())
                     .children(latest.then(|| {
@@ -802,14 +802,14 @@ impl Launcher {
             })
             .collect();
         let list = if rows.is_empty() {
-            list_box("industrial-era-versions", 248.).child(
+            list_box("industrial_era-versions", 248.).child(
                 ui::text(14., FontWeight::NORMAL, ink::QUIET)
                     .px(px(16.))
                     .py(px(24.))
                     .child(tr("No version installed")),
             )
         } else {
-            list_box("industrial-era-versions", 248.).children(rows)
+            list_box("industrial_era-versions", 248.).children(rows)
         };
         section(tr("Version").into(), None, list)
     }
@@ -820,7 +820,7 @@ impl Launcher {
         let selected = self.selected_instance().cloned();
         let from = selected
             .as_ref()
-            .map_or_else(|| "Industrial Era".into(), |i| i.name.clone());
+            .map_or_else(|| "IndustrialEra".into(), |i| i.name.clone());
         let icon = match &selected {
             Some(i) => self.glass_instance_icon(i, 36.),
             None => ui::mark_tile(36., self.look.accent_soft).into_any_element(),

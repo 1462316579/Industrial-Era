@@ -7,15 +7,15 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 /// Hosts a file may come from: Modrinth's and CurseForge's file servers, and the release assets
-/// of Industrial Era's registry (and, see [`github_release_asset`], of the repository a registry entry
+/// of IndustrialEra's registry (and, see [`github_release_asset`], of the repository a registry entry
 /// names).
 const HOSTS: [&str; 5] = [
     "https://cdn.modrinth.com/",
     "https://edge.forgecdn.net/",
     "https://mediafilez.forgecdn.net/",
     industrial_era_mods::index::FILE_HOST,
-    // The registry's files at their address before the move to industrial-era-rust (GitHub redirects it).
-    "https://github.com/ludovic111/industrial-era-mods/releases/download/",
+    // The registry's files at their address before the move to industrial_era-rust (GitHub redirects it).
+    "https://github.com/ludovic111/industrial_era-mods/releases/download/",
 ];
 /// `https://github.com/<owner>/<repo>/releases/download/<tag>/<name>`: a release asset of a mod's
 /// own repository, which the registry's index lists once its release passed the registry's checks
@@ -50,7 +50,7 @@ pub(super) fn agent(url: &str) -> ureq::Agent {
     industrial_era_port_pack::net::keep("browser", spec.as_deref(), |proxy| {
         let builder = ureq::AgentBuilder::new()
             .user_agent(&format!(
-                "industrial-era-rust/industrial-era industrial-era-launcher/{} (github.com/industrial-era-rust/industrial-era)",
+                "industrial_era-rust/industrial_era industrial_era-launcher/{} (github.com/industrial_era-rust/industrial_era)",
                 crate::backend::VERSION
             ))
             .timeout_connect(std::time::Duration::from_secs(15))
@@ -66,7 +66,7 @@ pub(super) fn agent(url: &str) -> ureq::Agent {
 pub fn refuse(file: &FileRef) -> Option<String> {
     if !HOSTS.iter().any(|h| file.url.starts_with(h)) && !github_release_asset(&file.url) {
         return Some(format!(
-            "{} isn't on Modrinth's, CurseForge's or Industrial Era's file servers, or a GitHub release.",
+            "{} isn't on Modrinth's, CurseForge's or IndustrialEra's file servers, or a GitHub release.",
             file.url
         ));
     }

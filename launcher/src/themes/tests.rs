@@ -63,7 +63,8 @@ fn colours_go_to_hsl_and_back() {
 
 #[test]
 fn a_background_is_a_picture_kept_once() {
-    let root = std::env::temp_dir().join(format!("industrial-era-background-{}", std::process::id()));
+    let root =
+        std::env::temp_dir().join(format!("industrial_era-background-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&root);
     std::fs::create_dir_all(&root).unwrap();
     let picture = |name: &str, w: u32, h: u32| {

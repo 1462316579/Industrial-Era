@@ -61,7 +61,7 @@ pub struct Found {
     pub launcher: &'static str,
     pub name: String,
     /// The Minecraft version: an id (`1.21.1`), `latest` or `latest-snapshot`; none when the
-    /// launcher keeps it where Industrial Era doesn't read.
+    /// launcher keeps it where IndustrialEra doesn't read.
     pub minecraft: Option<String>,
     pub loader: Option<Loader>,
     /// Its game folder: saves, mods, packs, options.
@@ -92,7 +92,7 @@ const SKIPPED: [&str; 6] = [
     "crash-reports",
     "minecraftinstance.json",
     ".curseclient",
-    "industrial-era-bluemap.txt",
+    "industrial_era-bluemap.txt",
     // Far terrain's copies of what servers sent, and of their web maps.
     "server-terrain",
 ];
@@ -478,7 +478,7 @@ pub fn copy_game(found: &Found, to: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-/// The loader `found` runs, when Industrial Era installs it (Fabric, Quilt): at the same version.
+/// The loader `found` runs, when IndustrialEra installs it (Fabric, Quilt): at the same version.
 pub fn loader(found: &Found) -> Option<loaders::Loader> {
     let l = found.loader.as_ref()?;
     Some(loaders::Loader {
@@ -488,7 +488,7 @@ pub fn loader(found: &Found) -> Option<loaders::Loader> {
 }
 
 /// A new Java instance named `name` playing what `found` plays (or `minecraft`, the version the
-/// player names), with its loader when Industrial Era installs it ([`loader`]) and a copy of its game
+/// player names), with its loader when IndustrialEra installs it ([`loader`]) and a copy of its game
 /// folder.
 pub fn import(found: &Found, name: &str, minecraft: Option<&str>) -> Result<Instance, String> {
     let Some(minecraft) = minecraft.or(found.minecraft.as_deref()) else {

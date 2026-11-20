@@ -8,7 +8,7 @@ use std::{
 };
 use syn::visit_mut::VisitMut;
 
-/// A trait declaration to add to the staged game after industrial-era-mixins has run.
+/// A trait declaration to add to the staged game after industrial_era-mixins has run.
 pub(super) struct Injection {
     name: syn::Ident,
     /// The bindings' struct, as each catalog hook's (`InjectExampleTickEvent`).
@@ -145,7 +145,7 @@ pub(super) fn prepare(mods: &[Bundle], source: &Path) -> Result<Vec<Injection>, 
                 };
                 let target_crate = target.split("::").next().unwrap_or_default();
                 if target_crate != "industrial_era_client" {
-                    return Err(format!("trait injection target {target:?} is in crate {target_crate:?}; only industrial-era-client targets are supported"));
+                    return Err(format!("trait injection target {target:?} is in crate {target_crate:?}; only industrial_era-client targets are supported"));
                 }
                 if table.contains_key("helper") {
                     return Err(format!(
@@ -240,7 +240,7 @@ pub(super) fn prepare(mods: &[Bundle], source: &Path) -> Result<Vec<Injection>, 
                     parameters,
                     contract,
                 };
-                let helper_path = format!("industrial-era-trait-injection-{index}.rs");
+                let helper_path = format!("industrial_era-trait-injection-{index}.rs");
                 let helper_file = bundle.dir.join(&helper_path);
                 if helper_file.exists() {
                     return Err(format!(
@@ -388,7 +388,7 @@ pub(super) fn stage(stage: &Path, injections: &[Injection]) -> Result<(), String
     if injections.is_empty() {
         return Ok(());
     }
-    let path = stage.join("crates/industrial-era-client/src/mod_api/generated.rs");
+    let path = stage.join("crates/industrial_era-client/src/mod_api/generated.rs");
     let source = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     let file = syn::parse_file(&source).map_err(|e| format!("{}: {e}", path.display()))?;
     let hooks = file
@@ -436,8 +436,10 @@ mod tests {
     use super::*;
 
     fn fixture(name: &str, injection: &str) -> (std::path::PathBuf, Bundle) {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-inject-{}-{name}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial_era-inject-{}-{name}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(root.join("engine/src")).unwrap();
         fs::write(
@@ -482,11 +484,11 @@ mod tests {
     fn owner_dispatch_and_cancel_are_generated_from_bindings() {
         let (root, bundle) = fixture("cancel", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\ncancellable = true\nbindings = [{ name = 'amount', ty = '&mut i32', value = '&mut *amount' }]\n");
         let injections = prepare(&[bundle], &root).unwrap();
-        let helper = fs::read_to_string(root.join("industrial-era-trait-injection-0.rs")).unwrap();
+        let helper = fs::read_to_string(root.join("industrial_era-trait-injection-0.rs")).unwrap();
         let manifest = fs::read_to_string(root.join(MANIFEST)).unwrap();
         assert!(!manifest.contains("trait_method"));
         assert!(!manifest.contains("[api]"));
-        let stage_dir = root.join("stage/crates/industrial-era-client/src/mod_api");
+        let stage_dir = root.join("stage/crates/industrial_era-client/src/mod_api");
         fs::create_dir_all(&stage_dir).unwrap();
         fs::write(
             stage_dir.join("generated.rs"),
@@ -534,8 +536,8 @@ mod tests {
     fn value_injection_returns_what_the_owner_changed() {
         let (root, bundle) = fixture("value", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'RETURN'\ntrait_method = 'total'\nbindings = [{ name = 'total', ty = 'i32', value = '$value' }, { name = 'calls', ty = '&mut u32', value = '&mut *calls' }]\n");
         let injections = prepare(&[bundle], &root).unwrap();
-        let helper = fs::read_to_string(root.join("industrial-era-trait-injection-0.rs")).unwrap();
-        let stage_dir = root.join("stage/crates/industrial-era-client/src/mod_api");
+        let helper = fs::read_to_string(root.join("industrial_era-trait-injection-0.rs")).unwrap();
+        let stage_dir = root.join("stage/crates/industrial_era-client/src/mod_api");
         fs::create_dir_all(&stage_dir).unwrap();
         fs::write(
             stage_dir.join("generated.rs"),
@@ -713,7 +715,10 @@ mod tests {
     fn trait_injections_reject_targets_in_other_crates() {
         let (root, bundle) = fixture("other-crate", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_world::loot::load'\nkind = 'HEAD'\ntrait_method = 'load'\n");
         let error = prepare(&[bundle], &root).err().unwrap();
-        assert!(error.contains("industrial_era_world::loot::load") && error.contains("industrial_era_world"));
+        assert!(
+            error.contains("industrial_era_world::loot::load")
+                && error.contains("industrial_era_world")
+        );
         fs::remove_dir_all(root).unwrap();
 
         let (root, bundle) = fixture("other-catalog", "[[injection]]\nid = 'hook'\nhook = 'loot_table_load'\nkind = 'HEAD'\ntrait_method = 'load'\n");
@@ -723,7 +728,10 @@ mod tests {
         )
         .unwrap();
         let error = prepare(&[bundle], &root).err().unwrap();
-        assert!(error.contains("industrial_era_world::loot::load") && error.contains("industrial_era_world"));
+        assert!(
+            error.contains("industrial_era_world::loot::load")
+                && error.contains("industrial_era_world")
+        );
         fs::remove_dir_all(root).unwrap();
     }
 

@@ -2,7 +2,10 @@ use super::*;
 use serde_json::json;
 
 fn scratch(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("industrial-era-other-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial_era-other-{name}-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).unwrap();
     dir
@@ -70,7 +73,7 @@ fn prism_and_multimc_instances() {
         ]
     );
     assert_eq!(in_folder(&fabric, None)[0].name, "My Fabric");
-    // Fabric comes along at the same version; Forge isn't installed by Industrial Era yet.
+    // Fabric comes along at the same version; Forge isn't installed by IndustrialEra yet.
     assert_eq!(
         loader(&found[0]),
         Some(crate::loaders::Loader {

@@ -26,9 +26,12 @@ fn desktop_entry(home: &Path, wrapper: Option<&str>, args: &[&str]) {
 
 #[test]
 fn menu_registration_preserves_the_package_wrapper() {
-    let home = std::env::temp_dir().join(format!("industrial-era-desktop-wrapper-{}", std::process::id()));
+    let home = std::env::temp_dir().join(format!(
+        "industrial_era-desktop-wrapper-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&home);
-    let entry = home.join("data/applications/industrial-era-launcher.desktop");
+    let entry = home.join("data/applications/industrial_era-launcher.desktop");
 
     // Migrate a registration that pointed at the private executable.
     desktop_entry(&home, None, &[]);
@@ -38,7 +41,7 @@ fn menu_registration_preserves_the_package_wrapper() {
         env!("CARGO_BIN_EXE_horizon-launcher")
     )));
 
-    let wrapper = "/usr/bin/industrial-era-launcher";
+    let wrapper = "/usr/bin/industrial_era-launcher";
     for _ in 0..2 {
         desktop_entry(&home, Some(wrapper), &[]);
         let text = std::fs::read_to_string(&entry).unwrap();

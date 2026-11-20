@@ -18,10 +18,10 @@ const HOSTS: [&str; 7] = [
     "https://files.minecraftforge.net/static/images/",
     "https://media.forgecdn.net/",
     "https://edge.forgecdn.net/",
-    // Industrial Era's registry's icons (its GitHub Pages), and the mirror kept at the address it had
-    // before the repositories moved to the industrial-era-rust organization.
-    "https://industrial-era-rust.github.io/industrial-era-mods/",
-    "https://ludovic111.github.io/industrial-era-mods/",
+    // IndustrialEra's registry's icons (its GitHub Pages), and the mirror kept at the address it had
+    // before the repositories moved to the industrial_era-rust organization.
+    "https://industrial_era-rust.github.io/industrial_era-mods/",
+    "https://ludovic111.github.io/industrial_era-mods/",
 ];
 /// The most an image may weigh before decoding.
 pub const MAX_DOWNLOAD: u64 = 8 << 20;
@@ -439,7 +439,8 @@ mod tests {
 
     #[test]
     fn images_are_scaled_stored_and_pruned() {
-        let home = std::env::temp_dir().join(format!("industrial-era-images-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial_era-images-{}", std::process::id()));
         let _ = fs::remove_dir_all(&home);
         let big = image::RgbaImage::from_pixel(300, 150, image::Rgba([1, 2, 3, 255]));
         let mut png = Vec::new();

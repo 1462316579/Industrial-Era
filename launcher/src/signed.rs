@@ -1,6 +1,6 @@
 //! Signed downloads (docs/security.md): a game or launcher archive is installed only when its
 //! SHA-256 matches the release's SHA256SUMS and that list is signed by one of the keys built in
-//! from crates/industrial-era-release-sign/release-keys.txt. A release from before signing installs only
+//! from crates/industrial_era-release-sign/release-keys.txt. A release from before signing installs only
 //! with the SHA-256 pinned for it in legacy-releases.txt (a rollback). Anything else is refused
 //! with a message saying why.
 
@@ -27,7 +27,13 @@ pub fn digest(
     let sums = fetch(&asset_url(tag, SUMS))?;
     let signature = fetch(&asset_url(tag, SIGNATURE))?
         .map(|bytes| String::from_utf8_lossy(&bytes).into_owned());
-    industrial_era_release_sign::signed_digest(tag, asset, sums.as_deref(), signature.as_deref(), keys)
+    industrial_era_release_sign::signed_digest(
+        tag,
+        asset,
+        sums.as_deref(),
+        signature.as_deref(),
+        keys,
+    )
 }
 
 /// The signed SHA-256 of `asset` in the Nightly published under `tag` (`nightly`, or a dated
@@ -56,7 +62,7 @@ mod tests {
         // this fails until the release environment's public key is listed (docs/security.md).
         assert!(
             !industrial_era_release_sign::trusted_keys().is_empty(),
-            "crates/industrial-era-release-sign/release-keys.txt lists no key"
+            "crates/industrial_era-release-sign/release-keys.txt lists no key"
         );
     }
 
@@ -64,11 +70,18 @@ mod tests {
     fn releases_from_before_signing_install_only_with_their_pinned_files() {
         let tampered =
             |_: &str| -> Result<Option<Vec<u8>>, String> { Ok(Some(b"anything".to_vec())) };
-        let pinned =
-            industrial_era_release_sign::legacy_digest("v2026.10.12", "industrial-era-linux-x86_64.tar.gz")
-                .expect("v2026.10.12 is from before signing");
+        let pinned = industrial_era_release_sign::legacy_digest(
+            "v2026.10.12",
+            "industrial_era-linux-x86_64.tar.gz",
+        )
+        .expect("v2026.10.12 is from before signing");
         assert_eq!(
-            digest("v2026.10.12", "industrial-era-linux-x86_64.tar.gz", &[], tampered),
+            digest(
+                "v2026.10.12",
+                "industrial_era-linux-x86_64.tar.gz",
+                &[],
+                tampered
+            ),
             Ok(pinned.to_owned())
         );
     }
@@ -76,11 +89,13 @@ mod tests {
     #[test]
     fn only_archives_signed_by_a_built_in_key_install() {
         let (key, _) = SigningKey::generate().unwrap();
-        let sums = sums_file(&[("industrial-era.zip".into(), sha256_hex(b"game"))]);
+        let sums = sums_file(&[("industrial_era.zip".into(), sha256_hex(b"game"))]);
         let signature = key.sign("v2099.01.01", sums.as_bytes());
         // GitHub as it answers for a signed release (any tag: the files are what a replay would serve).
         let signed = |url: &str| -> Result<Option<Vec<u8>>, String> {
-            assert!(url.starts_with("https://github.com/industrial-era-rust/industrial-era/releases/download/"));
+            assert!(url.starts_with(
+                "https://github.com/industrial_era-rust/industrial_era/releases/download/"
+            ));
             Ok(Some(
                 if url.ends_with(".sig") {
                     signature.clone()
@@ -92,21 +107,27 @@ mod tests {
         };
         let keys = [key.public()];
         assert_eq!(
-            digest("v2099.01.01", "industrial-era.zip", &keys, signed),
+            digest("v2099.01.01", "industrial_era.zip", &keys, signed),
             Ok(sha256_hex(b"game"))
         );
         // Signed for another tag, by another key, or not listing the archive: refused.
-        assert!(digest("v2099.01.02", "industrial-era.zip", &keys, signed).is_err());
+        assert!(digest("v2099.01.02", "industrial_era.zip", &keys, signed).is_err());
         let (other, _) = SigningKey::generate().unwrap();
-        assert!(digest("v2099.01.01", "industrial-era.zip", &[other.public()], signed).is_err());
+        assert!(digest(
+            "v2099.01.01",
+            "industrial_era.zip",
+            &[other.public()],
+            signed
+        )
+        .is_err());
         assert!(digest("v2099.01.01", "other.zip", &keys, signed).is_err());
         // No checksums (a release from before signing): refused, saying so.
         let unsigned = |_: &str| -> Result<Option<Vec<u8>>, String> { Ok(None) };
-        let refused = digest("v2099.01.01", "industrial-era.zip", &keys, unsigned).unwrap_err();
+        let refused = digest("v2099.01.01", "industrial_era.zip", &keys, unsigned).unwrap_err();
         assert!(refused.contains("not signed"), "{refused}");
         // Checksums that can't be fetched are an error too, never a pass.
         let offline = |_: &str| -> Result<Option<Vec<u8>>, String> { Err("No connection".into()) };
-        assert!(digest("v2099.01.01", "industrial-era.zip", &keys, offline).is_err());
+        assert!(digest("v2099.01.01", "industrial_era.zip", &keys, offline).is_err());
     }
 
     /// The release channel never installs what was signed for the nightly channel, whatever tag it
@@ -115,7 +136,7 @@ mod tests {
     fn the_release_channel_refuses_nightly_signatures() {
         let (key, _) = SigningKey::generate().unwrap();
         let keys = [key.public()];
-        let sums = sums_file(&[("industrial-era.zip".into(), sha256_hex(b"game"))]);
+        let sums = sums_file(&[("industrial_era.zip".into(), sha256_hex(b"game"))]);
         let serving = |signed_for: &'static str| {
             let signature = key.sign(signed_for, sums.as_bytes());
             let sums = sums.clone();
@@ -132,17 +153,17 @@ mod tests {
         };
         let nightly = serving(industrial_era_release_sign::NIGHTLY);
         assert_eq!(
-            nightly_digest("nightly", "industrial-era.zip", &keys, &nightly),
+            nightly_digest("nightly", "industrial_era.zip", &keys, &nightly),
             Ok(sha256_hex(b"game"))
         );
         for tag in ["v0.2.81", "nightly", "nightly-2026-10-27"] {
             assert!(
-                digest(tag, "industrial-era.zip", &keys, &nightly).is_err(),
+                digest(tag, "industrial_era.zip", &keys, &nightly).is_err(),
                 "{tag}"
             );
         }
         let release = serving("v0.2.81");
-        assert!(digest("v0.2.81", "industrial-era.zip", &keys, &release).is_ok());
-        assert!(nightly_digest("nightly", "industrial-era.zip", &keys, &release).is_err());
+        assert!(digest("v0.2.81", "industrial_era.zip", &keys, &release).is_ok());
+        assert!(nightly_digest("nightly", "industrial_era.zip", &keys, &release).is_err());
     }
 }

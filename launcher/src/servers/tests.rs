@@ -2,7 +2,10 @@ use super::*;
 use std::io::{BufRead, BufReader, Write};
 
 fn scratch(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("industrial-era-servers-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial_era-servers-{name}-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).unwrap();
     dir
@@ -54,13 +57,13 @@ fn create_asks_init_and_config_set() {
 fn programs_are_laid_out_as_install_sh_does() {
     let root = scratch("runtime");
     let version = root.join("versions/v1");
-    fs::create_dir_all(version.join(".local/industrial-era-client/26.3")).unwrap();
+    fs::create_dir_all(version.join(".local/industrial_era-client/26.3")).unwrap();
     fs::write(version.join(PROGRAM), "server").unwrap();
-    fs::write(version.join("industrial-era-client"), "game").unwrap();
+    fs::write(version.join("industrial_era-client"), "game").unwrap();
     fs::write(version.join(".installed"), "").unwrap();
     crate::game_app::ensure(&version).unwrap();
     fs::write(
-        version.join(".local/industrial-era-client/26.3/industrial-era-resources.json"),
+        version.join(".local/industrial_era-client/26.3/industrial_era-resources.json"),
         "{}",
     )
     .unwrap();
@@ -72,20 +75,20 @@ fn programs_are_laid_out_as_install_sh_does() {
     );
     assert!(!rt.join("releases/v1/.installed").exists());
     // The game's macOS bundle is the launcher's, not the server's.
-    assert!(!rt.join("releases/v1/Industrial Era.app").exists());
-    // The release finds the game files where industrial-era-server looks: .local beside it.
+    assert!(!rt.join("releases/v1/IndustrialEra.app").exists());
+    // The release finds the game files where industrial_era-server looks: .local beside it.
     assert!(rt
-        .join("current/.local/industrial-era-client/26.3/industrial-era-resources.json")
+        .join("current/.local/industrial_era-client/26.3/industrial_era-resources.json")
         .is_file());
     // Again with newer game files: only they change, swapped in whole.
     fs::write(
-        version.join(".local/industrial-era-client/26.3/industrial-era-resources.json"),
+        version.join(".local/industrial_era-client/26.3/industrial_era-resources.json"),
         "{\"new\":1}",
     )
     .unwrap();
     set_up_in(&rt, &version, "v1", "26.3").unwrap();
     assert_eq!(
-        fs::read_to_string(game_files(&rt, "26.3").join("industrial-era-resources.json")).unwrap(),
+        fs::read_to_string(game_files(&rt, "26.3").join("industrial_era-resources.json")).unwrap(),
         "{\"new\":1}"
     );
     assert!(!game_files(&rt, "26.3").with_extension("old").exists());
@@ -103,7 +106,7 @@ fn problems_say_what_to_do() {
     assert!(port.message.contains("already used"), "{}", port.message);
     assert!(matches!(port.fix, Some(Fix::UsePort(p)) if p > 25565));
     let files = Problem::explain_with(
-        "industrial-era-server: no prepared game files. Industrial Era reads them from",
+        "industrial_era-server: no prepared game files. IndustrialEra reads them from",
         "",
         &dir,
     );
@@ -114,7 +117,11 @@ fn problems_say_what_to_do() {
         &dir,
     );
     assert_eq!(reports.fix, Some(Fix::Prepare));
-    let other = Problem::explain_with("industrial-era-server: a server is already running in x", "", &dir);
+    let other = Problem::explain_with(
+        "industrial_era-server: a server is already running in x",
+        "",
+        &dir,
+    );
     assert_eq!(other, Problem::plain("A server is already running in x"));
     fs::remove_dir_all(&dir).unwrap();
 }

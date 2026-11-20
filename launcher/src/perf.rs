@@ -4,7 +4,7 @@
 //! `benchmarks/` of the launcher's data folder, a local log the player can attach to an issue;
 //! nothing leaves the machine (an upload needs the telemetry consent).
 //!
-//! `industrial-era-launcher benchmark` measures the same things on purpose: several starts (the first is
+//! `industrial_era-launcher benchmark` measures the same things on purpose: several starts (the first is
 //! the cold one), page switching, repeated release list fetches, idle CPU.
 
 use std::collections::BTreeMap;
@@ -34,7 +34,7 @@ pub struct Perf {
     ui_frames: Vec<f32>,
     saved: Instant,
     dirty: bool,
-    /// Off for the windows `industrial-era-launcher benchmark` starts: they report to it instead.
+    /// Off for the windows `industrial_era-launcher benchmark` starts: they report to it instead.
     log: bool,
     /// Machine probes run after the first frame, never while opening the window.
     hardware: Option<Receiver<Machine>>,
@@ -199,7 +199,7 @@ impl Drop for Perf {
     }
 }
 
-/// What a window started by `industrial-era-launcher benchmark` does next (`Launcher::drain`, every 80 ms).
+/// What a window started by `industrial_era-launcher benchmark` does next (`Launcher::drain`, every 80 ms).
 pub enum Step {
     Wait,
     /// Show this page (an index into `Page::ALL`, wrapping).
@@ -310,7 +310,7 @@ impl Bench {
     }
 }
 
-/// `industrial-era-launcher benchmark`: starts the launcher `repeats` times (the first start is the cold
+/// `industrial_era-launcher benchmark`: starts the launcher `repeats` times (the first start is the cold
 /// one), each switching pages then resting, times the release list fetch, and writes one report.
 pub fn benchmark(repeats: usize) -> Result<PathBuf, String> {
     let exe = std::env::current_exe().map_err(|e| e.to_string())?;
@@ -320,8 +320,10 @@ pub fn benchmark(repeats: usize) -> Result<PathBuf, String> {
     report.conditions.power = industrial_era_bench::power_source().map(str::to_owned);
     report.conditions.load_avg_1m = industrial_era_bench::load_average();
     let (mut starts, mut rss, mut cpu) = (Vec::new(), Vec::new(), Vec::new());
-    let scratch =
-        std::env::temp_dir().join(format!("industrial-era-launcher-bench-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial_era-launcher-bench-{}",
+        std::process::id()
+    ));
     for repeat in 0..repeats {
         let _ = std::fs::remove_file(&scratch);
         let spawned = std::time::SystemTime::now();
@@ -422,7 +424,7 @@ pub fn benchmark(repeats: usize) -> Result<PathBuf, String> {
 
 fn app() -> App {
     App {
-        name: "industrial-era-launcher".into(),
+        name: "industrial_era-launcher".into(),
         version: crate::backend::VERSION.into(),
         ..App::default()
     }

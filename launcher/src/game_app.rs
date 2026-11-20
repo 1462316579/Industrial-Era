@@ -1,6 +1,6 @@
 //! The game's app bundle on macOS. Started as a bare executable, the game shows in the Dock and
-//! in Cmd+Tab as "industrial-era-client" with the generic executable icon (winit's window icon does
-//! nothing there). So the launcher starts it from a small Industrial Era.app inside its version folder:
+//! in Cmd+Tab as "industrial_era-client" with the generic executable icon (winit's window icon does
+//! nothing there). So the launcher starts it from a small IndustrialEra.app inside its version folder:
 //! the Info.plist names it and the icon is the launcher's own. The programs inside are hard links
 //! to the version's, so the bundle takes no disk space and the release's signature is untouched.
 use std::fs;
@@ -9,12 +9,12 @@ use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 /// The bundle's folder in a version folder.
-pub const APP: &str = "Industrial Era.app";
+pub const APP: &str = "IndustrialEra.app";
 
-/// The game, then industrial-era-ctl, which the game looks for beside itself (Copy Connection Details).
-const PROGRAMS: [&str; 2] = ["industrial-era-client", "industrial-era-ctl"];
+/// The game, then industrial_era-ctl, which the game looks for beside itself (Copy Connection Details).
+const PROGRAMS: [&str; 2] = ["industrial_era-client", "industrial_era-ctl"];
 
-const ICON: &[u8] = include_bytes!("../../packaging/icons/industrial-era.icns");
+const ICON: &[u8] = include_bytes!("../../packaging/icons/industrial_era.icns");
 
 /// Its own identifier, so macOS keeps it apart from the launcher (dev.industrial_era.launcher); the
 /// games category lets macOS turn Game Mode on when it plays full screen.
@@ -23,17 +23,17 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Industrial Era</string>
+	<string>IndustrialEra</string>
 	<key>CFBundleExecutable</key>
-	<string>industrial-era-client</string>
+	<string>industrial_era-client</string>
 	<key>CFBundleIconFile</key>
-	<string>industrial-era</string>
+	<string>industrial_era</string>
 	<key>CFBundleIdentifier</key>
 	<string>dev.industrial_era.game</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Industrial Era</string>
+	<string>IndustrialEra</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSApplicationCategoryType</key>
@@ -50,7 +50,7 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 /// microphone for voice chat; without the key macOS would kill the game instead of asking).
 const MIC_DESCRIPTION: &str = "__MIC_DESCRIPTION__";
 
-/// Brings `version`'s Industrial Era.app up to date and returns the game's program inside it. A program
+/// Brings `version`'s IndustrialEra.app up to date and returns the game's program inside it. A program
 /// replaced in the version folder (a reinstall, a build copied over) is linked again.
 pub fn ensure(version: &Path) -> io::Result<PathBuf> {
     let contents = version.join(APP).join("Contents");
@@ -67,10 +67,10 @@ pub fn ensure(version: &Path) -> io::Result<PathBuf> {
         1,
     );
     write_if_changed(&contents.join("Info.plist"), plist.as_bytes())?;
-    write_if_changed(&contents.join("Resources/industrial-era.icns"), ICON)?;
+    write_if_changed(&contents.join("Resources/industrial_era.icns"), ICON)?;
     for (i, name) in PROGRAMS.into_iter().enumerate() {
         let (from, to) = (version.join(name), programs.join(name));
-        // Releases before industrial-era-ctl shipped have only the game.
+        // Releases before industrial_era-ctl shipped have only the game.
         if i > 0 && !from.exists() {
             continue;
         }
@@ -102,24 +102,26 @@ mod tests {
 
     #[test]
     fn the_bundle_links_the_version_programs_and_follows_a_replaced_one() {
-        let version = std::env::temp_dir().join(format!("industrial-era-game-app-{}", std::process::id()));
+        let version =
+            std::env::temp_dir().join(format!("industrial_era-game-app-{}", std::process::id()));
         let _ = fs::remove_dir_all(&version);
         fs::create_dir_all(&version).unwrap();
-        fs::write(version.join("industrial-era-client"), "game 1").unwrap();
-        fs::write(version.join("industrial-era-ctl"), "ctl").unwrap();
+        fs::write(version.join("industrial_era-client"), "game 1").unwrap();
+        fs::write(version.join("industrial_era-ctl"), "ctl").unwrap();
 
         let program = ensure(&version).unwrap();
         assert_eq!(
             program,
-            version.join("Industrial Era.app/Contents/MacOS/industrial-era-client")
+            version.join("IndustrialEra.app/Contents/MacOS/industrial_era-client")
         );
-        assert!(same_file(&program, &version.join("industrial-era-client")));
+        assert!(same_file(&program, &version.join("industrial_era-client")));
         assert!(same_file(
-            &version.join("Industrial Era.app/Contents/MacOS/industrial-era-ctl"),
-            &version.join("industrial-era-ctl")
+            &version.join("IndustrialEra.app/Contents/MacOS/industrial_era-ctl"),
+            &version.join("industrial_era-ctl")
         ));
-        let plist = fs::read_to_string(version.join("Industrial Era.app/Contents/Info.plist")).unwrap();
-        assert!(plist.contains("<string>Industrial Era</string>"));
+        let plist =
+            fs::read_to_string(version.join("IndustrialEra.app/Contents/Info.plist")).unwrap();
+        assert!(plist.contains("<string>IndustrialEra</string>"));
         // The mic prompt macOS needs before a native mod may open the microphone: a key with a
         // nonempty localized value, not the placeholder the template ships with.
         let (_, rest) = plist
@@ -135,13 +137,14 @@ mod tests {
         assert!(!value.is_empty());
         assert!(!plist.contains("__MIC_DESCRIPTION__"));
         assert_eq!(
-            fs::read(version.join("Industrial Era.app/Contents/Resources/industrial-era.icns")).unwrap(),
+            fs::read(version.join("IndustrialEra.app/Contents/Resources/industrial_era.icns"))
+                .unwrap(),
             ICON
         );
 
         // A new build copied over the version's game: the bundle runs it, not the old one.
-        fs::remove_file(version.join("industrial-era-client")).unwrap();
-        fs::write(version.join("industrial-era-client"), "game 2").unwrap();
+        fs::remove_file(version.join("industrial_era-client")).unwrap();
+        fs::write(version.join("industrial_era-client"), "game 2").unwrap();
         assert_eq!(
             fs::read_to_string(ensure(&version).unwrap()).unwrap(),
             "game 2"
@@ -151,22 +154,26 @@ mod tests {
 
     #[test]
     fn a_version_without_industrial_era_ctl_still_gets_its_bundle() {
-        let version =
-            std::env::temp_dir().join(format!("industrial-era-game-app-old-{}", std::process::id()));
+        let version = std::env::temp_dir().join(format!(
+            "industrial_era-game-app-old-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&version);
         fs::create_dir_all(&version).unwrap();
-        fs::write(version.join("industrial-era-client"), "game").unwrap();
+        fs::write(version.join("industrial_era-client"), "game").unwrap();
         assert!(ensure(&version).unwrap().exists());
         assert!(!version
-            .join("Industrial Era.app/Contents/MacOS/industrial-era-ctl")
+            .join("IndustrialEra.app/Contents/MacOS/industrial_era-ctl")
             .exists());
         fs::remove_dir_all(&version).unwrap();
     }
 
     #[test]
     fn a_version_without_the_game_has_no_bundle_program() {
-        let version =
-            std::env::temp_dir().join(format!("industrial-era-game-app-none-{}", std::process::id()));
+        let version = std::env::temp_dir().join(format!(
+            "industrial_era-game-app-none-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&version);
         fs::create_dir_all(&version).unwrap();
         assert!(ensure(&version).is_err());

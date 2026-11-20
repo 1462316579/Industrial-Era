@@ -1,7 +1,7 @@
 //! Home's Mods tab (docs/design-system.md, "Night"; plan R0, screens 5 and 6): every mod of the
 //! selected instance, the browser's and those put in its folder by hand, with its version, where
 //! it comes from, an update when the browser found one, and a switch. A Java instance turns a mod
-//! off by renaming its jar (`.disabled`, as `java_instance` does); a Industrial Era instance's mods are
+//! off by renaming its jar (`.disabled`, as `java_instance` does); a IndustrialEra instance's mods are
 //! the registry's, switched as the game's Options > Mods does. Adding mods is the Mods page's.
 //!
 //! Each row shows the mod's own icon: Modrinth's for what the browser installed from it (the URLs
@@ -11,7 +11,7 @@ use super::*;
 use crate::plate::alpha;
 use crate::shell::{c, Action};
 use industrial_era_launcher::browser::{
-    industrial-era, images, installed, java, modrinth, Kind as PackKind, SourceId,
+    images, industrial_era, installed, java, modrinth, Kind as PackKind, SourceId,
 };
 use servers_page::Field;
 use std::collections::{HashMap, HashSet};
@@ -94,7 +94,7 @@ impl InstanceMods {
     }
 }
 
-/// The mods of the instance at `home`: a Java one's jars in `mods/` (on or off), a Industrial Era one's
+/// The mods of the instance at `home`: a Java one's jars in `mods/` (on or off), a IndustrialEra one's
 /// registry mods. Each jar names itself (`fabric.mod.json`, `quilt.mod.json`...), else its file.
 fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
     let entries: Vec<installed::Entry> = installed::Installed::load(home)
@@ -143,7 +143,7 @@ fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
                 file: e.file.clone(),
                 name: e.title.clone(),
                 version: e.number.clone(),
-                on: industrial_era: :mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
+                on: industrial_era::mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
                 entry: Some(e),
                 icon: None,
                 native: None,
@@ -182,7 +182,7 @@ impl Launcher {
         self.instance_mods.cull.reset();
     }
 
-    /// Whether the selected instance has mods to show: Industrial Era's always, a Java one with a loader.
+    /// Whether the selected instance has mods to show: IndustrialEra's always, a Java one with a loader.
     pub(super) fn has_mods_tab(&self) -> bool {
         self.selected_instance()
             .is_some_and(|i| i.java.as_ref().is_none_or(|j| j.loader.is_some()))
@@ -366,7 +366,7 @@ impl Launcher {
             .map(|j| j.loader.as_ref().map(|l| l.kind.name()));
         let title = match loader {
             Some(Some(loader)) => trf("{loader} mods", &[("loader", loader)]),
-            _ => tr("Industrial Era mods").to_string(),
+            _ => tr("IndustrialEra mods").to_string(),
         };
         let filter = self
             .servers
@@ -626,8 +626,8 @@ mod tests {
         }
         let final_files: Vec<_> = mods.list.iter().map(|row| row.file.as_str()).collect();
         let final_listing_is_fresh = mods.fresh
-            && final_files.contains(&"industrial-era-native-mods/first.hnmod")
-            && final_files.contains(&"industrial-era-native-mods/second.hnmod");
+            && final_files.contains(&"industrial_era-native-mods/first.hnmod")
+            && final_files.contains(&"industrial_era-native-mods/second.hnmod");
         assert!(
             another_read_needed && final_listing_is_fresh,
             "a native change during a read must leave another read needed and deliver both files; another_read_needed={another_read_needed}, fresh={}, files={final_files:?}",
@@ -649,7 +649,7 @@ mod tests {
             )
             .unwrap();
         }
-        let entry: installed::Entry = serde_json::from_value(serde_json::json!({"source":"industrial-era","project":"registry","slug":"registry","title":"Registry mod","kind":"mod","version":"1","number":"1","file":"industrial-era-native-mods/registry.hnmod","checksum":"","page":""})).unwrap();
+        let entry: installed::Entry = serde_json::from_value(serde_json::json!({"source":"industrial_era","project":"registry","slug":"registry","title":"Registry mod","kind":"mod","version":"1","number":"1","file":"industrial_era-native-mods/registry.hnmod","checksum":"","page":""})).unwrap();
         installed::Installed {
             entries: vec![entry],
         }

@@ -1,16 +1,16 @@
 //! The mod browser's sources: search Modrinth (CurseForge support is coming soon) for what
-//! Industrial Era loads, say how well each result runs, and download a file only after its checksum
+//! IndustrialEra loads, say how well each result runs, and download a file only after its checksum
 //! matches (docs/mod-browser.md).
 //!
-//! Offered: Java mods (Fabric, NeoForge, Forge), whose content Industrial Era ports and whose jar is
+//! Offered: Java mods (Fabric, NeoForge, Forge), whose content IndustrialEra ports and whose jar is
 //! checked before install ([`java`]), modpacks (imported and ported), resource packs
 //! (`resourcepacks/`) and data packs (into a world, [`installed::install_datapack`]). Java code
-//! itself doesn't run in Industrial Era (docs/mods.md).
+//! itself doesn't run in IndustrialEra (docs/mods.md).
 pub mod curseforge;
 pub mod details;
 pub mod download;
-pub mod industrial_era;
 pub mod images;
+pub mod industrial_era;
 pub mod installed;
 pub mod java;
 pub mod java_instance;
@@ -18,11 +18,11 @@ pub mod modrinth;
 
 use serde::{Deserialize, Serialize};
 
-/// The Minecraft version Industrial Era plays. A version port updates it with the other `"26.3"` sites
+/// The Minecraft version IndustrialEra plays. A version port updates it with the other `"26.3"` sites
 /// (docs/version-ports.md).
 pub const GAME: &str = "26.3";
 
-/// What a project is, as far as Industrial Era is concerned.
+/// What a project is, as far as IndustrialEra is concerned.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Kind {
@@ -30,7 +30,7 @@ pub enum Kind {
     Modpack,
     /// A Java mod: its content is ported ([`java`]).
     Mod,
-    /// One of Industrial Era's own shader packs (`.hshader`, docs/shaders.md), from Industrial Era's registry
+    /// One of IndustrialEra's own shader packs (`.hshader`, docs/shaders.md), from IndustrialEra's registry
     /// only.
     Shader,
     /// A data pack: it goes into one world's `datapacks/` (`crate::datapacks`).
@@ -73,8 +73,8 @@ impl Kind {
 pub enum SourceId {
     Modrinth,
     CurseForge,
-    /// Industrial Era's own registry of reviewed mods, modpacks and resource packs ([`industrial-era`]).
-    Industrial Era,
+    /// IndustrialEra's own registry of reviewed mods, modpacks and resource packs ([`industrial_era`]).
+    IndustrialEra,
 }
 
 impl SourceId {
@@ -82,19 +82,19 @@ impl SourceId {
         match self {
             SourceId::Modrinth => "Modrinth",
             SourceId::CurseForge => "CurseForge",
-            SourceId::IndustrialEra => "Industrial Era",
+            SourceId::IndustrialEra => "IndustrialEra",
         }
     }
 }
 
-/// How well a project runs in Industrial Era.
+/// How well a project runs in IndustrialEra.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Support {
-    /// Made for the version Industrial Era plays, and Industrial Era reads everything it uses.
+    /// Made for the version IndustrialEra plays, and IndustrialEra reads everything it uses.
     Works,
     /// It loads, with the limit said.
     Partial(String),
-    /// It can't run in Industrial Era: never offered for install.
+    /// It can't run in IndustrialEra: never offered for install.
     No(String),
 }
 
@@ -165,7 +165,7 @@ pub struct FileRef {
     pub name: String,
     pub size: u64,
     pub sha512: Option<String>,
-    /// What Industrial Era's registry lists.
+    /// What IndustrialEra's registry lists.
     pub sha256: Option<String>,
     pub sha1: Option<String>,
     pub primary: bool,
@@ -266,15 +266,18 @@ pub trait Source: Send + Sync {
 
 /// What the launcher says wherever CurseForge would be.
 pub const CURSEFORGE_SOON: &str = "CurseForge support is coming soon.";
-/// What another source answers for shader packs: Industrial Era's own are on its registry only.
+/// What another source answers for shader packs: IndustrialEra's own are on its registry only.
 pub const SHADERS_ON_HORIZON: &str =
-    "Industrial Era's shader packs are on Industrial Era's registry: pick Industrial Era.";
+    "IndustrialEra's shader packs are on IndustrialEra's registry: pick IndustrialEra.";
 
-/// The sources this launcher uses: Modrinth and Industrial Era's registry. CurseForge support is coming
+/// The sources this launcher uses: Modrinth and IndustrialEra's registry. CurseForge support is coming
 /// soon: its API needs a paid key, so no search or install goes to it; `curseforge` is kept for
 /// then.
 pub fn sources() -> Vec<Box<dyn Source>> {
-    vec![Box::new(modrinth::Modrinth), Box::new(industrial_era: :Registry)]
+    vec![
+        Box::new(modrinth::Modrinth),
+        Box::new(industrial_era::Registry),
+    ]
 }
 
 /// The source of that id, when this launcher can use it.
@@ -282,14 +285,14 @@ pub fn source(id: SourceId) -> Option<Box<dyn Source>> {
     sources().into_iter().find(|s| s.id() == id)
 }
 
-/// How well a project of `kind` made for `game_versions` and `loaders` runs in Industrial Era.
+/// How well a project of `kind` made for `game_versions` and `loaders` runs in IndustrialEra.
 pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Support {
-    if loaders.iter().any(|l| l == industrial_era: :LOADER) {
-        // Made for Industrial Era and reviewed: it runs when it is for the version Industrial Era plays.
+    if loaders.iter().any(|l| l == industrial_era::LOADER) {
+        // Made for IndustrialEra and reviewed: it runs when it is for the version IndustrialEra plays.
         return match newest_release(game_versions)
             .filter(|_| !game_versions.iter().any(|v| v == GAME))
         {
-            Some(other) => Support::No(format!("Made for Industrial Era on {other}.")),
+            Some(other) => Support::No(format!("Made for IndustrialEra on {other}.")),
             None => Support::Works,
         };
     }
@@ -306,10 +309,10 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
                 Support::Partial("Lists no Minecraft version.".into())
             }
         }
-        Kind::Modpack => {
-            Support::Partial("Industrial Era runs the mods it can port, from your own downloads.".into())
-        }
-        Kind::Shader => Support::No("Not one of Industrial Era's own shader packs.".into()),
+        Kind::Modpack => Support::Partial(
+            "IndustrialEra runs the mods it can port, from your own downloads.".into(),
+        ),
+        Kind::Shader => Support::No("Not one of IndustrialEra's own shader packs.".into()),
         Kind::DataPack => {
             let made_for = match newest_release(game_versions) {
                 _ if game_versions.iter().any(|v| v == GAME) => String::new(),
@@ -324,7 +327,7 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
             } else if !game_versions.iter().any(|v| portable_version(v)) {
                 let newest = newest_release(game_versions).unwrap_or("an unknown version");
                 Support::No(format!(
-                    "Made for {newest}: Industrial Era ports mods made for 1.21 and later."
+                    "Made for {newest}: IndustrialEra ports mods made for 1.21 and later."
                 ))
             } else {
                 Support::Partial(
@@ -335,9 +338,9 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
     }
 }
 
-/// What a data pack does in Industrial Era today, said before install; the install says it for the
+/// What a data pack does in IndustrialEra today, said before install; the install says it for the
 /// pack's own files (`crate::datapacks::coverage`).
-pub const DATAPACK_SUPPORT: &str = "Industrial Era runs a data pack's functions, function tags, \
+pub const DATAPACK_SUPPORT: &str = "IndustrialEra runs a data pack's functions, function tags, \
      predicates and item modifiers; not yet its recipes, loot tables, advancements, other tags \
      or worldgen.";
 
@@ -376,7 +379,7 @@ pub fn pick(kind: Kind, versions: &[Version], everything: bool) -> Option<&Versi
         .filter(|v| v.blocked.is_none() && v.file().is_some());
     if versions
         .iter()
-        .any(|v| v.loaders.iter().any(|l| l == industrial_era: :LOADER))
+        .any(|v| v.loaders.iter().any(|l| l == industrial_era::LOADER))
     {
         return usable.find(|v| v.game_versions.iter().any(|g| g == GAME));
     }

@@ -1,4 +1,4 @@
-//! Sculk, a server host that sponsors Industrial Era (Ludovic, 2026-10-26): its wide banner on the Servers
+//! Sculk, a server host that sponsors IndustrialEra (Ludovic, 2026-10-26): its wide banner on the Servers
 //! page, and a card made for the sidebar on the other pages, where the banner's baked-in text was too
 //! small to read. The pictures are in the binary, never fetched; a click opens Sculk's page in the
 //! browser. A "Partner" label above each says it is an ad. After `SEEN_BEFORE_HIDE` seconds on screen
@@ -10,7 +10,7 @@ use gpui::{
 };
 use std::sync::{Arc, LazyLock};
 
-pub const URL: &str = "https://my.sculkhosting.com/ref/industrial-era";
+pub const URL: &str = "https://my.sculkhosting.com/ref/industrial_era";
 
 /// How long the sidebar's banner stays on screen, counted over every start, before a "Hide" shows
 /// beside its label: long enough to be seen, then the player may put it away for good.

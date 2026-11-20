@@ -456,7 +456,11 @@ pub(super) fn danger_button(id: SharedString, label: SharedString) -> Stateful<D
         .px(px(12.))
         .rounded(px(radius::CONTROL))
         .cursor_pointer()
-        .hover(|s| s.bg(gpui::rgba(industrial_era_theme::glass::DANGER_HOVER << 8 | 0x1f)))
+        .hover(|s| {
+            s.bg(gpui::rgba(
+                industrial_era_theme::glass::DANGER_HOVER << 8 | 0x1f,
+            ))
+        })
         .child(
             ui::text(13., FontWeight::MEDIUM, ink::FULL)
                 .text_color(ui::color(industrial_era_theme::glass::DANGER))

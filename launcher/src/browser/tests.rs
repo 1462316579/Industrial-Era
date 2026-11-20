@@ -177,7 +177,7 @@ fn modrinth_search_asks_for_what_runs() {
 fn java_mods_are_checked_for_1_21_and_later() {
     assert_eq!(
         support(Kind::Mod, &v(&["1.20.1"]), &v(&["forge"])),
-        Support::No("Made for 1.20.1: Industrial Era ports mods made for 1.21 and later.".into())
+        Support::No("Made for 1.20.1: IndustrialEra ports mods made for 1.21 and later.".into())
     );
     assert!(!support(Kind::Mod, &v(&[GAME]), &v(&["rift"])).installable());
     assert!(matches!(
@@ -336,7 +336,10 @@ fn curseforge_answers() {
 }
 
 fn scratch(name: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!("industrial-era-browser-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial_era-browser-{name}-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     dir
 }

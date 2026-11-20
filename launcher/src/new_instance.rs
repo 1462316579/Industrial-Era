@@ -1,4 +1,4 @@
-//! New instance's kinds (docs/design-system.md, "Night"; plan R0, screen 4): Industrial Era, Vanilla
+//! New instance's kinds (docs/design-system.md, "Night"; plan R0, screen 4): IndustrialEra, Vanilla
 //! (Minecraft: Java Edition as Mojang ships it) and Modded (with Fabric or Quilt). A Java kind picks
 //! its version from Mojang's public list (`minecraft_versions`), fetched once when the dialog first
 //! needs it; the game itself comes with the first Play, for an account that owns it.
@@ -15,7 +15,7 @@ const ROWS: usize = 60;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NewKind {
-    Industrial Era,
+    IndustrialEra,
     Vanilla,
     Modded,
 }
@@ -34,7 +34,7 @@ pub(super) struct JavaChoice {
 impl Default for JavaChoice {
     fn default() -> Self {
         JavaChoice {
-            kind: NewKind::Industrial Era,
+            kind: NewKind::IndustrialEra,
             loader: Loader::Fabric,
             version: None,
             snapshots: false,
@@ -82,7 +82,7 @@ impl Launcher {
             VersionList::Ready(v) => Some(v),
             _ => None,
         };
-        (j.kind != NewKind::Industrial Era)
+        (j.kind != NewKind::IndustrialEra)
             .then(|| j.minecraft(versions))
             .flatten()
             .map(|mc| j.default_name(&mc))
@@ -105,7 +105,9 @@ impl Launcher {
     /// Picks the dialog's kind; a Java one fetches Mojang's list the first time.
     pub(super) fn pick_kind(&mut self, kind: NewKind, cx: &mut Context<Self>) {
         self.change(|j| j.kind = kind);
-        if kind == NewKind::Industrial Era || !matches!(self.instances.versions, VersionList::NotAsked) {
+        if kind == NewKind::IndustrialEra
+            || !matches!(self.instances.versions, VersionList::NotAsked)
+        {
             return;
         }
         self.instances.versions = VersionList::Loading;
@@ -130,13 +132,13 @@ impl Launcher {
         .detach();
     }
 
-    /// The tabs over a new instance's dialog: Industrial Era, Vanilla, Modded.
+    /// The tabs over a new instance's dialog: IndustrialEra, Vanilla, Modded.
     pub(super) fn kind_tabs(&self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let now = self.instances.dialog.as_ref().map(|d| d.java.kind);
         div().flex().gap(px(4.)).children(
             [
-                (NewKind::Industrial Era, "Industrial Era"),
+                (NewKind::IndustrialEra, "IndustrialEra"),
                 (NewKind::Vanilla, "Vanilla"),
                 (NewKind::Modded, "Modded"),
             ]

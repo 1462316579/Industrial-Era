@@ -1,4 +1,4 @@
-//! `industrial-era-launcher <subcommand>`: the same steps as the window, from a terminal. Every
+//! `industrial_era-launcher <subcommand>`: the same steps as the window, from a terminal. Every
 //! command goes through `backend`; this file only parses arguments and prints.
 use clap::{Parser, Subcommand};
 use industrial_era_launcher::account::{self, Accounts};
@@ -18,9 +18,9 @@ use std::process::Command;
 
 #[derive(Parser)]
 #[command(
-    name = "industrial-era-launcher",
+    name = "industrial_era-launcher",
     version = backend::VERSION,
-    about = "Installs, prepares and starts Industrial Era. Without a subcommand, opens the window."
+    about = "Installs, prepares and starts IndustrialEra. Without a subcommand, opens the window."
 )]
 struct Cli {
     /// Print JSON instead of text, where a command has something to report
@@ -32,7 +32,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum JavaCmd {
-    /// The Java runtimes Industrial Era downloaded from Mojang and the ones installed on this computer
+    /// The Java runtimes IndustrialEra downloaded from Mojang and the ones installed on this computer
     List,
     /// Download Mojang's Java runtime: a major (8, 16, 17, 21, 25) or a component name from a
     /// version's JSON (java-runtime-delta)
@@ -93,7 +93,7 @@ enum ServersCmd {
         #[arg(long)]
         version: Option<String>,
     },
-    /// Run a industrial-era-server command on a server, for example: servers run "My server" -- status
+    /// Run a industrial_era-server command on a server, for example: servers run "My server" -- status
     Run {
         /// The server's name or folder
         server: String,
@@ -232,7 +232,7 @@ enum InstanceCmd {
         #[arg(long)]
         copy: Option<String>,
         /// Make a Minecraft: Java Edition instance of this version (1.21.4, latest or
-        /// latest-snapshot) instead of a Industrial Era one
+        /// latest-snapshot) instead of a IndustrialEra one
         #[arg(long, conflicts_with = "copy")]
         minecraft: Option<String>,
         /// With this mod loader: fabric or quilt
@@ -284,7 +284,7 @@ enum InstanceCmd {
     /// Rename an instance (its folder stays)
     Rename { instance: String, name: String },
     /// Delete an instance: its folder (worlds, options, packs) goes to the Trash, where you can
-    /// get it back. Industrial Era's own instance stays
+    /// get it back. IndustrialEra's own instance stays
     Delete { instance: String },
     /// Set an instance's icon: a block or item name from your prepared files (grass_block),
     /// a colour (#3fa7d6), or none
@@ -296,9 +296,9 @@ enum InstanceCmd {
     },
     /// Make Play start this instance
     Select { instance: String },
-    /// Keep an instance on one installed Industrial Era version, or "latest" to follow updates again
+    /// Keep an instance on one installed IndustrialEra version, or "latest" to follow updates again
     Version { instance: String, version: String },
-    /// Export an instance (or a port) to share: its settings, packs, Industrial Era mods and the worlds
+    /// Export an instance (or a port) to share: its settings, packs, IndustrialEra mods and the worlds
     /// named, as a .mrpack (resource packs from Modrinth listed by download) or a zip. Never
     /// logs, screenshots or account data; worlds go without their per-player files
     Export {
@@ -551,7 +551,7 @@ enum ModsCmd {
         #[arg(long)]
         instance: Option<String>,
     },
-    /// Search for packs Industrial Era loads, or for what a Java instance runs (made for its
+    /// Search for packs IndustrialEra loads, or for what a Java instance runs (made for its
     /// Minecraft version and loader)
     Search {
         text: Vec<String>,
@@ -566,7 +566,7 @@ enum ModsCmd {
         #[arg(long)]
         instance: Option<String>,
     },
-    /// Say how well a Java mod runs in Industrial Era: its jar is downloaded (checksum checked),
+    /// Say how well a Java mod runs in IndustrialEra: its jar is downloaded (checksum checked),
     /// carried over and read; the answer is kept
     Check {
         project: String,
@@ -577,7 +577,7 @@ enum ModsCmd {
         source: SourceArg,
     },
     /// Install a pack and what it needs into an instance, by its id or slug (checksums
-    /// checked); a Java mod is ported into industrial-era-mods and turned on (a Java instance gets the
+    /// checked); a Java mod is ported into industrial_era-mods and turned on (a Java instance gets the
     /// jar made for its version and loader in mods/); a modpack is imported as an instance of
     /// its own; a data pack goes into the world `--world` names
     Install {
@@ -607,7 +607,7 @@ enum ModsCmd {
     /// Install a native mod from a GitHub link (docs/native-mods.md, "Install from GitHub"):
     /// https://github.com/OWNER/REPO (its latest release, else its default branch),
     /// .../releases/tag/TAG, .../tree/REF or .../commit/SHA. Resolved to an exact release file or
-    /// commit, checked like a registry mod. NOT reviewed by the Industrial Era registry
+    /// commit, checked like a registry mod. NOT reviewed by the IndustrialEra registry
     AddGithub {
         url: String,
         /// The mod to install when the link holds several
@@ -645,7 +645,7 @@ enum ModsCmd {
         #[arg(long)]
         instance: Option<String>,
     },
-    /// Turn on a mod the browser installed (industrial-era-mods.txt, as the game's Options > Mods does;
+    /// Turn on a mod the browser installed (industrial_era-mods.txt, as the game's Options > Mods does;
     /// in a Java instance, its file loses `.disabled`)
     Enable {
         project: String,
@@ -668,7 +668,7 @@ enum KindArg {
     Mod,
     Resource,
     Modpack,
-    /// Industrial Era's own shader packs (Industrial Era's registry only)
+    /// IndustrialEra's own shader packs (IndustrialEra's registry only)
     Shader,
     /// Data packs (Modrinth): install one into a world with `mods install <pack> --world <name>`
     Datapack,
@@ -679,8 +679,8 @@ enum SourceArg {
     Modrinth,
     /// CurseForge support is coming soon
     Curseforge,
-    /// Industrial Era's own registry: mods, modpacks and resource packs made for Industrial Era, reviewed
-    Industrial Era,
+    /// IndustrialEra's own registry: mods, modpacks and resource packs made for IndustrialEra, reviewed
+    IndustrialEra,
 }
 
 impl SourceArg {
@@ -689,7 +689,7 @@ impl SourceArg {
         let id = match self {
             SourceArg::Modrinth => SourceId::Modrinth,
             SourceArg::Curseforge => SourceId::CurseForge,
-            SourceArg::Industrial Era => SourceId::IndustrialEra,
+            SourceArg::IndustrialEra => SourceId::IndustrialEra,
         };
         browser::source(id).ok_or_else(|| browser::CURSEFORGE_SOON.into())
     }
@@ -699,7 +699,7 @@ impl SourceArg {
 enum Cmd {
     /// Write a shell completion script to stdout
     Completions { shell: clap_complete::Shell },
-    /// List Industrial Era releases, or the installed versions
+    /// List IndustrialEra releases, or the installed versions
     Versions {
         /// Only the versions installed here (no network)
         #[arg(long)]
@@ -709,11 +709,11 @@ enum Cmd {
     Install { tag: String },
     /// Remove an installed version
     Remove { tag: String },
-    /// Install a game program you have, such as a industrial-era-client built on your fork's Actions,
+    /// Install a game program you have, such as a industrial_era-client built on your fork's Actions,
     /// as its own version on an installed release or Nightly's game files, and select it.
     /// Nothing signed it: it runs with your rights, and updates never replace it
     ImportBuild {
-        /// The program (industrial-era-client, industrial-era-client.exe on Windows), or a zip holding it
+        /// The program (industrial_era-client, industrial_era-client.exe on Windows), or a zip holding it
         path: PathBuf,
         /// The installed release or Nightly whose game files it plays with (default: the
         /// selected one, else the newest)
@@ -777,11 +777,11 @@ enum Cmd {
         #[arg(long)]
         accept_eula: bool,
     },
-    /// Native mods (docs/native-mods.md): compile mixin bundles on the Industrial Era revision they
+    /// Native mods (docs/native-mods.md): compile mixin bundles on the IndustrialEra revision they
     /// pin, else the one the instance plays, with the launcher's own Rust, as the version the
     /// instance then plays. Not sandboxed: the mods' code runs with your rights
     NativeBuild {
-        /// A mod folder (industrial-era-mixin.toml, or an unpacked .hnmod), or a folder of them
+        /// A mod folder (industrial_era-mixin.toml, or an unpacked .hnmod), or a folder of them
         /// (default: the native mods installed and turned on in the instance)
         folder: Option<PathBuf>,
         /// Export mode: build a standalone dedicated-server engine into this folder instead of
@@ -800,17 +800,17 @@ enum Cmd {
         instance: Option<String>,
         /// The installed version whose game files the build reuses, and whose commit it builds on
         /// when no mod pins one (default: the one the instance plays, so a rebuild stays on its
-        /// Industrial Era)
+        /// IndustrialEra)
         #[arg(long)]
         version: Option<String>,
-        /// Move to the newest installed release or Nightly instead of the Industrial Era the instance
+        /// Move to the newest installed release or Nightly instead of the IndustrialEra the instance
         /// plays (a full rebuild)
         #[arg(long, conflicts_with = "version")]
         update: bool,
         /// You read the mods' source and trust it with full access to this computer
         #[arg(long)]
         trust_native_code: bool,
-        /// Build mods made for different Industrial Era versions together anyway, on the newest of them
+        /// Build mods made for different IndustrialEra versions together anyway, on the newest of them
         #[arg(long)]
         allow_version_mismatch: bool,
         /// The build profile: performance (the default: incremental, quick to rebuild), dev (quickest
@@ -836,7 +836,7 @@ enum Cmd {
     /// ("default" removes it), while-playing stay|minimize|hide (what the window does while the game runs), language
     /// system|en|fr|ru|de|zh|es|uk|pl (the window's language; system follows the computer's), accent
     /// violet|blue|teal|green|amber|red|pink, background PATH (a picture behind Home; "default"
-    /// shows Industrial Era's landscape), native-profile performance|dev|release (the profile native
+    /// shows IndustrialEra's landscape), native-profile performance|dev|release (the profile native
     /// mods build with: performance is incremental, dev rebuilds a mod quickest for a slow game,
     /// release is slowest to build and slightly faster to play)
     Settings {
@@ -873,13 +873,13 @@ enum Cmd {
         #[arg(long)]
         crash: bool,
     },
-    /// Look for a newer Industrial Era release and launcher, and install them
+    /// Look for a newer IndustrialEra release and launcher, and install them
     Update {
         /// Only report what is available
         #[arg(long)]
         check: bool,
     },
-    /// Linux: put Industrial Era in the applications menu (an entry and the icon, under
+    /// Linux: put IndustrialEra in the applications menu (an entry and the icon, under
     /// $XDG_DATA_HOME), or take it out with --remove
     DesktopEntry {
         /// Remove the entry and the icon, and stop adding them back
@@ -941,8 +941,8 @@ enum Cmd {
         #[command(subcommand)]
         action: Option<RustCmd>,
     },
-    /// Servers hosted with industrial-era-server (the Servers page): list them, create one, or run any
-    /// industrial-era-server command on one
+    /// Servers hosted with industrial_era-server (the Servers page): list them, create one, or run any
+    /// industrial_era-server command on one
     Servers {
         #[command(subcommand)]
         action: Option<ServersCmd>,
@@ -961,7 +961,7 @@ enum Cmd {
         test: bool,
     },
     /// Show or set No AI: on hides and turns off every AI feature (the companion, agent control,
-    /// industrial-era-ctl and both MCP servers); off, the default, makes them available
+    /// industrial_era-ctl and both MCP servers); off, the default, makes them available
     NoAi {
         /// Omit to show the current state
         #[arg(value_parser = ["on", "off"])]
@@ -1123,7 +1123,9 @@ pub fn run() -> Option<i32> {
     let cli = Cli::from_arg_matches(&definition.get_matches()).unwrap_or_else(|e| e.exit());
     let command = cli.command?;
     let result = match command {
-        Cmd::Mcp | Cmd::AgentConfig { .. } if no_ai => Err(industrial_era_core::no_ai::REFUSAL.into()),
+        Cmd::Mcp | Cmd::AgentConfig { .. } if no_ai => {
+            Err(industrial_era_core::no_ai::REFUSAL.into())
+        }
         Cmd::Mcp => crate::mcp::serve(),
         command => execute(command, cli.json),
     };
@@ -1189,7 +1191,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             clap_complete::generate(
                 shell,
                 &mut self::command(),
-                "industrial-era-launcher",
+                "industrial_era-launcher",
                 &mut std::io::stdout(),
             );
         }
@@ -1246,7 +1248,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
                 );
             } else {
                 println!(
-                    "Installed {tag}. Prepare it next: industrial-era-launcher prepare --version {tag}"
+                    "Installed {tag}. Prepare it next: industrial_era-launcher prepare --version {tag}"
                 );
             }
         }
@@ -1358,7 +1360,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             trust_unsigned,
         } => {
             if !trust_unsigned {
-                return Err("An imported build is unsigned: Industrial Era can't check where it came from. If you trust it, pass --trust-unsigned.".into());
+                return Err("An imported build is unsigned: IndustrialEra can't check where it came from. If you trust it, pass --trust-unsigned.".into());
             }
             let tag = build_import::import(&path, version.as_deref())?;
             let prepared = backend::is_prepared(&tag);
@@ -1367,7 +1369,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             } else if prepared {
                 println!("Imported {tag} and selected it. It is prepared already, from another installed version.");
             } else {
-                println!("Imported {tag} and selected it. Prepare it next: industrial-era-launcher prepare --version {tag}");
+                println!("Imported {tag} and selected it. Prepare it next: industrial_era-launcher prepare --version {tag}");
             }
         }
         Cmd::Prepare {
@@ -1416,7 +1418,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
                 {
                     return Err(format!(
                         "{} plays Minecraft: Java Edition: --version, --world, --creative, \
-                         --join and --account are for Industrial Era instances.",
+                         --join and --account are for IndustrialEra instances.",
                         instance.name
                     ));
                 }
@@ -1448,7 +1450,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
                     accounts
                         .find(&who)
                         .ok_or_else(|| {
-                            format!("No signed-in account {who}. See `industrial-era-launcher account`.")
+                            format!("No signed-in account {who}. See `industrial_era-launcher account`.")
                         })?
                         .uuid
                         .clone(),
@@ -1648,7 +1650,7 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             } else {
                 println!("{}", shared.url);
                 println!(
-                    "Delete it: industrial-era-launcher unshare-log {}:{}",
+                    "Delete it: industrial_era-launcher unshare-log {}:{}",
                     shared.id, shared.token
                 );
             }
@@ -1657,11 +1659,13 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             let (id, token) = shared
                 .split_once(':')
                 .ok_or("Give the \"<id>:<token>\" share-log printed.")?;
-            industrial_era_launcher::game_log::unshare(&industrial_era_launcher::game_log::Shared {
-                url: String::new(),
-                id: id.into(),
-                token: token.into(),
-            })?;
+            industrial_era_launcher::game_log::unshare(
+                &industrial_era_launcher::game_log::Shared {
+                    url: String::new(),
+                    id: id.into(),
+                    token: token.into(),
+                },
+            )?;
             println!("Deleted the shared log {id}.");
         }
         Cmd::Logs { lines, crash } => {
@@ -1680,10 +1684,10 @@ fn execute(command: Cmd, as_json: bool) -> Result<(), String> {
             settings.save()?;
             if remove {
                 industrial_era_launcher::desktop::remove()?;
-                println!("Removed Industrial Era from the applications menu.");
+                println!("Removed IndustrialEra from the applications menu.");
             } else {
                 industrial_era_launcher::desktop::install(backend::exe_path())?;
-                println!("Industrial Era is in the applications menu.");
+                println!("IndustrialEra is in the applications menu.");
             }
         }
         Cmd::Worlds { action } => worlds(
@@ -1725,11 +1729,13 @@ fn java(action: JavaCmd, as_json: bool) -> Result<(), String> {
             if as_json {
                 json(serde_json::json!(all));
             } else if all.is_empty() {
-                println!("No Java yet. Industrial Era downloads Mojang's when an instance needs it.");
+                println!(
+                    "No Java yet. IndustrialEra downloads Mojang's when an instance needs it."
+                );
             } else {
                 for r in &all {
                     let from = match r.source {
-                        java::Source::Mojang => "Mojang's, downloaded by Industrial Era",
+                        java::Source::Mojang => "Mojang's, downloaded by IndustrialEra",
                         java::Source::Installed => "installed",
                     };
                     println!("Java {}  ({from})\n  {}", r.version, r.home.display());
@@ -1772,7 +1778,7 @@ fn rust(action: RustCmd, as_json: bool) -> Result<(), String> {
                 match (&installed, &version) {
                     (Some(t), Some(v)) => println!("{v} in {}", t.dir.display()),
                     _ => println!(
-                        "Rust {} is not installed (`industrial-era-launcher rust install`).",
+                        "Rust {} is not installed (`industrial_era-launcher rust install`).",
                         rust::VERSION
                     ),
                 }
@@ -1805,19 +1811,19 @@ fn update(check: bool, as_json: bool) -> Result<(), String> {
     let updates = backend::check_updates()?;
     if as_json && check {
         json(serde_json::json!({
-            "industrial-era": updates.industrial_era.as_ref().map(|r| &r.tag),
+            "industrial_era": updates.industrial_era.as_ref().map(|r| &r.tag),
             "launcher": updates.launcher.as_ref().and_then(|r| backend::launcher_version(&r.tag)),
             "launcher_current": backend::VERSION,
         }));
         return Ok(());
     }
     match &updates.industrial_era {
-        None => println!("Industrial Era: up to date."),
-        Some(r) if check => println!("Industrial Era: {} is available.", r.tag),
+        None => println!("IndustrialEra: up to date."),
+        Some(r) if check => println!("IndustrialEra: {} is available.", r.tag),
         Some(r) => {
             let tag =
                 backend::install_tag(&r.tag, true, progress(format!("Installing {}", r.tag)))?;
-            println!("Industrial Era: installed {tag}.");
+            println!("IndustrialEra: installed {tag}.");
         }
     }
     match &updates.launcher {
@@ -1844,10 +1850,9 @@ fn update(check: bool, as_json: bool) -> Result<(), String> {
 fn account_command(action: AccountCmd, as_json: bool) -> Result<(), String> {
     let mut accounts = Accounts::load();
     let find = |accounts: &Accounts, who: &str| {
-        accounts
-            .find(who)
-            .cloned()
-            .ok_or_else(|| format!("No signed-in account {who}. See `industrial-era-launcher account`."))
+        accounts.find(who).cloned().ok_or_else(|| {
+            format!("No signed-in account {who}. See `industrial_era-launcher account`.")
+        })
     };
     match action {
         AccountCmd::List => {
@@ -1868,7 +1873,7 @@ fn account_command(action: AccountCmd, as_json: bool) -> Result<(), String> {
             } else if accounts.accounts.is_empty() && accounts.offline.is_empty() {
                 println!(
                     "No Microsoft account signed in. Play needs one that owns Minecraft: Java \
-                     Edition: industrial-era-launcher account sign-in"
+                     Edition: industrial_era-launcher account sign-in"
                 );
             } else {
                 for a in &accounts.accounts {
@@ -2143,7 +2148,7 @@ fn servers(action: ServersCmd, as_json: bool) -> Result<(), String> {
             .into_iter()
             .find(|e| e.name == which || e.dir == std::path::Path::new(which))
             .ok_or_else(|| {
-                format!("No server called {which}: `industrial-era-launcher servers` lists them")
+                format!("No server called {which}: `industrial_era-launcher servers` lists them")
             })
     };
     match action {
@@ -2161,7 +2166,7 @@ fn servers(action: ServersCmd, as_json: bool) -> Result<(), String> {
                         .collect(),
                 ));
             } else if list.is_empty() {
-                println!("No server yet: industrial-era-launcher servers create --accept-eula");
+                println!("No server yet: industrial_era-launcher servers create --accept-eula");
             }
             for e in list.iter().filter(|_| !as_json) {
                 println!(
@@ -2215,7 +2220,7 @@ fn servers(action: ServersCmd, as_json: bool) -> Result<(), String> {
             let tag = backend::resolve_version(version.as_deref())?;
             servers::set_up(&tag)?;
             println!(
-                "Servers run Industrial Era {}",
+                "Servers run IndustrialEra {}",
                 servers::runtime_release().unwrap_or(tag)
             );
         }
@@ -2226,7 +2231,7 @@ fn servers(action: ServersCmd, as_json: bool) -> Result<(), String> {
                 .status()
                 .map_err(|e| e.to_string())?;
             if !status.success() {
-                return Err(format!("industrial-era-server exited with {status}"));
+                return Err(format!("industrial_era-server exited with {status}"));
             }
         }
         ServersCmd::Forget { server } => {
@@ -2253,7 +2258,7 @@ fn github_native(
     trust: bool,
 ) -> Result<(), String> {
     if java {
-        return Err("Native mods from GitHub are for Industrial Era instances.".into());
+        return Err("Native mods from GitHub are for IndustrialEra instances.".into());
     }
     println!("{}", found.label());
     println!("Source, to read: {}", found.source_url());
@@ -2290,15 +2295,17 @@ fn github_native(
             o.sha256
         );
     }
-    println!("Build it next: industrial-era-launcher native-build --trust-native-code");
+    println!("Build it next: industrial_era-launcher native-build --trust-native-code");
     println!(
-        "Developing a mod? industrial-era-launcher settings native-profile dev (or native-build --profile dev): a mod edit rebuilds about 6× faster, while game logic runs up to about twice as slow. Use it while developing, not for playing."
+        "Developing a mod? industrial_era-launcher settings native-profile dev (or native-build --profile dev): a mod edit rebuilds about 6× faster, while game logic runs up to about twice as slow. Use it while developing, not for playing."
     );
     Ok(())
 }
 
 fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
-    use industrial_era_launcher::browser::{industrial-era, installed, java_instance, Kind, Query, SourceId};
+    use industrial_era_launcher::browser::{
+        industrial_era, installed, java_instance, Kind, Query, SourceId,
+    };
     use industrial_era_launcher::modpacks;
     // What the browser installs goes into an instance's game folder; Java mods' checks are kept
     // in the default one, shared by all.
@@ -2333,8 +2340,8 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
         .iter()
         .any(|e| e.source == SourceId::IndustrialEra);
     if from_registry {
-        if let Ok(index) = industrial_era: :index() {
-            for said in industrial_era: :turn_off_revoked(&index, &home) {
+        if let Ok(index) = industrial_era::index() {
+            for said in industrial_era::turn_off_revoked(&index, &home) {
                 eprintln!("{said}");
             }
         }
@@ -2347,7 +2354,7 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                 json(list.iter().map(entry_json).collect());
             } else if list.is_empty() && github_mods::origins(&home).is_empty() {
                 println!(
-                    "Nothing installed from the browser yet: industrial-era-launcher mods search <text>"
+                    "Nothing installed from the browser yet: industrial_era-launcher mods search <text>"
                 );
             }
             for o in industrial_era_launcher::github_mods::origins(&home)
@@ -2420,7 +2427,7 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                         "id": p.id, "slug": p.slug, "title": p.title, "summary": p.summary,
                         "author": p.author, "downloads": p.downloads, "page": p.page,
                         "license": p.license, "support": support.label(), "reason": support.reason(),
-                        "about": if p.source == SourceId::IndustrialEra { industrial_era: :trust_and_capabilities(&p.id) } else { Vec::new() },
+                        "about": if p.source == SourceId::IndustrialEra { industrial_era::trust_and_capabilities(&p.id) } else { Vec::new() },
                     })
                 }).collect());
             } else {
@@ -2431,7 +2438,7 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                     let support = p.support();
                     if p.source == SourceId::IndustrialEra {
                         println!("{}  ({})  {}\n  {}", p.title, p.slug, p.author, p.summary);
-                        for line in industrial_era: :trust_and_capabilities(&p.id) {
+                        for line in industrial_era::trust_and_capabilities(&p.id) {
                             println!("  {line}");
                         }
                         continue;
@@ -2450,9 +2457,12 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                         p.summary
                     );
                     if unchecked {
-                        println!("  industrial-era-launcher mods check {}", p.slug);
+                        println!("  industrial_era-launcher mods check {}", p.slug);
                     } else if datapack {
-                        println!("  industrial-era-launcher mods install {} --world <world>", p.slug);
+                        println!(
+                            "  industrial_era-launcher mods install {} --world <world>",
+                            p.slug
+                        );
                     } else if let Some(why) = support.reason() {
                         println!("  {why}");
                     }
@@ -2542,10 +2552,10 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                 ));
             }
             if p.kind == Kind::Modpack && p.source == SourceId::IndustrialEra {
-                let pack = industrial_era: :pack::install(&p.id, &line)?;
+                let pack = industrial_era::pack::install(&p.id, &line)?;
                 if as_json {
                     json(
-                        serde_json::json!({"pack": pack.id, "version": pack.version, "mods": pack.mods, "home": industrial_era: :pack::home(&pack.work)}),
+                        serde_json::json!({"pack": pack.id, "version": pack.version, "mods": pack.mods, "home": industrial_era::pack::home(&pack.work)}),
                     );
                 } else {
                     println!(
@@ -2554,7 +2564,7 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                         pack.version,
                         pack.mods.join(", ")
                     );
-                    println!("Play it: industrial-era-launcher modpack play {}", pack.id);
+                    println!("Play it: industrial_era-launcher modpack play {}", pack.id);
                 }
                 return Ok(());
             }
@@ -2569,7 +2579,10 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                     .map(|t| backend::resources(&t));
                 let pack = modpacks::import_and_port(&file, resources.as_deref(), log)?;
                 println!("{} ({})", modpacks::outcome(&pack), pack.summary());
-                println!("Play it: industrial-era-launcher modpack play {}", pack.slug);
+                println!(
+                    "Play it: industrial_era-launcher modpack play {}",
+                    pack.slug
+                );
                 return Ok(());
             }
             let done = match &java {
@@ -2664,14 +2677,14 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
             ..
         } => {
             if java.is_some() {
-                return Err("Native mods from GitHub are for Industrial Era instances.".into());
+                return Err("Native mods from GitHub are for IndustrialEra instances.".into());
             }
             let mut origins = github_mods::origins(&home);
             origins.retain(|o| id.as_deref().is_none_or(|i| o.id == i));
             if origins.is_empty() {
                 return Err(match id {
                     Some(i) => format!("{i} wasn't installed from GitHub."),
-                    None => "No native mod was installed from GitHub: industrial-era-launcher mods add-github <url>".into(),
+                    None => "No native mod was installed from GitHub: industrial_era-launcher mods add-github <url>".into(),
                 });
             }
             for o in origins {
@@ -2717,11 +2730,11 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                 .lookup(&project)
                 .cloned()
                 .ok_or_else(|| format!("{project} wasn't installed by the browser."))?;
-            let id = industrial_era: :mod_id(&e)
+            let id = industrial_era::mod_id(&e)
                 .filter(|_| e.kind == Kind::Mod)
                 .ok_or_else(|| format!("{} isn't a mod: only mods turn on and off.", e.title))?;
             if on {
-                if let Some(r) = industrial_era: :index()
+                if let Some(r) = industrial_era::index()
                     .ok()
                     .filter(|_| e.source == SourceId::IndustrialEra)
                     .and_then(|i| {
@@ -2894,7 +2907,7 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
         } => {
             let Some(java) = instances::find(&instance)?.java else {
                 return Err(format!(
-                    "{instance} is a Industrial Era instance: mod loaders are for Java instances."
+                    "{instance} is a IndustrialEra instance: mod loaders are for Java instances."
                 ));
             };
             if list {
@@ -2940,7 +2953,7 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
             let window = window.as_deref().map(parse_window).transpose()?;
             if instances::find(&instance)?.java.is_none() {
                 return Err(format!(
-                    "{instance} is a Industrial Era instance: Industrial Era is not a Java program."
+                    "{instance} is a IndustrialEra instance: IndustrialEra is not a Java program."
                 ));
             }
             changed(instances::edit(&instance, |m| {
@@ -3130,7 +3143,7 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
                 [] => {
                     return Err(format!(
                         "No other launcher has an instance called {name}: \
-                         industrial-era-launcher instance others"
+                         industrial_era-launcher instance others"
                     ))
                 }
                 _ => {
@@ -3164,7 +3177,7 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
                         json(value(&i, false));
                     } else {
                         println!(
-                            "Made the instance {} in {}: industrial-era-launcher instance select \"{}\"",
+                            "Made the instance {} in {}: industrial_era-launcher instance select \"{}\"",
                             i.name,
                             i.home.display(),
                             i.name
@@ -3175,7 +3188,7 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
                     let pack = modpacks::import(&file, &|line: String| eprintln!("{line}"))?;
                     println!("{} ({})", modpacks::outcome(&pack), pack.summary());
                     println!(
-                        "Port and play it: industrial-era-launcher modpack port {}",
+                        "Port and play it: industrial_era-launcher modpack port {}",
                         pack.slug
                     );
                 }
@@ -3186,17 +3199,15 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
                     };
                     let p = industrial_era_launcher::packs::add(&i.home, &file)?;
                     println!(
-                        "Added {} to {}: turn it on with industrial-era-launcher packs on",
+                        "Added {} to {}: turn it on with industrial_era-launcher packs on",
                         p.title, i.name
                     );
                 }
-                Dropped::DataPack => {
-                    return Err(format!(
-                        "{} is a data pack: put it into a world with industrial-era-launcher worlds \
+                Dropped::DataPack => return Err(format!(
+                    "{} is a data pack: put it into a world with industrial_era-launcher worlds \
                          datapack-add <world> <file>",
-                        file.display()
-                    ))
-                }
+                    file.display()
+                )),
             }
         }
         InstanceCmd::Export {
@@ -3534,13 +3545,13 @@ fn worlds(action: WorldsCmd, as_json: bool) -> Result<(), String> {
 }
 
 fn modpack(action: ModpackCmd, as_json: bool) -> Result<(), String> {
-    use industrial_era_launcher::browser::industrial-era;
+    use industrial_era_launcher::browser::industrial_era;
     use industrial_era_launcher::modpacks::{self, Imported};
     use industrial_era_port_pack::report::Status;
     let log = &|line: String| eprintln!("{line}");
     let work = |pack: &str| {
-        let registry = industrial_era: :pack::packs_dir().join(pack);
-        if industrial_era: :pack::is_pack(&registry) {
+        let registry = industrial_era::pack::packs_dir().join(pack);
+        if industrial_era::pack::is_pack(&registry) {
             return Ok(registry);
         }
         let work = modpacks::ports_dir().join(pack);
@@ -3576,19 +3587,19 @@ fn modpack(action: ModpackCmd, as_json: bool) -> Result<(), String> {
     match action {
         ModpackCmd::List => {
             let packs = modpacks::list();
-            let registry = industrial_era: :pack::list();
+            let registry = industrial_era::pack::list();
             if packs.is_empty() && registry.is_empty() && !as_json {
-                println!("No modpack imported yet: industrial-era-launcher modpack import <pack>");
+                println!("No modpack imported yet: industrial_era-launcher modpack import <pack>");
             }
             packs.iter().for_each(show);
             for p in &registry {
                 if as_json {
                     json(
-                        serde_json::json!({"pack": p.id, "name": p.name, "version": p.version, "source": "industrial-era", "mods": p.mods}),
+                        serde_json::json!({"pack": p.id, "name": p.name, "version": p.version, "source": "industrial_era", "mods": p.mods}),
                     );
                 } else {
                     println!(
-                        "{} {}  ({}, from Industrial Era's registry)\n  {}",
+                        "{} {}  ({}, from IndustrialEra's registry)\n  {}",
                         p.name,
                         p.version,
                         p.id,
@@ -3639,18 +3650,30 @@ mod tests {
             clap_complete::Shell::PowerShell,
         ] {
             let shell_name = shell.to_string();
-            let args = ["industrial-era-launcher", "completions", shell_name.as_str()].map(str::to_owned);
+            let args = [
+                "industrial_era-launcher",
+                "completions",
+                shell_name.as_str(),
+            ]
+            .map(str::to_owned);
             let cli = Cli::try_parse_from(args).unwrap();
             assert!(matches!(cli.command, Some(Cmd::Completions { .. })));
             let mut output = Vec::new();
-            clap_complete::generate(shell, &mut command(), "industrial-era-launcher", &mut output);
+            clap_complete::generate(
+                shell,
+                &mut command(),
+                "industrial_era-launcher",
+                &mut output,
+            );
             let script = String::from_utf8(output).unwrap();
-            assert!(script.contains("industrial-era-launcher"));
+            assert!(script.contains("industrial_era-launcher"));
             assert!(script.contains("versions"));
             assert!(script.contains("multiplayer"));
         }
-        assert!(Cli::try_parse_from(["industrial-era-launcher", "completions"]).is_err());
-        assert!(Cli::try_parse_from(["industrial-era-launcher", "completions", "unknown"]).is_err());
+        assert!(Cli::try_parse_from(["industrial_era-launcher", "completions"]).is_err());
+        assert!(
+            Cli::try_parse_from(["industrial_era-launcher", "completions", "unknown"]).is_err()
+        );
     }
 
     #[test]
@@ -3671,7 +3694,8 @@ mod tests {
 
     #[test]
     fn play_takes_an_account_for_one_launch() {
-        let cli = Cli::try_parse_from(["industrial-era-launcher", "play", "--account", "Alex"]).unwrap();
+        let cli =
+            Cli::try_parse_from(["industrial_era-launcher", "play", "--account", "Alex"]).unwrap();
         match cli.command {
             Some(Cmd::Play { account, .. }) => assert_eq!(account.as_deref(), Some("Alex")),
             _ => panic!("not play"),
@@ -3681,7 +3705,7 @@ mod tests {
     #[test]
     fn play_takes_extra_arguments_that_start_with_hyphens() {
         let cli = Cli::try_parse_from([
-            "industrial-era-launcher",
+            "industrial_era-launcher",
             "play",
             "--arg",
             "--server-thread",
@@ -3698,7 +3722,7 @@ mod tests {
     #[test]
     fn game_args_takes_one_line_that_starts_with_hyphens() {
         let cli = Cli::try_parse_from([
-            "industrial-era-launcher",
+            "industrial_era-launcher",
             "game-args",
             "--server-thread --render-distance 40",
         ])
@@ -3726,7 +3750,8 @@ mod tests {
     #[test]
     fn mods_commands_name_their_instance() {
         let parse = |args: &[&str]| {
-            let cli = Cli::try_parse_from([&["industrial-era-launcher", "mods"], args].concat()).unwrap();
+            let cli =
+                Cli::try_parse_from([&["industrial_era-launcher", "mods"], args].concat()).unwrap();
             match cli.command {
                 Some(Cmd::Mods { action }) => action,
                 _ => panic!("expected mods"),
@@ -3779,10 +3804,15 @@ mod tests {
             parse(&["search", "x", "--instance", "A"]),
             Some(ModsCmd::Search { instance: Some(i), .. }) if i == "A"
         ));
-        assert!(
-            Cli::try_parse_from(["industrial-era-launcher", "mods", "check", "x", "--instance", "A"])
-                .is_err()
-        );
+        assert!(Cli::try_parse_from([
+            "industrial_era-launcher",
+            "mods",
+            "check",
+            "x",
+            "--instance",
+            "A"
+        ])
+        .is_err());
     }
 
     #[test]
@@ -3790,7 +3820,11 @@ mod tests {
         let parse = |args: &[&str]| {
             Cli::try_parse_from(
                 [
-                    &["industrial-era-launcher", "native-build", "--trust-native-code"],
+                    &[
+                        "industrial_era-launcher",
+                        "native-build",
+                        "--trust-native-code",
+                    ],
                     args,
                 ]
                 .concat(),

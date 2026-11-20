@@ -1,10 +1,10 @@
 //! Linux: the launcher puts itself in the applications menu. It writes
-//! `applications/industrial-era-launcher.desktop` (pointing at wherever the binary is now) and Industrial Era's
+//! `applications/industrial_era-launcher.desktop` (pointing at wherever the binary is now) and IndustrialEra's
 //! icon into the `hicolor` theme, under `$XDG_DATA_HOME` (`~/.local/share` by default), so no root
-//! is needed; `industrial-era.desktop` (hidden from menus) gives the game's window its icon on Wayland.
+//! is needed; `industrial_era.desktop` (hidden from menus) gives the game's window its icon on Wayland.
 //! A release build writes it when it starts only if there is no entry yet or the one there starts
 //! a program that is gone ([`repair`]), so a development or test build never takes over a working
-//! entry. Turning the Settings switch on (or `industrial-era-launcher desktop-entry`) points it at this
+//! entry. Turning the Settings switch on (or `industrial_era-launcher desktop-entry`) points it at this
 //! binary whatever is there ([`install`]); the switch off and `desktop-entry --remove` take it all
 //! away again.
 use std::ffi::OsStr;
@@ -16,45 +16,45 @@ use std::path::{Path, PathBuf};
 const ICONS: [(&str, &[u8]); 9] = [
     (
         "16x16",
-        include_bytes!("../../packaging/icons/hicolor/16x16/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/16x16/apps/industrial_era.png"),
     ),
     (
         "24x24",
-        include_bytes!("../../packaging/icons/hicolor/24x24/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/24x24/apps/industrial_era.png"),
     ),
     (
         "32x32",
-        include_bytes!("../../packaging/icons/hicolor/32x32/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/32x32/apps/industrial_era.png"),
     ),
     (
         "48x48",
-        include_bytes!("../../packaging/icons/hicolor/48x48/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/48x48/apps/industrial_era.png"),
     ),
     (
         "64x64",
-        include_bytes!("../../packaging/icons/hicolor/64x64/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/64x64/apps/industrial_era.png"),
     ),
     (
         "128x128",
-        include_bytes!("../../packaging/icons/hicolor/128x128/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/128x128/apps/industrial_era.png"),
     ),
     (
         "256x256",
-        include_bytes!("../../packaging/icons/hicolor/256x256/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/256x256/apps/industrial_era.png"),
     ),
     (
         "512x512",
-        include_bytes!("../../packaging/icons/hicolor/512x512/apps/industrial-era.png"),
+        include_bytes!("../../packaging/icons/hicolor/512x512/apps/industrial_era.png"),
     ),
     (
         "scalable",
-        include_bytes!("../../packaging/icons/hicolor/scalable/apps/industrial-era.svg"),
+        include_bytes!("../../packaging/icons/hicolor/scalable/apps/industrial_era.svg"),
     ),
 ];
 
-const LAUNCHER_ENTRY: &str = "industrial-era-launcher.desktop";
-const GAME_ENTRY: &str = "industrial-era.desktop";
-const GAME_ENTRY_TEXT: &str = include_str!("../../packaging/linux/industrial-era.desktop");
+const LAUNCHER_ENTRY: &str = "industrial_era-launcher.desktop";
+const GAME_ENTRY: &str = "industrial_era.desktop";
+const GAME_ENTRY_TEXT: &str = include_str!("../../packaging/linux/industrial_era.desktop");
 
 /// `$XDG_DATA_HOME`, or `~/.local/share` when it is unset or not absolute (as the spec says).
 pub fn data_home() -> Option<PathBuf> {
@@ -82,15 +82,15 @@ pub fn launcher_entry(exe: &Path) -> String {
     format!(
         "[Desktop Entry]\n\
          Type=Application\n\
-         Name=Industrial Era\n\
+         Name=IndustrialEra\n\
          GenericName=Game launcher\n\
-         Comment=Install, prepare and play Industrial Era, Minecraft: Java Edition {minecraft} rewritten in Rust\n\
+         Comment=Install, prepare and play IndustrialEra, Minecraft: Java Edition {minecraft} rewritten in Rust\n\
          Exec={}\n\
          TryExec={}\n\
-         Icon=industrial-era\n\
+         Icon=industrial_era\n\
          Terminal=false\n\
          Categories=Game;\n\
-         StartupWMClass=industrial-era-launcher\n",
+         StartupWMClass=industrial_era-launcher\n",
         quote(exe),
         exe.display(),
         minecraft = industrial_era_core::VANILLA_VERSION,
@@ -111,9 +111,9 @@ fn files(data: &Path, exe: &Path) -> Vec<(PathBuf, Vec<u8>)> {
     ];
     for (size, bytes) in ICONS {
         let name = if size == "scalable" {
-            "industrial-era.svg"
+            "industrial_era.svg"
         } else {
-            "industrial-era.png"
+            "industrial_era.png"
         };
         out.push((
             data.join("icons/hicolor")
@@ -138,7 +138,7 @@ pub fn install_in(data: &Path, exe: &Path) -> io::Result<bool> {
             fs::create_dir_all(dir)?;
         }
         // Written beside and renamed, so a menu never reads half an entry.
-        let temp = path.with_extension("industrial-era-tmp");
+        let temp = path.with_extension("industrial_era-tmp");
         fs::write(&temp, &bytes)?;
         fs::rename(&temp, &path)?;
         wrote = true;
@@ -227,7 +227,7 @@ fn target_from(exe: &Path, appimage: Option<&Path>) -> PathBuf {
 }
 
 /// Registers the launcher whatever entry is there: for the player turning it on (the Settings
-/// switch, `industrial-era-launcher desktop-entry`).
+/// switch, `industrial_era-launcher desktop-entry`).
 pub fn install(exe: &Path) -> Result<bool, String> {
     let data = data_home().ok_or("No home folder to put the menu entry in.")?;
     install_in(&data, &target(exe)).map_err(|e| format!("{}: {e}", data.display()))
@@ -259,26 +259,31 @@ mod tests {
 
     #[test]
     fn exec_paths_are_quoted() {
-        let entry = launcher_entry(Path::new("/home/a b/Industrial Era \"x\"/industrial-era-launcher"));
-        assert!(entry.contains("Exec=\"/home/a b/Industrial Era \\\"x\\\"/industrial-era-launcher\"\n"));
-        assert!(entry.contains("TryExec=/home/a b/Industrial Era \"x\"/industrial-era-launcher\n"));
-        assert!(entry.contains("Icon=industrial-era\n"));
+        let entry = launcher_entry(Path::new(
+            "/home/a b/IndustrialEra \"x\"/industrial_era-launcher",
+        ));
+        assert!(
+            entry.contains("Exec=\"/home/a b/IndustrialEra \\\"x\\\"/industrial_era-launcher\"\n")
+        );
+        assert!(entry.contains("TryExec=/home/a b/IndustrialEra \"x\"/industrial_era-launcher\n"));
+        assert!(entry.contains("Icon=industrial_era\n"));
     }
 
     #[test]
     fn installs_follows_a_moved_binary_and_removes() {
-        let data = std::env::temp_dir().join(format!("industrial-era-desktop-{}", std::process::id()));
+        let data =
+            std::env::temp_dir().join(format!("industrial_era-desktop-{}", std::process::id()));
         let _ = fs::remove_dir_all(&data);
-        assert!(install_in(&data, Path::new("/opt/a/industrial-era-launcher")).unwrap());
-        assert!(!install_in(&data, Path::new("/opt/a/industrial-era-launcher")).unwrap());
-        let png = data.join("icons/hicolor/48x48/apps/industrial-era.png");
+        assert!(install_in(&data, Path::new("/opt/a/industrial_era-launcher")).unwrap());
+        assert!(!install_in(&data, Path::new("/opt/a/industrial_era-launcher")).unwrap());
+        let png = data.join("icons/hicolor/48x48/apps/industrial_era.png");
         assert!(fs::read(&png).unwrap().starts_with(b"\x89PNG"));
         assert!(data
-            .join("icons/hicolor/scalable/apps/industrial-era.svg")
+            .join("icons/hicolor/scalable/apps/industrial_era.svg")
             .exists());
-        assert!(install_in(&data, Path::new("/opt/b/industrial-era-launcher")).unwrap());
+        assert!(install_in(&data, Path::new("/opt/b/industrial_era-launcher")).unwrap());
         let entry = fs::read_to_string(data.join("applications").join(LAUNCHER_ENTRY)).unwrap();
-        assert!(entry.contains("Exec=\"/opt/b/industrial-era-launcher\""));
+        assert!(entry.contains("Exec=\"/opt/b/industrial_era-launcher\""));
         remove_in(&data).unwrap();
         assert!(!data.join("applications").join(LAUNCHER_ENTRY).exists());
         assert!(!png.exists());
@@ -288,22 +293,24 @@ mod tests {
 
     #[test]
     fn the_target_is_try_exec_else_the_first_word_of_exec() {
-        let ours = launcher_entry(Path::new("/opt/a b/industrial-era \"x\"/industrial-era-launcher"));
+        let ours = launcher_entry(Path::new(
+            "/opt/a b/industrial_era \"x\"/industrial_era-launcher",
+        ));
         assert_eq!(
             entry_target(&ours).as_deref(),
-            Some("/opt/a b/industrial-era \"x\"/industrial-era-launcher")
+            Some("/opt/a b/industrial_era \"x\"/industrial_era-launcher")
         );
         let without_try = ours.replace("TryExec=", "X-Old=");
         assert_eq!(
             entry_target(&without_try).as_deref(),
-            Some("/opt/a b/industrial-era \"x\"/industrial-era-launcher")
+            Some("/opt/a b/industrial_era \"x\"/industrial_era-launcher")
         );
         let wrapper = "[Desktop Entry]\nExec=flatpak run dev.industrial_era.Launcher %U\n";
         assert_eq!(entry_target(wrapper).as_deref(), Some("flatpak"));
         // Only the main group counts: an action's Exec is not the launcher.
         let action = "[Desktop Action play]\nExec=/a\n[Desktop Entry]\nExec=/b --x\n";
         assert_eq!(entry_target(action).as_deref(), Some("/b"));
-        assert_eq!(entry_target("[Desktop Entry]\nName=Industrial Era\n"), None);
+        assert_eq!(entry_target("[Desktop Entry]\nName=IndustrialEra\n"), None);
         assert_eq!(entry_target("[Desktop Entry]\nExec=\nTryExec=\n"), None);
     }
 
@@ -312,12 +319,14 @@ mod tests {
     /// program it starts is gone.
     #[test]
     fn a_start_writes_the_entry_only_when_none_works() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-desktop-repair-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial_era-desktop-repair-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let (data, bin) = (root.join("data"), root.join("bin"));
         fs::create_dir_all(&bin).unwrap();
-        let installed = bin.join("industrial-era-launcher");
+        let installed = bin.join("industrial_era-launcher");
         fs::write(&installed, b"").unwrap();
         let entry = data.join("applications").join(LAUNCHER_ENTRY);
         let path = Some(bin.as_os_str());
@@ -328,7 +337,7 @@ mod tests {
         // Ours works: a build elsewhere leaves it alone.
         assert!(!needs_repair_in(&data, path));
         // So does one another launcher wrote, found on PATH or by its path.
-        fs::write(&entry, "[Desktop Entry]\nExec=industrial-era-launcher %U\n").unwrap();
+        fs::write(&entry, "[Desktop Entry]\nExec=industrial_era-launcher %U\n").unwrap();
         assert!(!needs_repair_in(&data, path));
         assert!(needs_repair_in(&data, None));
         // The program is gone (a deleted target/ folder, a moved binary): write it again.
@@ -336,7 +345,7 @@ mod tests {
         fs::remove_file(&installed).unwrap();
         assert!(needs_repair_in(&data, path));
         // An entry that starts nothing is broken too.
-        fs::write(&entry, "[Desktop Entry]\nName=Industrial Era\n").unwrap();
+        fs::write(&entry, "[Desktop Entry]\nName=IndustrialEra\n").unwrap();
         assert!(needs_repair_in(&data, path));
         let _ = fs::remove_dir_all(&root);
     }
@@ -345,12 +354,12 @@ mod tests {
     /// when the launcher exits.
     #[test]
     fn an_appimage_entry_starts_the_appimage() {
-        let exe = Path::new("/tmp/.mount_Horizon123/usr/bin/industrial-era-launcher");
-        let appimage = Path::new("/home/a b/Industrial Era.AppImage");
+        let exe = Path::new("/tmp/.mount_Horizon123/usr/bin/industrial_era-launcher");
+        let appimage = Path::new("/home/a b/IndustrialEra.AppImage");
         assert_eq!(target_from(exe, Some(appimage)), appimage);
         assert_eq!(target_from(exe, None), exe);
         // Quoted, so the space in the player's folder survives.
         assert!(launcher_entry(&target_from(exe, Some(appimage)))
-            .contains("Exec=\"/home/a b/Industrial Era.AppImage\"\n"));
+            .contains("Exec=\"/home/a b/IndustrialEra.AppImage\"\n"));
     }
 }

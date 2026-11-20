@@ -9,14 +9,15 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 
-pub const REPO: &str = "industrial-era-rust/industrial-era";
-pub const README_URL: &str = "https://github.com/industrial-era-rust/industrial-era/blob/main/launcher/README.md";
+pub const REPO: &str = "industrial_era-rust/industrial_era";
+pub const README_URL: &str =
+    "https://github.com/industrial_era-rust/industrial_era/blob/main/launcher/README.md";
 /// The players' page on connecting an AI agent (the website's docs/agents.md).
 pub const AGENT_DOCS_URL: &str = "https://playhorizon.dev/docs/agents";
 /// This launcher's version: the release workflow sets `HORIZON_LAUNCHER_VERSION` from the
 /// tag it builds (no version-bump commits); other builds say Cargo.toml's.
 pub const VERSION: &str = version_or(option_env!("HORIZON_LAUNCHER_VERSION"));
-/// Launcher releases are tagged `launcher@X.Y.Z` from 0.2 on (docs/versioning.md), and Industrial Era's
+/// Launcher releases are tagged `launcher@X.Y.Z` from 0.2 on (docs/versioning.md), and IndustrialEra's
 /// own `vX.Y.Z`. Before 0.2 they were `launcher-vX.Y.Z` and `vYYYY.MM.DD[.N]`: every 0.2 tag is
 /// newer than every one of those ([`release_order`]).
 pub const LAUNCHER_TAG_PREFIX: &str = "launcher@";
@@ -46,34 +47,34 @@ pub struct Release {
     pub nightly: Option<String>,
 }
 
-/// The release assets of each system Industrial Era ships for: (`std::env::consts::OS`, `ARCH`, the game,
+/// The release assets of each system IndustrialEra ships for: (`std::env::consts::OS`, `ARCH`, the game,
 /// the launcher). game-build.yml builds the game's, nightly-build.yml signs and publishes them, and
 /// launcher.yml builds the launcher's (`platform_assets_are_published`).
 pub const PLATFORMS: [(&str, &str, &str, &str); 4] = [
     (
         "linux",
         "x86_64",
-        "industrial-era-linux-x86_64.tar.gz",
-        "industrial-era-launcher-linux-x86_64.tar.gz",
+        "industrial_era-linux-x86_64.tar.gz",
+        "industrial_era-launcher-linux-x86_64.tar.gz",
     ),
     (
         "macos",
         "aarch64",
-        "industrial-era-macos-arm64.zip",
-        "industrial-era-launcher-macos-arm64.zip",
+        "industrial_era-macos-arm64.zip",
+        "industrial_era-launcher-macos-arm64.zip",
     ),
     // Intel Macs (#1161).
     (
         "macos",
         "x86_64",
-        "industrial-era-macos-x64.zip",
-        "industrial-era-launcher-macos-x64.zip",
+        "industrial_era-macos-x64.zip",
+        "industrial_era-launcher-macos-x64.zip",
     ),
     (
         "windows",
         "x86_64",
-        "industrial-era-windows-x64.zip",
-        "industrial-era-launcher-windows-x64.zip",
+        "industrial_era-windows-x64.zip",
+        "industrial_era-launcher-windows-x64.zip",
     ),
 ];
 
@@ -108,7 +109,7 @@ const fn platform_assets(os: &str, arch: &str) -> Option<(&'static str, &'static
 
 const OWN_ASSETS: Option<(&str, &str)> =
     platform_assets(std::env::consts::OS, std::env::consts::ARCH);
-/// The game build this launcher installs, None where Industrial Era has none.
+/// The game build this launcher installs, None where IndustrialEra has none.
 pub const ASSET: Option<&str> = match OWN_ASSETS {
     Some((game, _)) => Some(game),
     None => None,
@@ -123,20 +124,21 @@ pub const LAUNCHER_ASSET: Option<&str> = match OWN_ASSETS {
 /// one file. A launcher running from one updates by replacing that file ([`appimage_path`]), so it
 /// needs this archive rather than the platform's `.tar.gz`.
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-pub const LAUNCHER_APPIMAGE_ASSET: Option<&str> = Some("industrial-era-launcher-linux-x86_64.AppImage");
+pub const LAUNCHER_APPIMAGE_ASSET: Option<&str> =
+    Some("industrial_era-launcher-linux-x86_64.AppImage");
 #[cfg(not(all(target_os = "linux", target_arch = "x86_64")))]
 pub const LAUNCHER_APPIMAGE_ASSET: Option<&str> = None;
 
 const LAUNCHER_BINARY: &str = if cfg!(windows) {
-    "industrial-era-launcher.exe"
+    "industrial_era-launcher.exe"
 } else {
-    "industrial-era-launcher"
+    "industrial_era-launcher"
 };
 
 pub(crate) const CLIENT: &str = if cfg!(windows) {
-    "industrial-era-client.exe"
+    "industrial_era-client.exe"
 } else {
-    "industrial-era-client"
+    "industrial_era-client"
 };
 
 /// The agent `url` is fetched with: the launcher's own user agent, through the player's proxy when
@@ -144,7 +146,7 @@ pub(crate) const CLIENT: &str = if cfg!(windows) {
 pub(crate) fn agent(url: &str) -> ureq::Agent {
     crate::proxy::agent(
         ureq::AgentBuilder::new()
-            .user_agent(&format!("industrial-era-launcher/{VERSION}"))
+            .user_agent(&format!("industrial_era-launcher/{VERSION}"))
             // A connection that goes quiet fails instead of waiting for ever.
             .timeout_connect(std::time::Duration::from_secs(15))
             .timeout_read(std::time::Duration::from_secs(60)),
@@ -186,7 +188,7 @@ pub(crate) fn get(url: &str) -> Result<ureq::Response, String> {
     })
 }
 
-/// A Industrial Era game tag: `v` then a digit (`v2026.10.13`). Launcher tags never match.
+/// A IndustrialEra game tag: `v` then a digit (`v2026.10.13`). Launcher tags never match.
 pub fn is_game_tag(tag: &str) -> bool {
     tag.strip_prefix('v')
         .is_some_and(|rest| rest.starts_with(|c: char| c.is_ascii_digit()))
@@ -220,7 +222,7 @@ fn own_tag_of(tag: Option<&str>, injected: Option<&str>) -> String {
     }
 }
 
-/// Where a tag or version stands among Industrial Era's releases (docs/versioning.md): the tags from
+/// Where a tag or version stands among IndustrialEra's releases (docs/versioning.md): the tags from
 /// before 0.2 (`vYYYY.MM.DD[.N]`, `launcher-vX.Y.Z`) and bare versions first, compared number by
 /// number with missing parts as zero and anything after a `-` ignored, as launchers always did;
 /// then the 0.2 tags (`vX.Y.Z`, `launcher@X.Y.Z`) in semver's order, a pre-release
@@ -231,7 +233,7 @@ pub enum ReleaseOrder {
     Before02(Vec<u64>),
     Semver([u64; 3], Prerelease),
     /// A Nightly (`nightly-<date>-<commit>`), by its date: newer than every release, since the
-    /// Nightly is the only build Industrial Era ships.
+    /// Nightly is the only build IndustrialEra ships.
     Nightly(String),
 }
 
@@ -365,7 +367,7 @@ fn is_launcher_tag(tag: &str) -> bool {
     launcher_version(tag).is_some()
 }
 
-/// Published Industrial Era builds, newest first: the current Nightly (the only build Industrial Era ships since
+/// Published IndustrialEra builds, newest first: the current Nightly (the only build IndustrialEra ships since
 /// 2026-10-28, docs/release-flow.md), the last week's Nightlies, then the releases from before.
 /// Drafts never reach the anonymous API, and launcher releases are left out.
 pub fn releases() -> Result<Vec<Release>, String> {
@@ -446,7 +448,7 @@ fn newest_launcher_tags(refs: &serde_json::Value) -> Vec<String> {
     tags
 }
 
-/// The newest Industrial Era release that has a build for this platform.
+/// The newest IndustrialEra release that has a build for this platform.
 pub fn latest(releases: &[Release]) -> Option<&Release> {
     releases.iter().find(|r| r.asset.is_some())
 }
@@ -539,7 +541,7 @@ pub fn data_dir() -> PathBuf {
     }
     dirs::data_dir()
         .unwrap_or_else(std::env::temp_dir)
-        .join("industrial-era-launcher")
+        .join("industrial_era-launcher")
 }
 
 /// A canonical path without Windows' verbatim prefix: `canonicalize` gives `\\?\C:\...` there,
@@ -567,7 +569,7 @@ fn tool_safe(path: &Path) -> bool {
 
 /// Where builds happen — the Rust toolchain, its Cargo home and `native_mods::root` — as a
 /// path every build tool can read: `data_dir()` resolved, so the tools are never handed a
-/// link (industrial-era-mixins refuses one, and macOS's /tmp is one). On Windows, when the resolved
+/// link (industrial_era-mixins refuses one, and macOS's /tmp is one). On Windows, when the resolved
 /// path isn't [`tool_safe`], [`windows_build_dir`] names the same folder a way MinGW-w64 can open.
 pub fn build_dir() -> PathBuf {
     let data = data_dir();
@@ -610,7 +612,7 @@ fn ascii_build_dir(real: &Path, program_data: Option<PathBuf>) -> PathBuf {
         .unwrap_or_else(|| PathBuf::from(r"C:\ProgramData"));
     let key = Sha256::digest(real.as_os_str().as_encoded_bytes());
     let key: String = key[..4].iter().map(|b| format!("{b:02x}")).collect();
-    public.join(format!("industrial-era-launcher-{key}"))
+    public.join(format!("industrial_era-launcher-{key}"))
 }
 
 /// `GetShortPathNameW`: `path`'s short (8.3) name, or None on error. A folder with no short
@@ -655,7 +657,7 @@ pub fn game_mod_api_level() -> Option<u32> {
 
 /// A game version's mod API level, read once from the mark its program carries
 /// (`industrial_era_mods::api_level::MARK`). A program from before the mark serves level 0, the
-/// contract of Industrial Era 0.2.67 and 0.2.68.
+/// contract of IndustrialEra 0.2.67 and 0.2.68.
 pub fn mod_api_level(tag: &str) -> u32 {
     static LEVELS: Mutex<Vec<(String, u32)>> = Mutex::new(Vec::new());
     let mut levels = LEVELS.lock().unwrap_or_else(|e| e.into_inner());
@@ -781,7 +783,7 @@ pub fn install(release: &Release, progress: impl Fn(f32)) -> Result<(), String> 
             fetch_small,
         )?,
         None if is_game_tag(tag) => signed_digest(tag, ASSET.unwrap_or_default())?,
-        None => return Err(format!("{tag} is not a Industrial Era release.")),
+        None => return Err(format!("{tag} is not a IndustrialEra release.")),
     };
     install_as(release, tag, &sha256, progress)
 }
@@ -807,7 +809,7 @@ pub(crate) fn install_as(
     let unpacked = partial.join("unpacked");
     unpack(&archive, &url, &unpacked)?;
     progress(0.97);
-    // The archives hold one top folder (industrial-era-linux-x86_64/...); the version folder is its contents.
+    // The archives hold one top folder (industrial_era-linux-x86_64/...); the version folder is its contents.
     let entries: Vec<_> = fs::read_dir(&unpacked)
         .map_err(|e| e.to_string())?
         .flatten()
@@ -870,7 +872,7 @@ pub fn disk_use(tag: &str) -> u64 {
     size(&version_dir(tag))
 }
 
-/// The Minecraft version a Industrial Era build targets, from its research-lock.json.
+/// The Minecraft version a IndustrialEra build targets, from its research-lock.json.
 pub fn game_version(tag: &str) -> String {
     game_version_at(&version_dir(tag))
 }
@@ -890,10 +892,11 @@ pub fn resources(tag: &str) -> PathBuf {
 }
 
 fn resources_at(dir: &Path) -> PathBuf {
-    dir.join(".local/industrial-era-client").join(game_version_at(dir))
+    dir.join(".local/industrial_era-client")
+        .join(game_version_at(dir))
 }
 
-const RESOURCES_MANIFEST: &str = "industrial-era-resources.json";
+const RESOURCES_MANIFEST: &str = "industrial_era-resources.json";
 
 pub fn is_prepared(tag: &str) -> bool {
     resources(tag).join(RESOURCES_MANIFEST).exists()
@@ -907,7 +910,7 @@ pub fn has_sounds(tag: &str) -> bool {
 }
 
 fn sounds_in(resources: &Path) -> bool {
-    // What the game's sound registry reads (industrial-era-client sound_events.rs).
+    // What the game's sound registry reads (industrial_era-client sound_events.rs).
     resources.join("assets/minecraft/sounds.json").is_file()
 }
 
@@ -916,7 +919,7 @@ pub fn resources_summary(prepared: bool, sounds: bool, version: &str) -> String 
     use crate::i18n::trf;
     match (prepared, sounds) {
         (false, _) => trf(
-            "Not prepared. Industrial Era needs the files of your own Minecraft {version}.",
+            "Not prepared. IndustrialEra needs the files of your own Minecraft {version}.",
             &[("version", version)],
         ),
         (true, true) => trf("Prepared for Minecraft {version}", &[("version", version)]),
@@ -930,7 +933,7 @@ pub fn resources_summary(prepared: bool, sounds: bool, version: &str) -> String 
 
 /// Whether the resources `from` prepared are the ones preparing `to` would make: both pin the same
 /// Minecraft jars (research-lock.json) and their preparers make the same output. A preparer
-/// declares what it makes with `OUTPUT_VERSION` (crates/industrial-era-prepare/src/lib.rs, whose sources
+/// declares what it makes with `OUTPUT_VERSION` (crates/industrial_era-prepare/src/lib.rs, whose sources
 /// ship in the release folder), bumped by hand when the output changes and checked by CI
 /// (tools/prepare_output.py), so a release that changes the preparer's code but not its output
 /// keeps the resources. Preparers from before the number are known by their sources
@@ -996,7 +999,7 @@ const LEGACY_OUTPUT_VERSIONS: [(&str, u32); 2] = [
 ];
 
 /// The vanilla exporters those preparers ran (the `*_exporters_sha256` of their manifests), in
-/// mods/industrial-era/src/test/java/dev/horizonlab/parity.
+/// mods/industrial_era/src/test/java/dev/horizonlab/parity.
 const LEGACY_EXPORTERS: [&str; 18] = [
     "ParityData.java",
     "VanillaBlockBehaviourExporter.java",
@@ -1027,7 +1030,7 @@ fn legacy_fingerprint(dir: &Path) -> Option<String> {
     let mut hash = sha2::Sha256::new();
     hash.update(sources.as_bytes());
     for name in LEGACY_EXPORTERS {
-        let path = format!("mods/industrial-era/src/test/java/dev/horizonlab/parity/{name}");
+        let path = format!("mods/industrial_era/src/test/java/dev/horizonlab/parity/{name}");
         let data: Vec<u8> = fs::read(dir.join(&path))
             .ok()?
             .into_iter()
@@ -1041,9 +1044,9 @@ fn legacy_fingerprint(dir: &Path) -> Option<String> {
 
 /// How launchers before `OUTPUT_VERSION` compared two preparers, for versions older than the
 /// ones `LEGACY_OUTPUT_VERSIONS` knows. The manifest records the hashes of the vanilla exporters
-/// the resources were made with (mods/industrial-era/src/test/java/.../parity), and the preparer writes
+/// the resources were made with (mods/industrial_era/src/test/java/.../parity), and the preparer writes
 /// every file and the manifest's `schema`, so both need the same preparer and the same exporter
-/// sources. The preparer is crates/industrial-era-prepare and tools/prepare_native_client.py (the
+/// sources. The preparer is crates/industrial_era-prepare and tools/prepare_native_client.py (the
 /// Python preparer of older versions, a wrapper of the binary since); a file only one of the two
 /// versions has is a different preparer. The helpers the Python preparer imported (lab.py and
 /// the test_*_parity.py modules) change between releases in how they find and check the
@@ -1067,7 +1070,8 @@ fn same_preparer(from: &Path, to: &Path, manifest: &serde_json::Value) -> bool {
         return false;
     }
     let mut sources = vec![
-        "mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaHeightmapOracle.java".to_string(),
+        "mods/industrial_era/src/test/java/dev/horizonlab/parity/VanillaHeightmapOracle.java"
+            .to_string(),
     ];
     for (_, value) in fields
         .iter()
@@ -1090,7 +1094,7 @@ fn same_preparer(from: &Path, to: &Path, manifest: &serde_json::Value) -> bool {
 }
 
 /// Where a version folder keeps the preparer's sources (the release package copies them).
-const PREPARER_CRATE: &str = "crates/industrial-era-prepare";
+const PREPARER_CRATE: &str = "crates/industrial_era-prepare";
 
 /// The files under `dir/relative`, as paths relative to `dir`.
 fn files_under(dir: &Path, relative: &Path) -> Vec<PathBuf> {
@@ -1133,7 +1137,7 @@ pub(crate) fn copy_dir_except(from: &Path, to: &Path, skip: Option<&Path>) -> st
 /// After an install: when `tag` is not prepared but another installed version made the same
 /// resources, copies them (not hard links: preparing again rewrites files in place, which would
 /// change both). The player then needs neither their Minecraft folder nor a new preparation to
-/// play a release that only changed Industrial Era. Returns the version they came from.
+/// play a release that only changed IndustrialEra. Returns the version they came from.
 fn reuse_prepared(versions: &Path, tag: &str) -> Option<String> {
     let target = versions.join(tag);
     let to = resources_at(&target);
@@ -1272,9 +1276,9 @@ fn complete_reports(versions: &Path, tag: &str) -> bool {
 }
 
 /// What a prepared version may lack that the launcher adds without preparing again, each copied
-/// from the player's own Minecraft asset store as `industrial-era-prepare <kind>` does: what the
+/// from the player's own Minecraft asset store as `industrial_era-prepare <kind>` does: what the
 /// player misses without it, its kind (`industrial_era_prepare::missing_extras`, the same check as
-/// `industrial-era-prepare --check`), and the copy.
+/// `industrial_era-prepare --check`), and the copy.
 type Completion = (
     &'static str,
     &'static str,
@@ -1291,9 +1295,17 @@ const COMPLETIONS: [Completion; 5] = [
     // A preparation that could not read the asset store keeps the client jar's 1x1 grey
     // placeholders, its English alone, and no sounds (#1867: Prism Launcher installs prepared
     // since 0.2.48).
-    ("The title panorama", "panorama", industrial_era_prepare::panorama),
+    (
+        "The title panorama",
+        "panorama",
+        industrial_era_prepare::panorama,
+    ),
     ("The Unifont glyphs", "fonts", industrial_era_prepare::fonts),
-    ("The languages", "languages", industrial_era_prepare::languages),
+    (
+        "The languages",
+        "languages",
+        industrial_era_prepare::languages,
+    ),
     ("The sounds", "sounds", industrial_era_prepare::sounds),
 ];
 
@@ -1307,7 +1319,7 @@ pub fn complete_assets(tag: &str) {
     });
 }
 
-/// Industrial Era's own download (an owner's) may have stopped before the sounds and the languages,
+/// IndustrialEra's own download (an owner's) may have stopped before the sounds and the languages,
 /// and the copies of `complete_assets` read them from its store: asked again, once per run, through
 /// the same owner gate as any download from Mojang (`download_for_owner`), which keeps the files
 /// already whole. Called where a download is expected (`reuse_prepared_everywhere`), never on Play.
@@ -1393,7 +1405,7 @@ fn complete_assets_in(
 
 /// The Minecraft folders whose asset store can hold what a prepared version lacks: the one
 /// chosen in the launcher, the official launcher's (or HORIZON_MINECRAFT_DIR), the folder
-/// other launchers' files are linked into and Industrial Era's own download, then every launcher's
+/// other launchers' files are linked into and IndustrialEra's own download, then every launcher's
 /// default folder.
 fn minecraft_folders() -> Vec<PathBuf> {
     let mut folders: Vec<PathBuf> = Settings::load().minecraft_dir.into_iter().collect();
@@ -1448,19 +1460,19 @@ fn python() -> Option<&'static str> {
 
 /// How a version's resources are prepared.
 pub enum Preparer {
-    /// industrial-era-prepare, linked into the launcher: the version ships the same preparer sources.
+    /// industrial_era-prepare, linked into the launcher: the version ships the same preparer sources.
     InProcess(industrial_era_prepare::Options),
-    /// The version's own preparer: its industrial-era-prepare binary when its sources differ from the
+    /// The version's own preparer: its industrial_era-prepare binary when its sources differ from the
     /// launcher's (a newer or older release), or the Python script of versions made before it.
     Process(Command),
 }
 
-/// The version's industrial-era-prepare binary, when it ships one.
+/// The version's industrial_era-prepare binary, when it ships one.
 fn preparer_binary(dir: &Path) -> Option<PathBuf> {
     let binary = dir.join(if cfg!(windows) {
-        "industrial-era-prepare.exe"
+        "industrial_era-prepare.exe"
     } else {
-        "industrial-era-prepare"
+        "industrial_era-prepare"
     });
     binary.is_file().then_some(binary)
 }
@@ -1484,13 +1496,13 @@ fn download_for_owner(
         &mut accounts,
     );
     if let Err(e) = accounts.save() {
-        log(format!("Industrial Era: the accounts are not saved: {e}"));
+        log(format!("IndustrialEra: the accounts are not saved: {e}"));
     }
     download_for(pins, dir, pass, !accounts.accounts.is_empty(), fetch, log)
 }
 
 /// Downloads Minecraft `id` (any version on Mojang's list, its version file's sha1 from it) into
-/// Industrial Era's own game folder, in the official launcher's layout, for an account that owns the
+/// IndustrialEra's own game folder, in the official launcher's layout, for an account that owns the
 /// game (asked again now). Returns that folder.
 pub fn download_version_for_owner(
     id: &str,
@@ -1524,7 +1536,7 @@ pub fn java_game(
 ) -> Result<Command, String> {
     let game = instance.java.as_ref().ok_or_else(|| {
         format!(
-            "{} plays Industrial Era, not Minecraft: Java Edition",
+            "{} plays IndustrialEra, not Minecraft: Java Edition",
             instance.name
         )
     })?;
@@ -1621,7 +1633,7 @@ fn download_for(
                 sources::Os::Windows => "windows",
             };
             mojang::download(pins, dir, os, 8, fetch, &mojang::CANCEL, log).map_err(|e| {
-                format!("\n  • Industrial Era tried to download {v} from Mojang for {name}, but: {e}")
+                format!("\n  • IndustrialEra tried to download {v} from Mojang for {name}, but: {e}")
             })
         }
         // An owner by its last answer, who can't be asked now.
@@ -1631,11 +1643,11 @@ fn download_for(
             pass.offline.unwrap_or_default()
         )),
         Err(_) if signed_in => Err(
-            "\n  • No signed-in account owns Minecraft: Java Edition, so Industrial Era can't download it."
+            "\n  • No signed-in account owns Minecraft: Java Edition, so IndustrialEra can't download it."
                 .into(),
         ),
         Err(_) => Err(format!(
-            "\n  • Or sign in with the Microsoft account that owns Minecraft: Industrial Era then \
+            "\n  • Or sign in with the Microsoft account that owns Minecraft: IndustrialEra then \
              downloads {v} from Mojang itself."
         )),
     }
@@ -1644,7 +1656,7 @@ fn download_for(
 /// The Java home for this version: a runtime for precompiled exporters, a JDK for older
 /// preparers or changed sources. Forward the selection to external preparers too.
 /// Else try the official launcher's Java in `games`, then download the runtime named by
-/// `manifest` into Industrial Era's game folder (Mojang's runtimes are whole JDKs).
+/// `manifest` into IndustrialEra's game folder (Mojang's runtimes are whole JDKs).
 fn java(
     major: i64,
     compiler: bool,
@@ -1694,7 +1706,7 @@ fn java(
     let runtime = data_dir().join("minecraft").join("runtime");
     let home = mojang::java_runtime(&component, &runtime, 8, &fetch, &mojang::CANCEL, log)
         .map_err(|e| {
-        format!("{missing}\n  • Industrial Era also tried to download Minecraft's own Java from Mojang, but: {e}")
+        format!("{missing}\n  • IndustrialEra also tried to download Minecraft's own Java from Mojang, but: {e}")
     })?;
     find(major, &[home]).map(|jdk| jdk.home())
 }
@@ -1762,7 +1774,7 @@ pub enum PrepareStep {
     Files,
     Java,
     Sounds,
-    /// industrial-era-prepare's own work on those files.
+    /// industrial_era-prepare's own work on those files.
     Prepare,
 }
 
@@ -1792,7 +1804,7 @@ pub fn set_prepare_step(step: PrepareStep) {
 
 /// Checks what the preparation needs and picks how to run it. PLAY.txt describes the same
 /// steps: the player's own launcher install, the server jar from that version's own json, and
-/// Java (and Python, for versions before industrial-era-prepare). Also returns the Minecraft folder
+/// Java (and Python, for versions before industrial_era-prepare). Also returns the Minecraft folder
 /// to prepare from: `minecraft`, or the files another launcher keeps, linked into the official
 /// launcher's layout (sources.rs).
 pub fn preparer(
@@ -1804,7 +1816,8 @@ pub fn preparer(
     set_prepare_step(PrepareStep::Files);
     let version = game_version(tag);
     let dir = version_dir(tag);
-    let reused = industrial_era_prepare::artifacts::reuse_imported(&dir, &|line| log(line.to_string()))?;
+    let reused =
+        industrial_era_prepare::artifacts::reuse_imported(&dir, &|line| log(line.to_string()))?;
     let chosen = minecraft.to_path_buf();
     // Resolved even when the game files are reused: the assets still come from the install.
     let minecraft = {
@@ -1812,7 +1825,7 @@ pub fn preparer(
             .and_then(|lock| sources::Pins::read(&lock))
             .ok_or("The version's research-lock.json doesn't pin the Minecraft files")?;
         let own = data_dir().join("minecraft");
-        let mut known = vec![("Industrial Era's own download", own.clone())];
+        let mut known = vec![("IndustrialEra's own download", own.clone())];
         known.extend(
             sources::Folders::current()
                 .map(|f| sources::known_folders(sources::Os::current(), &f))
@@ -1859,7 +1872,7 @@ pub fn preparer(
             "This version prepares with Python: Python 3.10 or newer is needed. Install it, or pick a newer version.",
         )?),
     };
-    // The Java the version pins, found as industrial-era-prepare finds it, so a missing one is
+    // The Java the version pins, found as industrial_era-prepare finds it, so a missing one is
     // reported (or downloaded) before the server jar is downloaded. Versions from before
     // java_major ran Java 25.
     let major = read_json(&dir.join("research-lock.json"))
@@ -1939,7 +1952,7 @@ pub fn preparer(
 }
 
 /// Copies the pinned version's sounds from the player's own launcher install into the version's
-/// resources (`industrial-era-prepare sounds`), each line to `log`. Sound is optional, so a launcher
+/// resources (`industrial_era-prepare sounds`), each line to `log`. Sound is optional, so a launcher
 /// install without them is a line in the log, never a failed preparation. The version's own
 /// preparer does it when it is not the launcher's and knows how; versions from before it read
 /// the sounds where the launcher's preparer puts them.
@@ -1951,7 +1964,9 @@ pub fn sounds(tag: &str, minecraft: &Path, log: &dyn Fn(String)) {
         !own && crate::process::command(binary)
             .arg("--help")
             .output()
-            .is_ok_and(|o| String::from_utf8_lossy(&o.stdout).contains("industrial-era-prepare sounds"))
+            .is_ok_and(|o| {
+                String::from_utf8_lossy(&o.stdout).contains("industrial_era-prepare sounds")
+            })
     });
     set_prepare_step(PrepareStep::Sounds);
     log("Copying the sounds from your Minecraft install".into());
@@ -1999,8 +2014,8 @@ pub fn prepare_in_process(
     .map(|_| ())
 }
 
-/// Where the game keeps saves and options.txt: `HORIZON_HOME`, else `industrial-era` in the platform's
-/// data folder (~/.local/share/industrial-era on Linux, as the release folders' industrial-era.sh uses). It is
+/// Where the game keeps saves and options.txt: `HORIZON_HOME`, else `industrial_era` in the platform's
+/// data folder (~/.local/share/industrial_era on Linux, as the release folders' industrial_era.sh uses). It is
 /// never inside a version folder, so installing, updating or removing a version keeps the saves.
 pub fn game_home() -> PathBuf {
     if let Some(home) = std::env::var_os("HORIZON_HOME").filter(|h| !h.is_empty()) {
@@ -2008,18 +2023,19 @@ pub fn game_home() -> PathBuf {
     }
     dirs::data_dir()
         .unwrap_or_else(std::env::temp_dir)
-        .join("industrial-era")
+        .join("industrial_era")
 }
 
 /// Whether No AI is on: every AI feature hidden and off (`industrial_era_core::no_ai`, kept in the
-/// game's `industrial-era-extras.txt` so the game reads the same switch).
+/// game's `industrial_era-extras.txt` so the game reads the same switch).
 pub fn no_ai() -> bool {
     industrial_era_core::no_ai::is_on(&game_home())
 }
 
 /// Turns No AI on or off for the launcher and the game.
 pub fn set_no_ai(on: bool) -> Result<(), String> {
-    industrial_era_core::no_ai::set(&game_home(), on).map_err(|e| format!("Could not save No AI: {e}"))
+    industrial_era_core::no_ai::set(&game_home(), on)
+        .map_err(|e| format!("Could not save No AI: {e}"))
 }
 
 // ----- Logs and crash reports ---------------------------------------------------------------------
@@ -2086,10 +2102,10 @@ pub fn crash_summary(report: &str) -> Option<String> {
 }
 
 /// The line the game prints when it has drawn its first frame.
-pub const GAME_FIRST_FRAME: &str = "Industrial Era: first frame";
+pub const GAME_FIRST_FRAME: &str = "IndustrialEra: first frame";
 
 /// Whether a game's output ends in a crash while its Vulkan renderer started: an adapter line
-/// (`Industrial Era renderer: <GPU> (Vulkan, <type>)`) and no first frame. A native crash in a graphics
+/// (`IndustrialEra renderer: <GPU> (Vulkan, <type>)`) and no first frame. A native crash in a graphics
 /// driver leaves no crash report, only those lines (#746).
 pub fn vulkan_start_crashed<S: AsRef<str>>(lines: impl IntoIterator<Item = S>) -> bool {
     let mut vulkan = false;
@@ -2098,7 +2114,7 @@ pub fn vulkan_start_crashed<S: AsRef<str>>(lines: impl IntoIterator<Item = S>) -
         if line.starts_with(GAME_FIRST_FRAME) {
             return false;
         }
-        if let Some(adapter) = line.strip_prefix("Industrial Era renderer: ") {
+        if let Some(adapter) = line.strip_prefix("IndustrialEra renderer: ") {
             // The adapter line, not one of the start's steps: "<GPU> (<backend>, <type>)".
             if adapter.ends_with(')') && adapter.contains(" (") {
                 vulkan = adapter.contains(" (Vulkan, ");
@@ -2109,7 +2125,7 @@ pub fn vulkan_start_crashed<S: AsRef<str>>(lines: impl IntoIterator<Item = S>) -
 }
 
 /// The game's graphics settings file in its home (the game's `graphics.rs`).
-const GRAPHICS_FILE: &str = "industrial-era-graphics.txt";
+const GRAPHICS_FILE: &str = "industrial_era-graphics.txt";
 
 /// Sets `graphicsApi:dx12` in `home`'s graphics settings when it is unset or `auto`, keeping
 /// every other line. True when it changed; a player's own `vulkan` or `dx12` stays.
@@ -2242,19 +2258,19 @@ pub fn client_command(tag: &str) -> Command {
         cmd.env("HORIZON_LAUNCHER_EXE", exe);
     }
     // PipeWire remembers volume and mute per application name. The game's own name is
-    // "PipeWire ALSA [industrial-era-client]", shared with development and test runs, where
-    // muting it once left every later game silent: played from here it is "Industrial Era".
+    // "PipeWire ALSA [industrial_era-client]", shared with development and test runs, where
+    // muting it once left every later game silent: played from here it is "IndustrialEra".
     if std::env::var_os("PIPEWIRE_PROPS").is_none() {
         cmd.env(
             "PIPEWIRE_PROPS",
-            "{ application.name = \"Industrial Era\" media.role = \"Game\" }",
+            "{ application.name = \"IndustrialEra\" media.role = \"Game\" }",
         );
     }
     cmd
 }
 
-/// The game's program: on macOS the one inside the version's Industrial Era.app, so the Dock and Cmd+Tab
-/// show Industrial Era's name and icon (game_app.rs); the bare binary elsewhere, or if that fails.
+/// The game's program: on macOS the one inside the version's IndustrialEra.app, so the Dock and Cmd+Tab
+/// show IndustrialEra's name and icon (game_app.rs); the bare binary elsewhere, or if that fails.
 fn client_program(tag: &str) -> PathBuf {
     let dir = version_dir(tag);
     #[cfg(target_os = "macos")]
@@ -2411,7 +2427,7 @@ pub fn need_prepared(tag: &str) -> Result<(), String> {
         Ok(())
     } else {
         Err(format!(
-            "{tag} is not prepared yet. Prepare it first: `industrial-era-launcher prepare --version {tag}` \
+            "{tag} is not prepared yet. Prepare it first: `industrial_era-launcher prepare --version {tag}` \
              uses your own Minecraft {v}, or downloads it from Mojang for the signed-in account \
              that owns it.",
             v = game_version(tag)
@@ -2432,10 +2448,12 @@ pub fn client_as(tag: &str, who: Option<&account::Player>) -> Result<Command, St
         None => account::session_for_game(&game_home(), false).map_err(|e| e.to_string()),
         Some(who) => account::session_for_game_as(&game_home(), who),
     }
-    .map_err(|refused| format!("{refused} Sign in with `industrial-era-launcher account sign-in`."))?;
+    .map_err(|refused| {
+        format!("{refused} Sign in with `industrial_era-launcher account sign-in`.")
+    })?;
     need_prepared(tag)?;
     complete_assets(tag);
-    crate::browser::industrial_era: :before_play(&game_home());
+    crate::browser::industrial_era::before_play(&game_home());
     let mut cmd = client_command(tag);
     if let Some(file) = session {
         cmd.arg("--session-file").arg(file);
@@ -2479,7 +2497,7 @@ pub fn release_notes(tag: Option<&str>) -> Result<Release, String> {
         Some(tag) => releases
             .into_iter()
             .find(|r| r.tag == tag)
-            .ok_or_else(|| format!("No Industrial Era release is tagged {tag}.")),
+            .ok_or_else(|| format!("No IndustrialEra release is tagged {tag}.")),
         None => releases
             .into_iter()
             .next()
@@ -2557,14 +2575,14 @@ impl Logged {
 
 // ----- Updates -----------------------------------------------------------------------------------
 
-/// What a check found: a Industrial Era build newer than every installed one, and a newer launcher.
+/// What a check found: a IndustrialEra build newer than every installed one, and a newer launcher.
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct Updates {
     pub industrial_era: Option<Release>,
     pub launcher: Option<Release>,
 }
 
-/// The newest Industrial Era build with a build here (the current Nightly), if it isn't installed and
+/// The newest IndustrialEra build with a build here (the current Nightly), if it isn't installed and
 /// no installed version is newer. Two Nightlies of one day compare equal: the one on GitHub is
 /// the update.
 pub fn industrial_era_update(releases: &[Release], installed: &[String]) -> Option<Release> {
@@ -2616,7 +2634,7 @@ fn releases_and_updates_with(
     let industrial_era = industrial_era_update(&installable_updates(&releases), &installed());
     on_releases(Ok(releases));
     Ok(Updates {
-        industrial-era,
+        industrial_era,
         launcher: launcher_update(&launchers(&list)),
     })
 }
@@ -2656,7 +2674,7 @@ pub fn install_tag(tag: &str, as_update: bool, progress: impl Fn(f32)) -> Result
         releases
             .iter()
             .find(|r| r.tag == tag)
-            .ok_or_else(|| format!("No Industrial Era release is tagged {tag}."))?
+            .ok_or_else(|| format!("No IndustrialEra release is tagged {tag}."))?
     };
     if release.asset.is_none() {
         return Err(format!("{} has no build for this platform.", release.tag));
@@ -2735,10 +2753,10 @@ pub fn self_update_allowed() -> bool {
     !cfg!(debug_assertions) && std::env::var_os("HORIZON_LAUNCHER_NO_SELF_UPDATE").is_none()
 }
 
-/// The version in `industrial-era-launcher --version`'s output (`industrial-era-launcher 0.1.5`).
+/// The version in `industrial_era-launcher --version`'s output (`industrial_era-launcher 0.1.5`).
 fn parse_version_output(out: &str) -> Option<&str> {
     out.trim()
-        .strip_prefix("industrial-era-launcher ")
+        .strip_prefix("industrial_era-launcher ")
         .map(str::trim)
         .filter(|v| !v.is_empty())
 }
@@ -2852,8 +2870,8 @@ pub fn remove_replaced_binaries() {
     });
 }
 
-/// The app bundle the launcher runs from (`…/Industrial Era.app` for `…/Industrial Era.app/Contents/MacOS/
-/// industrial-era-launcher`), or None for a bare binary, as launchers before the .app shipped.
+/// The app bundle the launcher runs from (`…/IndustrialEra.app` for `…/IndustrialEra.app/Contents/MacOS/
+/// industrial_era-launcher`), or None for a bare binary, as launchers before the .app shipped.
 pub fn app_bundle(exe: &Path) -> Option<&Path> {
     let macos = exe.parent()?;
     let contents = macos.parent()?;
@@ -2943,9 +2961,9 @@ pub fn self_update(release: &Release, progress: impl Fn(f32)) -> Result<(), Stri
     }
     let unpacked = work.join("unpacked");
     unpack(&archive, &url, &unpacked)?;
-    // A launcher inside Industrial Era.app replaces the whole bundle (its Info.plist, icon and
+    // A launcher inside IndustrialEra.app replaces the whole bundle (its Info.plist, icon and
     // signature belong with the binary); a bare binary, as older launchers are, only the binary,
-    // which the macOS archive also holds (Industrial Era.app/Contents/MacOS/industrial-era-launcher).
+    // which the macOS archive also holds (IndustrialEra.app/Contents/MacOS/industrial_era-launcher).
     if let Some(app) = app_bundle(exe_path()) {
         if let Some(new) = find_app(&unpacked) {
             replace_bundle(&new, app)?;
@@ -3117,7 +3135,7 @@ pub enum Msg {
     PackLine(String),
     /// A modpack step ended: the pack as it now is.
     PackDone(Result<Box<crate::modpacks::Imported>, String>),
-    /// How many play Industrial Era now, or none when the server can't be reached (`telemetry`).
+    /// How many play IndustrialEra now, or none when the server can't be reached (`telemetry`).
     Playing(Option<u64>),
     /// How many play on the official server now, or none when it doesn't answer its status ping
     /// (`telemetry::watch_official`).
@@ -3263,7 +3281,7 @@ impl WhilePlaying {
 #[derive(Default, serde::Serialize, serde::Deserialize)]
 pub struct Settings {
     pub selected: Option<String>,
-    /// The instance Play starts (`instances`), by id. Unset means Industrial Era, the game's home.
+    /// The instance Play starts (`instances`), by id. Unset means IndustrialEra, the game's home.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instance: Option<String>,
     pub minecraft_dir: Option<PathBuf>,
@@ -3315,11 +3333,11 @@ pub struct Settings {
     /// What the window does while the game runs. Stays by default.
     #[serde(default)]
     pub while_playing: WhilePlaying,
-    /// The accent colour on top of the appearance (`themes::Accent`). Industrial Era's violet by default.
+    /// The accent colour on top of the appearance (`themes::Accent`). IndustrialEra's violet by default.
     #[serde(default)]
     pub accent: crate::themes::Accent,
     /// Home's background: a picture the player picked, kept in the data folder under this name
-    /// (`themes::keep_background`). Unset shows Industrial Era's landscape.
+    /// (`themes::keep_background`). Unset shows IndustrialEra's landscape.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub background: Option<String>,
     /// The window's language. Unset follows the system's (`i18n::Language::system`).
@@ -3388,7 +3406,7 @@ impl Settings {
     pub fn language(&self) -> crate::i18n::Language {
         self.language.unwrap_or_else(crate::i18n::Language::system)
     }
-    /// Whether new Industrial Era versions are installed automatically.
+    /// Whether new IndustrialEra versions are installed automatically.
     pub fn auto_install(&self) -> bool {
         self.install_new_versions.unwrap_or(true)
     }
@@ -3435,15 +3453,15 @@ mod tests {
     use super::*;
     use std::cmp::Ordering::*;
 
-    /// A canonical path loses Windows' verbatim prefix on a drive (industrial-era-mixins' output
+    /// A canonical path loses Windows' verbatim prefix on a drive (industrial_era-mixins' output
     /// check stats `\\?\C:`, the volume itself, which Windows refuses, os error 1), and keeps
     /// it where there is no drive form.
     #[test]
     fn a_canonical_windows_path_loses_only_a_drives_verbatim_prefix() {
         let plain = |p: &str| plain(PathBuf::from(p));
         assert_eq!(
-            plain(r"\\?\C:\Users\me\AppData\Roaming\industrial-era-launcher\native"),
-            PathBuf::from(r"C:\Users\me\AppData\Roaming\industrial-era-launcher\native")
+            plain(r"\\?\C:\Users\me\AppData\Roaming\industrial_era-launcher\native"),
+            PathBuf::from(r"C:\Users\me\AppData\Roaming\industrial_era-launcher\native")
         );
         // A share has no drive form to fall back to; other paths have no prefix.
         assert_eq!(
@@ -3451,25 +3469,25 @@ mod tests {
             PathBuf::from(r"\\?\UNC\server\share\native")
         );
         assert_eq!(
-            plain("/home/me/.local/share/industrial-era-launcher/native"),
-            PathBuf::from("/home/me/.local/share/industrial-era-launcher/native")
+            plain("/home/me/.local/share/industrial_era-launcher/native"),
+            PathBuf::from("/home/me/.local/share/industrial_era-launcher/native")
         );
     }
 
-    /// [#5189](https://github.com/industrial-era-rust/industrial-era/issues/5189): MinGW-w64's tools can't
+    /// [#5189](https://github.com/industrial_era-rust/industrial_era/issues/5189): MinGW-w64's tools can't
     /// read a non-ASCII path, so the build root is the data folder's resolved ASCII spelling —
     /// which a link's target or a short (8.3) name already is.
     #[test]
     fn the_build_dir_is_a_path_the_tools_can_read() {
         assert!(ascii(Path::new(
-            r"C:\Users\me\AppData\Roaming\industrial-era-launcher"
+            r"C:\Users\me\AppData\Roaming\industrial_era-launcher"
         )));
         assert!(!ascii(Path::new(
-            r"C:\Users\Кириченко Павло\AppData\Roaming\industrial-era-launcher"
+            r"C:\Users\Кириченко Павло\AppData\Roaming\industrial_era-launcher"
         )));
-        assert!(!ascii(Path::new("/høme/me/industrial-era-launcher")));
+        assert!(!ascii(Path::new("/høme/me/industrial_era-launcher")));
         // A space splits windres' include folders, which matters on Windows only.
-        let spaced = Path::new(r"C:\Users\Jane Doe\AppData\Roaming\industrial-era-launcher");
+        let spaced = Path::new(r"C:\Users\Jane Doe\AppData\Roaming\industrial_era-launcher");
         assert!(ascii(spaced));
         assert_eq!(tool_safe(spaced), !cfg!(windows));
         let built = build_dir();
@@ -3487,20 +3505,20 @@ mod tests {
         }
     }
 
-    /// [#6009](https://github.com/industrial-era-rust/industrial-era/issues/6009): with a Cyrillic user name the
+    /// [#6009](https://github.com/industrial_era-rust/industrial_era/issues/6009): with a Cyrillic user name the
     /// build folder is a real ASCII folder of ProgramData's (not a short name of the data folder,
     /// which rustc resolves back to the Cyrillic one), its own for each data folder.
     #[test]
     fn a_cyrillic_data_folder_builds_in_an_ascii_folder_of_its_own() {
-        let pavlo = Path::new(r"C:\Users\Кириченко Павло\AppData\Roaming\industrial-era-launcher");
-        let other = Path::new(r"C:\Users\Олена\AppData\Roaming\industrial-era-launcher");
+        let pavlo = Path::new(r"C:\Users\Кириченко Павло\AppData\Roaming\industrial_era-launcher");
+        let other = Path::new(r"C:\Users\Олена\AppData\Roaming\industrial_era-launcher");
         let public = PathBuf::from(if cfg!(windows) { r"D:\Data" } else { "/data" });
         let dir = ascii_build_dir(pavlo, Some(public.clone()));
         assert!(ascii(&dir), "{}", dir.display());
         assert_eq!(dir.parent(), Some(public.as_path()));
         let name = dir.file_name().unwrap().to_str().unwrap();
         assert!(
-            name.starts_with("industrial-era-launcher-") && name.len() == 25,
+            name.starts_with("industrial_era-launcher-") && name.len() == 25,
             "{name}"
         );
         assert_eq!(dir, ascii_build_dir(pavlo, Some(public.clone())), "stable");
@@ -3518,11 +3536,12 @@ mod tests {
     /// and older) or none at all serves level 0.
     #[test]
     fn a_game_program_says_its_mod_api_level() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-api-level-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial_era-api-level-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let marked = dir.join("marked");
         let mut program = b"\x7fELF code code".to_vec();
-        program.extend_from_slice(b"industrial-era-mod-api-level:0007;");
+        program.extend_from_slice(b"industrial_era-mod-api-level:0007;");
         fs::write(&marked, &program).unwrap();
         let old = dir.join("old");
         fs::write(&old, b"\x7fELF code without a mark").unwrap();
@@ -3537,7 +3556,8 @@ mod tests {
     /// the developer option (`Settings::dev_offline`), whose pass has no owner.
     #[test]
     fn mojang_downloads_only_for_an_owner() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-owner-only-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial_era-owner-only-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         let pins = sources::Pins::read(&serde_json::json!({ "minecraft": {
             "version": "26.3",
@@ -3675,8 +3695,10 @@ pub fn {f}("
     /// the official layout (jan.sonki on Discord: silent, grey title screen since 0.2.48).
     #[test]
     fn reused_imports_take_the_assets_from_the_launcher_that_has_them() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-reused-assets-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial_era-reused-assets-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         let client = b"fake client jar";
         let manifest = br#"{"id": "26.3"}"#;
@@ -3719,7 +3741,8 @@ pub fn {f}("
 
     #[test]
     fn resources_without_sounds_are_reported() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-no-sounds-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial_era-no-sounds-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(dir.join("assets/minecraft/textures")).unwrap();
         fs::write(dir.join(RESOURCES_MANIFEST), "{}").unwrap();
@@ -3746,17 +3769,20 @@ pub fn {f}("
         assert_eq!(
             platform_assets("macos", "aarch64"),
             Some((
-                "industrial-era-macos-arm64.zip",
-                "industrial-era-launcher-macos-arm64.zip"
+                "industrial_era-macos-arm64.zip",
+                "industrial_era-launcher-macos-arm64.zip"
             ))
         );
         assert_eq!(
             platform_assets("macos", "x86_64"),
-            Some(("industrial-era-macos-x64.zip", "industrial-era-launcher-macos-x64.zip"))
+            Some((
+                "industrial_era-macos-x64.zip",
+                "industrial_era-launcher-macos-x64.zip"
+            ))
         );
         assert_eq!(
             platform_assets("windows", "x86_64").map(|(game, _)| game),
-            Some("industrial-era-windows-x64.zip")
+            Some("industrial_era-windows-x64.zip")
         );
         assert_eq!(platform_assets("linux", "aarch64"), None);
         assert_eq!(platform_assets("macos", "x86"), None);
@@ -3804,24 +3830,24 @@ pub fn {f}("
             .and_then(|(_, v)| v);
         assert!(props.is_some_and(|v| v
             .to_string_lossy()
-            .contains("application.name = \"Industrial Era\"")));
+            .contains("application.name = \"IndustrialEra\"")));
     }
 
     #[test]
     fn a_crash_after_the_vulkan_adapter_line_and_before_the_first_frame_is_a_start_crash() {
         let start = [
-            "Industrial Era: resources loaded in 11.3s; 35723 block states, 1658 items, 67 biomes",
-            "Industrial Era renderer: Intel(R) HD Graphics 530 (Vulkan, IntegratedGpu)",
+            "IndustrialEra: resources loaded in 11.3s; 35723 block states, 1658 items, 67 biomes",
+            "IndustrialEra renderer: Intel(R) HD Graphics 530 (Vulkan, IntegratedGpu)",
         ];
         assert!(vulkan_start_crashed(start));
         // A step line after the adapter keeps it a start crash.
-        let step = [start[1], "Industrial Era renderer: creating the pipelines"];
+        let step = [start[1], "IndustrialEra renderer: creating the pipelines"];
         assert!(vulkan_start_crashed(step));
         // A crash after the first frame is the game's, not the renderer start's.
-        let later = [start[1], "Industrial Era: first frame after 812 ms"];
+        let later = [start[1], "IndustrialEra: first frame after 812 ms"];
         assert!(!vulkan_start_crashed(later));
         // Already on DirectX 12, or no renderer yet: nothing to switch.
-        let dx12 = ["Industrial Era renderer: Intel(R) HD Graphics 530 (Dx12, IntegratedGpu)"];
+        let dx12 = ["IndustrialEra renderer: Intel(R) HD Graphics 530 (Dx12, IntegratedGpu)"];
         assert!(!vulkan_start_crashed(dx12));
         assert!(!vulkan_start_crashed(&start[..1]));
         // Vulkan failed to open and DirectX 12 took over: its line is the last adapter.
@@ -3830,7 +3856,8 @@ pub fn {f}("
 
     #[test]
     fn a_renderer_start_crash_switches_auto_to_dx12_once() {
-        let home = std::env::temp_dir().join(format!("industrial-era-dx12-switch-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial_era-dx12-switch-{}", std::process::id()));
         let _ = fs::remove_dir_all(&home);
         // No settings file yet: one with the API alone.
         assert_eq!(switch_to_dx12(&home), Ok(true));
@@ -3909,8 +3936,8 @@ pub fn {f}("
         assert_eq!(launcher_version("v2026.10.13"), None);
         assert_eq!(launcher_version("launcher-vx"), None);
         let list = serde_json::json!([
-            {"tag_name": "v2026.10.12", "assets": [{"name": "industrial-era-linux-x86_64.tar.gz", "browser_download_url": "u", "size": 1}]},
-            {"tag_name": "launcher-v9.0.0", "assets": [{"name": "industrial-era-launcher-linux-x86_64.tar.gz", "browser_download_url": "u", "size": 1}]},
+            {"tag_name": "v2026.10.12", "assets": [{"name": "industrial_era-linux-x86_64.tar.gz", "browser_download_url": "u", "size": 1}]},
+            {"tag_name": "launcher-v9.0.0", "assets": [{"name": "industrial_era-launcher-linux-x86_64.tar.gz", "browser_download_url": "u", "size": 1}]},
             {"tag_name": "v2026.10.13", "assets": []},
             {"tag_name": "launcher-v0.0.1", "draft": true, "assets": []},
         ]);
@@ -3930,7 +3957,7 @@ pub fn {f}("
     /// previous one the newest again: it is what `install latest` and the update check offer.
     #[test]
     fn withdrawn_release_is_never_offered() {
-        let asset = ASSET.unwrap_or("industrial-era-linux-x86_64.tar.gz");
+        let asset = ASSET.unwrap_or("industrial_era-linux-x86_64.tar.gz");
         let list = serde_json::json!([
             {"tag_name": "v2026.10.15.1", "draft": true, "assets": [{"name": asset, "browser_download_url": "bad", "size": 1}]},
             {"tag_name": "v2026.10.15", "assets": [{"name": asset, "browser_download_url": "good", "size": 1}]},
@@ -3957,7 +3984,7 @@ pub fn {f}("
     /// had one installed waits for the next release instead of going back.
     #[test]
     fn updates_follow_every_release_and_leave_the_old_alpha_ones_out() {
-        let asset = ASSET.unwrap_or("industrial-era-linux-x86_64.tar.gz");
+        let asset = ASSET.unwrap_or("industrial_era-linux-x86_64.tar.gz");
         let list = serde_json::json!([
             {"tag_name": "v0.2.13", "assets": [{"name": asset, "browser_download_url": "n", "size": 1}]},
             {"tag_name": "v0.2.12", "prerelease": true, "assets": [{"name": asset, "browser_download_url": "a", "size": 1}]},
@@ -4095,7 +4122,7 @@ pub fn {f}("
         assert!(launcher_update(&[r(own_tag())]).is_none());
         assert_eq!(launcher_version(&own_tag()), Some(VERSION));
         assert_eq!(
-            parse_version_output(&format!("industrial-era-launcher {VERSION}\n")),
+            parse_version_output(&format!("industrial_era-launcher {VERSION}\n")),
             Some(VERSION)
         );
     }
@@ -4177,7 +4204,7 @@ pub fn {f}("
         #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
         assert_eq!(
             launcher_asset_running_from(true),
-            Some("industrial-era-launcher-linux-x86_64.AppImage")
+            Some("industrial_era-launcher-linux-x86_64.AppImage")
         );
     }
 
@@ -4190,29 +4217,30 @@ pub fn {f}("
     fn only_an_appimage_file_counts() {
         use std::ffi::OsStr;
         let mount = OsStr::new("/tmp/.mount_Horizon123");
-        let exe = Path::new("/tmp/.mount_Horizon123/usr/bin/industrial-era-launcher");
+        let exe = Path::new("/tmp/.mount_Horizon123/usr/bin/industrial_era-launcher");
         assert_eq!(appimage_path_in(None, Some(mount), exe), None);
         assert_eq!(
-            appimage_path_in(Some(OsStr::new("Industrial Era.AppImage")), Some(mount), exe),
+            appimage_path_in(Some(OsStr::new("IndustrialEra.AppImage")), Some(mount), exe),
             None,
             "a relative path is no $APPIMAGE"
         );
         assert_eq!(
             appimage_path_in(
-                Some(OsStr::new("/nonexistent/Industrial Era.AppImage")),
+                Some(OsStr::new("/nonexistent/IndustrialEra.AppImage")),
                 Some(mount),
                 exe
             ),
             None
         );
-        let file = std::env::temp_dir().join(format!("industrial-era-appimage-{}", std::process::id()));
+        let file =
+            std::env::temp_dir().join(format!("industrial_era-appimage-{}", std::process::id()));
         std::fs::write(&file, b"#!AppImage").unwrap();
         assert_eq!(
             appimage_path_in(Some(file.as_os_str()), Some(mount), exe),
             Some(file.clone())
         );
         // Inherited from another AppImage: this launcher is installed elsewhere.
-        let elsewhere = Path::new("/home/a/.local/bin/industrial-era-launcher");
+        let elsewhere = Path::new("/home/a/.local/bin/industrial_era-launcher");
         assert_eq!(
             appimage_path_in(Some(file.as_os_str()), Some(mount), elsewhere),
             None
@@ -4245,7 +4273,7 @@ pub fn {f}("
         );
         assert_eq!(compare_versions("launcher@0.2.0", "v0.2.0"), Equal);
 
-        let asset = ASSET.unwrap_or("industrial-era-linux-x86_64.tar.gz");
+        let asset = ASSET.unwrap_or("industrial_era-linux-x86_64.tar.gz");
         let list = serde_json::json!([
             {"tag_name": "v0.2.0", "prerelease": true, "assets": [{"name": asset, "browser_download_url": "b", "size": 1}]},
             {"tag_name": "v2026.10.21", "prerelease": true, "assets": [{"name": asset, "browser_download_url": "d", "size": 1}]},
@@ -4374,11 +4402,11 @@ pub fn {f}("
         ));
     }
 
-    /// The Nightly is the only build Industrial Era ships (docs/release-flow.md): every launcher takes the
+    /// The Nightly is the only build IndustrialEra ships (docs/release-flow.md): every launcher takes the
     /// current one as its update, over every release; the last week's are listed, never offered.
     #[test]
     fn every_launcher_updates_to_the_current_nightly() {
-        let asset = ASSET.unwrap_or("industrial-era-linux-x86_64.tar.gz");
+        let asset = ASSET.unwrap_or("industrial_era-linux-x86_64.tar.gz");
         let build = |url: &str| serde_json::json!([{"name": asset, "browser_download_url": url, "size": 1}]);
         let list = serde_json::json!([
             {"tag_name": "nightly", "name": "Nightly 2026-10-28 · 9b772b2", "prerelease": true,
@@ -4508,13 +4536,17 @@ pub fn {f}("
 
     #[test]
     fn a_new_version_reuses_resources_prepared_by_a_compatible_one() {
-        let versions =
-            std::env::temp_dir().join(format!("industrial-era-launcher-test-{}", std::process::id()));
+        let versions = std::env::temp_dir().join(format!(
+            "industrial_era-launcher-test-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&versions);
-        let oracle = "mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaHeightmapOracle.java";
-        let camera = "mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaCameraOracle.java";
+        let oracle =
+            "mods/industrial_era/src/test/java/dev/horizonlab/parity/VanillaHeightmapOracle.java";
+        let camera =
+            "mods/industrial_era/src/test/java/dev/horizonlab/parity/VanillaCameraOracle.java";
         let collision =
-            "mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaCollisionOracle.java";
+            "mods/industrial_era/src/test/java/dev/horizonlab/parity/VanillaCollisionOracle.java";
         let write = |tag: &str, path: &str, text: &str| {
             let path = versions.join(tag).join(path);
             fs::create_dir_all(path.parent().unwrap()).unwrap();
@@ -4534,12 +4566,12 @@ pub fn {f}("
                 serde_json::json!({"schema": 7, "collision_exporters_sha256": {collision: "x"}});
             write(
                 tag,
-                &format!(".local/industrial-era-client/{minecraft}/{RESOURCES_MANIFEST}"),
+                &format!(".local/industrial_era-client/{minecraft}/{RESOURCES_MANIFEST}"),
                 &manifest.to_string(),
             );
             write(
                 tag,
-                &format!(".local/industrial-era-client/{minecraft}/worldgen/biomes.json"),
+                &format!(".local/industrial_era-client/{minecraft}/worldgen/biomes.json"),
                 "{}",
             );
         };
@@ -4562,11 +4594,12 @@ pub fn {f}("
         assert!(resources_at(&versions.join("v2026.10.13.1"))
             .join("worldgen/biomes.json")
             .exists());
-        let left: Vec<_> = fs::read_dir(versions.join("v2026.10.13.1/.local/industrial-era-client"))
-            .unwrap()
-            .flatten()
-            .map(|e| e.file_name())
-            .collect();
+        let left: Vec<_> =
+            fs::read_dir(versions.join("v2026.10.13.1/.local/industrial_era-client"))
+                .unwrap()
+                .flatten()
+                .map(|e| e.file_name())
+                .collect();
         assert_eq!(left, ["26.3"]);
         // Already prepared: nothing to do.
         assert_eq!(reuse_prepared(&versions, "v2026.10.13.1"), None);
@@ -4594,9 +4627,9 @@ pub fn {f}("
         assert!(!is_prepared("v2026.10.15") && !is_prepared("v2026.10.16"));
         assert!(reuse_prepared_in(&versions).is_empty());
 
-        // Versions with industrial-era-prepare: its sources are the preparer, so the same sources
+        // Versions with industrial_era-prepare: its sources are the preparer, so the same sources
         // reuse each other's resources, and a change or a version without them prepares again.
-        let crate_file = "crates/industrial-era-prepare/src/lib.rs";
+        let crate_file = "crates/industrial_era-prepare/src/lib.rs";
         release("v2026.10.18", "26.3");
         write("v2026.10.18", crate_file, "rust preparer");
         assert_eq!(reuse_prepared(&versions, "v2026.10.18"), None);
@@ -4616,7 +4649,7 @@ pub fn {f}("
     #[test]
     fn prepared_resources_follow_the_preparers_output_version() {
         let versions = std::env::temp_dir().join(format!(
-            "industrial-era-launcher-output-test-{}",
+            "industrial_era-launcher-output-test-{}",
             std::process::id()
         ));
         let _ = fs::remove_dir_all(&versions);
@@ -4625,19 +4658,23 @@ pub fn {f}("
             fs::create_dir_all(path.parent().unwrap()).unwrap();
             fs::write(path, text).unwrap();
         };
-        let lib = "crates/industrial-era-prepare/src/lib.rs";
+        let lib = "crates/industrial_era-prepare/src/lib.rs";
         // A preparer with its sources (as releases ship them) and the exporters it runs.
         let release = |tag: &str, code: &str| {
             write(tag, COMPLETE, "");
             let lock = serde_json::json!({"minecraft": {"version": "26.3", "client_sha1": "c", "server_sha1": "s"}});
             write(tag, "research-lock.json", &lock.to_string());
-            write(tag, "crates/industrial-era-prepare/Cargo.toml", "[package]");
-            write(tag, "crates/industrial-era-prepare/build.rs", "fn main() {}");
+            write(tag, "crates/industrial_era-prepare/Cargo.toml", "[package]");
+            write(
+                tag,
+                "crates/industrial_era-prepare/build.rs",
+                "fn main() {}",
+            );
             write(tag, lib, code);
             for name in LEGACY_EXPORTERS {
                 write(
                     tag,
-                    &format!("mods/industrial-era/src/test/java/dev/horizonlab/parity/{name}"),
+                    &format!("mods/industrial_era/src/test/java/dev/horizonlab/parity/{name}"),
                     name,
                 );
             }
@@ -4645,10 +4682,10 @@ pub fn {f}("
         let prepared = |tag: &str| {
             write(
                 tag,
-                &format!(".local/industrial-era-client/26.3/{RESOURCES_MANIFEST}"),
+                &format!(".local/industrial_era-client/26.3/{RESOURCES_MANIFEST}"),
                 r#"{"schema": 7}"#,
             );
-            write(tag, ".local/industrial-era-client/26.3/facts.json", tag);
+            write(tag, ".local/industrial_era-client/26.3/facts.json", tag);
         };
         let facts = |tag: &str| {
             fs::read_to_string(resources_at(&versions.join(tag)).join("facts.json")).ok()
@@ -4692,13 +4729,13 @@ pub fn {f}("
         // Line endings as checked out don't count; an exporter's or the sources' change does.
         write(
             "v0.2.64",
-            "mods/industrial-era/src/test/java/dev/horizonlab/parity/ParityData.java",
+            "mods/industrial_era/src/test/java/dev/horizonlab/parity/ParityData.java",
             "ParityData.java\r",
         );
         assert_eq!(at("v0.2.64"), Some(1));
         write(
             "v0.2.64",
-            "mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaCollisionOracle.java",
+            "mods/industrial_era/src/test/java/dev/horizonlab/parity/VanillaCollisionOracle.java",
             "changed",
         );
         assert_eq!(at("v0.2.64"), None);
@@ -4712,7 +4749,7 @@ pub fn {f}("
     #[test]
     fn prepared_versions_get_the_run_time_reports_without_preparing_again() {
         let versions = std::env::temp_dir().join(format!(
-            "industrial-era-launcher-reports-test-{}",
+            "industrial_era-launcher-reports-test-{}",
             std::process::id()
         ));
         let _ = fs::remove_dir_all(&versions);
@@ -4727,7 +4764,7 @@ pub fn {f}("
             write(tag, "research-lock.json", &lock.to_string());
             write(
                 tag,
-                &format!(".local/industrial-era-client/26.3/{RESOURCES_MANIFEST}"),
+                &format!(".local/industrial_era-client/26.3/{RESOURCES_MANIFEST}"),
                 "{}",
             );
         };
@@ -4771,7 +4808,7 @@ pub fn {f}("
     #[test]
     fn prepared_versions_get_what_the_asset_store_adds_without_preparing_again() {
         let dir = std::env::temp_dir().join(format!(
-            "industrial-era-launcher-packs-test-{}",
+            "industrial_era-launcher-packs-test-{}",
             std::process::id()
         ));
         let _ = fs::remove_dir_all(&dir);
@@ -4927,20 +4964,25 @@ pub fn {f}("
 
     #[test]
     fn finds_the_app_bundle_around_the_binary() {
-        let exe = Path::new("/Applications/Industrial Era.app/Contents/MacOS/industrial-era-launcher");
+        let exe =
+            Path::new("/Applications/IndustrialEra.app/Contents/MacOS/industrial_era-launcher");
         assert_eq!(
             app_bundle(exe),
-            Some(Path::new("/Applications/Industrial Era.app"))
+            Some(Path::new("/Applications/IndustrialEra.app"))
         );
-        assert_eq!(app_bundle(Path::new("/Users/me/industrial-era-launcher")), None);
         assert_eq!(
-            app_bundle(Path::new("/x/Contents/MacOS/industrial-era-launcher")),
+            app_bundle(Path::new("/Users/me/industrial_era-launcher")),
             None
         );
-        let work = std::env::temp_dir().join(format!("industrial-era-find-app-{}", std::process::id()));
+        assert_eq!(
+            app_bundle(Path::new("/x/Contents/MacOS/industrial_era-launcher")),
+            None
+        );
+        let work =
+            std::env::temp_dir().join(format!("industrial_era-find-app-{}", std::process::id()));
         let _ = fs::remove_dir_all(&work);
-        fs::create_dir_all(work.join("dist/Industrial Era.app/Contents/MacOS")).unwrap();
-        assert_eq!(find_app(&work), Some(work.join("dist/Industrial Era.app")));
+        fs::create_dir_all(work.join("dist/IndustrialEra.app/Contents/MacOS")).unwrap();
+        assert_eq!(find_app(&work), Some(work.join("dist/IndustrialEra.app")));
         let _ = fs::remove_dir_all(&work);
     }
 
@@ -4950,20 +4992,21 @@ pub fn {f}("
     #[test]
     fn an_app_bundle_updates_in_place() {
         use std::os::unix::fs::PermissionsExt;
-        let work = std::env::temp_dir().join(format!("industrial-era-bundle-{}", std::process::id()));
+        let work =
+            std::env::temp_dir().join(format!("industrial_era-bundle-{}", std::process::id()));
         let _ = fs::remove_dir_all(&work);
         let make = |dir: &Path, version: &str| {
-            let app = dir.join("Industrial Era.app");
+            let app = dir.join("IndustrialEra.app");
             fs::create_dir_all(app.join("Contents/MacOS")).unwrap();
             fs::create_dir_all(app.join("Contents/Resources")).unwrap();
-            let bin = app.join("Contents/MacOS/industrial-era-launcher");
+            let bin = app.join("Contents/MacOS/industrial_era-launcher");
             fs::copy("/usr/bin/true", &bin).unwrap();
             fs::set_permissions(&bin, fs::Permissions::from_mode(0o755)).unwrap();
             fs::write(app.join("Contents/Resources/version"), version).unwrap();
             fs::write(
                 app.join("Contents/Info.plist"),
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<plist version=\"1.0\"><dict>\
-                 <key>CFBundleExecutable</key><string>industrial-era-launcher</string>\
+                 <key>CFBundleExecutable</key><string>industrial_era-launcher</string>\
                  <key>CFBundleIdentifier</key><string>dev.industrial_era.test</string>\
                  <key>CFBundlePackageType</key><string>APPL</string></dict></plist>\n",
             )
@@ -4991,7 +5034,7 @@ pub fn {f}("
         replace_bundle(&new, &installed).unwrap();
         let version = fs::read_to_string(installed.join("Contents/Resources/version")).unwrap();
         assert_eq!(version, "2.0.0");
-        let bin = installed.join("Contents/MacOS/industrial-era-launcher");
+        let bin = installed.join("Contents/MacOS/industrial_era-launcher");
         assert!(
             Command::new(&bin).status().unwrap().success(),
             "still executable"
@@ -5009,7 +5052,7 @@ pub fn {f}("
             .collect();
         assert_eq!(
             left,
-            ["Industrial Era.app"],
+            ["IndustrialEra.app"],
             "nothing staged or moved aside is left"
         );
 
@@ -5027,7 +5070,7 @@ pub fn {f}("
     #[test]
     fn launcher_versions_read_from_the_binary() {
         assert_eq!(
-            parse_version_output("industrial-era-launcher 0.1.5\n"),
+            parse_version_output("industrial_era-launcher 0.1.5\n"),
             Some("0.1.5")
         );
         assert_eq!(parse_version_output("something else"), None);
@@ -5038,7 +5081,7 @@ pub fn {f}("
             None
         );
         assert_eq!(
-            installed_launcher_version(Path::new("/nonexistent/industrial-era-launcher")),
+            installed_launcher_version(Path::new("/nonexistent/industrial_era-launcher")),
             None
         );
     }
@@ -5049,11 +5092,13 @@ pub fn {f}("
     #[test]
     fn a_replaced_binary_is_replaced_again_at_its_path() {
         use std::os::unix::fs::PermissionsExt;
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-launcher-replace-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial_era-launcher-replace-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
-        let exe = dir.join("industrial-era-launcher");
+        let exe = dir.join("industrial_era-launcher");
         fs::write(&exe, "old").unwrap();
         // Another update swaps the file under the running launcher.
         fs::write(dir.join("other"), "other update").unwrap();
@@ -5081,7 +5126,7 @@ pub fn {f}("
             .map(|e| e.file_name().to_string_lossy().into_owned())
             .collect();
         names.sort();
-        assert_eq!(names, ["industrial-era-launcher", "new"]);
+        assert_eq!(names, ["industrial_era-launcher", "new"]);
         let _ = fs::remove_dir_all(&dir);
     }
 
@@ -5105,13 +5150,15 @@ pub fn {f}("
 
     #[test]
     fn crash_reports_are_found_and_summarised() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-launcher-crash-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial_era-launcher-crash-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         let start = std::time::SystemTime::now() - std::time::Duration::from_secs(2);
         assert!(crash_report_in_since(&dir, start).is_none());
         fs::create_dir_all(&dir).unwrap();
-        let report = "---- Industrial Era Crash Report ----\n// Details below.\n\nTime: 2026-10-14 09:05:07\nDescription: Unexpected error\n\npanicked at src/game.rs:10:5:\nboom\n\t0: industrial_era_client::game::frame\n";
+        let report = "---- IndustrialEra Crash Report ----\n// Details below.\n\nTime: 2026-10-14 09:05:07\nDescription: Unexpected error\n\npanicked at src/game.rs:10:5:\nboom\n\t0: industrial_era_client::game::frame\n";
         fs::write(dir.join("crash-2026-10-14_09.05.07-client.txt"), report).unwrap();
         fs::write(dir.join("notes.txt"), "x").unwrap();
         assert_eq!(

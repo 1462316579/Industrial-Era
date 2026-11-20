@@ -5,7 +5,7 @@
 //! **commit** (the archive of that commit, whose mod folder is packed into a `.hnmod`), never to a
 //! branch that moves. The result passes the checks the registry's `.hnmod`s pass
 //! (`industrial_era_mods::index::native::Bundle::read`) before anything is installed, and the origin is
-//! kept beside the file (`industrial-era-native-mods/<id>.origin.json`) for "check for updates".
+//! kept beside the file (`industrial_era-native-mods/<id>.origin.json`) for "check for updates".
 //!
 //! Nothing here runs the mod's code, and nothing here trusts it: the registry has not reviewed it.
 //! Callers show [`WARNING`] and ask first (`--trust-native-code`).
@@ -20,7 +20,7 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 /// What a player is told before a mod from GitHub is installed.
-pub const WARNING: &str = "Not reviewed by the Industrial Era registry. Native mods run with full access to this computer. Read the source first.";
+pub const WARNING: &str = "Not reviewed by the IndustrialEra registry. Native mods run with full access to this computer. Read the source first.";
 
 /// The most a release asset or a mod's archive may be.
 const MAX_ASSET: u64 = 64 << 20;
@@ -407,8 +407,8 @@ fn checked(bytes: &[u8], dir: &Path) -> Result<Packed, String> {
     })
 }
 
-/// Every mod folder under `root`: a `industrial-era-mixin.toml`, or an unpacked `.hnmod`
-/// (`industrial-era-native.json`), the rules of `native-build <folder>`. A mod's folder is not searched
+/// Every mod folder under `root`: a `industrial_era-mixin.toml`, or an unpacked `.hnmod`
+/// (`industrial_era-native.json`), the rules of `native-build <folder>`. A mod's folder is not searched
 /// further.
 pub fn find_mods(root: &Path) -> Result<Vec<Bundle>, String> {
     fn walk(dir: &Path, depth: usize, out: &mut Vec<Bundle>) -> Result<(), String> {
@@ -467,13 +467,13 @@ fn walk_files(root: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>) -> Resu
 }
 
 /// The `.hnmod` of a mod folder, as bytes: its source (Rust, TOML and `data/`) with a manifest made
-/// from its `industrial-era-mixin.toml`, which must pin the Industrial Era commit it was made for
-/// (`[compatibility] industrial_era_revision`). An unpacked `.hnmod` (`industrial-era-native.json`) keeps the
+/// from its `industrial_era-mixin.toml`, which must pin the IndustrialEra commit it was made for
+/// (`[compatibility] industrial_era_revision`). An unpacked `.hnmod` (`industrial_era-native.json`) keeps the
 /// pins and hook points its manifest names. The zip is the same for the same files.
 pub fn pack(bundle: &Bundle) -> Result<Vec<u8>, String> {
     let industrial_era = bundle.industrial_era.clone().filter(|h| format::revision(h)).ok_or_else(|| {
         format!(
-            "{} has no [compatibility] industrial_era_revision (40 hex digits): add the Industrial Era commit it was made for.",
+            "{} has no [compatibility] industrial_era_revision (40 hex digits): add the IndustrialEra commit it was made for.",
             bundle.id
         )
     })?;
@@ -482,7 +482,7 @@ pub fn pack(bundle: &Bundle) -> Result<Vec<u8>, String> {
         id: bundle.id.clone(),
         version: bundle.version.clone(),
         game: crate::browser::GAME.into(),
-        industrial-era,
+        industrial_era,
         mixins: bundle
             .mixins
             .clone()
@@ -557,7 +557,7 @@ pub fn fetch(found: &Resolved) -> Result<Vec<Packed>, String> {
                 found.label()
             ),
             None => format!(
-                "{} holds no native mod (a folder with industrial-era-mixin.toml, or an unpacked .hnmod).",
+                "{} holds no native mod (a folder with industrial_era-mixin.toml, or an unpacked .hnmod).",
                 found.label()
             ),
         });

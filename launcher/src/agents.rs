@@ -1,12 +1,12 @@
-//! Connecting an AI agent (docs/agent-control.md): the launcher's MCP server, `industrial-era-launcher
-//! mcp`, as each common client wants it configured. `industrial-era-launcher agent-config` prints it and
+//! Connecting an AI agent (docs/agent-control.md): the launcher's MCP server, `industrial_era-launcher
+//! mcp`, as each common client wants it configured. `industrial_era-launcher agent-config` prints it and
 //! the Settings page's "Connect an AI agent" shows it. Nothing here runs a client's command: the
 //! window runs one only when the player clicks its button, and shows it first.
 use serde_json::{json, Value};
 use std::path::Path;
 
 /// The name the server is added under in every client.
-pub const SERVER_NAME: &str = "industrial-era";
+pub const SERVER_NAME: &str = "industrial_era";
 
 pub struct Client {
     /// `claude-code`, `codex`, `cursor` or `generic`.
@@ -131,7 +131,7 @@ pub fn self_test(exe: &Path) -> Result<usize, String> {
         .spawn()
         .map_err(|e| format!("Could not start {}: {e}", exe.display()))?;
     let lines = [
-        json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": { "name": "industrial-era-launcher-test", "version": "1" } } }),
+        json!({ "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": { "name": "industrial_era-launcher-test", "version": "1" } } }),
         json!({ "jsonrpc": "2.0", "method": "notifications/initialized" }),
         json!({ "jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {} }),
     ];
@@ -188,26 +188,31 @@ mod tests {
 
     #[test]
     fn configs_name_the_launcher_and_quote_its_path() {
-        let exe = Path::new("/Applications/Industrial Era Launcher.app/Contents/MacOS/industrial-era-launcher");
+        let exe = Path::new(
+            "/Applications/IndustrialEra Launcher.app/Contents/MacOS/industrial_era-launcher",
+        );
         let all = clients(exe);
         let claude = &all[0];
         assert_eq!(
             claude.add_line().unwrap(),
-            "claude mcp add --scope user industrial-era -- '/Applications/Industrial Era Launcher.app/Contents/MacOS/industrial-era-launcher' mcp"
+            "claude mcp add --scope user industrial_era -- '/Applications/IndustrialEra Launcher.app/Contents/MacOS/industrial_era-launcher' mcp"
         );
         let parsed: Value = serde_json::from_str(&claude.config).unwrap();
-        assert_eq!(parsed["mcpServers"]["industrial-era"]["args"], json!(["mcp"]));
         assert_eq!(
-            parsed["mcpServers"]["industrial-era"]["command"],
+            parsed["mcpServers"]["industrial_era"]["args"],
+            json!(["mcp"])
+        );
+        assert_eq!(
+            parsed["mcpServers"]["industrial_era"]["command"],
             exe.display().to_string()
         );
         let codex = &all[1];
         assert!(codex
             .config
-            .contains("command = \"/Applications/Industrial Era Launcher.app"));
+            .contains("command = \"/Applications/IndustrialEra Launcher.app"));
         assert_eq!(
-            toml_string(r#"C:\Industrial Era\"x".exe"#),
-            r#""C:\\Industrial Era\\\"x\".exe""#
+            toml_string(r#"C:\IndustrialEra\"x".exe"#),
+            r#""C:\\IndustrialEra\\\"x\".exe""#
         );
         assert!(all.iter().any(|c| c.id == "cursor" && c.add.is_none()));
     }

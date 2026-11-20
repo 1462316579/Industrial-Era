@@ -2,7 +2,10 @@ use super::*;
 use std::cell::RefCell;
 
 fn scratch(name: &str) -> PathBuf {
-    let root = std::env::temp_dir().join(format!("industrial-era-github-{name}-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!(
+        "industrial_era-github-{name}-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(&root).unwrap();
     root
@@ -11,7 +14,8 @@ fn scratch(name: &str) -> PathBuf {
 const T0: u64 = 1_800_000_000;
 const LATER: u64 = T0 + FRESH_SECS;
 
-const RELEASES: &str = "https://api.github.com/repos/industrial-era-rust/industrial-era/releases?per_page=100";
+const RELEASES: &str =
+    "https://api.github.com/repos/industrial_era-rust/industrial_era/releases?per_page=100";
 
 fn list(tag: &str) -> serde_json::Value {
     serde_json::json!([{ "tag_name": tag }])
@@ -26,22 +30,25 @@ fn mirror_serves_only_horizons_repository() {
     let base = "https://mcp.example/github/public";
     assert_eq!(
         mirror_url_with(RELEASES, base).as_deref(),
-        Some("https://mcp.example/github/public/repos/industrial-era-rust/industrial-era/releases?per_page=100")
+        Some("https://mcp.example/github/public/repos/industrial_era-rust/industrial_era/releases?per_page=100")
     );
     assert_eq!(
         mirror_url_with(
-            "https://api.github.com/repos/industrial-era-rust/industrial-era/releases/tags/launcher@0.2.33",
+            "https://api.github.com/repos/industrial_era-rust/industrial_era/releases/tags/launcher@0.2.33",
             &format!("{base}/")
         )
         .as_deref(),
-        Some("https://mcp.example/github/public/repos/industrial-era-rust/industrial-era/releases/tags/launcher@0.2.33")
+        Some("https://mcp.example/github/public/repos/industrial_era-rust/industrial_era/releases/tags/launcher@0.2.33")
     );
     assert_eq!(
         mirror_url_with("https://api.github.com/repos/someone/mod/commits/abc", base),
         None
     );
     assert_eq!(
-        mirror_url_with("https://github.com/industrial-era-rust/industrial-era/releases", base),
+        mirror_url_with(
+            "https://github.com/industrial_era-rust/industrial_era/releases",
+            base
+        ),
         None
     );
     assert_eq!(
@@ -117,7 +124,7 @@ fn etag_is_kept_and_a_304_reads_the_saved_copy() {
     );
     assert_eq!(back.unwrap(), list("v9"));
     // Another URL doesn't read this one's copy.
-    let other = "https://api.github.com/repos/industrial-era-rust/industrial-era/releases/latest";
+    let other = "https://api.github.com/repos/industrial_era-rust/industrial_era/releases/latest";
     let etag_sent = RefCell::new(Some(String::new()));
     let _ = json_with(
         other,
@@ -148,11 +155,9 @@ fn rate_limited_reads_go_through_the_mirror() {
         },
     );
     assert_eq!(got.unwrap(), list("nightly"));
-    assert!(asked
-        .borrow()
-        .as_deref()
-        .unwrap()
-        .ends_with("/github/public/repos/industrial-era-rust/industrial-era/releases?per_page=100"));
+    assert!(asked.borrow().as_deref().unwrap().ends_with(
+        "/github/public/repos/industrial_era-rust/industrial_era/releases?per_page=100"
+    ));
     // The mirror's answer is kept like GitHub's.
     let kept = json_with(RELEASES, &cache, T0 + 1, |_, _| panic!("fresh"), no_mirror);
     assert_eq!(kept.unwrap(), list("nightly"));

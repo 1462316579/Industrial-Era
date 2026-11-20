@@ -1,13 +1,13 @@
 //! A shortcut on the desktop that plays one instance: it runs
-//! `industrial-era-launcher play --instance <id>`, so the game starts without the launcher's window.
+//! `industrial_era-launcher play --instance <id>`, so the game starts without the launcher's window.
 //!
-//! - Linux: `<name> (Industrial Era).desktop` on the desktop (executable, and marked trusted with `gio`
+//! - Linux: `<name> (IndustrialEra).desktop` on the desktop (executable, and marked trusted with `gio`
 //!   where it exists, so GNOME starts it), and the same entry in the applications menu
-//!   (`applications/industrial-era-instance-<id>.desktop`, `desktop::data_home`).
-//! - macOS: `<name> (Industrial Era).app`, a small app whose program is a shell script, with Industrial Era's
+//!   (`applications/industrial_era-instance-<id>.desktop`, `desktop::data_home`).
+//! - macOS: `<name> (IndustrialEra).app`, a small app whose program is a shell script, with IndustrialEra's
 //!   icon. It has no Dock icon of its own (`LSUIElement`): the game's window is the one to see.
-//! - Windows: `<name> (Industrial Era).lnk`, a Shell Link as Microsoft's published [MS-SHLLINK] format
-//!   lays it out, to the launcher's `.exe` with Industrial Era's icon.
+//! - Windows: `<name> (IndustrialEra).lnk`, a Shell Link as Microsoft's published [MS-SHLLINK] format
+//!   lays it out, to the launcher's `.exe` with IndustrialEra's icon.
 //!
 //! Each shortcut names its instance's id inside it, so removing finds it after a rename.
 //! `HORIZON_LAUNCHER_DESKTOP` points the desktop folder elsewhere, for tests.
@@ -19,9 +19,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub const DESKTOP_ENV: &str = "HORIZON_LAUNCHER_DESKTOP";
-const MAC_ICON: &[u8] = include_bytes!("../../packaging/icons/industrial-era.icns");
+const MAC_ICON: &[u8] = include_bytes!("../../packaging/icons/industrial_era.icns");
 /// The key a Linux shortcut names its instance with.
-const INSTANCE_KEY: &str = "X-Industrial Era-Instance";
+const INSTANCE_KEY: &str = "X-IndustrialEra-Instance";
 /// And a macOS one, in its Info.plist.
 const MAC_KEY: &str = "<key>HorizonInstance</key>";
 
@@ -74,7 +74,7 @@ pub fn file_name(name: &str, system: System) -> String {
         .collect();
     let clean = clean.trim().trim_matches('.');
     let clean = if clean.is_empty() { "Instance" } else { clean };
-    format!("{clean} (Industrial Era).{}", system.extension())
+    format!("{clean} (IndustrialEra).{}", system.extension())
 }
 
 /// The id as a file name or bundle id part: letters, digits and `-`.
@@ -91,13 +91,13 @@ pub fn desktop_entry(exe: &Path, id: &str, name: &str) -> String {
         "[Desktop Entry]\n\
          Type=Application\n\
          Name={name}\n\
-         Comment=Play {name} in Industrial Era\n\
+         Comment=Play {name} in IndustrialEra\n\
          Exec={} play --instance {}\n\
          TryExec={}\n\
-         Icon=industrial-era\n\
+         Icon=industrial_era\n\
          Terminal=false\n\
          Categories=Game;\n\
-         StartupWMClass=industrial-era\n\
+         StartupWMClass=industrial_era\n\
          {INSTANCE_KEY}={id}\n",
         desktop::quote(exe),
         desktop::quote(Path::new(id)),
@@ -133,7 +133,7 @@ pub fn mac_app(exe: &Path, id: &str, name: &str) -> Vec<(&'static str, Vec<u8>, 
 	<key>CFBundleName</key>
 	<string>{}</string>
 	<key>CFBundleIconFile</key>
-	<string>industrial-era</string>
+	<string>industrial_era</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSUIElement</key>
@@ -148,7 +148,7 @@ pub fn mac_app(exe: &Path, id: &str, name: &str) -> Vec<(&'static str, Vec<u8>, 
         xml(id),
     );
     let script = format!(
-        "#!/bin/sh\n# Plays the Industrial Era instance {}.\nexec {} play --instance {}\n",
+        "#!/bin/sh\n# Plays the IndustrialEra instance {}.\nexec {} play --instance {}\n",
         name.replace('\n', " "),
         sh_quote(&exe.to_string_lossy()),
         sh_quote(id),
@@ -156,7 +156,11 @@ pub fn mac_app(exe: &Path, id: &str, name: &str) -> Vec<(&'static str, Vec<u8>, 
     vec![
         ("Contents/Info.plist", plist.into_bytes(), false),
         ("Contents/MacOS/play", script.into_bytes(), true),
-        ("Contents/Resources/industrial-era.icns", MAC_ICON.to_vec(), false),
+        (
+            "Contents/Resources/industrial_era.icns",
+            MAC_ICON.to_vec(),
+            false,
+        ),
     ]
 }
 
@@ -313,7 +317,7 @@ fn write(path: &Path, bytes: &[u8], program: bool) -> Result<(), String> {
     if let Some(dir) = path.parent() {
         fs::create_dir_all(dir).map_err(fail)?;
     }
-    let temp = path.with_extension("industrial-era-tmp");
+    let temp = path.with_extension("industrial_era-tmp");
     fs::write(&temp, bytes).map_err(fail)?;
     #[cfg(unix)]
     if program {
@@ -341,7 +345,7 @@ pub fn make_in(
     trash: Trash,
 ) -> Result<Vec<PathBuf>, String> {
     let path = desktop.join(file_name(name, system));
-    let item = menu.map(|m| m.join(format!("industrial-era-instance-{}.desktop", slug(id))));
+    let item = menu.map(|m| m.join(format!("industrial_era-instance-{}.desktop", slug(id))));
     for old in find_in(desktop, menu, id) {
         if old != path && Some(&old) != item.as_ref() {
             trash(&old)?;
@@ -370,7 +374,7 @@ pub fn make_in(
         }
         System::Windows => {
             let args = windows_args(id);
-            let comment = format!("Play {name} in Industrial Era");
+            let comment = format!("Play {name} in IndustrialEra");
             // On Windows the shell writes the shortcut (`write_windows_link`); elsewhere, and in
             // tests for the other systems, it is laid out from the format.
             #[cfg(windows)]
@@ -392,7 +396,7 @@ pub fn find_in(desktop: &Path, menu: Option<&Path>, id: &str) -> Vec<PathBuf> {
         .filter(|p| plays(p, id))
         .collect();
     if let Some(item) = menu
-        .map(|m| m.join(format!("industrial-era-instance-{}.desktop", slug(id))))
+        .map(|m| m.join(format!("industrial_era-instance-{}.desktop", slug(id))))
         .filter(|p| plays(p, id))
     {
         found.push(item);

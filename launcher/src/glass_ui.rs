@@ -319,8 +319,8 @@ pub fn solid(
     )
 }
 
-/// Industrial Era's mark on its dark tile (`MarkTile`): the mark 64 % of the tile, round at 26 %; the
-/// stems white, their reflection white at 40 %, the industrial-era in the accent's soft shade.
+/// IndustrialEra's mark on its dark tile (`MarkTile`): the mark 64 % of the tile, round at 26 %; the
+/// stems white, their reflection white at 40 %, the industrial_era in the accent's soft shade.
 pub fn mark_tile(size: f32, accent_soft: u32) -> Div {
     let inner = size * 0.64;
     let u = inner / 16.;

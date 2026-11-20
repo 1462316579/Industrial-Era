@@ -1,5 +1,5 @@
 //! The owner gate from the outside: with no account that owns Minecraft: Java Edition in the
-//! launcher, neither `industrial-era-launcher play` nor the MCP server's play starts the game.
+//! launcher, neither `industrial_era-launcher play` nor the MCP server's play starts the game.
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
@@ -9,8 +9,10 @@ const REFUSED: &str = "Sign in with a Microsoft account that owns Minecraft: Jav
 /// Fresh homes with one installed (not prepared) version and an offline name, as a player who
 /// played offline before the gate has.
 fn home(name: &str) -> PathBuf {
-    let root =
-        std::env::temp_dir().join(format!("industrial-era-owner-gate-{name}-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!(
+        "industrial_era-owner-gate-{name}-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&root);
     let version = root.join("launcher/versions/v2026.10.27.01");
     std::fs::create_dir_all(&version).unwrap();
@@ -50,7 +52,10 @@ fn the_cli_refuses_to_play_without_an_owner() {
     let said = text(&out);
     assert!(!out.status.success(), "{said}");
     assert!(said.contains(REFUSED), "{said}");
-    assert!(said.contains("industrial-era-launcher account sign-in"), "{said}");
+    assert!(
+        said.contains("industrial_era-launcher account sign-in"),
+        "{said}"
+    );
     // Nothing of the game ran, and the offline name is still there.
     assert!(!root.join("game/sessions").exists());
     let accounts = std::fs::read_to_string(root.join("launcher/accounts.json")).unwrap();

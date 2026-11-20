@@ -6,7 +6,7 @@
 //! [`wrap`] turns the game's command into one process that does all three, so the launcher still
 //! follows one program (its output, its exit, Stop):
 //!
-//! - Unix: `/bin/sh -c '(<pre-launch>) || exit; exec "$@"' industrial-era <wrapper…> <game> <args…>`.
+//! - Unix: `/bin/sh -c '(<pre-launch>) || exit; exec "$@"' industrial_era <wrapper…> <game> <args…>`.
 //!   The pre-launch command is the player's own shell line, run in the instance's folder; the
 //!   game's words go through `"$@"`, so they are never parsed by the shell. `exec` makes the
 //!   shell become the wrapper (or the game).
@@ -34,7 +34,7 @@ pub struct Launch {
     /// Environment variables for the game (and the two commands above).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub env: BTreeMap<String, String>,
-    /// The most RAM Industrial Era may hold that the player chose, in MiB; none (the default): no
+    /// The most RAM IndustrialEra may hold that the player chose, in MiB; none (the default): no
     /// limit, so big worlds and modpacks keep their render distance. Read it with
     /// [`Launch::memory_limit`]. A Java instance has `-Xmx` instead (`instances::Java::memory_mb`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -54,7 +54,7 @@ fn is_false(b: &bool) -> bool {
     !*b
 }
 
-/// Tells the game its limit (`HORIZON_MEMORY_LIMIT_MB`). Industrial Era's only: a Java instance has `-Xmx`.
+/// Tells the game its limit (`HORIZON_MEMORY_LIMIT_MB`). IndustrialEra's only: a Java instance has `-Xmx`.
 /// Before [`wrap`], so the player's own variable wins.
 pub fn limit_memory(cmd: &mut Command, launch: &Launch) {
     if let Some(mb) = launch.memory_limit() {
@@ -240,7 +240,7 @@ pub fn switch_env(launch: &Launch, found: &Found) -> Vec<(&'static str, &'static
 }
 
 impl Launch {
-    /// The most RAM Industrial Era may hold, in MiB; none: no limit.
+    /// The most RAM IndustrialEra may hold, in MiB; none: no limit.
     pub fn memory_limit(&self) -> Option<u32> {
         self.memory_limit_mb
     }
@@ -452,7 +452,7 @@ fn windows_quote(word: &OsStr) -> String {
 pub enum Plan {
     /// Run as given (`words[0]` is the program).
     Direct(Vec<OsString>),
-    /// `/bin/sh -c <script> industrial-era <words…>`.
+    /// `/bin/sh -c <script> industrial_era <words…>`.
     Shell {
         script: String,
         words: Vec<OsString>,
@@ -508,7 +508,7 @@ pub fn wrap(cmd: Command, launch: &Launch) -> Command {
         }
         Plan::Shell { script, words } => {
             let mut c = Command::new("/bin/sh");
-            c.arg("-c").arg(script).arg("industrial-era").args(words);
+            c.arg("-c").arg(script).arg("industrial_era").args(words);
             c
         }
         Plan::Cmd { line } => {

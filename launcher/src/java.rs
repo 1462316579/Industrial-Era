@@ -78,7 +78,7 @@ impl Need {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Source {
-    /// Mojang's, downloaded by Industrial Era.
+    /// Mojang's, downloaded by IndustrialEra.
     Mojang,
     /// Installed on this computer (JAVA_HOME, the PATH, the usual folders).
     Installed,
@@ -132,7 +132,7 @@ fn runtime(home: PathBuf, source: Source) -> Option<Runtime> {
     found.java().is_file().then_some(found)
 }
 
-/// Mojang's runtimes Industrial Era downloaded.
+/// Mojang's runtimes IndustrialEra downloaded.
 pub fn runtimes_dir() -> PathBuf {
     backend::data_dir().join("minecraft").join("runtime")
 }

@@ -1,4 +1,4 @@
-//! Sharing an instance (or a port): its settings, packs and Industrial Era mods, and the worlds the
+//! Sharing an instance (or a port): its settings, packs and IndustrialEra mods, and the worlds the
 //! player picks, as a `.mrpack` (Modrinth's modpack format, from its published spec) or a plain
 //! `.zip` of the game folder's layout.
 //!
@@ -21,14 +21,19 @@ use std::path::{Path, PathBuf};
 /// The game folder's own files that are the instance's settings.
 pub const FILES: [&str; 6] = [
     "options.txt",
-    "industrial-era-graphics.txt",
-    "industrial-era-extras.txt",
-    "industrial-era-controller.txt",
-    "industrial-era-mods.txt",
+    "industrial_era-graphics.txt",
+    "industrial_era-extras.txt",
+    "industrial_era-controller.txt",
+    "industrial_era-mods.txt",
     "servers.dat",
 ];
 /// Its folders of packs, mods and their settings.
-pub const FOLDERS: [&str; 4] = ["resourcepacks", "shaderpacks", "industrial-era-mods", "config"];
+pub const FOLDERS: [&str; 4] = [
+    "resourcepacks",
+    "shaderpacks",
+    "industrial_era-mods",
+    "config",
+];
 /// What a world keeps per player: left out.
 const PER_PLAYER: [&str; 4] = ["playerdata", "stats", "advancements", "session.lock"];
 const INDEX: &str = "modrinth.index.json";
@@ -172,7 +177,7 @@ fn index(name: &str, linked: &[&Linked]) -> serde_json::Value {
         "game": "minecraft",
         "versionId": "1",
         "name": name,
-        "summary": format!("{name}, exported from Industrial Era."),
+        "summary": format!("{name}, exported from IndustrialEra."),
         "files": files,
         "dependencies": { "minecraft": GAME },
     })

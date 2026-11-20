@@ -36,13 +36,14 @@ impl Launcher {
                     let Some(i) = self.selected_instance().cloned() else {
                         continue;
                     };
-                    self.importing.note =
-                        Some(industrial_era_launcher::packs::add(&i.home, &file).map(|p| {
+                    self.importing.note = Some(
+                        industrial_era_launcher::packs::add(&i.home, &file).map(|p| {
                             trf(
                                 "Added {title} to {instance}'s packs: switch it on under Packs.",
                                 &[("title", &p.title), ("instance", &i.name)],
                             )
-                        }));
+                        }),
+                    );
                     self.game_packs.stale();
                 }
                 Ok(Dropped::DataPack) => {

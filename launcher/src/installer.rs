@@ -1,17 +1,17 @@
 //! Per-user setup on Windows, no administrator needed.
 //!
-//! `industrial-era-launcher-setup.exe` (the launcher's own binary under another name, made by the
-//! release workflow) copies itself to `%LOCALAPPDATA%\Programs\Industrial Era Launcher\industrial-era-launcher.exe`,
+//! `industrial_era-launcher-setup.exe` (the launcher's own binary under another name, made by the
+//! release workflow) copies itself to `%LOCALAPPDATA%\Programs\IndustrialEra Launcher\industrial_era-launcher.exe`,
 //! makes the Start menu shortcut (and the desktop one if asked) and the Uninstall entry under HKCU,
-//! and starts the installed copy. `industrial-era-launcher.exe uninstall` takes it all away again: the
+//! and starts the installed copy. `industrial_era-launcher.exe uninstall` takes it all away again: the
 //! launcher's data folder only when asked, the game's folder never.
 //!
 //! Nothing here deletes a folder it didn't make: the install folder is always called
-//! "Industrial Era Launcher" ([`folder_for`]) and is removed with `remove_dir`, which only takes an empty one.
+//! "IndustrialEra Launcher" ([`folder_for`]) and is removed with `remove_dir`, which only takes an empty one.
 //!
 //! Command lines (handled in `main` before the CLI parser, so MCP never sees them):
-//! `industrial-era-launcher-setup.exe` (window), `... setup --quiet [--dir <folder>] [--desktop-shortcut]`,
-//! `industrial-era-launcher.exe uninstall` (window), `... uninstall --quiet [--remove-data]`.
+//! `industrial_era-launcher-setup.exe` (window), `... setup --quiet [--dir <folder>] [--desktop-shortcut]`,
+//! `industrial_era-launcher.exe uninstall` (window), `... uninstall --quiet [--remove-data]`.
 use crate::backend;
 use crate::shortcut;
 use std::fs;
@@ -20,13 +20,13 @@ use std::path::{Path, PathBuf};
 use winreg::enums::{HKEY_CURRENT_USER, KEY_READ, KEY_WRITE};
 use winreg::RegKey;
 
-pub const APP_NAME: &str = "Industrial Era Launcher";
-const BINARY: &str = "industrial-era-launcher.exe";
-const PUBLISHER: &str = "Industrial Era";
+pub const APP_NAME: &str = "IndustrialEra Launcher";
+const BINARY: &str = "industrial_era-launcher.exe";
+const PUBLISHER: &str = "IndustrialEra";
 const ABOUT_URL: &str = "https://playhorizon.dev";
 const UNINSTALL_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\HorizonLauncher";
-const OWN_KEY: &str = r"Software\Industrial Era\Launcher";
-const ASIDE_PREFIX: &str = "industrial-era-launcher-uninstall-";
+const OWN_KEY: &str = r"Software\IndustrialEra\Launcher";
+const ASIDE_PREFIX: &str = "industrial_era-launcher-uninstall-";
 
 /// What the setup window shows: installing, or removing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -47,7 +47,7 @@ pub enum Step {
 
 #[derive(Clone, Debug)]
 pub struct Options {
-    /// Where the launcher goes (always a folder called "Industrial Era Launcher").
+    /// Where the launcher goes (always a folder called "IndustrialEra Launcher").
     pub dir: PathBuf,
     pub desktop: bool,
     /// Uninstall only: also delete the launcher's data folder.
@@ -80,7 +80,7 @@ fn args() -> Vec<String> {
     std::env::args().skip(1).collect()
 }
 
-/// Whether this binary is the setup: its file name starts with `industrial-era-launcher-setup` (the
+/// Whether this binary is the setup: its file name starts with `industrial_era-launcher-setup` (the
 /// release workflow copies the launcher under that name). `HORIZON_LAUNCHER_SETUP=1` forces it,
 /// for screenshots and tests.
 pub fn is_setup_exe() -> bool {
@@ -90,7 +90,10 @@ pub fn is_setup_exe() -> bool {
     backend::exe_path()
         .file_stem()
         .and_then(|s| s.to_str())
-        .is_some_and(|s| s.to_ascii_lowercase().starts_with("industrial-era-launcher-setup"))
+        .is_some_and(|s| {
+            s.to_ascii_lowercase()
+                .starts_with("industrial_era-launcher-setup")
+        })
 }
 
 /// The window to open instead of the launcher: the wizard for the setup exe started without
@@ -104,7 +107,7 @@ pub fn window_mode() -> Option<Mode> {
     }
 }
 
-/// `%LOCALAPPDATA%\Programs\Industrial Era Launcher`; `HORIZON_LAUNCHER_SETUP_DIR` replaces it (tests).
+/// `%LOCALAPPDATA%\Programs\IndustrialEra Launcher`; `HORIZON_LAUNCHER_SETUP_DIR` replaces it (tests).
 pub fn default_dir() -> PathBuf {
     if let Some(dir) = std::env::var_os("HORIZON_LAUNCHER_SETUP_DIR").filter(|d| !d.is_empty()) {
         return folder_for(Path::new(&dir));
@@ -115,7 +118,7 @@ pub fn default_dir() -> PathBuf {
         .join(APP_NAME)
 }
 
-/// The install folder for a folder the player picked: always one called "Industrial Era Launcher", so
+/// The install folder for a folder the player picked: always one called "IndustrialEra Launcher", so
 /// uninstalling never has to guess what is ours.
 pub fn folder_for(chosen: &Path) -> PathBuf {
     if chosen
@@ -321,7 +324,7 @@ fn remove_all(path: &Path, left: &mut Vec<String>) {
 pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<String>, String> {
     clean_temp();
     let dir = registered()
-        .ok_or("Industrial Era Launcher is not installed for this account.")?
+        .ok_or("IndustrialEra Launcher is not installed for this account.")?
         .dir;
     let exe = dir.join(BINARY);
     let own = backend::exe_path().to_path_buf();
@@ -354,14 +357,14 @@ pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<
             Err(e) => left.push(format!(r"HKCU\{key}: {e}")),
         }
     }
-    // `Software\Industrial Era` goes only when nothing else (the game) keeps anything in it.
-    if let Ok(parent) = hkcu.open_subkey_with_flags(r"Software\Industrial Era", KEY_READ) {
+    // `Software\IndustrialEra` goes only when nothing else (the game) keeps anything in it.
+    if let Ok(parent) = hkcu.open_subkey_with_flags(r"Software\IndustrialEra", KEY_READ) {
         let empty = parent
             .query_info()
             .is_ok_and(|info| info.sub_keys == 0 && info.values == 0);
         drop(parent);
         if empty {
-            let _ = hkcu.delete_subkey(r"Software\Industrial Era");
+            let _ = hkcu.delete_subkey(r"Software\IndustrialEra");
         }
     }
 
@@ -377,7 +380,7 @@ pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<
     // Only what setup and self-updates put there: the launcher and what they moved aside.
     for entry in fs::read_dir(&dir).into_iter().flatten().flatten() {
         let name = entry.file_name().to_string_lossy().to_lowercase();
-        if name == BINARY || name.starts_with("industrial-era-launcher.exe.") {
+        if name == BINARY || name.starts_with("industrial_era-launcher.exe.") {
             remove_file(&entry.path(), &mut left);
         }
     }
@@ -396,7 +399,7 @@ pub fn uninstall(remove_data: bool, progress: impl Fn(Step, f32)) -> Result<Vec<
         // Only the folder the launcher itself names: `HORIZON_LAUNCHER_HOME` may point anywhere.
         if data
             .file_name()
-            .is_some_and(|n| n.eq_ignore_ascii_case("industrial-era-launcher"))
+            .is_some_and(|n| n.eq_ignore_ascii_case("industrial_era-launcher"))
         {
             remove_all(&data, &mut left);
             // A profile whose name isn't ASCII keeps the build folder in %ProgramData%
@@ -491,11 +494,11 @@ mod tests {
     fn the_install_folder_is_always_ours() {
         assert_eq!(
             folder_for(Path::new(r"C:\Games")),
-            PathBuf::from(r"C:\Games\Industrial Era Launcher")
+            PathBuf::from(r"C:\Games\IndustrialEra Launcher")
         );
         assert_eq!(
-            folder_for(Path::new(r"C:\Games\industrial-era launcher")),
-            PathBuf::from(r"C:\Games\industrial-era launcher")
+            folder_for(Path::new(r"C:\Games\industrial_era launcher")),
+            PathBuf::from(r"C:\Games\industrial_era launcher")
         );
     }
 
@@ -524,12 +527,14 @@ mod tests {
 
     #[test]
     fn the_shell_reads_the_target_of_the_shortcut_it_gets() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-link-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("industrial_era-link-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
-        let exe = dir.join("Industrial Era Launcher").join("industrial-era-launcher.exe");
+        let exe = dir
+            .join("IndustrialEra Launcher")
+            .join("industrial_era-launcher.exe");
         fs::create_dir_all(exe.parent().unwrap()).unwrap();
         fs::write(&exe, b"x").unwrap();
-        let link = dir.join("Industrial Era Launcher.lnk");
+        let link = dir.join("IndustrialEra Launcher.lnk");
         write_link(&link, &exe).unwrap();
         // The bug this guards: a link whose target the shell read as empty, so a double click did nothing.
         assert_eq!(
@@ -540,7 +545,7 @@ mod tests {
         assert!(points_to(&link, &exe));
         assert!(!points_to(
             &link,
-            Path::new(r"C:\Other\industrial-era-launcher.exe")
+            Path::new(r"C:\Other\industrial_era-launcher.exe")
         ));
         let _ = fs::remove_dir_all(&dir);
     }

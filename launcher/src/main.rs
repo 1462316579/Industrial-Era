@@ -1,4 +1,4 @@
-//! Industrial Era launcher: installs Industrial Era builds, prepares them from the player's own Minecraft,
+//! IndustrialEra launcher: installs IndustrialEra builds, prepares them from the player's own Minecraft,
 //! and starts the client or a dedicated server.
 
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
@@ -191,7 +191,7 @@ struct Launcher {
     checked: Option<Instant>,
     update_error: Option<String>,
     self_update: SelfUpdate,
-    /// The Industrial Era version being installed as an update, and whether it becomes the selected one.
+    /// The IndustrialEra version being installed as an update, and whether it becomes the selected one.
     update_install: Option<(String, bool)>,
     /// The install bar's previous and current fraction, so it moves rather than jumps.
     bar: (f32, f32),
@@ -223,14 +223,14 @@ struct Launcher {
     native_confirm: Option<Result<Vec<native_mods::Bundle>, String>>,
     /// The instance (id) the build under way, or the last one's error, is for.
     native_for: Option<String>,
-    /// The newer Industrial Era the open warning's build moves to (Update), else None: a build stays
-    /// on the Industrial Era the instance plays.
+    /// The newer IndustrialEra the open warning's build moves to (Update), else None: a build stays
+    /// on the IndustrialEra the instance plays.
     native_update: Option<String>,
     /// What each installed native build was made from, by version. A build's version names its
     /// contents, so an entry never goes stale.
     native_builds:
         std::cell::RefCell<std::collections::HashMap<String, Option<native_status::Build>>>,
-    /// The mods of a build made for other Industrial Era versions (`native_mods::MISMATCH`): the build
+    /// The mods of a build made for other IndustrialEra versions (`native_mods::MISMATCH`): the build
     /// waits for "Build anyway".
     native_mismatch: Option<String>,
     /// The top bar's Build log panel (`native_log_page.rs`).
@@ -332,7 +332,7 @@ struct Launcher {
     collection: collection::Collection,
     /// Settings' "Connect an AI agent" (`agents_page`).
     agents: agents_page::AgentsUi,
-    /// How many play Industrial Era now, while the server answers ("N playing now" on the Play page).
+    /// How many play IndustrialEra now, while the server answers ("N playing now" on the Play page).
     playing: Option<u64>,
     /// How many play on the official server now, while it answers ("M on the official SMP").
     official_players: Option<u64>,
@@ -368,13 +368,13 @@ struct Launcher {
     /// Modrinth projects' icon URLs (`instance_mods.rs`).
     project_icons: instance_mods::ProjectIcons,
     play_pressed: Option<Instant>,
-    /// `industrial-era-launcher benchmark` started this window to measure it.
+    /// `industrial_era-launcher benchmark` started this window to measure it.
     bench: Option<perf::Bench>,
     /// The Modpacks page: the imported packs (read when the page first opens), the one shown,
     /// the report's filter, and the pipeline step running now with its log.
     packs: Vec<industrial_era_launcher::modpacks::Imported>,
-    /// Modpacks installed from Industrial Era's registry, each its own profile.
-    registry_packs: Vec<industrial_era_launcher::browser::industrial_era: :pack::Installed>,
+    /// Modpacks installed from IndustrialEra's registry, each its own profile.
+    registry_packs: Vec<industrial_era_launcher::browser::industrial_era::pack::Installed>,
     packs_loaded: Option<Instant>,
     pack_open: Option<String>,
     pack_filter: Option<industrial_era_port_pack::report::Status>,
@@ -404,7 +404,7 @@ struct Launcher {
     aside: while_playing::Aside,
     /// The selected instance's desktop shortcut (`shortcut_page.rs`).
     shortcuts: shortcut_page::Shortcuts,
-    /// The name the game made up for an offline player (`industrial-era-player.txt`), for the top bar.
+    /// The name the game made up for an offline player (`industrial_era-player.txt`), for the top bar.
     offline_name: Option<String>,
     /// The player's servers, for the sidebar until the Servers page has read them.
     side_servers: Vec<industrial_era_launcher::servers::Entry>,
@@ -669,10 +669,10 @@ impl Launcher {
             this.play_when_prepared = this.selected().cloned();
         }
         // `HORIZON_LAUNCHER_PAGE=new-instance`: the dialog open on Modded, for screenshots
-        // (`new-instance-industrial-era`, `new-instance-vanilla`: on those).
+        // (`new-instance-industrial_era`, `new-instance-vanilla`: on those).
         let kind = match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
             Ok("new-instance") => Some(new_instance::NewKind::Modded),
-            Ok("new-instance-industrial-era") => Some(new_instance::NewKind::Industrial Era),
+            Ok("new-instance-industrial_era") => Some(new_instance::NewKind::IndustrialEra),
             Ok("new-instance-vanilla") => Some(new_instance::NewKind::Vanilla),
             _ => None,
         };
@@ -799,7 +799,7 @@ impl Launcher {
         });
     }
 
-    /// Installs the Industrial Era version the last check found, keeping the player's choice of
+    /// Installs the IndustrialEra version the last check found, keeping the player's choice of
     /// version unless they were on the newest one.
     fn install_update(&mut self) {
         let Some(release) = self.updates.industrial_era.clone() else {
@@ -837,9 +837,9 @@ impl Launcher {
     }
 
     /// Builds the selected instance's native mods, once the player accepted the warning. The
-    /// build stays on the Industrial Era the instance plays (`native_mods::base_for`), unless the
-    /// warning was Update's: then it moves to that newer Industrial Era.
-    /// `anyway`: the player agreed to build mods made for other Industrial Era versions together.
+    /// build stays on the IndustrialEra the instance plays (`native_mods::base_for`), unless the
+    /// warning was Update's: then it moves to that newer IndustrialEra.
+    /// `anyway`: the player agreed to build mods made for other IndustrialEra versions together.
     fn build_native(&mut self, anyway: bool) {
         if self.native_step.is_some() {
             return;
@@ -858,7 +858,7 @@ impl Launcher {
             None => native_mods::base_for(plays.as_deref(), &self.installed, false),
         };
         let Some(base) = base else {
-            let error = tr("Install Industrial Era first.").to_string();
+            let error = tr("Install IndustrialEra first.").to_string();
             self.native_log_preflight(&error);
             self.native_error = Some(error);
             return;
@@ -1051,8 +1051,9 @@ impl Launcher {
                                     .into_iter()
                                     .find(|i| i.work == work)
                                     .map(|i| i.id);
-                                let applied =
-                                    industrial_era_launcher::modpacks::apply_profile(&mut cmd, &work);
+                                let applied = industrial_era_launcher::modpacks::apply_profile(
+                                    &mut cmd, &work,
+                                );
                                 (applied, id)
                             }
                             None => {
@@ -1116,7 +1117,12 @@ impl Launcher {
                     }
                     match result {
                         Ok(()) => {
-                            if self.updates.industrial_era.as_ref().is_some_and(|r| r.tag == tag) {
+                            if self
+                                .updates
+                                .industrial_era
+                                .as_ref()
+                                .is_some_and(|r| r.tag == tag)
+                            {
                                 self.updates.industrial_era = None;
                             }
                             if as_update.is_none_or(|(_, select)| select) {
@@ -1288,7 +1294,7 @@ impl Launcher {
                                 .and_then(|since| backend::crash_report_since(&home, since));
                             if error.is_some() && report.is_none() && self.switched_to_dx12() {
                                 self.client_error = Some(
-                                    "Industrial Era's Vulkan renderer crashed while starting on this \
+                                    "IndustrialEra's Vulkan renderer crashed while starting on this \
                                      graphics card, so the game now uses DirectX 12. Press Play \
                                      to start it again. Video Settings > Graphics API switches \
                                      back."
@@ -1371,7 +1377,7 @@ impl Launcher {
         for home in homes {
             match backend::switch_to_dx12(&home) {
                 Ok(changed) => switched |= changed,
-                Err(e) => eprintln!("Industrial Era launcher: could not switch to DirectX 12: {e}"),
+                Err(e) => eprintln!("IndustrialEra launcher: could not switch to DirectX 12: {e}"),
             }
         }
         switched
@@ -1526,8 +1532,8 @@ impl Launcher {
             .filter(|i| i.java.is_some())
             .cloned();
         if let Some(instance) = java {
-            // Mojang's game: no Industrial Era version or preparation, only no game already running.
-            // It joins a server; a friend's code and opening a world are Industrial Era's.
+            // Mojang's game: no IndustrialEra version or preparation, only no game already running.
+            // It joins a server; a friend's code and opening a world are IndustrialEra's.
             self.joining = None;
             let server = self
                 .quick_play
@@ -1569,7 +1575,10 @@ impl Launcher {
             let cmd = backend::java_game(&instance, server.as_deref(), &log).map(|mut cmd| {
                 let vars = instance.vars(cmd.get_program());
                 cmd.envs(vars.iter().map(|(k, v)| (k, v)));
-                (industrial_era_launcher::launch::wrap(cmd, &instance.launch), vars)
+                (
+                    industrial_era_launcher::launch::wrap(cmd, &instance.launch),
+                    vars,
+                )
             });
             let _ = tx.send(Msg::JavaGame(instance.id, instance.home, cmd));
         });
@@ -1583,7 +1592,7 @@ impl Launcher {
     }
 
     /// Whether the selected instance's version can start now, from a shortcut (a server's Join,
-    /// a world's Play, a friend's code): Industrial Era's only, never a Java instance.
+    /// a world's Play, a friend's code): IndustrialEra's only, never a Java instance.
     pub(crate) fn can_start_selected(&self) -> bool {
         self.selected_instance().is_none_or(|i| i.java.is_none())
             && self.selected().is_some_and(|tag| self.can_start(tag))
@@ -1879,7 +1888,7 @@ fn version_tag(tag: &str) -> Div {
         )
 }
 
-/// Industrial Era's mark: two stems, their reflection below, and the industrial-era across in the accent.
+/// IndustrialEra's mark: two stems, their reflection below, and the industrial_era across in the accent.
 fn mark(size: f32, t: &Theme) -> Div {
     let u = size / 16.;
     let stem = |x: f32, y: f32, color: Hsla| {
@@ -2388,10 +2397,12 @@ fn centered(text_: &str, t: &Theme) -> Div {
 
 /// The name the game made up for a player without an account, once it has run.
 fn offline_name() -> Option<String> {
-    player_name(&std::fs::read_to_string(backend::game_home().join("industrial-era-player.txt")).ok()?)
+    player_name(
+        &std::fs::read_to_string(backend::game_home().join("industrial_era-player.txt")).ok()?,
+    )
 }
 
-/// The name in `industrial-era-player.txt`: the game writes `name:Player12345` (industrial-era-client's
+/// The name in `industrial_era-player.txt`: the game writes `name:Player12345` (industrial_era-client's
 /// offline_name.rs).
 fn player_name(text: &str) -> Option<String> {
     text.lines()
@@ -2567,7 +2578,7 @@ impl Launcher {
             )
     }
 
-    /// The sidebar, from the top of the window: the wordmark, Industrial Era and the imported modpacks,
+    /// The sidebar, from the top of the window: the wordmark, IndustrialEra and the imported modpacks,
     /// the player's servers, then the launcher's own update, the community links and its version.
     fn sidebar(&mut self, window: &Window, cx: &mut Context<Self>) -> Stateful<Div> {
         let t = self.theme;
@@ -2782,7 +2793,7 @@ impl Launcher {
                 .child(
                     shell::text(theme::night::TITLE, shell::c(n.ink))
                         .font_family(theme::DISPLAY_FONT)
-                        .child("Industrial Era"),
+                        .child("IndustrialEra"),
                 )
         });
         shell::sidebar_plate(&t)
@@ -2941,7 +2952,7 @@ impl Launcher {
 
     fn play_page(&mut self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
-        // A Java instance plays Mojang's game: no Industrial Era version, nothing of Industrial Era's to prepare.
+        // A Java instance plays Mojang's game: no IndustrialEra version, nothing of IndustrialEra's to prepare.
         let java = self.selected_instance().and_then(|i| i.java.clone());
         let Some(tag) = self
             .selected()
@@ -3003,7 +3014,9 @@ impl Launcher {
         let minecraft = self.settings.minecraft_dir.as_deref().map_or_else(
             || {
                 div()
-                    .child(tr("Not found. Choose the folder where your launcher keeps Minecraft."))
+                    .child(tr(
+                        "Not found. Choose the folder where your launcher keeps Minecraft.",
+                    ))
                     .into_any_element()
             },
             |p| {
@@ -3059,26 +3072,29 @@ impl Launcher {
         // Account: who plays — Microsoft sign-in or an offline name, optional, never required.
         let acc_actions = div().flex().gap(px(8.));
         let acc_actions = acc_actions.child(
-            microsoft::sign_in_button("home-sign-in", &t)
-                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
+            microsoft::sign_in_button("home-sign-in", &t).on_click(cx.listener(
+                |this, _: &ClickEvent, _, cx| {
                     this.start_sign_in();
                     cx.notify();
-                })),
+                },
+            )),
         );
         let acc_actions = acc_actions.child(
-            button("home-offline", "Offline name", Kind::Ghost, &t).on_click(
-                cx.listener(|this, _: &ClickEvent, _, cx| {
+            button("home-offline", "Offline name", Kind::Ghost, &t).on_click(cx.listener(
+                |this, _: &ClickEvent, _, cx| {
                     this.go(Page::Settings);
                     cx.notify();
-                }),
-            ),
+                },
+            )),
         );
         rows = rows.child(index_row(
             4,
             tr("登录"),
             Some(
                 div()
-                    .child(tr("Microsoft account, or an offline name to play without one."))
+                    .child(tr(
+                        "Microsoft account, or an offline name to play without one.",
+                    ))
                     .into_any_element(),
             ),
             Some(acc_actions.into_any_element()),
@@ -3096,7 +3112,7 @@ impl Launcher {
                 .children(steps)
         } else {
             let hero = match &java {
-                // Its own game: the Minecraft version and the loader, never Industrial Era's.
+                // Its own game: the Minecraft version and the loader, never IndustrialEra's.
                 Some(j) => {
                     let game = match &j.loader {
                         Some(l) => format!("{version} · {} {}", l.kind.name(), l.version),
@@ -3166,7 +3182,7 @@ impl Launcher {
                                 // after pressing it, not below the fold (#666).
                                 .children(steps),
                         )
-                        // Notes and friends are Industrial Era's.
+                        // Notes and friends are IndustrialEra's.
                         .children(java.is_none().then(|| self.home_card(&tag, cx))),
                 )
         };
@@ -3188,7 +3204,7 @@ impl Launcher {
         page
     }
 
-    /// "Industrial Era crashed": the report and the logs, and where to report it.
+    /// "IndustrialEra crashed": the report and the logs, and where to report it.
     fn crash_notice(&self, crash: Crash, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let mut actions = div().flex().flex_wrap().gap(px(8.)).mt(px(8.));
@@ -3264,7 +3280,7 @@ impl Launcher {
             .child(
                 text(theme::HEADING)
                     .text_color(t.ink)
-                    .child(tr("Industrial Era crashed")),
+                    .child(tr("IndustrialEra crashed")),
             );
         if !crash.summary.is_empty() {
             body = body.child(div().text_color(t.ink_soft).child(crash.summary));
@@ -3510,7 +3526,7 @@ impl Launcher {
                     .child(group("AI", "terminal"))
                     .child(self.no_ai_row(n + 6, cx))
                     .child(group("About", "info-box"))
-                    .child(index_row(n + 7, "Industrial Era", Some(plain(&industrial-era)), industrial_era_action, &t))
+                    .child(index_row(n + 7, "IndustrialEra", Some(plain(&industrial_era)), industrial_era_action, &t))
                     .child(index_row(
                         n + 8,
                         tr("Launcher"),
@@ -3549,7 +3565,7 @@ impl Launcher {
                             n + 11,
                             tr("Applications menu"),
                             Some(plain(if self.settings.desktop_entry() {
-                                "Industrial Era and its icon are in your desktop's menu."
+                                "IndustrialEra and its icon are in your desktop's menu."
                             } else {
                                 "Not in your desktop's menu."
                             })),
@@ -3592,7 +3608,7 @@ impl Launcher {
             .child(tr("The build compiles the game: 20 to 30 minutes and a few GB of disk the first time (it downloads Rust), a few minutes after that.").to_string())
             .children(self.native_update.as_ref().map(|newer| {
                 div().text_color(t.warn).child(trf(
-                    "This moves the instance to Industrial Era {version}. It compiles the game from scratch, so it takes longer than a normal rebuild: up to 30 minutes.",
+                    "This moves the instance to IndustrialEra {version}. It compiles the game from scratch, so it takes longer than a normal rebuild: up to 30 minutes.",
                     &[("version", &native_status::industrial_era_label(newer))],
                 ))
             }));
@@ -3622,7 +3638,7 @@ impl Launcher {
         ))
     }
 
-    /// Mods made for other Industrial Era versions: which, and the version the build uses. They often
+    /// Mods made for other IndustrialEra versions: which, and the version the build uses. They often
     /// still work, so the player may build anyway.
     fn native_mismatch_panel(&self, list: &str, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
@@ -3633,7 +3649,7 @@ impl Launcher {
             .mt(px(8.))
             .p(px(12.))
             .bg(t.well)
-            .child(div().text_color(t.danger).child(tr("These mods were made for different Industrial Era versions").to_string()))
+            .child(div().text_color(t.danger).child(tr("These mods were made for different IndustrialEra versions").to_string()))
             .child(list.to_owned())
             .child(tr("They often still work together. If the build fails, install versions made for the same Nightly.").to_string())
             .child(
@@ -3786,7 +3802,7 @@ impl Launcher {
     }
 
     /// Keeps the Proxy field in `settings.json`, and tells the parts that build their own agents
-    /// (`industrial-era-port-pack`) which proxy to use.
+    /// (`industrial_era-port-pack`) which proxy to use.
     fn save_proxy(&mut self) {
         let value = self.proxy_input.text().trim().to_owned();
         self.settings.proxy = (!value.is_empty()).then_some(value);
@@ -3946,7 +3962,7 @@ impl Launcher {
             }
             Some(SignInState::Done(Err(e))) => div().text_color(t.danger).child(e.clone()),
             None if self.accounts.accounts.is_empty() => div().child(tr(
-                "Industrial Era needs a Microsoft account that owns Minecraft: Java Edition, like other launchers. It also plays online servers with your name and skin.",
+                "IndustrialEra needs a Microsoft account that owns Minecraft: Java Edition, like other launchers. It also plays online servers with your name and skin.",
             )),
             None => div().child(tr("Add another account.")),
         };
@@ -4063,7 +4079,7 @@ impl Launcher {
     /// Join a friend: a code field and Join, which starts the game straight
     /// into the friend's world (errors show in the game).
     /// Plays the selected instance straight into a world (`--world`) or a server (`--server`):
-    /// flags every Industrial Era release takes.
+    /// flags every IndustrialEra release takes.
     pub(crate) fn quick_play(&mut self, flag: &'static str, value: String) {
         self.quick_play = Some((flag, value));
         self.play();
@@ -4316,7 +4332,7 @@ impl Launcher {
                 "Imported builds",
                 build_import::is_imported,
                 Some(tr(
-                    "Unsigned: you picked these programs yourself, and Industrial Era can't \
+                    "Unsigned: you picked these programs yourself, and IndustrialEra can't \
                     check where they came from. Updates never replace them.",
                 )),
                 &on_disk,
@@ -4509,7 +4525,7 @@ impl Launcher {
                                 .child(tr("Support the work below")),
                         )
                         .child(text(theme::UI).text_color(t.muted).child(tr(
-                            "Industrial Era is built in the open. Sponsors fund the next release.",
+                            "IndustrialEra is built in the open. Sponsors fund the next release.",
                         ))),
                 )
                 .child(
@@ -4930,7 +4946,7 @@ impl Launcher {
         (reveal, held.as_secs_f32())
     }
 
-    /// `industrial-era-launcher benchmark`: scroll the page a little on every frame, back to the top at
+    /// `industrial_era-launcher benchmark`: scroll the page a little on every frame, back to the top at
     /// the bottom, so the frame times measure scrolling.
     fn bench_scroll(&mut self, window: &mut Window) {
         let handle = &self.content_scroll.handle;
@@ -4994,8 +5010,8 @@ fn key_bindings() -> Vec<KeyBinding> {
 fn menus() -> Vec<Menu> {
     vec![
         Menu {
-            name: "Industrial Era Launcher".into(),
-            items: vec![MenuItem::action("Quit Industrial Era Launcher", Quit)],
+            name: "IndustrialEra Launcher".into(),
+            items: vec![MenuItem::action("Quit IndustrialEra Launcher", Quit)],
             disabled: false,
         },
         Menu {
@@ -5023,8 +5039,10 @@ fn main() {
     backend::remove_replaced_binaries();
     backend::cleanup_launcher_updates();
     // What the launcher downloads goes through the player's proxy, if they set one: the parts
-    // that build their own agents (`industrial-era-port-pack`) are told before anything starts.
-    industrial_era_launcher::proxy::announce(industrial_era_launcher::backend::Settings::load().proxy);
+    // that build their own agents (`industrial_era-port-pack`) are told before anything starts.
+    industrial_era_launcher::proxy::announce(
+        industrial_era_launcher::backend::Settings::load().proxy,
+    );
     if let Some(code) = cli::run() {
         std::process::exit(code);
     }
@@ -5058,7 +5076,7 @@ fn main() {
                 })
             });
             cx.set_menus(menus());
-            // The setup exe (and `industrial-era-launcher.exe uninstall`) opens its own window instead.
+            // The setup exe (and `industrial_era-launcher.exe uninstall`) opens its own window instead.
             #[cfg(windows)]
             if let Some(mode) = industrial_era_launcher::installer::window_mode() {
                 setup_page::open(mode, cx);
@@ -5072,7 +5090,7 @@ fn main() {
                     titlebar: Some(titlebar::options()),
                     #[cfg(target_os = "linux")]
                     window_decorations: Some(gpui::WindowDecorations::Client),
-                    app_id: Some("industrial-era-launcher".into()),
+                    app_id: Some("industrial_era-launcher".into()),
                     // GPUI draws a window without focus at most every 33 ms to save energy. A
                     // benchmark's window often starts without it (KDE keeps focus from windows
                     // a background process opens), and it measures drawing, not that limit.
@@ -5183,7 +5201,7 @@ mod tests {
     }
 
     /// A server's Join (and every other shortcut) waits like Play: not while the version's
-    /// first download and preparation run (#industrial-era-bugs, 0.2.23: a white window opened).
+    /// first download and preparation run (#industrial_era-bugs, 0.2.23: a white window opened).
     #[test]
     fn shortcuts_start_only_when_play_would() {
         use super::starts_now;
@@ -5230,10 +5248,10 @@ mod tests {
     #[test]
     fn the_app_menu_has_quit() {
         let menus = super::menus();
-        assert_eq!(menus[0].name, "Industrial Era Launcher");
+        assert_eq!(menus[0].name, "IndustrialEra Launcher");
         assert!(matches!(
             &menus[0].items[0],
-            gpui::MenuItem::Action { name, .. } if name == "Quit Industrial Era Launcher"
+            gpui::MenuItem::Action { name, .. } if name == "Quit IndustrialEra Launcher"
         ));
     }
 

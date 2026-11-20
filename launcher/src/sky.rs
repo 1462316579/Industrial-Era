@@ -471,7 +471,7 @@ struct Star {
 }
 
 /// The stars, the same on every start: a fixed field wide enough for any window, thinned toward
-/// the industrial-era.
+/// the industrial_era.
 fn stars() -> &'static [Star] {
     static STARS: LazyLock<Vec<Star>> = LazyLock::new(|| {
         let mut rng = 0x2545_f491u32;
@@ -560,8 +560,8 @@ fn skyline(line: &Skyline, color: u32, scale: f32) -> Arc<RenderImage> {
     bake(&out, w, line.rows, LAND, scale)
 }
 
-/// The upper half of a sun cut by the industrial-era, in three bands of colour, its lower half sliced by
-/// rows of sky like Industrial Era's mark.
+/// The upper half of a sun cut by the industrial_era, in three bands of colour, its lower half sliced by
+/// rows of sky like IndustrialEra's mark.
 fn sun(art: &Colors) -> Vec<[u8; 4]> {
     let (r, w) = (SUN_RADIUS as f32, SUN_RADIUS * 2);
     let mut out = vec![[0; 4]; w * SUN_RADIUS];
