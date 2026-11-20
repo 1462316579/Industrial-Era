@@ -1010,10 +1010,6 @@ impl Launcher {
                             self.step_aside(cx);
                         }
                         Err(e) => {
-                            if e == account::NoOwner.to_string() {
-                                self.owner = Some(false);
-                                self.owner_screen_open = true;
-                            }
                             self.client_error = Some(e);
                         }
                     }
@@ -1025,8 +1021,6 @@ impl Launcher {
                         let (file, offline) = match session {
                             Ok(pass) => pass,
                             Err(account::NoOwner) => {
-                                self.owner = Some(false);
-                                self.owner_screen_open = true;
                                 self.client_error = Some(format!("{}.", tr(account::NEEDS_OWNER)));
                                 self.starting_pack = None;
                                 self.joining = None;
@@ -1034,10 +1028,7 @@ impl Launcher {
                                 continue;
                             }
                         };
-                        // Past the gate by the developer option alone is no owner.
-                        if !self.settings.dev_offline {
-                            self.owner = Some(true);
-                        }
+                        // Sign-in success marks the launcher as ready to play offline too.
                         if let Some(file) = file {
                             cmd.arg("--session-file").arg(file);
                         }
@@ -1343,8 +1334,7 @@ impl Launcher {
                     self.accounts = Accounts::load();
                     self.load_profile_heads();
                     self.load_auth_statuses(false);
-                    // Sign-in refuses accounts that don't own the game.
-                    self.owner = Some(true);
+                    // Sign-in success marks the launcher as ready to play offline too.
                     self.owner_screen_open = false;
                     self.client_error = None;
                     if !self.settings.owner_notice_seen {
@@ -2989,29 +2979,8 @@ impl Launcher {
         let left = self.download_left();
         let steps = self.preparing.then(|| self.steps(&version, left));
 
-        // Not prepared: an owner can have Industrial Era download Minecraft from Mojang; without an
-        // owner there is nothing to play, so signing in comes first.
-        let first = (!prepared && !self.preparing)
-            .then_some(self.owner_shown())
-            .flatten();
-        // No launcher folder with Minecraft on this computer: an owner needs none.
-        let no_install = self.settings.minecraft_dir.is_none();
-        let resources_value = match first {
-            _ if self.preparing => tr("Preparing…").to_string(),
-            Some(true) if no_install => trf(
-                "Not prepared. Play downloads Minecraft {version} from Mojang for your account and prepares it.",
-                &[("version", &version)],
-            ),
-            Some(true) => trf(
-                "Not prepared. Industrial Era can download Minecraft {version} from Mojang for your account, or use your own install.",
-                &[("version", &version)],
-            ),
-            Some(false) => trf(
-                "Not prepared. Sign in with the Microsoft account that owns Minecraft {version} first.",
-                &[("version", &version)],
-            ),
-            None => backend::resources_summary(prepared, !silent, &version),
-        };
+        // Prepared: Play.
+        let resources_value = backend::resources_summary(prepared, !silent, &version);
         let mut prepare = button(
             "prepare",
             if prepared { "Prepare again" } else { "Prepare" },
@@ -3030,59 +2999,11 @@ impl Launcher {
                 cx.notify();
             }));
         }
-        let prepare = match first {
-            Some(true) if no_install => div().child(
-                button(
-                    "prepare-download",
-                    "Download and prepare",
-                    Kind::Secondary,
-                    &t,
-                )
-                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                    this.prepare(backend::MinecraftFrom::Mojang);
-                    cx.notify();
-                })),
-            ),
-            Some(true) => div()
-                .flex()
-                .gap(px(8.))
-                .child(
-                    button("prepare-install", "From my install", Kind::Ghost, &t).on_click(
-                        cx.listener(|this, _: &ClickEvent, _, cx| {
-                            this.prepare(backend::MinecraftFrom::Install);
-                            cx.notify();
-                        }),
-                    ),
-                )
-                .child(
-                    button(
-                        "prepare-download",
-                        "Download and prepare",
-                        Kind::Secondary,
-                        &t,
-                    )
-                    .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                        this.prepare(backend::MinecraftFrom::Mojang);
-                        cx.notify();
-                    })),
-                ),
-            Some(false) => div().child(microsoft::sign_in_button("prepare-sign-in", &t).on_click(
-                cx.listener(|this, _: &ClickEvent, _, cx| {
-                    this.sign_in_to_play();
-                    cx.notify();
-                }),
-            )),
-            None => div().child(prepare),
-        };
-        let owner = self.owner == Some(true);
+        let prepare = div().child(prepare);
         let minecraft = self.settings.minecraft_dir.as_deref().map_or_else(
             || {
                 div()
-                    .child(if owner {
-                        tr("None needed: Industrial Era downloads Minecraft from Mojang for your account.")
-                    } else {
-                        tr("Not found. Choose the folder where your launcher keeps Minecraft.")
-                    })
+                    .child(tr("Not found. Choose the folder where your launcher keeps Minecraft."))
                     .into_any_element()
             },
             |p| {
@@ -3135,49 +3056,34 @@ impl Launcher {
                 &t,
             )),
         };
-        {
-            // The top bar shows who plays; a row only when there is something to do about it:
-            // no account that owns the game (Play needs one), or offline.
-            if self.owner_shown() == Some(false) {
-                rows = rows.child(index_row(
-                    5,
-                    tr("Microsoft account"),
-                    Some(
-                        div()
-                            .child(format!("{}.", tr(account::NEEDS_OWNER)))
-                            .into_any_element(),
-                    ),
-                    Some(
-                        microsoft::sign_in_button("gate-sign-in", &t)
-                            .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                                this.sign_in_to_play();
-                                cx.notify();
-                            }))
-                            .into_any_element(),
-                    ),
-                    &t,
-                ));
-            } else if self.accounts.selected().is_none() && account::client_id().is_some() {
-                rows = rows.child(index_row(
-                    5,
-                    tr("Playing offline"),
-                    Some(
-                        div()
-                            .child(tr("Online servers need a Microsoft account."))
-                            .into_any_element(),
-                    ),
-                    Some(
-                        button("accounts", "Accounts…", Kind::Ghost, &t)
-                            .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                                this.go(Page::Settings);
-                                cx.notify();
-                            }))
-                            .into_any_element(),
-                    ),
-                    &t,
-                ));
-            }
-        }
+        // Account: who plays — Microsoft sign-in or an offline name, optional, never required.
+        let acc_actions = div().flex().gap(px(8.));
+        let acc_actions = acc_actions.child(
+            microsoft::sign_in_button("home-sign-in", &t)
+                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
+                    this.start_sign_in();
+                    cx.notify();
+                })),
+        );
+        let acc_actions = acc_actions.child(
+            button("home-offline", "Offline name", Kind::Ghost, &t).on_click(
+                cx.listener(|this, _: &ClickEvent, _, cx| {
+                    this.go(Page::Settings);
+                    cx.notify();
+                }),
+            ),
+        );
+        rows = rows.child(index_row(
+            4,
+            tr("登录"),
+            Some(
+                div()
+                    .child(tr("Microsoft account, or an offline name to play without one."))
+                    .into_any_element(),
+            ),
+            Some(acc_actions.into_any_element()),
+            &t,
+        ));
 
         // The glass look's head (the mockup's `HomeView`) replaces the banner; the preparation's
         // steps stay right under it, where the player looks after pressing Play.
