@@ -62,7 +62,9 @@ fn run(endpoint: &str) {
             Err(e) => {
                 // Said once, not every minute the server is away.
                 if !failed {
-                    log::info!("Industrial Era: the live count ping failed ({e}); trying again later");
+                    log::info!(
+                        "Industrial Era: the live count ping failed ({e}); trying again later"
+                    );
                 }
                 failed = true;
                 wait = (wait * 2).min(MAX_WAIT);

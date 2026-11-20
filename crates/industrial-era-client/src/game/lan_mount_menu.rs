@@ -185,7 +185,11 @@ impl Game<'_> {
 
     /// `AbstractMountInventoryMenu.stillValid`: the mount is alive and within
     /// the entity interaction range (3) plus 4 of the guest's eyes.
-    pub(super) fn lan_mount_valid(&self, g: &industrial_era_client::lan::guest::Guest, mob: u32) -> bool {
+    pub(super) fn lan_mount_valid(
+        &self,
+        g: &industrial_era_client::lan::guest::Guest,
+        mob: u32,
+    ) -> bool {
         let eye = [g.position[0], g.position[1] + g.eye_height(), g.position[2]];
         self.mobs.iter().find(|m| m.id == mob).is_some_and(|m| {
             let (w, h) = (f64::from(m.width()) / 2.0, f64::from(m.height()));

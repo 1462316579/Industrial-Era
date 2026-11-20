@@ -80,7 +80,8 @@ fn view_pages(data: Option<&StackData>) -> Vec<Text> {
             // A component object, or a component list (`ComponentSerialization`
             // takes both; servers behind ViaVersion send the list form).
             Some(
-                tag @ (industrial_era_world::nbt::Tag::Compound(_) | industrial_era_world::nbt::Tag::List(_)),
+                tag @ (industrial_era_world::nbt::Tag::Compound(_)
+                | industrial_era_world::nbt::Tag::List(_)),
             ) => industrial_era_client::entity_nbt::name_text(tag),
             _ => Text::literal(page),
         })
@@ -95,7 +96,11 @@ impl Game<'_> {
     }
     /// `BookViewScreen.mouseClicked`: the click event of the text under the
     /// cursor on the page.
-    fn book_link_at(&self, page: &Text, left: f32) -> Option<industrial_era_client::text::ClickEvent> {
+    fn book_link_at(
+        &self,
+        page: &Text,
+        left: f32,
+    ) -> Option<industrial_era_client::text::ClickEvent> {
         self.book_style_at(page, left)?.click
     }
     /// `ActiveTextCollector` over the page: the style of the character
@@ -532,7 +537,10 @@ impl Game<'_> {
         }
     }
     /// Ctrl+A/C/V/X: the title box while signing, else the page.
-    pub(super) fn book_shortcut(&mut self, shortcut: industrial_era_client::clipboard::EditShortcut) {
+    pub(super) fn book_shortcut(
+        &mut self,
+        shortcut: industrial_era_client::clipboard::EditShortcut,
+    ) {
         let signing = matches!(self.book, Some(BookScreen::Edit { signing: true, .. }));
         if signing {
             if let Some(BookScreen::Edit {
@@ -1543,7 +1551,10 @@ impl Game<'_> {
     }
 }
 /// `LecternBlockEntity.getRedstoneSignal`.
-pub(super) fn lectern_signal(world: &industrial_era_client::world::World, pos: BlockPos) -> Option<i32> {
+pub(super) fn lectern_signal(
+    world: &industrial_era_client::world::World,
+    pos: BlockPos,
+) -> Option<i32> {
     match world.block_entities.get(&(pos.x, pos.y, pos.z)) {
         Some(BlockEntity::Lectern(l)) => Some(l.book.as_ref().map_or(0, |b| {
             let data = b.data();

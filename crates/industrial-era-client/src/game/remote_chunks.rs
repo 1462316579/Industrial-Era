@@ -112,7 +112,12 @@ impl ChunkFormat {
         // ClientPacketListener.applyLightData: the column keeps the light
         // the server sent; nothing is relit.
         let (layers, above) = self.light(&p.light);
-        industrial_era_client::light::light_from_layers(&mut chunk, &layers, above, self.has_skylight);
+        industrial_era_client::light::light_from_layers(
+            &mut chunk,
+            &layers,
+            above,
+            self.has_skylight,
+        );
         // From the single-player server thread: its own sections where they
         // are the same.
         industrial_era_client::lan::handoff::take(&mut chunk);
@@ -380,7 +385,9 @@ impl Game<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use industrial_era_protocol::chunk::{ChunkData, Paletted, Section as Wire, Strategy as Wiring};
+    use industrial_era_protocol::chunk::{
+        ChunkData, Paletted, Section as Wire, Strategy as Wiring,
+    };
 
     /// A column of `state` with biome 1 everywhere, unlit.
     fn packet(x: i32, state: i32) -> Box<C> {

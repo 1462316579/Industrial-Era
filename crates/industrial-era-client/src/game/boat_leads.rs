@@ -492,7 +492,9 @@ impl Game<'_> {
                 let uuid = self.boat_leash_player(b);
                 guests
                     .iter()
-                    .find(|(u, _)| Some(industrial_era_client::lan::playerdata::uuid_ints(*u)) == uuid)
+                    .find(|(u, _)| {
+                        Some(industrial_era_client::lan::playerdata::uuid_ints(*u)) == uuid
+                    })
                     .map(|&(_, id)| id)
             }
             Holder::Mob(id) | Holder::Boat(id) => Some(id as i32),

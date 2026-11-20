@@ -2015,9 +2015,12 @@ mod tests {
     /// has its east wall at x = 13.
     #[test]
     fn the_world_border_stops_a_mob() {
-        let border =
-            industrial_era_core::geometry::border::BorderGeometry::new([8.0, 8.0], 10.0, 29_999_984)
-                .unwrap();
+        let border = industrial_era_core::geometry::border::BorderGeometry::new(
+            [8.0, 8.0],
+            10.0,
+            29_999_984,
+        )
+        .unwrap();
         let build = |world: &mut crate::world::World,
                      _: &industrial_era_world::registry::BlockRegistry| {
             world.chunks.insert(

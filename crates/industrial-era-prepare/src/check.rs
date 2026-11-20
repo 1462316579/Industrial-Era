@@ -152,7 +152,10 @@ mod tests {
     use std::fs;
 
     fn folder(name: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("industrial-era-check-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-check-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         fs::write(
@@ -264,7 +267,7 @@ mod tests {
             std::thread::spawn(move || {
                 let said = std::cell::Cell::new(false);
                 let _lock = crate::hold_lock(&root, &|line| {
-                    said.set(line.starts_with("Waiting for another industrial-era-prepare"))
+                    said.set(line.starts_with("Waiting for another industrial_era-prepare"))
                 })
                 .unwrap();
                 waited.store(said.get(), std::sync::atomic::Ordering::SeqCst);

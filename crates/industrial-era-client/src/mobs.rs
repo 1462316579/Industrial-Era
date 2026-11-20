@@ -2361,8 +2361,9 @@ pub fn collision_changes(w: &MobWorld, writes: &[((i32, i32, i32), u32, u32)]) -
         .iter()
         .filter_map(|&((x, y, z), old, new)| {
             let at = [x, y, z];
-            let shape =
-                |state| w.collision_bounds_of(industrial_era_world::registry::BlockStateId(state), at);
+            let shape = |state| {
+                w.collision_bounds_of(industrial_era_world::registry::BlockStateId(state), at)
+            };
             (shape(old) != shape(new)).then_some(at)
         })
         .collect()
@@ -3742,7 +3743,12 @@ impl ElytraAnimation {
         0.0,
         -std::f32::consts::PI / 12.0,
     ];
-    pub fn tick(&mut self, flying: bool, crouching: bool, velocity: industrial_era_core::geometry::Vec3) {
+    pub fn tick(
+        &mut self,
+        flying: bool,
+        crouching: bool,
+        velocity: industrial_era_core::geometry::Vec3,
+    ) {
         use std::f32::consts::PI;
         self.old = self.angles;
         let target = if flying {
@@ -4355,7 +4361,8 @@ mod held_stack_tests {
     fn replacing_even_the_same_item_clears_its_old_components() {
         let mut extra = Extra::default();
         let mut named = crate::items::ItemStack::new("minecraft:diamond_sword", 1);
-        named.data_mut().custom_name = Some(industrial_era_world::nbt::Tag::String("Old Sword".into()));
+        named.data_mut().custom_name =
+            Some(industrial_era_world::nbt::Tag::String("Old Sword".into()));
         extra.set_main_hand_stack(Some(named.clone()));
         assert_eq!(
             extra.main_hand_stack().unwrap().custom_name().as_deref(),

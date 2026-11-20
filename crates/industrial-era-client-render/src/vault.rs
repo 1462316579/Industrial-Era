@@ -83,7 +83,10 @@ impl VaultConfig {
             );
         }
         if let Some(key) = &self.key_item {
-            out.insert("key_item".into(), industrial_era_items::item_nbt::item_to_nbt(key));
+            out.insert(
+                "key_item".into(),
+                industrial_era_items::item_nbt::item_to_nbt(key),
+            );
         }
         if let Some(table) = &self.override_loot_table_to_display {
             out.insert(
@@ -183,7 +186,9 @@ impl Default for Vault {
 /// An `Identifier` (`minecraft` when the namespace is left out).
 fn identifier(t: Option<&Tag>) -> Option<String> {
     match t? {
-        Tag::String(s) => industrial_era_client_core::identifier::normalize_id(&s.to_string_lossy()),
+        Tag::String(s) => {
+            industrial_era_client_core::identifier::normalize_id(&s.to_string_lossy())
+        }
         _ => None,
     }
 }

@@ -1,5 +1,5 @@
 //! Profile the two mandatory passes over gameplay-facts.json independently.
-//! Build with `cargo build --release -p industrial-era-client --example gameplay_decode_profile`.
+//! Build with `cargo build --release -p industrial_era-client --example gameplay_decode_profile`.
 //! Each invocation runs one phase in a separate process for CPU/RSS measurements.
 extern crate industrial_era_client_lib as industrial_era_client;
 #[allow(dead_code)]

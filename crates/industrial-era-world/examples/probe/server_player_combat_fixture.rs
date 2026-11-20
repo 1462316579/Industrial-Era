@@ -488,7 +488,7 @@ fn run<A: FixtureAttributes>(dir: &Path, output: &str) -> Result<(), Box<dyn std
         for (i, key) in keys.iter().enumerate() {
             let a = &f["attributes"][i];
             let m = Modifier::new(
-                "industrial-era:test",
+                "industrial_era:test",
                 number(&a["amount"]),
                 Operation::ALL[a["operation"].as_u64().unwrap() as usize],
             )?;

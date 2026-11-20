@@ -11,7 +11,7 @@
 //!   `ctov:modular_compat` (a reference that runs only when its mod is loaded)
 //!   becomes a `reference` when the mod is ported along, else nothing.
 //! - `add_template_pool_elements` and `add_processor_list_processors`
-//!   modifiers become `industrial-era:add_to` pool and processor list files
+//!   modifiers become `industrial_era:add_to` pool and processor list files
 //!   (`docs/mods.md`), with their `priority`, when their load conditions pass.
 //! - Its `limited` and `guaranteed` pool elements are the game's own
 //!   (`industrial_era_world`'s `structure::jigsaw`); `delegating` places its
@@ -179,9 +179,9 @@ pub(crate) fn modifier(
     for target in &targets {
         *report.added_to.entry(target.clone()).or_default() += entries.len();
     }
-    let mut file = json!({"industrial-era:add_to": targets, list: entries});
+    let mut file = json!({"industrial_era:add_to": targets, list: entries});
     if let Some(priority) = v["priority"].as_i64() {
-        file["industrial-era:priority"] = priority.into();
+        file["industrial_era:priority"] = priority.into();
     }
     Some((to, file))
 }
@@ -378,7 +378,10 @@ mod tests {
         )
         .unwrap();
         assert_eq!(kind, "template_pool");
-        assert_eq!(file["industrial-era:add_to"], json!(["ctov:village/plains/house"]));
+        assert_eq!(
+            file["industrial_era:add_to"],
+            json!(["ctov:village/plains/house"])
+        );
         assert_eq!(file["elements"][0]["weight"], 2);
         assert_eq!(report.added_to["ctov:village/plains/house"], 1);
         assert!(modifier(&add("sawmill", json!("a:b")), &loaded, &mut report).is_none());
@@ -394,8 +397,8 @@ mod tests {
         assert_eq!(kind, "processor_list");
         assert_eq!(
             file,
-            json!({"industrial-era:add_to": ["minecraft:mossify_10_percent"], "processors": nop,
-                "industrial-era:priority": 10})
+            json!({"industrial_era:add_to": ["minecraft:mossify_10_percent"], "processors": nop,
+                "industrial_era:priority": 10})
         );
         let wiki = json!({"type": "lithostitched:add_processor_list_processors",
             "processor_list": "minecraft:mossify_10_percent", "processors": nop});

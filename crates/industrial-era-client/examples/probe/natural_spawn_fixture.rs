@@ -145,7 +145,12 @@ impl World<'_> {
             .find(|(b, _)| b.has(x, y, z))
             .map_or(&self.biome, |(_, n)| n)
     }
-    fn biome_info(&self, x: i32, y: i32, z: i32) -> Option<&industrial_era_client::biome::BiomeInfo> {
+    fn biome_info(
+        &self,
+        x: i32,
+        y: i32,
+        z: i32,
+    ) -> Option<&industrial_era_client::biome::BiomeInfo> {
         let i = *self.s.biomes.index.get(self.biome_at(x, y, z))?;
         Some(self.s.biomes.get(i))
     }
@@ -747,7 +752,8 @@ pub fn main() -> industrial_era_client::Result<()> {
                     .filter_map(|(id, p, _)| {
                         let t = types.types.get(id)?;
                         // Entity.setPos (a shulker sits at its block's centre).
-                        let p = industrial_era_client::mobs::spawner::entity_position(t.species, *p);
+                        let p =
+                            industrial_era_client::mobs::spawner::entity_position(t.species, *p);
                         Some((
                             id.clone(),
                             spawn_box(p[0], p[1], p[2], t.width as f32, t.height as f32),
@@ -1033,7 +1039,10 @@ fn trial_case(
         let mut spawn = |l: &World, r: &SpawnerSpawn| {
             let t = l.s.types.types.get(r.id)?;
             // Slime.readAdditionalSaveData: size Size + 1, clamped to 1..=127.
-            let size = match r.entity.get(&industrial_era_world::nbt::JavaString::from("Size")) {
+            let size = match r
+                .entity
+                .get(&industrial_era_world::nbt::JavaString::from("Size"))
+            {
                 Some(Tag::Byte(v)) => i32::from(*v),
                 Some(Tag::Short(v)) => i32::from(*v),
                 Some(Tag::Int(v)) => *v,

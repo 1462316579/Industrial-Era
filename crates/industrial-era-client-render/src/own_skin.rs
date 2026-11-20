@@ -1,5 +1,5 @@
 //! The player's own skin (Options > Skin Customization): the PNGs of `skins/` beside options.txt,
-//! the one chosen and its model, kept in industrial-era-player.txt (`offline_name`), and the image read
+//! the one chosen and its model, kept in industrial_era-player.txt (`offline_name`), and the image read
 //! as vanilla reads a downloaded skin (`SkinTextureDownloader.processLegacySkin`: 64x64, or a
 //! legacy 64x32 laid out anew). Only this game draws it: other players see the skin the server
 //! sends for the profile, as vanilla's protocol has it, unless a Microsoft account uploads it to
@@ -30,7 +30,7 @@ pub struct SkinChoice {
 }
 
 impl SkinChoice {
-    /// The choice kept in `dir`'s industrial-era-player.txt.
+    /// The choice kept in `dir`'s industrial_era-player.txt.
     pub fn load(dir: &Path) -> Self {
         Self {
             file: offline_name::value(dir, SKIN).filter(|f| is_file_name(f)),
@@ -38,7 +38,7 @@ impl SkinChoice {
         }
     }
 
-    /// Keep the choice in `dir`'s industrial-era-player.txt, beside the name.
+    /// Keep the choice in `dir`'s industrial_era-player.txt, beside the name.
     pub fn save(&self, dir: &Path) -> std::io::Result<()> {
         let model = if self.slim { "slim" } else { "classic" };
         offline_name::set_values(dir, &[(SKIN, self.file.as_deref()), (MODEL, Some(model))])
@@ -250,8 +250,10 @@ mod tests {
     use std::fs;
 
     fn scratch(name: &str) -> std::path::PathBuf {
-        let d =
-            std::env::temp_dir().join(format!("industrial-era-own-skin-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!(
+            "industrial-era-own-skin-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d

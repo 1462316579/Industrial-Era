@@ -30,7 +30,8 @@ fn stamp(time: SystemTime) -> String {
     let secs = time
         .duration_since(SystemTime::UNIX_EPOCH)
         .map_or(0, |d| d.as_secs() as i64);
-    let (y, m, d) = industrial_era_server_files::java_properties::civil_from_days(secs.div_euclid(86_400));
+    let (y, m, d) =
+        industrial_era_server_files::java_properties::civil_from_days(secs.div_euclid(86_400));
     let s = secs.rem_euclid(86_400);
     format!(
         "{y:04}-{m:02}-{d:02}_{:02}-{:02}-{:02}",
@@ -195,7 +196,7 @@ pub fn find(dir: &Path, name: &str) -> Result<String, String> {
 /// server must be stopped. Returns where the old world went.
 pub fn restore(dir: &Path, config: &Config, name: &str) -> Result<Option<PathBuf>, String> {
     let zip_path = dir.join(DIR).join(name);
-    let scratch = dir.join(".industrial-era/restore");
+    let scratch = dir.join(".industrial_era/restore");
     let _ = std::fs::remove_dir_all(&scratch);
     std::fs::create_dir_all(&scratch).map_err(|e| e.to_string())?;
     let file = File::open(&zip_path).map_err(|e| format!("{}: {e}", zip_path.display()))?;
@@ -283,8 +284,10 @@ mod tests {
 
     #[test]
     fn back_up_and_restore() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-backup-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-backup-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         let config = Config::default();
         let world = dir.join("world");

@@ -94,7 +94,9 @@ impl Game<'_> {
                 if !self.set_state_named(pos, &name, &[])? {
                     return Err(format!("cannot place {name}").into());
                 }
-                if let Some(entity) = industrial_era_client::containers::BlockEntity::for_block(&name) {
+                if let Some(entity) =
+                    industrial_era_client::containers::BlockEntity::for_block(&name)
+                {
                     self.world
                         .block_entities
                         .insert((pos[0], pos[1], pos[2]), entity);
@@ -179,7 +181,8 @@ impl Game<'_> {
                     self.potions.effects.clear();
                     return ok();
                 }
-                let def = industrial_era_client::brewing::effect(arg(1)?).ok_or("unknown effect")?;
+                let def =
+                    industrial_era_client::brewing::effect(arg(1)?).ok_or("unknown effect")?;
                 let seconds: i32 = arg(2)?.parse()?;
                 let amp: i32 = words.get(3).map_or(Ok(0), |a| a.parse())?;
                 self.potions
@@ -207,7 +210,9 @@ impl Game<'_> {
             "mount-menu" => {
                 let eye = self.eye_position().ok_or("no player")?;
                 let index = (0..self.mobs.len())
-                    .filter(|&i| industrial_era_client::mobs::equine::is_equine(self.mobs[i].species()))
+                    .filter(|&i| {
+                        industrial_era_client::mobs::equine::is_equine(self.mobs[i].species())
+                    })
                     .min_by(|&a, &b| {
                         let d = |i: usize| {
                             let c = self.mobs[i].center();

@@ -24,7 +24,7 @@ pub enum Kind {
     Mod,
     /// A native mod (`industrial-era-native.json`): for `industrial-era-native-mods/`, compiled from there.
     NativeMod,
-    /// A folder industrial-era-prepare made (`industrial-era-resources.json`), zipped.
+    /// A folder industrial_era-prepare made (`industrial-era-resources.json`), zipped.
     Resources,
     /// Bedrock Edition content (.mcpack, .mcaddon, .mcworld, .mctemplate).
     Bedrock,
@@ -468,8 +468,10 @@ mod tests {
     }
 
     fn scratch(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-import-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-import-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         dir
@@ -677,7 +679,10 @@ mod tests {
         assert!(install(&wrong, "wrong.zip", &places).is_err());
         assert!(places.resources.join("old.txt").is_file());
         let right = dir.join("right.zip");
-        let manifest = format!(r#"{{"data_version": {}}}"#, industrial_era_world::DATA_VERSION);
+        let manifest = format!(
+            r#"{{"data_version": {}}}"#,
+            industrial_era_world::DATA_VERSION
+        );
         zip_of(
             &right,
             &[

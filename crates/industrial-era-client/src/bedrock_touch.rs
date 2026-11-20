@@ -298,7 +298,9 @@ pub fn fetch(resources: &Path) -> Result<usize, String> {
 pub fn fetch_logged(resources: &Path) {
     match fetch(resources) {
         Ok(0) => {}
-        Ok(n) => log::info!("Industrial Era: Bedrock's touch buttons fetched from Mojang ({n} sprites)"),
+        Ok(n) => {
+            log::info!("Industrial Era: Bedrock's touch buttons fetched from Mojang ({n} sprites)")
+        }
         Err(e) => log::info!("Industrial Era: Bedrock's touch buttons not fetched: {e}"),
     }
 }
@@ -337,12 +339,13 @@ mod tests {
         }
     }
 
-    /// The real thing, from Mojang (the network): `cargo test -p industrial-era-client --lib
+    /// The real thing, from Mojang (the network): `cargo test -p industrial_era-client --lib
     /// bedrock_touch -- --ignored`.
     #[test]
     #[ignore = "fetches from github.com"]
     fn the_buttons_come_from_mojang_checked() {
-        let root = std::env::temp_dir().join(format!("industrial-era-bedrock-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-bedrock-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         std::fs::create_dir_all(root.join("assets/minecraft")).unwrap();
         let written = fetch(&root).unwrap();

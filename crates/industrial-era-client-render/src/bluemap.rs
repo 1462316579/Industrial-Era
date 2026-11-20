@@ -1183,7 +1183,10 @@ fn fetch(inner: Weak<Inner>) {
     let mut worker = Worker {
         agent: ureq::AgentBuilder::new()
             .timeout(Duration::from_secs(10))
-            .user_agent(&format!("Industrial Era/{}", industrial_era_core::release::VERSION))
+            .user_agent(&format!(
+                "Industrial Era/{}",
+                industrial_era_core::release::VERSION
+            ))
             .build(),
         backoff: BACKOFF,
         disk: None,
@@ -1814,8 +1817,10 @@ mod tests {
     }
 
     fn scratch(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-bluemap-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-bluemap-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         dir
     }

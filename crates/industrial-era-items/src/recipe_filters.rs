@@ -343,8 +343,10 @@ mod tests {
 
     #[test]
     fn packs_replace_a_mods_file_and_files_apply_in_id_order() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-recipe-filters-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-recipe-filters-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         let dir = root.join("data/mymod/recipe_filter");
         std::fs::create_dir_all(&dir).unwrap();

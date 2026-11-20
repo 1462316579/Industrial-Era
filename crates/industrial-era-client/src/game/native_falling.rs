@@ -83,8 +83,9 @@ impl Game<'_> {
         if !self.world.chunks.contains_key(&(cell.x >> 4, cell.z >> 4)) {
             return false;
         }
-        let mut damage =
-            industrial_era_client::falling_block::Damage::falling(&self.res.facts().get(state).name);
+        let mut damage = industrial_era_client::falling_block::Damage::falling(
+            &self.res.facts().get(state).name,
+        );
         if falling.hurts {
             damage.hurt_entities = true;
             damage.per_distance = 2.0;

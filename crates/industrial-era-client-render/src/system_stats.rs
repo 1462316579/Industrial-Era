@@ -314,7 +314,8 @@ mod tests {
 
     #[test]
     fn zones_are_sorted_by_their_type_and_the_hottest_wins() {
-        let root = std::env::temp_dir().join(format!("industrial-era-zones-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-zones-{}", std::process::id()));
         for (i, (kind, temp)) in [
             ("cpu-1-0", "54700"),
             ("cpuss-0", "56100"),

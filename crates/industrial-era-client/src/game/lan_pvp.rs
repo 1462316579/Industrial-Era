@@ -224,7 +224,10 @@ impl Game<'_> {
             Victim::Guest(conn) => host.hub.guest(conn).and_then(|g| team_of(self, &g.name)),
         };
         let refused = !(self.ui.rules.bool("pvp")
-            && industrial_era_client::scoreboard::teams_allow_damage(target.as_ref(), attacker.as_ref()));
+            && industrial_era_client::scoreboard::teams_allow_damage(
+                target.as_ref(),
+                attacker.as_ref(),
+            ));
         let on_player = Hit::Entity {
             who: Who::Player,
             at,
@@ -478,7 +481,10 @@ impl Game<'_> {
         };
         for (victim, id, team) in victims {
             if sweep.skip == Some(id)
-                || industrial_era_client::scoreboard::teams_allied(team.as_ref(), sweep.team.as_ref())
+                || industrial_era_client::scoreboard::teams_allied(
+                    team.as_ref(),
+                    sweep.team.as_ref(),
+                )
                 || !self.ui.rules.bool("pvp")
             {
                 continue;

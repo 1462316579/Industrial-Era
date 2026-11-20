@@ -27,7 +27,7 @@ pub(crate) struct NativeSidebar {
 
 /// The objective a mod's sidebar is sent as: the player's client only; the
 /// server's scoreboard never holds it.
-const SIDEBAR_OBJECTIVE: &str = "industrial-era:native_sidebar";
+const SIDEBAR_OBJECTIVE: &str = "industrial_era:native_sidebar";
 
 /// The brigadier parser of an argument kind, and its properties.
 fn parser(kind: &str) -> Option<(&'static str, Value)> {
@@ -290,7 +290,7 @@ impl Game<'_> {
                     // Highest first. The display name shows, not the owner;
                     // an owner starting with '#' is hidden from the sidebar
                     // (ScoreHolder's isHidden), and ':' is in no player's name.
-                    owner: format!("industrial-era:line{i:02}"),
+                    owner: format!("industrial_era:line{i:02}"),
                     objective: objective.clone(),
                     score: (lines.len() - i) as i32,
                     display: Some(component_nbt(&left.component())),
@@ -416,7 +416,7 @@ impl Game<'_> {
         }
     }
     /// Posts a line to the dedicated server's event stream (`GET /api/v1/events`)
-    /// as an `announce` event, which industrial-era-server's Discord bridge relays when
+    /// as an `announce` event, which industrial_era-server's Discord bridge relays when
     /// `[discord] events` lists `announce`: `name` and `uuid` say who it is
     /// about (empty and 0 for no one), `message` is the line (`§` codes colour it).
     /// Only on a dedicated server; false elsewhere and for an empty message.

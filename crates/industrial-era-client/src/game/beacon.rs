@@ -669,7 +669,9 @@ impl Game<'_> {
                 - camera)
                 .as_vec3();
             let start = out.len();
-            industrial_era_client::block_entity_render::beacon_beam(origin, sections, time, scale, s, out);
+            industrial_era_client::block_entity_render::beacon_beam(
+                origin, sections, time, scale, s, out,
+            );
             // HDR output: the beam shines (entity.wgsl fs_hdr_mark).
             for v in &mut out[start..] {
                 v.layer |= u32::from(industrial_era_client::mesher::BRIGHT) << 16;

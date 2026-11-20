@@ -58,7 +58,10 @@ fn selects_a_compatible_compiler_and_runtime() {
         return;
     }
 
-    let root = env::temp_dir().join(format!("industrial-era-java-selection-{}", std::process::id()));
+    let root = env::temp_dir().join(format!(
+        "industrial-era-java-selection-{}",
+        std::process::id()
+    ));
     fs::create_dir_all(&root).unwrap();
     let probe = tool(&root, "probe");
     let output = Command::new("rustc")

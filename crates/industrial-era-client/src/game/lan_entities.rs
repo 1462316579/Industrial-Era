@@ -836,7 +836,8 @@ mod tests {
 
     #[test]
     fn armor_stand_poses_send_only_what_differs() {
-        let mut stand = industrial_era_client::entities::ArmorStand::new(1, Default::default(), 0.0);
+        let mut stand =
+            industrial_era_client::entities::ArmorStand::new(1, Default::default(), 0.0);
         stand.pose[0] = [10.0, 20.0, 0.0];
         let meta = stand_poses(&stand);
         assert_eq!(

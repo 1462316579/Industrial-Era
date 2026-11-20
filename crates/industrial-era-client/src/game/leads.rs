@@ -439,7 +439,8 @@ impl Game<'_> {
             [white.u1, white.v0],
             [white.u0, white.v0],
         ];
-        let lerp3 = |a: industrial_era_core::geometry::Vec3, b: industrial_era_core::geometry::Vec3| {
+        let lerp3 = |a: industrial_era_core::geometry::Vec3,
+                     b: industrial_era_core::geometry::Vec3| {
             glam::DVec3::new(
                 a.x + (b.x - a.x) * alpha,
                 a.y + (b.y - a.y) * alpha,
@@ -451,7 +452,8 @@ impl Game<'_> {
         // `AbstractBoat` is `Leashable` too) with where it hangs.
         let body_of = |previous: f32, current: f32| {
             f64::from(
-                previous + industrial_era_client::mobs::living::wrap(current - previous) * alpha as f32,
+                previous
+                    + industrial_era_client::mobs::living::wrap(current - previous) * alpha as f32,
             )
             .to_radians()
         };

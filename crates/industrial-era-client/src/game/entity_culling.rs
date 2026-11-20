@@ -387,7 +387,7 @@ impl Game<'_> {
             _ => (false, false),
         };
         let at = camera.to_array().map(|v| v.floor() as i32);
-        let eligible = self.settings.industrial-era.entity_culling
+        let eligible = self.settings.industrial_era.entity_culling
             != industrial_era_client::graphics::EntityCullingMode::Off
             // Packs can replace an opaque block's model or texture.
             && self.model_packs_are_vanilla()
@@ -401,7 +401,7 @@ impl Game<'_> {
             return;
         }
 
-        match self.settings.industrial-era.entity_culling {
+        match self.settings.industrial_era.entity_culling {
             industrial_era_client::graphics::EntityCullingMode::Off => {
                 self.entity_culler = None;
                 self.async_entity_culler = None;
@@ -418,7 +418,9 @@ impl Game<'_> {
                     match AsyncCuller::new() {
                         Ok(culler) => self.async_entity_culler = Some(culler),
                         Err(error) => {
-                            log::warn!("Industrial Era: cannot start entity-culling worker: {error}");
+                            log::warn!(
+                                "Industrial Era: cannot start entity-culling worker: {error}"
+                            );
                             self.async_entity_culling_failed = true;
                         }
                     }

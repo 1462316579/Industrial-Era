@@ -98,8 +98,9 @@ pub fn animate(m: &mut Mob) -> bool {
                 st[0].start(age);
             } else if m.extra.ints[0] == 0 {
                 // The client entity's own random, not the server's.
-                let mut r =
-                    industrial_era_core::random::LegacyRandom::new(i64::from(m.id) ^ i64::from(tick));
+                let mut r = industrial_era_core::random::LegacyRandom::new(
+                    i64::from(m.id) ^ i64::from(tick),
+                );
                 m.extra.ints[0] = tick + 200 + r.next_int_bound(40).unwrap_or(0);
             }
             if tick == m.extra.ints[0] + 10 {

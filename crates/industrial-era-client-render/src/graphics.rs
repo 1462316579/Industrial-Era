@@ -1020,7 +1020,9 @@ impl Graphics {
         // A phone leaves two, as Starling was measured with: half its cores are small ones, and
         // a hot phone slows every core down.
         let spare = if cfg!(target_os = "android") { 2 } else { 1 };
-        let auto = industrial_era_threads::worker_count().saturating_sub(spare).max(1);
+        let auto = industrial_era_threads::worker_count()
+            .saturating_sub(spare)
+            .max(1);
         if self.battery { auto.div_ceil(2) } else { auto }
     }
     /// The frame cap battery mode adds: 60 in a world, 30 in menus without a
@@ -1057,7 +1059,7 @@ pub fn apply_preset(preset: Preset, s: &mut crate::settings::Settings) {
     s.cutout_leaves = leaves;
     s.weather_radius = weather_r;
     s.graphics_preset = "custom".into();
-    let g = &mut s.industrial-era;
+    let g = &mut s.industrial_era;
     g.preset = preset;
     g.cave_culling = true;
     g.animated_textures = true;
@@ -1101,7 +1103,7 @@ pub fn apply_mobile_defaults(tier: crate::system_stats::Tier, s: &mut crate::set
     // Bedrock's touch default: the stick walks up a block without the jump button.
     s.auto_jump = true;
     s.graphics_preset = "custom".into();
-    let g = &mut s.industrial-era;
+    let g = &mut s.industrial_era;
     g.preset = Preset::Custom;
     g.resolution_scale = match tier {
         Tier::High => 100,
@@ -1141,8 +1143,8 @@ mod tests {
             (low.clouds.as_str(), high.clouds.as_str()),
             ("false", "fast")
         );
-        assert!(low.industrial-era.resolution_scale < high.industrial-era.resolution_scale);
-        assert!(!low.industrial-era.animated_textures && high.industrial-era.animated_textures);
+        assert!(low.industrial_era.resolution_scale < high.industrial_era.resolution_scale);
+        assert!(!low.industrial_era.animated_textures && high.industrial_era.animated_textures);
         // Auto-Jump on, as on Bedrock's touch screens.
         assert!(low.auto_jump && high.auto_jump);
         // What the options screens read back.
@@ -1315,10 +1317,13 @@ mod tests {
         for mode in LeafCullingMode::ALL {
             for preset in Preset::ALL {
                 let mut s = crate::settings::Settings::default();
-                s.industrial-era.leaf_culling = mode;
+                s.industrial_era.leaf_culling = mode;
                 apply_preset(preset, &mut s);
-                assert_eq!(s.industrial-era.leaf_culling, mode, "{preset:?}");
-                assert_eq!(Graphics::parse(&s.industrial-era.serialize()), s.industrial-era);
+                assert_eq!(s.industrial_era.leaf_culling, mode, "{preset:?}");
+                assert_eq!(
+                    Graphics::parse(&s.industrial_era.serialize()),
+                    s.industrial_era
+                );
             }
         }
     }
@@ -1438,7 +1443,7 @@ mod tests {
         for preset in Preset::ALL {
             let mut s = crate::settings::Settings::default();
             apply_preset(preset, &mut s);
-            assert_eq!(s.industrial-era.far_detail, FarDetail::Full, "{preset:?}");
+            assert_eq!(s.industrial_era.far_detail, FarDetail::Full, "{preset:?}");
         }
     }
 
@@ -1451,7 +1456,7 @@ mod tests {
             let mut s = crate::settings::Settings::default();
             apply_preset(preset, &mut s);
             assert!(
-                s.industrial-era.animated_textures,
+                s.industrial_era.animated_textures,
                 "{preset:?} turned the animated textures off"
             );
         }

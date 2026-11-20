@@ -8,7 +8,7 @@ use industrial_era_client::{Result, control};
 use std::path::PathBuf;
 
 impl Game<'_> {
-    /// The endpoint: the one the command line gave, else the default industrial-era-ctl looks for.
+    /// The endpoint: the one the command line gave, else the default industrial_era-ctl looks for.
     fn agent_socket_path(&self) -> PathBuf {
         self.options
             .control
@@ -107,7 +107,7 @@ impl Game<'_> {
         lines
     }
 
-    /// What Copy Connection Details puts on the clipboard: the socket, a industrial-era-ctl line to try,
+    /// What Copy Connection Details puts on the clipboard: the socket, a industrial_era-ctl line to try,
     /// and an MCP client's config for this game.
     pub(super) fn agent_details(&self) -> String {
         let socket = self.agent_socket_path();

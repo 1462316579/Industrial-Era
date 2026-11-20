@@ -1089,7 +1089,10 @@ mod button_label_tests {
     use super::*;
 
     fn atlas() -> HudAtlas {
-        HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets")).unwrap()
+        HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap()
     }
     /// A label made of `n` copies of one letter.
     fn label(n: usize) -> Text {

@@ -320,7 +320,8 @@ fn reads_the_sample_folder_and_its_package_alike() {
         folder.package().unwrap(),
         "packaging is reproducible"
     );
-    let dir = std::env::temp_dir().join(format!("industrial-era-shader-api-{}", std::process::id()));
+    let dir =
+        std::env::temp_dir().join(format!("industrial-era-shader-api-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("sample_pack.hshader");
     std::fs::write(&path, &bytes).unwrap();
@@ -500,7 +501,10 @@ fn a_pack_texture_is_declared_for_every_stage_and_decoded() {
     let head = "schema = 1\nid = \"a\"\nname = \"A\"\nversion = \"1\"\napi = \"0.1\"\n\
                 [sky]\nfile = \"s.wgsl\"\n";
     let texture = "[[textures]]\nid = \"noise\"\nfile = \"noise.png\"\nwrap = \"clamp\"\n";
-    let dir = std::env::temp_dir().join(format!("industrial-era-pack-texture-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial-era-pack-texture-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(dir.join(MANIFEST), format!("{head}{texture}")).unwrap();
@@ -581,7 +585,8 @@ fn a_block_takes_the_colour_of_the_first_light_that_names_it() {
 #[test]
 fn post_outputs_are_named_scaled_and_never_the_last_pass() {
     let head = "schema = 1\nid = \"p\"\nname = \"P\"\nversion = \"1.0.0\"\napi = \"0.1\"\n";
-    let pack = |passes: &str| industrial_era_shader_api::Manifest::parse(&format!("{head}{passes}"));
+    let pack =
+        |passes: &str| industrial_era_shader_api::Manifest::parse(&format!("{head}{passes}"));
     let good = pack(
         "[[post]]\nfile = \"a.wgsl\"\noutput = \"bloom\"\nscale = 0.5\n\
          [[post]]\nfile = \"b.wgsl\"\n",

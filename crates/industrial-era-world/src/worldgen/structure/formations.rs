@@ -1,4 +1,4 @@
-//! Formations' SimpleStructure (`industrial-era:formations`, which
+//! Formations' SimpleStructure (`industrial_era:formations`, which
 //! `industrial-era-port-pack` writes for its `formations:simple`; docs/modpacks.md):
 //! one pool element at a random spot of the chunk, at a height its
 //! placement finds in the noise columns under the element's corners and
@@ -6,7 +6,7 @@
 //!
 //! Its PiecedStructure (the fountain) starts the same way, then lays out
 //! the element's jigsaw children with vanilla's jigsaw
-//! ([`super::jigsaw::add_children`]): `industrial-era:pieced` on the structure
+//! ([`super::jigsaw::add_children`]): `industrial_era:pieced` on the structure
 //! holds its `max_depth` and `max_distance_from_center`.
 use super::{
     BoundingBox, Rotation, StructureResources,
@@ -68,7 +68,7 @@ impl Def {
                 .ok_or(DecodeError::Field("formations template"))?
                 .to_owned(),
             placement: Placement::decode(v["placement"].as_str().unwrap_or_default())?,
-            pieced: match v.get("industrial-era:pieced") {
+            pieced: match v.get("industrial_era:pieced") {
                 None => None,
                 Some(p) => {
                     let int = |k: &'static str| {
@@ -395,11 +395,11 @@ mod tests {
         assert_eq!((def.placement, def.pieced), (Placement::Surface, None));
         let pieced = Def::decode(
             &serde_json::json!({"template": "a:b", "placement": "surface",
-            "industrial-era:pieced": {"max_depth": 2, "max_distance_from_center": 116}}),
+            "industrial_era:pieced": {"max_depth": 2, "max_distance_from_center": 116}}),
         );
         assert_eq!(pieced.unwrap().pieced, Some((2, 116)));
         let broken = serde_json::json!({"template": "a:b", "placement": "surface",
-            "industrial-era:pieced": {"max_depth": 2}});
+            "industrial_era:pieced": {"max_depth": 2}});
         assert!(Def::decode(&broken).is_err());
     }
 }

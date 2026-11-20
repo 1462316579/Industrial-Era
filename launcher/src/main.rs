@@ -374,7 +374,7 @@ struct Launcher {
     /// the report's filter, and the pipeline step running now with its log.
     packs: Vec<industrial_era_launcher::modpacks::Imported>,
     /// Modpacks installed from Industrial Era's registry, each its own profile.
-    registry_packs: Vec<industrial_era_launcher::browser::industrial-era::pack::Installed>,
+    registry_packs: Vec<industrial_era_launcher::browser::industrial_era: :pack::Installed>,
     packs_loaded: Option<Instant>,
     pack_open: Option<String>,
     pack_filter: Option<industrial_era_port_pack::report::Status>,
@@ -802,7 +802,7 @@ impl Launcher {
     /// Installs the Industrial Era version the last check found, keeping the player's choice of
     /// version unless they were on the newest one.
     fn install_update(&mut self) {
-        let Some(release) = self.updates.industrial-era.clone() else {
+        let Some(release) = self.updates.industrial_era.clone() else {
             return;
         };
         if self.installing.is_some() || self.removing.contains(&release.tag) {
@@ -1116,8 +1116,8 @@ impl Launcher {
                     }
                     match result {
                         Ok(()) => {
-                            if self.updates.industrial-era.as_ref().is_some_and(|r| r.tag == tag) {
-                                self.updates.industrial-era = None;
+                            if self.updates.industrial_era.as_ref().is_some_and(|r| r.tag == tag) {
+                                self.updates.industrial_era = None;
                             }
                             if as_update.is_none_or(|(_, select)| select) {
                                 self.settings.selected = Some(tag);
@@ -3341,7 +3341,7 @@ impl Launcher {
                 cx.notify();
             }),
         );
-        let industrial-era = match (&self.updates.industrial-era, &self.update_error) {
+        let industrial_era = match (&self.updates.industrial_era, &self.update_error) {
             (Some(r), _) => trf("{version} available", &[("version", update_name(r))]),
             (None, Some(e)) => e.clone(),
             (None, None) if self.checked.is_some() => tr("Up to date").to_string(),
@@ -3349,7 +3349,7 @@ impl Launcher {
         };
         let industrial_era_action = self
             .updates
-            .industrial-era
+            .industrial_era
             .as_ref()
             .filter(|_| self.installing.is_none())
             .map(|_| {

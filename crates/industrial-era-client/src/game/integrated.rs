@@ -72,7 +72,10 @@ struct Flags {
     /// The generators of the levels the server has run, by dimension: what
     /// F3's chunk generation entry asks `ServerChunkCache.getGenerator`.
     terrain: Mutex<
-        std::collections::HashMap<&'static str, Arc<industrial_era_client::vanillagen::VanillaTerrain>>,
+        std::collections::HashMap<
+            &'static str,
+            Arc<industrial_era_client::vanillagen::VanillaTerrain>,
+        >,
     >,
     /// What the server's `LevelLoadListener` reports, for the window's
     /// `LevelLoadingScreen` (`LevelLoadTracker.serverProgress/statusView`).
@@ -360,7 +363,9 @@ impl Game<'_> {
         let player = match &auth {
             Some(account)
                 if industrial_era_client::accounts::in_game()
-                    && industrial_era_client::accounts::profiles().player().is_some() =>
+                    && industrial_era_client::accounts::profiles()
+                        .player()
+                        .is_some() =>
             {
                 account.name.clone()
             }
@@ -528,11 +533,12 @@ impl Game<'_> {
         self.connect_local(pipe, &player)?;
         if let Some(r) = self.remote.as_mut() {
             // `new LevelLoadTracker(newWorld ? 500L : 0L)`.
-            r.level_load = industrial_era_client::level_loading::LevelLoadTracker::new(if new_world {
-                industrial_era_client::level_loading::LEVEL_LOAD_CLOSE_DELAY_MS
-            } else {
-                0
-            });
+            r.level_load =
+                industrial_era_client::level_loading::LevelLoadTracker::new(if new_world {
+                    industrial_era_client::level_loading::LEVEL_LOAD_CLOSE_DELAY_MS
+                } else {
+                    0
+                });
         }
         // IntegratedServer.getWorldScreenshotFile: the client grabs the frame
         // the Select World list shows, and needs the save folder for it.

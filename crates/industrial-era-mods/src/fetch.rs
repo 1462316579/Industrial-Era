@@ -17,7 +17,7 @@ use std::{
 /// The cache's folder of unpacked assets, one folder per file.
 pub const DIR: &str = "mod-assets";
 /// In an unpacked folder: the file's SHA-512, written last.
-const DONE: &str = ".industrial-era-fetched";
+const DONE: &str = ".industrial_era-fetched";
 
 /// Where the assets of `fetch` are unpacked in `cache`.
 pub fn dir(cache: &Path, fetch: &Fetch) -> PathBuf {

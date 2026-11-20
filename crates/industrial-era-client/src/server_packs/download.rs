@@ -138,7 +138,10 @@ fn run(
             }
         });
         if let Err(e) = append_log(&dir.join("log.json"), &entry) {
-            log::error!("Industrial Era: failed to log download of {}: {e}", request.url);
+            log::error!(
+                "Industrial Era: failed to log download of {}: {e}",
+                request.url
+            );
         }
         match result {
             Ok(path) => batch.downloaded.push((request.id, path)),

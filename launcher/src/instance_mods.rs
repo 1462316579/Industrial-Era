@@ -143,7 +143,7 @@ fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
                 file: e.file.clone(),
                 name: e.title.clone(),
                 version: e.number.clone(),
-                on: industrial-era::mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
+                on: industrial_era: :mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
                 entry: Some(e),
                 icon: None,
                 native: None,

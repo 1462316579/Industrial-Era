@@ -85,9 +85,10 @@ fn custom_components_survive_save_wire_and_nested_stacks() {
             }
         }
         let mut outer = Stack::new(0, 1);
-        outer
-            .added
-            .push((kind, industrial_era_protocol::item::Component::Raw(bytes.data)));
+        outer.added.push((
+            kind,
+            industrial_era_protocol::item::Component::Raw(bytes.data),
+        ));
         assert!(!custom::permitted(&outer, false).unwrap(), "kind {kind}");
         assert!(custom::permitted(&outer, true).unwrap());
     }
@@ -142,7 +143,8 @@ fn custom_components_survive_save_wire_and_nested_stacks() {
     Slot::write(&Some(encode(&container)), &mut writer);
     let received = Slot::read(&mut Reader::new(&writer.data)).unwrap().unwrap();
     let (added, removed) =
-        industrial_era_protocol::item::WirePatch::decode(received.wire.0.as_ref().unwrap()).unwrap();
+        industrial_era_protocol::item::WirePatch::decode(received.wire.0.as_ref().unwrap())
+            .unwrap();
     let cached = Stack {
         added,
         removed,

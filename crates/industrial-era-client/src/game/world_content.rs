@@ -248,7 +248,8 @@ pub(super) fn remember_running() {
 /// mods turned on there are the ones a world made next takes.
 pub(super) fn last_start(enabled_now: &BTreeSet<String>) -> Option<BTreeSet<String>> {
     let text =
-        std::fs::read_to_string(industrial_era_client::logging::private_home().join(LAST_FILE)).ok()?;
+        std::fs::read_to_string(industrial_era_client::logging::private_home().join(LAST_FILE))
+            .ok()?;
     last_from(&text, enabled_now)
 }
 
@@ -310,8 +311,10 @@ mod tests {
 
     #[test]
     fn a_world_keeps_its_set_and_reads_it_back() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-world-content-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-world-content-{}",
+            std::process::id()
+        ));
         let world = dir.join("saves").join("w");
         std::fs::create_dir_all(&world).unwrap();
         std::fs::write(world.join("level.dat"), b"").unwrap();

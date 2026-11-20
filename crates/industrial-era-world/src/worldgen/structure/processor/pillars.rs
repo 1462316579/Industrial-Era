@@ -1,14 +1,14 @@
 //! Processors that place blocks outside their template, carried as data from
 //! mods' Java processors (docs/modpacks.md):
-//! - `industrial-era:pillar` and `industrial-era:bottom_pillar`: Repurposed Structures' and
+//! - `industrial_era:pillar` and `industrial_era:bottom_pillar`: Repurposed Structures' and
 //!   Moog's pillar processors, which run a column of blocks from a trigger
 //!   block (or the template's bottom layer) down to the ground;
-//! - `industrial-era:close_off_fluid_sources`: their fluid fix, which walls off the
+//! - `industrial_era:close_off_fluid_sources`: their fluid fix, which walls off the
 //!   water and lava sources around a structure's open blocks;
-//! - `industrial-era:close_off_air_sources`: Repurposed Structures' opposite fix,
+//! - `industrial_era:close_off_air_sources`: Repurposed Structures' opposite fix,
 //!   which walls off the air and other liquids around a structure's fluids
 //!   (its ocean mineshafts);
-//! - `industrial-era:yung_pillar` and `industrial-era:stair_pillar`: YUNG's pillar
+//! - `industrial_era:yung_pillar` and `industrial_era:stair_pillar`: YUNG's pillar
 //!   processor (Better Fortresses, Better Jungle Temples) and Better
 //!   Fortresses' stair supports.
 //!
@@ -278,7 +278,7 @@ impl HeightRandomizer {
     }
 }
 
-/// `industrial-era:pillar`: Repurposed Structures' and Moog's PillarProcessor. A
+/// `industrial_era:pillar`: Repurposed Structures' and Moog's PillarProcessor. A
 /// trigger state becomes `original_replaced_block` (or its replacement;
 /// structure void removes it) and starts a column of the replacement, or
 /// of Moog's randomizer's states, in `direction` through blocks that do not
@@ -385,7 +385,7 @@ impl Pillar {
     }
 }
 
-/// `industrial-era:bottom_pillar`: Repurposed Structures' BottomPillarProcessor.
+/// `industrial_era:bottom_pillar`: Repurposed Structures' BottomPillarProcessor.
 /// Each block of the template's bottom layer continues down as itself (run
 /// through `pillar_processor_list`) through blocks that do not occlude, over
 /// a first gap of one block, within `pillar_length`.
@@ -463,7 +463,7 @@ impl BottomPillar {
     }
 }
 
-/// `industrial-era:close_off_fluid_sources`: Repurposed Structures' and Moog's
+/// `industrial_era:close_off_fluid_sources`: Repurposed Structures' and Moog's
 /// CloseOffFluidSourcesProcessor. Around each block that is not a full,
 /// motion-blocking cube, the fluid sources beside it (not below with
 /// `ignore_down`) become a block drawn by weight; with `if_air_in_world`
@@ -522,7 +522,7 @@ impl CloseOffFluidSources {
     }
 }
 
-/// `industrial-era:close_off_air_sources`: Repurposed Structures'
+/// `industrial_era:close_off_air_sources`: Repurposed Structures'
 /// CloseOffAirSourcesProcessor. Around each template block holding a fluid,
 /// the world's air beside it, and liquid blocks of another fluid (flowing and
 /// still count as two), become a block drawn by weight (none drawn for a
@@ -677,7 +677,7 @@ impl YungRandomizer {
     }
 }
 
-/// `industrial-era:yung_pillar`: YUNG's PillarProcessor. A block of `target_block`
+/// `industrial_era:yung_pillar`: YUNG's PillarProcessor. A block of `target_block`
 /// becomes a draw of `target_block_output`, and a column of
 /// `pillar_states` runs down from it through air and fluids, all drawn from
 /// the placement's random at the block.
@@ -746,7 +746,7 @@ impl YungPillar {
     }
 }
 
-/// `industrial-era:stair_pillar`: Better Fortresses' StairPillarProcessor. A stair
+/// `industrial_era:stair_pillar`: Better Fortresses' StairPillarProcessor. A stair
 /// block in `blocks` becomes its target (facing, half and shape kept when it
 /// is a stair); the block it faces becomes a `front` stair facing back, with
 /// a column of `pillar` under it through air and fluids.

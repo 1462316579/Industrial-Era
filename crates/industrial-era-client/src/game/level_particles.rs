@@ -282,7 +282,9 @@ impl Game<'_> {
         let ty = match fluid {
             industrial_era_client::blocks::Fluid::Water => ParticleType::DrippingDripstoneWater,
             industrial_era_client::blocks::Fluid::Lava => ParticleType::DrippingDripstoneLava,
-            industrial_era_client::blocks::Fluid::None if nether => ParticleType::DrippingDripstoneLava,
+            industrial_era_client::blocks::Fluid::None if nether => {
+                ParticleType::DrippingDripstoneLava
+            }
             industrial_era_client::blocks::Fluid::None => ParticleType::DrippingDripstoneWater,
         };
         let offset = self

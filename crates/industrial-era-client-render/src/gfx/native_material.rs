@@ -443,7 +443,13 @@ impl NativeMaterial {
             let buffers = [Some(vertices.clone())];
             let vs = "industrial_era_material_vs_flat";
             (
-                pipeline(&layout, vs, &buffers, "industrial_era_material_fs_solid", None),
+                pipeline(
+                    &layout,
+                    vs,
+                    &buffers,
+                    "industrial_era_material_fs_solid",
+                    None,
+                ),
                 pipeline(
                     &layout,
                     vs,

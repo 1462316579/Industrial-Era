@@ -3,7 +3,7 @@
 //!
 //! - [`yung`]: YUNG's API and the mods built on it (Better Dungeons, Desert
 //!   Temples, Jungle Temples, Witch Huts, Ocean Monuments, Strongholds,
-//!   Fortresses, Mineshafts), written under `industrial-era:yungsapi` and the other
+//!   Fortresses, Mineshafts), written under `industrial_era:yungsapi` and the other
 //!   keys `industrial_era_world::worldgen::structure::yung` reads.
 //! - [`lithostitched`]: Lithostitched's jigsaw, worldgen modifiers and
 //!   processors.

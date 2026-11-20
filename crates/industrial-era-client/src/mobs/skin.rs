@@ -138,8 +138,9 @@ fn flatten_item(
     out: &mut Vec<SkinVertex>,
 ) -> Option<StoredItem> {
     use industrial_era_assets::model::Direction as D;
-    let other =
-        |q: &industrial_era_assets::bake::ModelQuad| q.light_emission != 0 || q.material.force_translucent;
+    let other = |q: &industrial_era_assets::bake::ModelQuad| {
+        q.light_emission != 0 || q.material.force_translucent
+    };
     if model.quads.is_empty() || model.quads.iter().any(other) {
         return None;
     }
@@ -562,9 +563,11 @@ mod tests {
             for (n, id) in ids.iter().enumerate() {
                 let kind = Arc::new(types.types[id].clone());
                 for (age, yaw) in [(0u32, 0.0f32), (37, 123.0), (412, -71.5)] {
-                    let at = industrial_era_core::geometry::Vec3::new(1.5 + n as f64 % 5.0, 64.0, 3.25);
+                    let at =
+                        industrial_era_core::geometry::Vec3::new(1.5 + n as f64 % 5.0, 64.0, 3.25);
                     let mut m = Mob::new(n as u32 + 1, kind.clone(), at, yaw);
-                    m.previous = industrial_era_core::geometry::Vec3::new(at.x - 0.1, at.y, at.z + 0.05);
+                    m.previous =
+                        industrial_era_core::geometry::Vec3::new(at.x - 0.1, at.y, at.z + 0.05);
                     m.age = age;
                     m.limb_speed = 0.6;
                     m.limb_position = age as f32 * 0.37;

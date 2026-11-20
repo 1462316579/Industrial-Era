@@ -166,10 +166,10 @@ fn registered_noises_share_ordinary_instances_and_recreate_nether_instances() {
     let definition = builder.build().unwrap();
     let mut graph = DensityGraph::new();
     let ordinary = graph
-        .register_noise("industrial-era:sample".to_owned(), definition.clone())
+        .register_noise("industrial_era:sample".to_owned(), definition.clone())
         .unwrap();
     assert_eq!(
-        graph.register_noise("industrial-era:sample".to_owned(), definition.clone()),
+        graph.register_noise("industrial_era:sample".to_owned(), definition.clone()),
         Err(CompileError::DuplicateNoise)
     );
     let nether = graph
@@ -200,7 +200,7 @@ fn noise_specialization_requires_literal_positive_zero_shifts() {
     let mut graph = DensityGraph::new();
     let noise = graph
         .register_noise(
-            "industrial-era:empty".to_owned(),
+            "industrial_era:empty".to_owned(),
             crate::noise::NormalNoise::builder()
                 .set_octave_count(0)
                 .unwrap()

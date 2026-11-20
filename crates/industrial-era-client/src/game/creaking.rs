@@ -23,7 +23,10 @@ use std::{collections::HashMap, sync::Arc};
 type Pos = (i32, i32, i32);
 
 /// Comparator input of a heart (`getAnalogOutputSignal`).
-pub(super) fn heart_signal(world: &industrial_era_client::world::World, pos: BlockPos) -> Option<i32> {
+pub(super) fn heart_signal(
+    world: &industrial_era_client::world::World,
+    pos: BlockPos,
+) -> Option<i32> {
     match world.block_entities.get(&(pos.x, pos.y, pos.z))? {
         BlockEntity::CreakingHeart(h) => Some(h.output_signal),
         _ => None,

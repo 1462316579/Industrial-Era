@@ -90,7 +90,9 @@ impl ResourceSource for Bundled {
             }
             // Swiss German writes "ss" for "ß", as vanilla's de_ch does.
             "assets/industrial-era/lang/de_ch.json" => {
-                let de = include_str!("../../industrial-era-client/assets/industrial-era/lang/de_de.json");
+                let de = include_str!(
+                    "../../industrial-era-client/assets/industrial-era/lang/de_de.json"
+                );
                 return Some(de.replace('ß', "ss").into_bytes());
             }
             "assets/industrial-era/lang/fr_fr.json"
@@ -358,7 +360,10 @@ mod tests {
         // No prepared resources at all: the namespace is compiled in.
         let empty = Mem(HashMap::new());
         let en = Language::load(&[&empty], "en_us");
-        assert_eq!(en.get("industrial-era.options.controller"), Some("Controller"));
+        assert_eq!(
+            en.get("industrial-era.options.controller"),
+            Some("Controller")
+        );
         let ru = Language::load(&[&empty], "ru_ru");
         assert_eq!(ru.get("industrial-era.options.controller"), Some("Геймпад"));
         // Every bundled string carries both languages: a key added to one file
@@ -377,9 +382,15 @@ mod tests {
         // missing key falls back to English (`industrial-era.mods.not_built` is not
         // in ru_ru either).
         assert_eq!(zh.get("LOD Distance"), Some("LOD 距离"));
-        assert_eq!(ru.get("industrial-era.mods.not_built"), Some(" (Not built)"));
+        assert_eq!(
+            ru.get("industrial-era.mods.not_built"),
+            Some(" (Not built)")
+        );
         let pl = Language::load(&[&empty], "pl_pl");
-        assert_eq!(pl.get("industrial-era.options.controller"), Some("Kontroler"));
+        assert_eq!(
+            pl.get("industrial-era.options.controller"),
+            Some("Kontroler")
+        );
         assert_eq!(pl.get("industrial-era.options.vibration"), Some("Wibracje"));
         let uk = Language::load(&[&empty], "uk_ua");
         assert_eq!(
@@ -387,7 +398,10 @@ mod tests {
             Some("Екранна клавіатура")
         );
         let tr = Language::load(&[&empty], "tr_tr");
-        assert_eq!(tr.get("industrial-era.options.controller"), Some("Kontrolcü"));
+        assert_eq!(
+            tr.get("industrial-era.options.controller"),
+            Some("Kontrolcü")
+        );
         let es = Language::load(&[&empty], "es_es");
         assert_eq!(es.get("industrial-era.options.controller"), Some("Mando"));
         // German and French, and their regional variants on the same file
@@ -429,7 +443,10 @@ mod tests {
         assert_eq!(english_only, "industrial-era.no_such_key");
         assert_eq!(fallback, "English");
         assert_eq!(elsewhere, outside);
-        assert_eq!(missed, ["industrial-era.no_such_key", "industrial-era.no_fallback"]);
+        assert_eq!(
+            missed,
+            ["industrial-era.no_such_key", "industrial-era.no_fallback"]
+        );
         // The scope ends with its closure.
         assert_eq!(code(), outside);
     }

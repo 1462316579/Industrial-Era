@@ -3,7 +3,7 @@
 //! mods, docs/mods.md), and the recipe book's known displays; placing a
 //! recipe and creative gifts. The recipes are the window's own data — the
 //! content root's — with the server's recipes of the types its native mods
-//! had it send (`industrial-era:recipe_content`) in their place, while the known
+//! had it send (`industrial_era:recipe_content`) in their place, while the known
 //! displays follow the server's book as the recipe book does.
 use super::{
     Game,
@@ -28,10 +28,10 @@ const MAX_SYNCED_RECIPES: usize = 1_000_000;
 #[derive(Default)]
 pub(super) struct RecipeTables {
     tables: Option<Arc<Recipes>>,
-    pub(super) categories: Option<HashMap<String, industrial_era_client::recipe_book::RecipeBookCategory>>,
+    pub(super) categories:
+        Option<HashMap<String, industrial_era_client::recipe_book::RecipeBookCategory>>,
     known: (Option<u64>, Arc<[i32]>),
-    /// The server's recipes of the types its native mods sent (`industrial-era:
-    /// recipe_content`) over the window's own: what `Game::recipes` reads on
+    /// The server's recipes of the types its native mods sent ` industrial_era: /// recipe_content`) over the window's own: what `Game::recipes` reads on
     /// a client once they came.
     synced: Option<industrial_era_client::crafting::Recipes>,
     /// The recipe content's parts so far, until its last.
@@ -66,7 +66,8 @@ impl Index {
 /// them (`[minecraft:potion_contents={potion:"minecraft:swiftness"}]`), or "".
 pub(super) fn components(s: &ItemStack) -> String {
     use industrial_era_world::nbt::Tag;
-    let Some(Tag::Compound(entries)) = industrial_era_client::item_data::encode_components(s) else {
+    let Some(Tag::Compound(entries)) = industrial_era_client::item_data::encode_components(s)
+    else {
         return String::new();
     };
     let parts: Vec<String> = entries
@@ -106,11 +107,12 @@ impl Game<'_> {
         if self.recipe_tables.categories.is_none() {
             let mut declarations = Vec::new();
             self.native_recipe_book_categories(&mut declarations);
-            self.recipe_tables.categories = Some(industrial_era_client::recipe_book::mod_categories(
-                declarations,
-                self.recipes(),
-                self.items(),
-            ));
+            self.recipe_tables.categories =
+                Some(industrial_era_client::recipe_book::mod_categories(
+                    declarations,
+                    self.recipes(),
+                    self.items(),
+                ));
         }
         self.recipe_tables.categories.as_ref()?.get(kind).cloned()
     }
@@ -315,28 +317,31 @@ impl Game<'_> {
             out.push(r);
         }
         for b in &stations.brewing.recipes {
-            let potion = |p: &industrial_era_client::brewing::PotionIngredient| -> Vec<RecipeStack> {
-                let mut item_ids: Vec<&String> = p.items.iter().collect();
-                item_ids.sort();
-                let mut potions: Vec<&String> = p.potions.iter().flatten().collect();
-                potions.sort();
-                item_ids
-                    .into_iter()
-                    .flat_map(|item| {
-                        let one = |c: String| index.stack(item, 1, c);
-                        if potions.is_empty() {
-                            one(String::new()).into_iter().collect::<Vec<_>>()
-                        } else {
-                            potions
-                                .iter()
-                                .filter_map(|p| {
-                                    one(format!("[minecraft:potion_contents={{potion:\"{p}\"}}]"))
-                                })
-                                .collect()
-                        }
-                    })
-                    .collect()
-            };
+            let potion =
+                |p: &industrial_era_client::brewing::PotionIngredient| -> Vec<RecipeStack> {
+                    let mut item_ids: Vec<&String> = p.items.iter().collect();
+                    item_ids.sort();
+                    let mut potions: Vec<&String> = p.potions.iter().flatten().collect();
+                    potions.sort();
+                    item_ids
+                        .into_iter()
+                        .flat_map(|item| {
+                            let one = |c: String| index.stack(item, 1, c);
+                            if potions.is_empty() {
+                                one(String::new()).into_iter().collect::<Vec<_>>()
+                            } else {
+                                potions
+                                    .iter()
+                                    .filter_map(|p| {
+                                        one(format!(
+                                            "[minecraft:potion_contents={{potion:\"{p}\"}}]"
+                                        ))
+                                    })
+                                    .collect()
+                            }
+                        })
+                        .collect()
+                };
             let mut r = recipe(b.id.clone(), RecipeKind::Brewing);
             r.slots = vec![potion(&b.input), potion(&b.reagent)];
             r.results = index.of(&b.output).into_iter().collect();
@@ -386,11 +391,14 @@ impl Game<'_> {
         let sources = if types.is_empty() {
             Vec::new()
         } else {
-            industrial_era_client::crafting::Recipes::sources(&self.options.resources, &self.pack_files())
-                .unwrap_or_else(|e| {
-                    log::warn!("Industrial Era: the recipes for the clients were not read: {e}");
-                    Vec::new()
-                })
+            industrial_era_client::crafting::Recipes::sources(
+                &self.options.resources,
+                &self.pack_files(),
+            )
+            .unwrap_or_else(|e| {
+                log::warn!("Industrial Era: the recipes for the clients were not read: {e}");
+                Vec::new()
+            })
         };
         recipes::set_content(recipes::encode_content(
             &types,
@@ -398,22 +406,25 @@ impl Game<'_> {
             recipes::sent_before(),
         ));
     }
-    /// A `industrial-era:recipe_content` part the server sent the window. On the
+    /// A `industrial_era:recipe_content` part the server sent the window. On the
     /// last, the window's tables take the server's recipes of those types in
     /// place of its own, and the mods hear of it (`RecipesReceivedEvent`).
     pub(super) fn remote_recipe_content(&mut self, data: &[u8]) {
-        let part: industrial_era_client::lan::recipes::ContentPart = match serde_json::from_slice(data) {
-            Ok(part) => part,
-            Err(e) => {
-                log::warn!("Industrial Era: bad recipe content from the server: {e}");
-                return;
-            }
-        };
+        let part: industrial_era_client::lan::recipes::ContentPart =
+            match serde_json::from_slice(data) {
+                Ok(part) => part,
+                Err(e) => {
+                    log::warn!("Industrial Era: bad recipe content from the server: {e}");
+                    return;
+                }
+            };
         self.recipe_tables.incoming.extend(part.recipes);
         // The server is trusted to end its parts; one that never does is
         // dropped, not kept growing.
         if self.recipe_tables.incoming.len() > MAX_SYNCED_RECIPES {
-            log::warn!("Industrial Era: the server sent more than {MAX_SYNCED_RECIPES} recipes; dropped");
+            log::warn!(
+                "Industrial Era: the server sent more than {MAX_SYNCED_RECIPES} recipes; dropped"
+            );
             self.recipe_tables.incoming = Vec::new();
             return;
         }
@@ -433,12 +444,19 @@ impl Game<'_> {
         }
         let root = &self.options.resources;
         let overlay = industrial_era_world::loot::PackOverlay::NONE;
-        let built = industrial_era_client::crafting::Recipes::sources(root, &overlay).and_then(|own| {
-            let of = |v: &serde_json::Value| types.iter().any(|t| v["type"].as_str() == Some(t));
-            let mut all: Vec<_> = own.into_iter().filter(|(_, v)| !of(v)).collect();
-            all.extend(received);
-            industrial_era_client::crafting::Recipes::from_sources(root, self.items(), &overlay, all)
-        });
+        let built =
+            industrial_era_client::crafting::Recipes::sources(root, &overlay).and_then(|own| {
+                let of =
+                    |v: &serde_json::Value| types.iter().any(|t| v["type"].as_str() == Some(t));
+                let mut all: Vec<_> = own.into_iter().filter(|(_, v)| !of(v)).collect();
+                all.extend(received);
+                industrial_era_client::crafting::Recipes::from_sources(
+                    root,
+                    self.items(),
+                    &overlay,
+                    all,
+                )
+            });
         match built {
             Ok(recipes) => {
                 self.recipe_tables.synced = Some(recipes);

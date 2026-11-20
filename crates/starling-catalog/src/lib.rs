@@ -15,7 +15,7 @@ pub use launcher::browser;
 pub mod list;
 
 use browser::{
-    industrial-era::Registry,
+    industrial_era::Registry,
     installed::{self, Entry, Installed},
     modrinth::Modrinth,
     Kind, Project, Query, Source, SourceId, Support, Version, GAME,
@@ -189,7 +189,7 @@ pub fn caution(project: &Project) -> Option<String> {
 /// Whether `project` is a native mod, which only runs once compiled into the game. The registry
 /// says so: a search of it has its index at hand.
 pub fn is_native_mod(project: &Project) -> bool {
-    project.source == SourceId::Industrial Era && browser::industrial-era::is_native_mod(&project.id)
+    project.source == SourceId::IndustrialEra && browser::industrial_era::is_native_mod(&project.id)
 }
 
 fn is_modrinth_shader_pack(project: &Project) -> bool {
@@ -227,7 +227,7 @@ pub fn remove(home: &Path, project: &Project) -> Result<Entry, String> {
 /// The mod id of an installed mod's entry (its file's name in `industrial-era-mods/` or
 /// `industrial-era-native-mods/`), which the Mods page and `industrial-era-mods.txt` know it by.
 pub fn mod_id(entry: &Entry) -> Option<String> {
-    browser::industrial-era::mod_id(entry).map(str::to_owned)
+    browser::industrial_era::mod_id(entry).map(str::to_owned)
 }
 
 /// Installs `project` (and what it needs) into the game folder `home`, its download checked.

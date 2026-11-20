@@ -1,4 +1,4 @@
-//! The server side of `industrial-era:lod`: what each request gets
+//! The server side of `industrial_era:lod`: what each request gets
 //! ([`Service::request`]), the one background thread that samples the tiles
 //! admitted, every player in turn, and the replies it hands back to the game
 //! thread ([`Service::deliver`]), which sends them with its own packets.

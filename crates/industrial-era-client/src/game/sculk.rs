@@ -1147,7 +1147,8 @@ impl Game<'_> {
                 f64::from(at.1),
                 f64::from(at.2) + 0.5,
             ];
-            let yaw = industrial_era_client::camera::wrap_degrees(self.world.random.next_float() * 360.0);
+            let yaw =
+                industrial_era_client::camera::wrap_degrees(self.world.random.next_float() * 360.0);
             self.next_entity += 1;
             let mut mob = Mob::new(
                 self.next_entity,
@@ -1304,8 +1305,11 @@ impl Game<'_> {
         {
             return;
         }
-        let mut effect =
-            industrial_era_client::effects::EffectInstance::new("darkness", warden::DARKNESS_DURATION, 0);
+        let mut effect = industrial_era_client::effects::EffectInstance::new(
+            "darkness",
+            warden::DARKNESS_DURATION,
+            0,
+        );
         effect.visible = false;
         self.potions.effects.add(effect);
     }
@@ -1539,8 +1543,13 @@ impl Game<'_> {
                 at[1],
                 at[2] + off(r.next_float()),
             ];
-            let particle =
-                industrial_era_client::particles::Particle::terrain(r, p, [0.0; 3], sprite.clone(), tint);
+            let particle = industrial_era_client::particles::Particle::terrain(
+                r,
+                p,
+                [0.0; 3],
+                sprite.clone(),
+                tint,
+            );
             self.particles.push(particle);
         }
     }

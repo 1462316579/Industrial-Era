@@ -155,7 +155,7 @@ pub(crate) fn optional_imports(mut assets: Result<&mut Assets, &str>, log: Log) 
         };
         if let Err(error) = result {
             log(&format!(
-                "{failure} not imported: {error}; run industrial-era-prepare {command} later"
+                "{failure} not imported: {error}; run industrial_era-prepare {command} later"
             ));
         }
     }
@@ -728,7 +728,10 @@ mod tests {
             error,
             format!("{} is missing from the asset index", PANORAMA[6])
         );
-        assert!(!f.root.join(".local/industrial-era-client/9.9/assets").exists());
+        assert!(!f
+            .root
+            .join(".local/industrial-era-client/9.9/assets")
+            .exists());
     }
 
     #[test]
@@ -762,7 +765,7 @@ mod tests {
             let lines = lines.into_inner();
             assert_eq!(
                 lines[0],
-                format!("Title panorama not imported: {error}; run industrial-era-prepare panorama later")
+                format!("Title panorama not imported: {error}; run industrial_era-prepare panorama later")
             );
             // The fonts and packs come on their own when only a panorama face is missing.
             match missing {
@@ -773,19 +776,19 @@ mod tests {
                         "Built-in pack assets ready: 2 files, 0.0 MB",
                         // This store has no `pack.mcmeta`, so the languages report it.
                         "Languages not imported: pack.mcmeta is missing from the asset index; \
-                         run industrial-era-prepare languages later"
+                         run industrial_era-prepare languages later"
                     ]
                 ),
                 _ => {
                     assert!(lines[1].starts_with("Unifont glyphs not imported: "));
                     assert!(
                         lines[2].starts_with("Programmer Art and High Contrast not imported: ")
-                            && lines[2].ends_with("; run industrial-era-prepare packs later"),
+                            && lines[2].ends_with("; run industrial_era-prepare packs later"),
                         "{lines:?}"
                     );
                     assert!(
                         lines[3].starts_with("Languages not imported: ")
-                            && lines[3].ends_with("; run industrial-era-prepare languages later"),
+                            && lines[3].ends_with("; run industrial_era-prepare languages later"),
                         "{lines:?}"
                     );
                 }
@@ -854,7 +857,11 @@ mod tests {
             "minecraft/sounds.json is missing from the asset index"
         );
         fs::remove_file(&index).unwrap();
-        fs::remove_file(f.root.join(".local/industrial-era-client/9.9/asset-index.json")).unwrap();
+        fs::remove_file(
+            f.root
+                .join(".local/industrial-era-client/9.9/asset-index.json"),
+        )
+        .unwrap();
         let error = f.run().unwrap_err();
         assert!(
             error.starts_with("Missing ") && error.contains("play 9.9 once"),

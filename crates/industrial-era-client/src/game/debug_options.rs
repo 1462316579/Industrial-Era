@@ -162,7 +162,8 @@ impl Game<'_> {
         let size = self.renderer.as_ref().map_or([1280, 720], |r| {
             [r.config.width as i32, r.config.height as i32]
         });
-        let max = industrial_era_client::window::calculate_scale(size, 0, self.settings.force_unicode);
+        let max =
+            industrial_era_client::window::calculate_scale(size, 0, self.settings.force_unicode);
         let current = self.settings.file.int("debugGuiScale").clamp(-1, max);
         let next = match (back, current) {
             (false, c) if c >= max => -1,

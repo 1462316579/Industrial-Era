@@ -201,7 +201,7 @@ impl StructureMobs for StructureMobFinalizer {
         };
         let mut raw = Tag::Compound(nbt.clone());
         if let Tag::Compound(c) = &mut raw {
-            c.remove(&"industrial-era:finalize".into());
+            c.remove(&"industrial_era:finalize".into());
         }
         let Some(m) = entity_nbt::mob_from_nbt(&raw, &data.types, 1, None) else {
             // Not a mob: vanilla finalizes only Mob instances.
@@ -233,7 +233,9 @@ impl StructureMobFinalizer {
             .get_or_init(|| {
                 let data = load(&self.root);
                 if data.is_none() {
-                    log::error!("Industrial Era: no mob data, structure mobs are finalized when loaded");
+                    log::error!(
+                        "Industrial Era: no mob data, structure mobs are finalized when loaded"
+                    );
                 }
                 data
             })
@@ -293,7 +295,9 @@ impl StructureMobFinalizer {
         } else if let Some(r) = any.downcast_mut::<XoroshiroRandom>() {
             run(&mut level, r, difficulty, &spawn, &mut m, reason, group)
         } else {
-            log::error!("Industrial Era: unknown region random, structure mobs are finalized when loaded");
+            log::error!(
+                "Industrial Era: unknown region random, structure mobs are finalized when loaded"
+            );
             return None;
         };
         let mut mobs = vec![(m, raw)];

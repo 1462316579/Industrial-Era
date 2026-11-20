@@ -170,8 +170,8 @@ pub fn install(
     home: &Path,
     progress: &dyn Fn(&str, f32),
 ) -> Result<Vec<Entry>, String> {
-    if project.source == SourceId::Industrial Era {
-        return super::industrial-era::install(project, home, progress);
+    if project.source == SourceId::IndustrialEra {
+        return super::industrial_era::install(project, home, progress);
     }
     if project.kind == Kind::Mod {
         return super::java::install(source, project, everything, home, progress);
@@ -269,7 +269,7 @@ pub fn remove(home: &Path, name: &str) -> Result<Entry, String> {
         .lookup(name)
         .cloned()
         .ok_or_else(|| format!("{name} wasn't installed by the browser."))?;
-    if entry.kind == Kind::Mod && entry.source != SourceId::Industrial Era {
+    if entry.kind == Kind::Mod && entry.source != SourceId::IndustrialEra {
         super::java::remove(home, &entry)?;
     } else {
         match fs::remove_file(home.join(&entry.file)) {
@@ -278,8 +278,8 @@ pub fn remove(home: &Path, name: &str) -> Result<Entry, String> {
             Err(e) => return Err(format!("{}: {e}", entry.file)),
         }
     }
-    if let Some(id) = super::industrial-era::mod_id(&entry).filter(|_| entry.source == SourceId::Industrial Era) {
-        // The `.hmod` a mod that turned native left behind (industrial-era::install_version).
+    if let Some(id) = super::industrial_era::mod_id(&entry).filter(|_| entry.source == SourceId::IndustrialEra) {
+        // The `.hmod` a mod that turned native left behind (industrial_era: :install_version).
         if entry.file.ends_with(".hnmod") {
             let _ = fs::remove_file(home.join(super::java::MODS_DIR).join(format!("{id}.hmod")));
         }

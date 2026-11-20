@@ -122,7 +122,7 @@ fn title_layout_in(w: f32, h: f32) -> Option<TitleLayout> {
 }
 
 impl Game<'_> {
-    /// Where industrial-era-player.txt is: beside options.txt.
+    /// Where industrial_era-player.txt is: beside options.txt.
     fn player_dir() -> PathBuf {
         Self::options_path()
             .parent()
@@ -206,7 +206,10 @@ impl Game<'_> {
     }
 
     /// `name`'s skin on Ely.by, where Skin Customization has Ely.by Skins on and it answered.
-    pub(super) fn elyby_textures(&mut self, name: &str) -> Option<industrial_era_client::skins::Textures> {
+    pub(super) fn elyby_textures(
+        &mut self,
+        name: &str,
+    ) -> Option<industrial_era_client::skins::Textures> {
         if !self.elyby_enabled() {
             return None;
         }
@@ -327,7 +330,9 @@ impl Game<'_> {
         }
         let location = {
             let mut downloads = self.skin_downloads.borrow_mut();
-            industrial_era_client::skins::lookup(textures, false, |kind, url| downloads.state(kind, url))
+            industrial_era_client::skins::lookup(textures, false, |kind, url| {
+                downloads.state(kind, url)
+            })
         };
         // The title screen has nothing else to put a download in the atlas: without this the skin
         // only came once a world had stored it.
@@ -408,7 +413,9 @@ impl Game<'_> {
 
     /// Another profile plays than the one whose choice is on: its own goes on at the next look.
     fn follow_skin_profile(&mut self) {
-        if self.own_skin.loaded && self.own_skin.profile != industrial_era_client::accounts::player_key() {
+        if self.own_skin.loaded
+            && self.own_skin.profile != industrial_era_client::accounts::player_key()
+        {
             self.own_skin.loaded = false;
         }
     }

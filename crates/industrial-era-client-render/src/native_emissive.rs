@@ -161,8 +161,10 @@ mod tests {
 
     #[test]
     fn optifine_overlays_pair_with_their_loaded_blocks() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-block-emissive-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-block-emissive-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         let block = root.join("assets/minecraft/textures/block");
         let names = [

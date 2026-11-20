@@ -403,7 +403,7 @@ pub fn junction(target: &std::path::Path, at: &std::path::Path) -> std::io::Resu
 /// (CreateProcessW with bInheritHandles, as `std::process::Command` starts it). industrial-era-ctl's own
 /// standard handles are inheritable when its caller gave it pipes (a script that reads its output,
 /// an MCP client), so the game it launches would hold the caller's pipe open for its whole life and
-/// the caller, waiting for the end of industrial-era-ctl's output, would wait until the game quits. A
+/// the caller, waiting for the end of industrial_era-ctl's output, would wait until the game quits. A
 /// child given `Stdio::inherit()` still gets them: `Command` duplicates the handles it passes.
 /// Unix needs none of this: a child's 0-2 are replaced and the rest are close-on-exec.
 #[cfg(windows)]

@@ -135,7 +135,8 @@ mod tests {
 
     #[test]
     fn copies_are_independent_and_checked_before_publication() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-file-copy-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-file-copy-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let source = dir.join("source");
         let target = dir.join("target");

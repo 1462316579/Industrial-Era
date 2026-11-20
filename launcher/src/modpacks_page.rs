@@ -1,7 +1,7 @@
 //! Imported modpacks, on the Mods page's Modpacks tab: import a pack, read its coverage report,
 //! port what this computer can and play it as its own profile (`industrial_era_launcher::modpacks`).
 use super::*;
-use industrial_era_launcher::browser::industrial-era::pack as industrial_era_pack;
+use industrial_era_launcher::browser::industrial_era: :pack as industrial_era_pack;
 use industrial_era_launcher::modpacks::{self, Imported};
 use industrial_era_port_pack::report::Status;
 use std::path::PathBuf;
@@ -236,7 +236,7 @@ impl Launcher {
         for (i, p) in self.registry_packs.iter().enumerate() {
             let (play, remove) = (p.work.clone(), p.work.clone());
             let id = p.id.clone();
-            let key = format!("industrial-era:{id}");
+            let key = format!("industrial_era: {id}");
             let confirming = self.confirm_remove.as_deref() == Some(key.as_str());
             let right = div()
                 .flex()

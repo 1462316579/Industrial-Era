@@ -480,7 +480,8 @@ mod tests {
     #[test]
     fn a_watcher_hears_what_vanillas_notification_service_does() {
         use std::sync::{Arc, Mutex};
-        let dir = std::env::temp_dir().join(format!("industrial-era-lists-watch-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-lists-watch-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let heard = Arc::new(Mutex::new(Vec::new()));
         let mut ops = OpList::new(dir.join("ops.json"));

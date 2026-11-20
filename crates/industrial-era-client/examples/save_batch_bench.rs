@@ -1,5 +1,5 @@
 //! Synthetic village/storage save batches, using the production snapshot and
-//! full chunk NBT encoder. Run with `cargo run --profile fast -p industrial-era-client
+//! full chunk NBT encoder. Run with `cargo run --profile fast -p industrial_era-client
 //! --example save_batch_bench`. Add `-- --nbt` to also time serialization.
 //! Exact NBT equality is always validated. No GPU, compression or disk I/O timed.
 extern crate industrial_era_client_lib as industrial_era_client;
@@ -143,7 +143,8 @@ fn encoding_fixture() -> industrial_era_client::Result<(BlockRegistry, Biomes)> 
             ),
         ),
     ]))?;
-    let temp = std::env::temp_dir().join(format!("industrial-era-save-batch-{}", std::process::id()));
+    let temp =
+        std::env::temp_dir().join(format!("industrial-era-save-batch-{}", std::process::id()));
     let result = (|| {
         let textures = temp.join("assets/minecraft/textures/colormap");
         let biomes = temp.join("data/minecraft/worldgen/biome");

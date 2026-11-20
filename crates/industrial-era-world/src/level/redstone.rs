@@ -1029,7 +1029,11 @@ impl<L: LevelAccess + ?Sized> Sim<'_, L> {
     }
     /// `ButtonBlock.getShape(...).bounds().move(pos)`: a 6 by 4 plate on the
     /// face it is attached to, 2 pixels thick (1 when pressed).
-    fn button_bounds(&self, pos: BlockPos, state: BlockStateId) -> industrial_era_core::geometry::Aabb {
+    fn button_bounds(
+        &self,
+        pos: BlockPos,
+        state: BlockStateId,
+    ) -> industrial_era_core::geometry::Aabb {
         use industrial_era_core::geometry::{Aabb, Vec3};
         let b = self.b;
         let thickness = if b.table.bool(state, b.props.powered) {

@@ -564,8 +564,9 @@ impl Game<'_> {
         // The response itself lists the server's available rules; the client
         // may not own this world's level.dat (including on the server thread).
         let features = if entries.iter().any(|e| {
-            industrial_era_client::gamerules::rule(&e.name)
-                .is_some_and(|r| r.name == industrial_era_client::gamerules::MAX_MINECART_SPEED.name)
+            industrial_era_client::gamerules::rule(&e.name).is_some_and(|r| {
+                r.name == industrial_era_client::gamerules::MAX_MINECART_SPEED.name
+            })
         }) {
             vec![industrial_era_client::gamerules::MINECART_IMPROVEMENTS.to_owned()]
         } else {

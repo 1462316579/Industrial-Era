@@ -21,7 +21,9 @@ pub(super) const CONTROL_HELP: &[&str] = &[
 
 /// The catalog's shelf for a page's Catalog button.
 #[cfg(target_os = "android")]
-fn catalog_shelf(shelf: industrial_era_client::options_ui::CatalogShelf) -> starling_catalog::Shelf {
+fn catalog_shelf(
+    shelf: industrial_era_client::options_ui::CatalogShelf,
+) -> starling_catalog::Shelf {
     use industrial_era_client::options_ui::CatalogShelf;
     match shelf {
         CatalogShelf::Mods => starling_catalog::Shelf::Mods,
@@ -38,7 +40,8 @@ impl Game<'_> {
         let _ = std::fs::create_dir_all(dir);
         #[cfg(target_os = "android")]
         if industrial_era_client::platform::open_folder(dir) != Some(true)
-            && industrial_era_client::logging::game_home() == industrial_era_client::logging::private_home()
+            && industrial_era_client::logging::game_home()
+                == industrial_era_client::logging::private_home()
         {
             self.ask_files_offer();
         }
@@ -112,7 +115,7 @@ impl Game<'_> {
                 Ok(Some(json!({ "ok": true, "key": key, "option": now })))
             }
             "graphics-get" => {
-                let text = self.settings.industrial-era.serialize();
+                let text = self.settings.industrial_era.serialize();
                 let all: Vec<(&str, &str)> =
                     text.lines().filter_map(|l| l.split_once(':')).collect();
                 if let Some(key) = words[1..]
@@ -136,7 +139,7 @@ impl Game<'_> {
                 };
                 let value = words[2..].join(" ");
                 // graphics.txt's own reading, with the new line last.
-                let text = self.settings.industrial-era.serialize();
+                let text = self.settings.industrial_era.serialize();
                 let line = |text: &str| {
                     text.lines()
                         .find(|l| l.split_once(':').is_some_and(|(k, _)| k == *key))
@@ -153,7 +156,7 @@ impl Game<'_> {
                 if after == before && after != format!("{key}:{value}") {
                     return Err(format!("{key} does not take {value}; it stays {before}").into());
                 }
-                self.settings.industrial-era = graphics;
+                self.settings.industrial_era = graphics;
                 self.handle_option_events(vec![Event::Changed])?;
                 let now = after.split_once(':').map_or("", |(_, v)| v).to_owned();
                 // The worker pool and the graphics API are made once, at start.
@@ -473,9 +476,8 @@ impl Game<'_> {
                     self.reload_packs();
                 }
                 Event::OpenPackFolder => self.open_game_folder(&super::packs::packs_dir()),
-                Event::OpenModFolder => {
-                    self.open_game_folder(&Self::game_dir().join(industrial_era_client::mod_list::DIR))
-                }
+                Event::OpenModFolder => self
+                    .open_game_folder(&Self::game_dir().join(industrial_era_client::mod_list::DIR)),
                 #[cfg(target_os = "android")]
                 Event::OpenCatalog(shelf) => self.open_catalog_on(catalog_shelf(shelf)),
                 #[cfg(not(target_os = "android"))]
@@ -595,7 +597,7 @@ impl Game<'_> {
     pub(super) fn apply_ui_settings(&mut self) {
         let scale = self.world_scale();
         if industrial_era_client_render::mipmap::set_dither_cutouts(
-            self.settings.industrial-era.dither_cutout_mips,
+            self.settings.industrial_era.dither_cutout_mips,
         ) {
             self.reload_packs();
         }
@@ -605,9 +607,9 @@ impl Game<'_> {
             r.gamma = s.gamma;
             r.fullbright = s.extras.fullbright;
             r.improved_transparency = s.improved_transparency;
-            r.set_present_mode(s.vsync, s.industrial-era.present_mode);
-            r.animated_textures = s.industrial-era.animated_textures;
-            r.screenshot_quality = s.industrial-era.screenshot_quality;
+            r.set_present_mode(s.vsync, s.industrial_era.present_mode);
+            r.animated_textures = s.industrial_era.animated_textures;
+            r.screenshot_quality = s.industrial_era.screenshot_quality;
             r.set_mipmap_levels(s.mipmap_levels.max(0) as u32);
             r.set_texture_filtering(
                 s.file.int("textureFiltering"),
@@ -615,19 +617,20 @@ impl Game<'_> {
             );
             r.set_world_post(
                 scale,
-                s.industrial-era.fxaa,
-                s.industrial-era.taa,
-                s.industrial-era.upscaling.ratio(),
+                s.industrial_era.fxaa,
+                s.industrial_era.taa,
+                s.industrial_era.upscaling.ratio(),
             );
             r.set_frame_generation(
-                s.industrial-era.frame_generation != industrial_era_client::graphics::FrameGeneration::Off,
+                s.industrial_era.frame_generation
+                    != industrial_era_client::graphics::FrameGeneration::Off,
             );
             r.set_hdr(
-                s.industrial-era.hdr,
-                s.industrial-era.paper_white_nits() as f32,
-                s.industrial-era.peak_nits() as f32,
-                s.industrial-era.black_level_nits(),
-                s.industrial-era.hdr_ui_brightness as f32 / 100.0,
+                s.industrial_era.hdr,
+                s.industrial_era.paper_white_nits() as f32,
+                s.industrial_era.peak_nits() as f32,
+                s.industrial_era.black_level_nits(),
+                s.industrial_era.hdr_ui_brightness as f32 / 100.0,
                 &Self::options_path().with_file_name(industrial_era_client::graphics::HDR_MARKER),
             );
         }
@@ -722,10 +725,10 @@ impl Game<'_> {
             has_overlay: false,
         };
         let limit = framerate_limit(self.settings.max_fps as i32, context);
-        let limit = self
-            .settings
-            .industrial-era
-            .battery_limit(limit, self.title.is_none(), self.focused);
+        let limit =
+            self.settings
+                .industrial_era
+                .battery_limit(limit, self.title.is_none(), self.focused);
         // A native mod may only lower it (`native_framerate_limit`).
         let mut hooked = limit;
         self.native_framerate_limit(
@@ -748,13 +751,21 @@ impl Game<'_> {
             return;
         }
         let limit = self.framerate_limit();
-        match self.settings.industrial-era.pacing {
+        match self.settings.industrial_era.pacing {
             industrial_era_client::graphics::Pacing::Precise => {
-                industrial_era_client::window::end_frame(&mut self.limiter, limit, &mut self.frame_clock)
+                industrial_era_client::window::end_frame(
+                    &mut self.limiter,
+                    limit,
+                    &mut self.frame_clock,
+                )
             }
             industrial_era_client::graphics::Pacing::Efficient => {
                 let mut clock = industrial_era_client::window::SleepingClock(self.frame_clock);
-                industrial_era_client::window::end_frame_on_grid(&mut self.limiter, limit, &mut clock);
+                industrial_era_client::window::end_frame_on_grid(
+                    &mut self.limiter,
+                    limit,
+                    &mut clock,
+                );
             }
         }
     }

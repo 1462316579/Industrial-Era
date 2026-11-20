@@ -148,7 +148,8 @@ impl StackData {
     /// form. Trim is modelled; the rest keep their saved components.
     /// A null value removes the component.
     pub fn set_loot_component(&mut self, id: &str, value: &serde_json::Value) {
-        let tag = (!value.is_null()).then(|| industrial_era_client_core::scoreboard::json_to_tag(value));
+        let tag =
+            (!value.is_null()).then(|| industrial_era_client_core::scoreboard::json_to_tag(value));
         match id {
             "minecraft:trim" => {
                 self.trim = match (value["material"].as_str(), value["pattern"].as_str()) {
@@ -1275,7 +1276,9 @@ mod tests {
             encode_components(&stack)
                 .unwrap()
                 .get("minecraft:custom_name"),
-            Some(&industrial_era_client_core::scoreboard::json_to_tag(&styled))
+            Some(&industrial_era_client_core::scoreboard::json_to_tag(
+                &styled
+            ))
         );
     }
 

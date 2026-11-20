@@ -335,13 +335,13 @@ mod tests {
     #[test]
     fn inherited_alias_uses_child_material_and_geometry_outlives_library() {
         let parent = CuboidModel::from_json(r##"{"textures":{"side":"#all","all":"block/stone"},"elements":[{"from":[0,0,0],"to":[16,8,16],"faces":{"up":{"texture":"#side"}}}]}"##).unwrap();
-        let child = CuboidModel::from_json(r#"{"parent":"industrial-era:parent","textures":{"all":{"sprite":"block/glass","force_translucent":true}}}"#).unwrap();
+        let child = CuboidModel::from_json(r#"{"parent":"industrial_era:parent","textures":{"all":{"sprite":"block/glass","force_translucent":true}}}"#).unwrap();
         let library = ModelLibrary::new(BTreeMap::from([
-            ("industrial-era:parent".into(), parent),
-            ("industrial-era:child".into(), child),
+            ("industrial_era:parent".into(), parent),
+            ("industrial_era:child".into(), child),
         ]))
         .unwrap();
-        let model = library.resolve("industrial-era:child").unwrap();
+        let model = library.resolve("industrial_era:child").unwrap();
         drop(library);
         assert_eq!(model.elements()[0].as_ref().unwrap().to, [16.0, 8.0, 16.0]);
         assert_eq!(
@@ -461,8 +461,14 @@ mod tests {
                 "item/two",
                 r##"{"textures":{"layer0":"#tex","layer1":"item/b","tex":"item/a"}}"##,
             ),
-            ("industrial-era:loop", r#"{"parent":"industrial-era:loop2"}"#),
-            ("industrial-era:loop2", r#"{"parent":"industrial-era:loop"}"#),
+            (
+                "industrial_era:loop",
+                r#"{"parent":"industrial_era:loop2"}"#,
+            ),
+            (
+                "industrial_era:loop2",
+                r#"{"parent":"industrial_era:loop"}"#,
+            ),
         ]);
         let child = BTreeMap::from([
             // A base alias binds through a slot only the child sets...
@@ -490,7 +496,7 @@ mod tests {
         assert_eq!(absent.elements().len(), 1);
         assert!(
             library
-                .resolve_with_textures("industrial-era:loop", &child)
+                .resolve_with_textures("industrial_era:loop", &child)
                 .is_err()
         );
     }
@@ -543,17 +549,18 @@ mod tests {
     }
     #[test]
     fn absent_parents_fall_back_but_cycles_invalidate_descendants() {
-        let a = CuboidModel::from_json(r#"{"parent":"industrial-era:b"}"#).unwrap();
-        let b = CuboidModel::from_json(r#"{"parent":"industrial-era:a"}"#).unwrap();
-        let child = CuboidModel::from_json(r#"{"parent":"industrial-era:a","elements":[]}"#).unwrap();
+        let a = CuboidModel::from_json(r#"{"parent":"industrial_era:b"}"#).unwrap();
+        let b = CuboidModel::from_json(r#"{"parent":"industrial_era:a"}"#).unwrap();
+        let child =
+            CuboidModel::from_json(r#"{"parent":"industrial_era:a","elements":[]}"#).unwrap();
         let library = ModelLibrary::new(BTreeMap::from([
-            ("industrial-era:a".into(), a),
-            ("industrial-era:b".into(), b),
-            ("industrial-era:child".into(), child),
+            ("industrial_era:a".into(), a),
+            ("industrial_era:b".into(), b),
+            ("industrial_era:child".into(), child),
         ]))
         .unwrap();
-        assert!(library.resolve("industrial-era:child").is_err());
-        let absent = library.resolve("industrial-era:absent").unwrap();
+        assert!(library.resolve("industrial_era:child").is_err());
+        let absent = library.resolve("industrial_era:absent").unwrap();
         assert_eq!(absent.elements().len(), 1);
         assert_eq!(
             absent.material("particle").unwrap().unwrap().sprite,

@@ -230,35 +230,36 @@ fn profile_from_nbt(tag: &Tag) -> Option<industrial_era_protocol::entity_data::P
         }),
         _ => None,
     };
-    let properties: Vec<industrial_era_protocol::packets::login::Property> = match tag.get("properties") {
-        // `ExtraCodecs.PROPERTY_MAP`: a list of properties ...
-        Some(Tag::List(list)) => list
-            .iter()
-            .filter_map(|p| {
-                let name = match p.get("name")? {
-                    Tag::String(s) => s.to_string_lossy(),
-                    _ => return None,
-                };
-                let signature = match p.get("signature") {
-                    Some(Tag::String(s)) => Some(s.to_string_lossy()),
-                    _ => None,
-                };
-                property(name, p.get("value")?, signature)
-            })
-            .collect(),
-        // ... or a map from a name to its values.
-        Some(Tag::Compound(map)) => map
-            .iter()
-            .flat_map(|(name, values)| match values {
-                Tag::List(values) => values
-                    .iter()
-                    .filter_map(|v| property(name.to_string_lossy(), v, None))
-                    .collect::<Vec<_>>(),
-                _ => Vec::new(),
-            })
-            .collect(),
-        _ => Vec::new(),
-    };
+    let properties: Vec<industrial_era_protocol::packets::login::Property> =
+        match tag.get("properties") {
+            // `ExtraCodecs.PROPERTY_MAP`: a list of properties ...
+            Some(Tag::List(list)) => list
+                .iter()
+                .filter_map(|p| {
+                    let name = match p.get("name")? {
+                        Tag::String(s) => s.to_string_lossy(),
+                        _ => return None,
+                    };
+                    let signature = match p.get("signature") {
+                        Some(Tag::String(s)) => Some(s.to_string_lossy()),
+                        _ => None,
+                    };
+                    property(name, p.get("value")?, signature)
+                })
+                .collect(),
+            // ... or a map from a name to its values.
+            Some(Tag::Compound(map)) => map
+                .iter()
+                .flat_map(|(name, values)| match values {
+                    Tag::List(values) => values
+                        .iter()
+                        .filter_map(|v| property(name.to_string_lossy(), v, None))
+                        .collect::<Vec<_>>(),
+                    _ => Vec::new(),
+                })
+                .collect(),
+            _ => Vec::new(),
+        };
     let text = |key: &str| match tag.get(key) {
         Some(Tag::String(s)) => Some(s.to_string_lossy()),
         _ => None,
@@ -447,7 +448,9 @@ pub fn mob_to_nbt(
     // any (MobEffectInstance.CODEC; a mob's effects are never ambient, and one
     // given with `hideParticles` shows neither particles nor its icon).
     if m.extra.effects.is_empty() {
-        map.remove(&industrial_era_world::nbt::JavaString::from("active_effects"));
+        map.remove(&industrial_era_world::nbt::JavaString::from(
+            "active_effects",
+        ));
     } else {
         let effects = m
             .extra
@@ -5538,7 +5541,8 @@ mod held_item_name_tests {
             .collect();
         let mut mob = Mob::new(1, Arc::clone(&types["minecraft:zombie"]), Vec3::ZERO, 0.0);
         let mut sword = crate::items::ItemStack::new("minecraft:diamond_sword", 1);
-        sword.data_mut().custom_name = Some(industrial_era_world::nbt::Tag::String("Old Sword".into()));
+        sword.data_mut().custom_name =
+            Some(industrial_era_world::nbt::Tag::String("Old Sword".into()));
         mob.extra.set_main_hand_stack(Some(sword));
         let raw = mob_to_nbt(&mob, [1, 2, 3, 4], None, None);
         let mut loaded = mob_from_nbt(&raw, &types, 2, None).unwrap();

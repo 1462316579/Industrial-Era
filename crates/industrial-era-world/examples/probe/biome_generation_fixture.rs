@@ -81,7 +81,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         if retrogen {
             chunk.fill(min, min + height - 1, |[x, y, z]| {
                 Ok::<_, std::convert::Infallible>(format!(
-                    "industrial-era:old_{}",
+                    "industrial_era:old_{}",
                     x.wrapping_mul(31)
                         .wrapping_add(y.wrapping_mul(7))
                         .wrapping_add(z.wrapping_mul(17))

@@ -18,7 +18,9 @@
 use super::event_loop::EventLoopCtl;
 use super::input_trace::{InputOrigin, TraceEvent, TraceKind};
 use super::{Game, Screen};
-use industrial_era_client::{Result, gamepad::Button, keybinds, text::Text, title::world_management};
+use industrial_era_client::{
+    Result, gamepad::Button, keybinds, text::Text, title::world_management,
+};
 use industrial_era_core::geometry::Vec3;
 use industrial_era_telemetry::scrub::Scrubber;
 use serde::Deserialize;
@@ -457,7 +459,10 @@ impl Game<'_> {
                 );
             }
         } else if let Err(e) = self.start_recording(None, false, true) {
-            self.repro_say("industrial-era.repro.error", &[Text::literal(format!("{e}"))]);
+            self.repro_say(
+                "industrial-era.repro.error",
+                &[Text::literal(format!("{e}"))],
+            );
         }
     }
 
@@ -593,7 +598,9 @@ impl Game<'_> {
                         return Err(format!("saving the world for the recording: {e}").into());
                     }
                     None => {
-                        log::warn!("Industrial Era: the integrated server did not save for the recording")
+                        log::warn!(
+                            "Industrial Era: the integrated server did not save for the recording"
+                        )
                     }
                 }
                 copied.map_err(|e| format!("copying the world: {e}"))?;
@@ -732,7 +739,10 @@ impl Game<'_> {
             Ok(None)
         } else {
             if reply.is_none() {
-                self.repro_say("industrial-era.repro.stopped", &[Text::literal(rec.name.clone())]);
+                self.repro_say(
+                    "industrial-era.repro.stopped",
+                    &[Text::literal(rec.name.clone())],
+                );
             }
             Ok(Some(summary))
         }
@@ -909,13 +919,19 @@ impl Game<'_> {
                 let _ = reply.send(value.to_string());
             } else if export.key || value.get("error").is_some() {
                 if let Some(error) = value.get("error").and_then(Value::as_str) {
-                    self.repro_say("industrial-era.repro.error", &[Text::literal(error.to_owned())]);
+                    self.repro_say(
+                        "industrial-era.repro.error",
+                        &[Text::literal(error.to_owned())],
+                    );
                 } else {
                     let path = value
                         .get("path")
                         .and_then(Value::as_str)
                         .unwrap_or_default();
-                    self.repro_say("industrial-era.repro.bundle", &[Text::literal(path.to_owned())]);
+                    self.repro_say(
+                        "industrial-era.repro.bundle",
+                        &[Text::literal(path.to_owned())],
+                    );
                 }
             }
         }
@@ -1156,7 +1172,10 @@ impl Game<'_> {
                 let _ = reply.send(value.to_string());
             }
             None => {
-                self.repro_say("industrial-era.repro.replay_started", &[Text::literal(name)]);
+                self.repro_say(
+                    "industrial-era.repro.replay_started",
+                    &[Text::literal(name)],
+                );
             }
         }
     }
@@ -1380,7 +1399,10 @@ impl Game<'_> {
             Some(reply) => {
                 let _ = reply.send(json!({ "error": error }).to_string());
             }
-            None => self.repro_say("industrial-era.repro.error", &[Text::literal(error.to_owned())]),
+            None => self.repro_say(
+                "industrial-era.repro.error",
+                &[Text::literal(error.to_owned())],
+            ),
         }
     }
 }
@@ -1848,7 +1870,8 @@ mod tests {
 
     #[test]
     fn a_world_copy_skips_the_lock_and_symlinks() {
-        let root = std::env::temp_dir().join(format!("industrial-era-repro-test-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-repro-test-{}", std::process::id()));
         let src = root.join("src");
         let dst = root.join("dst");
         fs::create_dir_all(src.join("region")).unwrap();
@@ -1962,7 +1985,8 @@ mod tests {
 
     #[test]
     fn an_export_name_that_is_taken_gets_a_number() {
-        let root = std::env::temp_dir().join(format!("industrial-era-repro-dest-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-repro-dest-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
         let first = root.join("repro.zip");
         fs::write(&first, b"x").unwrap();

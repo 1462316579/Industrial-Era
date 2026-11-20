@@ -290,8 +290,10 @@ mod tests {
     /// A temp pack of `files` (path under `optifine/random/entity`, or from the root when it
     /// starts with `assets/`; contents), scanned.
     fn pack(name: &str, files: &[(&str, &str)]) -> RandomTextures {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-mob-random-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-mob-random-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         for (path, text) in files {
             let path = if path.starts_with("assets/") {

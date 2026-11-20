@@ -1972,7 +1972,8 @@ impl PackPost {
             stand_ins: &stand_ins,
             stage_written: &stage_written,
         };
-        let mut build = |mut p: industrial_era_shaders::PostProgram, geometry: Option<&Geometry<'_>>| {
+        let mut build = |mut p: industrial_era_shaders::PostProgram,
+                         geometry: Option<&Geometry<'_>>| {
             let in_shadow = p.group.shadow();
             let mut compute = std::mem::take(&mut p.compute);
             if !gpu.compute {
@@ -2024,8 +2025,9 @@ impl PackPost {
             stage_written.set((group, before | pass.written));
             // A pass's attachments share a size: the depth buffer's, for the passes that draw
             // the world.
-            let size =
-                |b: usize| sizes[b].unwrap_or(industrial_era_shaders::BufferSize::Relative([1.0; 2]));
+            let size = |b: usize| {
+                sizes[b].unwrap_or(industrial_era_shaders::BufferSize::Relative([1.0; 2]))
+            };
             let depth = matches!(group, Group::Gbuffers | Group::Translucent);
             let mut written = pass.writes.iter().map(|w| size(w.1));
             let first = if depth {

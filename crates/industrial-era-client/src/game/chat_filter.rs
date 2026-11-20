@@ -1,5 +1,5 @@
 //! The dedicated server's chat filter, game side (docs/chat-filter.md): what the hub refused is
-//! written to `logs/chat-filter.log` and told to industrial-era-server's event stream as `chat_filtered`
+//! written to `logs/chat-filter.log` and told to industrial_era-server's event stream as `chat_filtered`
 //! (never as `chat`), a temporary ban goes into banned-players.json, and operators mute and unmute
 //! players by hand with `/mute`, `/tempmute`, `/mutelist` and `/unmute` (the same words on the console).
 use super::{Game, dedicated, lan::LanHost};
@@ -61,9 +61,18 @@ impl Game<'_> {
         // The text only goes to the filter's own log, for operators: never to the console or the stream.
         dedicated::log("INFO", &summary);
         if let Some(path) = host.hub.chat_filter_log() {
-            let line =
-                industrial_era_chat_filter::log_line(now, name, uuid, place.name(), count, action, text);
-            if let Err(e) = industrial_era_chat_filter::append_log(std::path::Path::new(path), &line) {
+            let line = industrial_era_chat_filter::log_line(
+                now,
+                name,
+                uuid,
+                place.name(),
+                count,
+                action,
+                text,
+            );
+            if let Err(e) =
+                industrial_era_chat_filter::append_log(std::path::Path::new(path), &line)
+            {
                 dedicated::log("WARN", &format!("[chat-filter] {path}: {e}"));
             }
         }
@@ -218,10 +227,12 @@ impl Game<'_> {
             }
             ["unmute", name] => vec![self.unmute(host, name, by)],
             ["mute", name, ..] => vec![self.mute(host, name, None, reason(2), by)],
-            ["tempmute", name, time, ..] => match industrial_era_chat_filter::parse_duration(time) {
-                Some(ms) => vec![self.mute(host, name, Some(ms), reason(3), by)],
-                None => vec![format!("{time} isn't a duration: 10m, 2h, 1d")],
-            },
+            ["tempmute", name, time, ..] => {
+                match industrial_era_chat_filter::parse_duration(time) {
+                    Some(ms) => vec![self.mute(host, name, Some(ms), reason(3), by)],
+                    None => vec![format!("{time} isn't a duration: 10m, 2h, 1d")],
+                }
+            }
             ["mute", ..] => vec!["/mute <player> [reason]".into()],
             ["tempmute", ..] => vec!["/tempmute <player> <duration> [reason]".into()],
             ["unmute", ..] => vec!["/unmute <player>".into()],

@@ -3,7 +3,7 @@
 //! does, then meshes every section of the inner columns on this one thread, so a
 //! change to generation or meshing shows as time per column and per section.
 //!
-//!     cargo run --release -p industrial-era-client --example chunk_load_bench -- \
+//!     cargo run --release -p industrial_era-client --example chunk_load_bench -- \
 //!         .local/industrial-era-client/26.3 [--seed 1234] [--center CX CZ] [--radius 8]
 //!         [--threads N] [--rounds 3] [--mesh-threads N] [--json out.json]
 //!

@@ -262,7 +262,7 @@ fn is_link_or_junction(metadata: &fs::Metadata) -> bool {
 /// lacks (checked before Cargo, which would look for it online), or a package the updated lock
 /// `staged` has that Industrial Era's lacks or has in another version. None when they fit.
 pub(super) fn refused(
-    industrial-era: &BTreeSet<Locked>,
+    industrial_era: &BTreeSet<Locked>,
     staged: Option<&BTreeSet<Locked>>,
     wanted: &[Wanted],
     api_ids: &[&str],
@@ -494,7 +494,7 @@ checksum = "def"
 
     #[test]
     fn a_mods_crate_may_use_only_what_horizons_lock_has() {
-        let industrial-era = downloaded(LOCK).unwrap();
+        let industrial_era = downloaded(LOCK).unwrap();
         assert_eq!(
             industrial-era.len(),
             2,
@@ -638,7 +638,7 @@ checksum = "def"
             wanted,
             [wants("bake", "gtnh-lv-compressor-eval-industrial-sim", "1")]
         );
-        let industrial-era = downloaded(LOCK).unwrap();
+        let industrial_era = downloaded(LOCK).unwrap();
         let err = refused(&industrial-era, None, &wanted, &[]).unwrap();
         assert!(err.starts_with(
             "bake needs gtnh-lv-compressor-eval-industrial-sim 1, which isn't in Industrial Era's Cargo.lock"

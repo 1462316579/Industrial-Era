@@ -170,7 +170,7 @@ mod tests {
             ("assets/industrial-era/models/block/wheel.mtl", mtl),
         ]);
         let source = crate::model::ObjSource {
-            model: "industrial-era:models/block/wheel.obj".into(),
+            model: "industrial_era:models/block/wheel.obj".into(),
             flip_v: true,
         };
         let read = |path: &str| files.get(path).map(|s| s.to_string());
@@ -182,12 +182,12 @@ mod tests {
     fn a_mesh_bakes_with_its_models_slots_turned_as_the_blockstate_turns_it() {
         use crate::{bake::*, model::*, resolve::ModelLibrary};
         let mut model = CuboidModel::from_json(
-            r#"{"loader":"neoforge:obj","model":"industrial-era:models/block/x.obj","flip_v":true,
+            r#"{"loader":"neoforge:obj","model":"industrial_era:models/block/x.obj","flip_v":true,
                 "textures":{"planks":"block/oak_planks"}}"#,
         )
         .unwrap();
         let source = model.obj.as_ref().unwrap();
-        assert!(source.flip_v && source.model == "industrial-era:models/block/x.obj");
+        assert!(source.flip_v && source.model == "industrial_era:models/block/x.obj");
         // An OBJ model is the geometry, with no elements of its own.
         assert_eq!(model.elements.as_deref().map(<[_]>::len), Some(0));
         let obj = "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nvt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\n\
@@ -195,11 +195,11 @@ mod tests {
         let mtl = materials("newmtl plank\nmap_Kd #planks\nnewmtl gone\nmap_Kd #absent\n");
         model.mesh = Some(std::sync::Arc::new(parse(obj, &mtl, true).unwrap()));
         let library = ModelLibrary::new(std::collections::BTreeMap::from([(
-            "industrial-era:x".into(),
+            "industrial_era:x".into(),
             model,
         )]))
         .unwrap();
-        let resolved = library.resolve("industrial-era:x").unwrap();
+        let resolved = library.resolve("industrial_era:x").unwrap();
         let turn = BlockModelTransform::new([0, 1, 0], false);
         let quads = bake_block_model(&resolved, turn).unwrap();
         assert_eq!(quads.len(), 2);

@@ -132,7 +132,10 @@ pub fn display_name(custom: Option<&str>, default_key: &str) -> industrial_era_w
 /// `ChestBlock.MENU_PROVIDER_COMBINER`'s `getDisplayName` for a double chest:
 /// the first half's custom name (the right half, `DoubleBlockCombiner`'s
 /// `FIRST`), else the second's, else `container.chestDouble`.
-pub fn double_chest_name(first: Option<&str>, second: Option<&str>) -> industrial_era_world::nbt::Tag {
+pub fn double_chest_name(
+    first: Option<&str>,
+    second: Option<&str>,
+) -> industrial_era_world::nbt::Tag {
     display_name(first.or(second), "container.chestDouble")
 }
 

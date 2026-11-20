@@ -236,7 +236,7 @@ pub struct Settings {
     /// On macOS, turn Control-click into a right click.
     pub ctrl_click_emulates_right_click: bool,
     /// Industrial Era's own graphics settings (`industrial-era-graphics.txt`, not options.txt).
-    pub industrial-era: crate::graphics::Graphics,
+    pub industrial_era: crate::graphics::Graphics,
     /// The graphics API the game started with: `Options.preferredGraphicsBackendFromStartup`.
     pub startup_api: crate::graphics::GraphicsApi,
     /// `Monitor.videoModes` of the window's monitor, for the Video page (set by the game).
@@ -333,7 +333,7 @@ impl Default for Settings {
             operator_items_tab: false,
             quit_shortcuts: true,
             ctrl_click_emulates_right_click: false,
-            industrial-era: Default::default(),
+            industrial_era: Default::default(),
             startup_api: Default::default(),
             video_modes: Vec::new(),
             controller: Default::default(),
@@ -382,11 +382,11 @@ impl Settings {
             .map_or(-1, |i| i as i32)
     }
     pub fn load(path: &Path) -> Self {
-        let industrial-era = path
+        let industrial_era = path
             .parent()
             .map(crate::graphics::Graphics::load)
             .unwrap_or_default();
-        crate::mipmap::set_dither_cutouts(industrial-era.dither_cutout_mips);
+        crate::mipmap::set_dither_cutouts(industrial - era.dither_cutout_mips);
         let controller = path
             .parent()
             .map(crate::gamepad::PadSettings::load)
@@ -400,10 +400,11 @@ impl Settings {
             .parent()
             .map(|dir| crate::mod_list::ModList::load(&crate::logging::shared_dir(dir)))
             .unwrap_or_default();
-        let keypad = crate::keypad::Settings::load(&path.with_file_name("industrial-era-keypad.json"));
+        let keypad =
+            crate::keypad::Settings::load(&path.with_file_name("industrial-era-keypad.json"));
         let settings = match fs::read(path) {
             Ok(bytes) => Self {
-                industrial-era,
+                industrial_era: self.industrial_era.clone(),
                 controller,
                 keypad,
                 extras,
@@ -411,7 +412,7 @@ impl Settings {
                 ..Self::parse(&String::from_utf8_lossy(&bytes))
             },
             Err(_) => Self {
-                industrial-era,
+                industrial_era: self.industrial_era.clone(),
                 controller,
                 keypad,
                 extras,
@@ -422,7 +423,7 @@ impl Settings {
         settings.describe_for_crashes();
         // Options.load: the backend asked for at startup, what a restart is measured from.
         Self {
-            startup_api: settings.industrial-era.api,
+            startup_api: settings.industrial_era.api,
             ..settings
         }
     }
@@ -526,7 +527,7 @@ impl Settings {
             operator_items_tab: f.bool("operatorItemsTab"),
             quit_shortcuts: f.bool("quitShortcuts"),
             ctrl_click_emulates_right_click: f.bool("ctrlClickEmulatesRightClick"),
-            industrial-era: Default::default(),
+            industrial_era: Default::default(),
             startup_api: Default::default(),
             video_modes: Vec::new(),
             controller: Default::default(),
@@ -696,7 +697,7 @@ impl Settings {
         let mut file = self.to_file();
         file.set_text(key, value)?;
         Ok(Self {
-            industrial-era: self.industrial-era.clone(),
+            industrial_era: self.industrial_era.clone(),
             controller: self.controller.clone(),
             keypad: self.keypad.clone(),
             extras: self.extras.clone(),
@@ -713,7 +714,7 @@ impl Settings {
         self.describe_for_crashes();
         let _ = fs::write(path, self.serialize());
         if let Some(dir) = path.parent() {
-            self.industrial-era.save(dir);
+            self.industrial_era.save(dir);
             self.controller.save(dir);
             let _ = self.keypad.save(&dir.join("industrial-era-keypad.json"));
             self.extras.save(dir);
@@ -949,13 +950,13 @@ mod tests {
         let mut s = Settings::parse("fov:70\n");
         s.mods.enabled.insert("zoom".into());
         s.extras.minimap = true;
-        s.industrial-era.fog = !s.industrial-era.fog;
+        s.industrial_era.fog = !s.industrial_era.fog;
         s.controller.vibration = !s.controller.vibration;
         let set = s.with_option("fov", "90").unwrap();
         assert_eq!(set.fov, 90.0);
         assert_eq!(set.mods, s.mods);
         assert_eq!(set.extras, s.extras);
-        assert_eq!(set.industrial-era, s.industrial-era);
+        assert_eq!(set.industrial_era, s.industrial_era);
         assert_eq!(set.controller, s.controller);
         assert!(s.with_option("fov", "200").is_err());
     }

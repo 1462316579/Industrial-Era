@@ -196,7 +196,9 @@ fn router_probe(
     }
     for (preset, json) in &bundle["presets"] {
         let source =
-            industrial_era_world::worldgen::biome::MultiNoiseBiomeSource::from_quantized_json(json)?;
+            industrial_era_world::worldgen::biome::MultiNoiseBiomeSource::from_quantized_json(
+                json,
+            )?;
         writeln!(
             out,
             "biomes {preset} {}",
@@ -251,7 +253,9 @@ fn index_probe(
     json: &str,
     out: &mut impl Write,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    use industrial_era_world::worldgen::climate::{ClimateIndex, Parameter, ParameterPoint, TargetPoint};
+    use industrial_era_world::worldgen::climate::{
+        ClimateIndex, Parameter, ParameterPoint, TargetPoint,
+    };
     let input: serde_json::Value = serde_json::from_str(json)?;
     let mut entries = Vec::new();
     for (id, entry) in input["entries"]
@@ -806,7 +810,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .skip(1)
                 .map(str::parse)
                 .collect::<Result<_, _>>()?;
-            match industrial_era_world::worldgen::settings::NoiseSettings::create(values[0], values[1]) {
+            match industrial_era_world::worldgen::settings::NoiseSettings::create(
+                values[0], values[1],
+            ) {
                 Ok(settings) => settings_probe(settings, &mut out)?,
                 Err(_) => writeln!(out, "settings error")?,
             }

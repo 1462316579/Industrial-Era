@@ -582,7 +582,7 @@ mod tests {
 
     /// The old walk (every key of a hash map, sorted by distance, then two
     /// lookups per visible section) against `visible` on a render distance
-    /// 32 world. Run with `cargo test --profile fast -p industrial-era-client --lib
+    /// 32 world. Run with `cargo test --profile fast -p industrial_era-client --lib
     /// -- --ignored column_walk_speed --nocapture`.
     #[test]
     #[ignore = "timing, not a check"]

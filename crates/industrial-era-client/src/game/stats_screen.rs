@@ -176,9 +176,11 @@ impl Game<'_> {
         self.load_stats();
         // StatsScreen.init: a server's client asks for its statistics.
         if self.remote.is_some() {
-            self.send(industrial_era_protocol::packets::play::Serverbound::ClientCommand(
-                industrial_era_protocol::packets::play::ClientCommand { action: 1 },
-            ));
+            self.send(
+                industrial_era_protocol::packets::play::Serverbound::ClientCommand(
+                    industrial_era_protocol::packets::play::ClientCommand { action: 1 },
+                ),
+            );
         }
         self.stats_ui = StatsUi::default();
         self.screen = Screen::Stats;
@@ -469,7 +471,10 @@ impl Game<'_> {
                             tr("narration.item", &[&name]),
                             [left + 1.0, y + 1.0, 18.0, 18.0],
                         )
-                        .key(industrial_era_client::widgets::key_of(&("stats/item", item)))
+                        .key(industrial_era_client::widgets::key_of(&(
+                            "stats/item",
+                            item,
+                        )))
                         .child_of(list_key, i + 1)
                         .without_tooltip()
                     });

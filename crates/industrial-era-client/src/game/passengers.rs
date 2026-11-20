@@ -159,7 +159,8 @@ impl Game<'_> {
                         .filter(|&k| self.mobs[k].extra.mount == Some(v))
                         .collect();
                     let seat = aboard.iter().position(|&k| k == i).unwrap_or(0);
-                    let animal = industrial_era_client::mobs::drops::is_animal(self.mobs[i].species());
+                    let animal =
+                        industrial_era_client::mobs::drops::is_animal(self.mobs[i].species());
                     attach = industrial_era_client::mobs::camel::passenger_attachment_at(
                         vehicle,
                         seat,

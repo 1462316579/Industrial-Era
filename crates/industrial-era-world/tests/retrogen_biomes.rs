@@ -18,11 +18,11 @@ fn candidates_precede_old_columns_and_errors_short_circuit() {
     });
     let old = |p| {
         events.borrow_mut().push(p);
-        Ok("industrial-era:old")
+        Ok("industrial_era:old")
     };
     assert_eq!(
         resolver.sample([-3, -15, 8], |v| Some(*v), old),
-        Ok("industrial-era:old")
+        Ok("industrial_era:old")
     );
     assert_eq!(*events.borrow(), [[-3, -15, 8], [-3, 0, 8]]);
     events.borrow_mut().clear();

@@ -477,7 +477,7 @@ impl Game<'_> {
         }
         // Industrial Era's own: HDR's output while the setting is on, under the GPU (a group of its
         // own would move others to the other column).
-        if self.settings.industrial-era.hdr
+        if self.settings.industrial_era.hdr
             && let Some(r) = self.renderer.as_ref()
         {
             d.group("system", [r.hdr_line()]);
@@ -858,7 +858,8 @@ impl Game<'_> {
     pub(super) fn block_entity_tag(&self, pos: [i32; 3]) -> Option<Tag> {
         let e = self.world.block_entities.get(&(pos[0], pos[1], pos[2]))?;
         let name = self.data_block_name(pos);
-        let mut tag = industrial_era_client::save::encode_block_entity((pos[0], pos[1], pos[2]), e, &name);
+        let mut tag =
+            industrial_era_client::save::encode_block_entity((pos[0], pos[1], pos[2]), e, &name);
         if let Tag::Compound(c) = &mut tag {
             for key in ["id", "x", "y", "z", "keepPacked"] {
                 c.remove(&key.into());

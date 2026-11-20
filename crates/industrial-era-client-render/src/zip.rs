@@ -274,8 +274,10 @@ mod tests {
     use std::io::Cursor;
     /// `bytes` as a file and opened, the file removed again where the system lets it.
     fn opened(test: &str, bytes: &[u8]) -> io::Result<Zip> {
-        let path =
-            std::env::temp_dir().join(format!("industrial-era-zip-{}-{test}.zip", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "industrial-era-zip-{}-{test}.zip",
+            std::process::id()
+        ));
         fs::write(&path, bytes)?;
         let zip = Zip::open(&path);
         let _ = fs::remove_file(&path);

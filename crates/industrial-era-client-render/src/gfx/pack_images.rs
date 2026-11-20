@@ -109,7 +109,10 @@ pub(super) fn resize_images(
     let largest = device.limits().max_texture_dimension_2d;
     let mut made = false;
     for image in images {
-        let relative = matches!(image.def.size, industrial_era_shaders::ImageSize::Relative(_));
+        let relative = matches!(
+            image.def.size,
+            industrial_era_shaders::ImageSize::Relative(_)
+        );
         if image.view.is_some() && (!relative || image.made_for == size) {
             continue;
         }

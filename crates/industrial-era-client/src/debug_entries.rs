@@ -437,8 +437,10 @@ mod tests {
 
     #[test]
     fn the_file_keeps_a_profile_or_the_statuses() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-debug-profile-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-debug-profile-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         let mut e = DebugEntries::load(&dir);
         assert!(e.is_using_profile(Profile::Default));

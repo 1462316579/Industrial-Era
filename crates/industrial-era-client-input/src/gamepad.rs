@@ -347,25 +347,25 @@ pub enum TextKeyboard {
     /// Steam's on a Steam Deck under Steam, else Industrial Era's.
     #[default]
     Auto,
-    Industrial Era,
+    IndustrialEra,
     Steam,
 }
 impl TextKeyboard {
     pub const ALL: [TextKeyboard; 3] = [
         TextKeyboard::Auto,
-        TextKeyboard::Industrial Era,
+        TextKeyboard::IndustrialEra,
         TextKeyboard::Steam,
     ];
     pub fn name(self) -> &'static str {
         match self {
             TextKeyboard::Auto => "auto",
-            TextKeyboard::Industrial Era => "industrial-era",
+            TextKeyboard::IndustrialEra => "industrial-era",
             TextKeyboard::Steam => "steam",
         }
     }
     pub fn parse(name: &str) -> Self {
         match name {
-            "industrial-era" => TextKeyboard::Industrial Era,
+            "industrial-era" => TextKeyboard::IndustrialEra,
             "steam" => TextKeyboard::Steam,
             _ => TextKeyboard::Auto,
         }
@@ -378,7 +378,7 @@ impl TextKeyboard {
 pub fn steam_keyboard(choice: TextKeyboard) -> bool {
     match choice {
         TextKeyboard::Steam => true,
-        TextKeyboard::Industrial Era => false,
+        TextKeyboard::IndustrialEra => false,
         TextKeyboard::Auto => std::env::var("SteamDeck").is_ok_and(|v| v == "1"),
     }
 }
@@ -1486,13 +1486,15 @@ mod tests {
         let mut s = PadSettings::default();
         assert_eq!(s.menu_nav, MenuNav::Focus);
         s.menu_nav = MenuNav::Pointer;
-        s.keyboard = TextKeyboard::Industrial Era;
+        s.keyboard = TextKeyboard::IndustrialEra;
         let back = PadSettings::parse(&s.serialize());
         assert_eq!(
             (back.menu_nav, back.keyboard),
-            (MenuNav::Pointer, TextKeyboard::Industrial Era)
+            (MenuNav::Pointer, TextKeyboard::IndustrialEra)
         );
-        assert!(steam_keyboard(TextKeyboard::Steam) && !steam_keyboard(TextKeyboard::Industrial Era));
+        assert!(
+            steam_keyboard(TextKeyboard::Steam) && !steam_keyboard(TextKeyboard::IndustrialEra)
+        );
     }
 
     #[test]

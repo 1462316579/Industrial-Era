@@ -1054,7 +1054,13 @@ impl Game<'_> {
                 HudBatch::new([r.config.width, r.config.height]).width
             });
             let (x, y, w, h) = Self::leave_bed_button(width, height);
-            if industrial_era_client::screen_draw::inside((cursor.0 as i32, cursor.1 as i32), x, y, w, h) {
+            if industrial_era_client::screen_draw::inside(
+                (cursor.0 as i32, cursor.1 as i32),
+                x,
+                y,
+                w,
+                h,
+            ) {
                 self.wake_up();
                 return;
             }
@@ -1415,7 +1421,9 @@ impl Game<'_> {
         self.world.health_rules.fall_damage = self.ui.rules.bool("fall_damage");
         self.world.health_rules.fire_damage = self.ui.rules.bool("fire_damage");
         self.world.health_rules.freeze_damage = self.ui.rules.bool("freeze_damage");
-        industrial_era_client::mobs::sulfur_cube::set_tnt_explodes(self.ui.rules.bool("tnt_explodes"));
+        industrial_era_client::mobs::sulfur_cube::set_tnt_explodes(
+            self.ui.rules.bool("tnt_explodes"),
+        );
         use industrial_era_world::food::Difficulty;
         self.world.health_rules.difficulty = match self.ui.difficulty {
             0 => Difficulty::Peaceful,
@@ -1432,9 +1440,12 @@ impl Game<'_> {
         // PrimaryLevelData: the difficulty comes back from level.dat's difficulty_settings.
         self.ui.difficulty = self.level.difficulty_id();
         if let Ok(bytes) = std::fs::read(self.world_root.join("data/minecraft/world_clocks.dat"))
-            && let Ok(raw) = industrial_era_world::compression::Compression::Gzip.decode(&bytes, 1 << 20)
-            && let Ok((root, _)) =
-                industrial_era_world::nbt::read_named(&raw, industrial_era_world::nbt::Limits::default())
+            && let Ok(raw) =
+                industrial_era_world::compression::Compression::Gzip.decode(&bytes, 1 << 20)
+            && let Ok((root, _)) = industrial_era_world::nbt::read_named(
+                &raw,
+                industrial_era_world::nbt::Limits::default(),
+            )
             && let Some(c) = root
                 .tag
                 .get("data")
@@ -1535,7 +1546,8 @@ impl Game<'_> {
         if repeat || self.debug_keys.modifier_down {
             return false;
         }
-        if industrial_era_client::keybinds::key_name(key) != Some(self.settings.keys.get("key.screenshot"))
+        if industrial_era_client::keybinds::key_name(key)
+            != Some(self.settings.keys.get("key.screenshot"))
         {
             return false;
         }
@@ -1636,7 +1648,8 @@ mod tests {
     /// finds them.
     #[test]
     fn loot_tables_of_every_namespace_are_listed() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-ids-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-ids-{}", std::process::id()));
         for dir in [
             "data/minecraft/loot_table/chests",
             "data/mymod/loot_table/rooms",
@@ -1657,7 +1670,8 @@ mod tests {
     /// count (hidden from commands) or an object that may show itself.
     #[test]
     fn overworld_timelines_and_markers() {
-        let root = std::env::temp_dir().join(format!("industrial-era-timelines-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-timelines-{}", std::process::id()));
         let dir = root.join("data/minecraft/timeline");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
@@ -1693,7 +1707,8 @@ mod tests {
     /// The export is read once per folder; a folder without one stays without.
     #[test]
     fn command_exports_are_read_once_per_folder() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-export-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-export-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("command-registries.json"), r#"{"effects":["a"]}"#).unwrap();
         let first = command_export(&dir, true).unwrap();
@@ -1719,7 +1734,11 @@ mod tests {
     fn the_ram_limit_command_is_known_to_the_chat_box() {
         let reg = Registries::default();
         let vanilla = industrial_era_client::command::vanilla::game_dispatcher();
-        assert!(vanilla.find(industrial_era_client::ram_limit::COMMAND).is_none());
+        assert!(
+            vanilla
+                .find(industrial_era_client::ram_limit::COMMAND)
+                .is_none()
+        );
         let tree = with_native_commands(vanilla, &[industrial_era_client::ram_limit::COMMAND]);
         for typed in ["ramlimit", "ramlimit 2048", "ramlimit off"] {
             assert!(tree.parse(typed, &reg).executable().is_ok(), "{typed}");

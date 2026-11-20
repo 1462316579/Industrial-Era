@@ -157,7 +157,8 @@ mod tests {
 
     #[test]
     fn servers_dat_round_trips() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-servers-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-servers-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("servers.dat");
         let list = vec![
@@ -179,7 +180,8 @@ mod tests {
 
     #[test]
     fn prepend_keeps_hidden_entries_and_unknown_fields() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-prepend-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-prepend-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("servers.dat");
         prepend(&path, &ServerEntry::new("First", "a.example")).unwrap();

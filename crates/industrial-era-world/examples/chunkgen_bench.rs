@@ -637,8 +637,10 @@ fn snapshot(chunks: &[Option<ProtoChunk>], path: &Path, phase: &str) -> Result<(
         writeln!(out, "fluidticks {:?}", terrain.fluid_ticks().pack(0))?;
         for (position, tag) in &chunk.block_entities {
             writeln!(out, "blockentity {position:?}")?;
-            let bytes =
-                industrial_era_world::nbt::write_network(&Tag::Compound(tag.clone()), Default::default())?;
+            let bytes = industrial_era_world::nbt::write_network(
+                &Tag::Compound(tag.clone()),
+                Default::default(),
+            )?;
             out.write_all(&(bytes.len() as u64).to_le_bytes())?;
             out.write_all(&bytes)?;
         }

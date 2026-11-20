@@ -3,7 +3,7 @@
 //! what does not, the failures grouped by cause.
 //!
 //! ```text
-//! cargo run --release -p industrial-era-shaders --example pack_report -- PACK... [options]
+//! cargo run --release -p industrial_era-shaders --example pack_report -- PACK... [options]
 //!   PACK        a .zip, a pack folder (or its parent holding `shaders/`), or a folder of packs
 //!   --programs  one line per program (default: only the totals and the causes)
 //!   --backends  also write every module with the SPIR-V writer wgpu uses on Vulkan (Android)
@@ -216,8 +216,10 @@ fn report(name: &str, path: &Path, opts: &Options) {
         feature_notes.len(),
         start.elapsed().as_millis()
     );
-    let ranked =
-        industrial_era_shaders::Values::profiles_by_cost(&shaders, &industrial_era_shaders::options(&pack));
+    let ranked = industrial_era_shaders::Values::profiles_by_cost(
+        &shaders,
+        &industrial_era_shaders::options(&pack),
+    );
     let ranked: Vec<String> = ranked.iter().map(|(n, c)| format!("{n} {c:.1}")).collect();
     println!(
         "   profiles, lightest first (what Auto reads): {}",

@@ -916,7 +916,10 @@ mod tests {
             summary,
             [
                 ("industrial-era.pages.music.menu", vec!["one"]),
-                ("industrial-era.pages.music.overworld", vec!["shared", "second"]),
+                (
+                    "industrial-era.pages.music.overworld",
+                    vec!["shared", "second"]
+                ),
                 // A biome pool's own track, from the pool that plays it.
                 (
                     "industrial-era.pages.music.overworld_biomes",

@@ -178,7 +178,11 @@ fn a_stages_files_are_its_own() {
     );
     pack.manifest.post[0].files.push("only_post.wgsl".into());
     let file = pack.manifest.post[0].file.clone();
-    let post = industrial_era_shader_api::compose(&pack, industrial_era_shader_api::StageKind::Post, &file);
+    let post = industrial_era_shader_api::compose(
+        &pack,
+        industrial_era_shader_api::StageKind::Post,
+        &file,
+    );
     let names: Vec<_> = post.parts.iter().map(|p| p.0.as_str()).collect();
     let (extra, own) = (
         names.iter().position(|n| *n == "only_post.wgsl").unwrap(),
@@ -186,8 +190,11 @@ fn a_stages_files_are_its_own() {
     );
     assert!(extra < own, "{names:?}");
     let material = pack.manifest.material.clone().unwrap().file;
-    let other =
-        industrial_era_shader_api::compose(&pack, industrial_era_shader_api::StageKind::Material, &material);
+    let other = industrial_era_shader_api::compose(
+        &pack,
+        industrial_era_shader_api::StageKind::Material,
+        &material,
+    );
     assert!(other.parts.iter().all(|p| p.0 != "only_post.wgsl"));
     assert!(pack.manifest.files().contains(&"only_post.wgsl"));
     check(&pack).unwrap();

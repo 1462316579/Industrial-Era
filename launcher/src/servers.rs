@@ -106,7 +106,7 @@ fn trash_stopped_server(
     {
         return Err("This is not a server folder.".into());
     }
-    let state = dir.join(".industrial-era");
+    let state = dir.join(".industrial_era");
     fs::create_dir_all(&state).map_err(|e| e.to_string())?;
     // The supervisor holds this same lock throughout starting, running and stopping.
     // Hold it through the move so a stale UI/API status cannot delete a live server.
@@ -844,7 +844,7 @@ fn service_suffix(dir: &Path) -> String {
 
 // ----- The running server: its control API -------------------------------------------------------
 
-/// The running supervisor's control API (`.industrial-era/api.json`: its address and token).
+/// The running supervisor's control API (`.industrial_era/api.json`: its address and token).
 #[derive(Clone, Debug)]
 pub struct Api {
     address: String,
@@ -854,7 +854,7 @@ pub struct Api {
 impl Api {
     /// The API of the server running in `dir`, if one runs.
     pub fn open(dir: &Path) -> Option<Self> {
-        let text = fs::read_to_string(dir.join(".industrial-era/api.json")).ok()?;
+        let text = fs::read_to_string(dir.join(".industrial_era/api.json")).ok()?;
         let v: Value = serde_json::from_str(&text).ok()?;
         Some(Self {
             address: v["address"].as_str()?.to_string(),

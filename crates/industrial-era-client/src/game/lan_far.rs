@@ -1,5 +1,5 @@
 //! Far terrain for a server's Industrial Era clients (`industrial_era_client::lod_net`): a
-//! `industrial-era:lod` request is checked against the player's limits and position,
+//! `industrial_era:lod` request is checked against the player's limits and position,
 //! then sampled from the level the player is in on the far terrain thread.
 //! The replies come back here and leave with the tick's other packets. A
 //! refused request is answered at once, so the client knows to ask again.
@@ -27,7 +27,7 @@ fn send(sender: &PlayerSender, data: Vec<u8>) {
 }
 
 impl Game<'_> {
-    /// A `industrial-era:lod` payload from `conn`.
+    /// A `industrial_era:lod` payload from `conn`.
     pub(super) fn guest_far_terrain(&mut self, host: &mut LanHost, conn: u32, data: &[u8]) {
         let Some(far) = host.far.as_mut() else {
             return;

@@ -1,6 +1,6 @@
 //! Structure libraries' enhanced terrain adaptation: YUNG's API's and
 //! MoogsStructureLib's, which their Beardifier mixins add to vanilla's
-//! density. Carried as `"industrial-era:enhanced_terrain_adaptation"` on a structure
+//! density. Carried as `"industrial_era:enhanced_terrain_adaptation"` on a structure
 //! and on its pool elements (docs/mods.md); the kernel itself is
 //! [`TerrainKernel`].
 use super::{

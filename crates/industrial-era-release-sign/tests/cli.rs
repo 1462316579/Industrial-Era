@@ -12,7 +12,11 @@ fn folder(name: &str) -> PathBuf {
     ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
-    std::fs::write(dir.join("industrial-era-linux-x86_64.tar.gz"), b"linux build").unwrap();
+    std::fs::write(
+        dir.join("industrial-era-linux-x86_64.tar.gz"),
+        b"linux build",
+    )
+    .unwrap();
     std::fs::write(dir.join("industrial-era-windows-x64.zip"), b"windows build").unwrap();
     let sums = industrial_era_release_sign::sums_file(&[
         (

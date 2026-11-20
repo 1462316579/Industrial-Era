@@ -192,7 +192,10 @@ pub fn open(root: &Path) -> Option<Arc<PreparedFiles>> {
             Ok(files) => files.map(Arc::new),
             Err(e) if e.kind() == io::ErrorKind::NotFound => None,
             Err(e) => {
-                eprintln!("Industrial Era: {} not used: {e}", root.join(FILE_NAME).display());
+                eprintln!(
+                    "Industrial Era: {} not used: {e}",
+                    root.join(FILE_NAME).display()
+                );
                 None
             }
         }
@@ -489,7 +492,7 @@ mod tests {
 
         write(&root).unwrap();
         // A mirror of the root (a resource pack's, a content mod's) holding a
-        // copy of its file and its industrial-era-resources.json.
+        // copy of its file and its industrial_era-resources.json.
         let mirror =
             std::env::temp_dir().join(format!("hz-prepared-mirror-{}", std::process::id()));
         let _ = fs::remove_dir_all(&mirror);

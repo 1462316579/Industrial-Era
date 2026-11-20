@@ -511,7 +511,8 @@ impl Camera {
     pub fn near_plane(&self, fov: f32, width: f32, height: f32) -> NearPlane {
         let z_near = f64::from(0.05f32);
         let aspect = f64::from(width) / f64::from(height);
-        let plane_height = industrial_era_core::jmath::tan(f64::from(fov * DEG_TO_RAD) / 2.0) * z_near;
+        let plane_height =
+            industrial_era_core::jmath::tan(f64::from(fov * DEG_TO_RAD) / 2.0) * z_near;
         let scale = |v: [f32; 3], by: f64| v.map(|c| f64::from(c) * by);
         NearPlane {
             forward: scale(self.forwards, z_near),

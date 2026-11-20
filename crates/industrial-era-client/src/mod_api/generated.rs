@@ -1455,7 +1455,7 @@ pub trait Hooks: Send + Sync {
     /// with this one, so `native_tell` and the other helpers that take a UUID
     /// reach nobody here: answer through `replies`. Once for each command a
     /// player sends, on a server, and for each line of a quiet command batch
-    /// (`industrial-era:quiet_commands`, whose replies are dropped). A command the
+    /// (`industrial_era:quiet_commands`, whose replies are dropped). A command the
     /// server refuses before reading it (unsigned chat arguments, the chat
     /// rate limit) never reaches it. 95.
     ///
@@ -2414,7 +2414,7 @@ pub trait Hooks: Send + Sync {
     /// `minecraft:crafting`, `minecraft:lectern`, a mod's own), `pos` the
     /// block it is of in `dimension` (none for a trade, a vehicle's, a mod's
     /// native menu or a mount's inventory, which has no menu type in vanilla
-    /// and is told as `industrial-era:mount_inventory`). The player's own inventory
+    /// and is told as `industrial_era:mount_inventory`). The player's own inventory
     /// is not one. Heard once a tick, so a menu opened and closed again
     /// inside one tick is not; one that replaces another comes after that
     /// one's close. The player's state is swapped in. `native_player_container_close`
@@ -8603,7 +8603,10 @@ pub fn dispatch_living_breathe(
 pub struct BlocksEvent<'a> {
     pub blocks: &'a mut Vec<industrial_era_mods::content::Block>,
 }
-pub fn dispatch_blocks(mods: &[Box<dyn Hooks>], blocks: &mut Vec<industrial_era_mods::content::Block>) {
+pub fn dispatch_blocks(
+    mods: &[Box<dyn Hooks>],
+    blocks: &mut Vec<industrial_era_mods::content::Block>,
+) {
     let mut event = BlocksEvent { blocks };
     for mod_hook in super::entered(mods, "blocks") {
         mod_hook.blocks(&mut event);
@@ -8614,7 +8617,10 @@ pub fn dispatch_blocks(mods: &[Box<dyn Hooks>], blocks: &mut Vec<industrial_era_
 pub struct ItemsEvent<'a> {
     pub items: &'a mut Vec<industrial_era_mods::content::Item>,
 }
-pub fn dispatch_items(mods: &[Box<dyn Hooks>], items: &mut Vec<industrial_era_mods::content::Item>) {
+pub fn dispatch_items(
+    mods: &[Box<dyn Hooks>],
+    items: &mut Vec<industrial_era_mods::content::Item>,
+) {
     let mut event = ItemsEvent { items };
     for mod_hook in super::entered(mods, "items") {
         mod_hook.items(&mut event);

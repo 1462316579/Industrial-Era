@@ -1388,14 +1388,16 @@ impl LootContext<'_> {
             damage: None,
             player: None,
             block: (!self.block.is_empty()).then_some(self.block),
-            tool: self.held.map(|h| industrial_era_world::loot::NativeLootTool {
-                item: h.item.to_string(),
-                enchantments: h
-                    .enchantments()
-                    .iter()
-                    .map(|(id, lvl)| (id.to_string(), *lvl as i32))
-                    .collect(),
-            }),
+            tool: self
+                .held
+                .map(|h| industrial_era_world::loot::NativeLootTool {
+                    item: h.item.to_string(),
+                    enchantments: h
+                        .enchantments()
+                        .iter()
+                        .map(|(id, lvl)| (id.to_string(), *lvl as i32))
+                        .collect(),
+                }),
             luck: 0.0,
             biome: None,
             seed: random.next_long(),
@@ -1931,7 +1933,13 @@ impl LootContext<'_> {
                 // does in the main loot engine.
                 k if k.contains(':') && !k.starts_with("minecraft:") => {
                     let ctx = self.native_loot_context(random);
-                    mod_function(k, f, &ctx, stack, industrial_era_world::loot::native_loot_function);
+                    mod_function(
+                        k,
+                        f,
+                        &ctx,
+                        stack,
+                        industrial_era_world::loot::native_loot_function,
+                    );
                 }
                 _ => {}
             }
@@ -2079,7 +2087,11 @@ fn mod_function(
 /// `DispensibleContainerItem`: shared contents for hand use and dispensers.
 pub fn bucket_contents(
     item: &str,
-) -> Option<(industrial_era_world::level::BucketContent, &str, Option<&str>)> {
+) -> Option<(
+    industrial_era_world::level::BucketContent,
+    &str,
+    Option<&str>,
+)> {
     use industrial_era_world::{fluid::FluidKind, level::BucketContent as C};
     Some(match item {
         "minecraft:water_bucket" => (
@@ -2682,8 +2694,10 @@ mod tests {
     /// A content root's remainders reach the mods' items; vanilla's stay its own.
     #[test]
     fn mod_items_take_their_crafting_remainders() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-craft-remainders-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-craft-remainders-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(root.join("data/minecraft/loot_table")).unwrap();
         let items = r#"{"minecraft:bowl": {}, "minecraft:milk_bucket": {}, "ruby:stew": {}}"#;

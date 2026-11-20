@@ -34,7 +34,10 @@ pub(super) struct Contraption {
 }
 
 impl Contraption {
-    pub(super) fn read(tag: &Tag, registry: &industrial_era_world::registry::BlockRegistry) -> Self {
+    pub(super) fn read(
+        tag: &Tag,
+        registry: &industrial_era_world::registry::BlockRegistry,
+    ) -> Self {
         let float = |k: &str| match tag.get(k) {
             Some(Tag::Float(bits)) => f32::from_bits(*bits),
             _ => 0.0,

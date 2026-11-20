@@ -159,7 +159,7 @@ fn mkdir(path: &Path) -> Result<(), String> {
 }
 
 /// The lock file each preparation holds in the folders it writes (`LOCK`).
-pub const LOCK: &str = ".industrial-era-prepare.lock";
+pub const LOCK: &str = ".industrial_era-prepare.lock";
 
 /// One preparation at a time per folder: two launchers or instances preparing into one `--output`,
 /// or sharing `root`'s `.local`, would interleave their writes. A second one waits, saying so;
@@ -178,7 +178,7 @@ pub(crate) fn hold_lock(dir: &Path, log: Log) -> Result<fs::File, String> {
         Ok(()) => {}
         Err(fs::TryLockError::WouldBlock) => {
             log(&format!(
-                "Waiting for another industrial-era-prepare to finish with {}",
+                "Waiting for another industrial_era-prepare to finish with {}",
                 dir.display()
             ));
             wait_preparation_lock(&file).map_err(error)?;
@@ -1061,7 +1061,7 @@ fn steps(
             "entity-types-export.log",
         )?;
         // Block classes, instance configuration and per-state support/signal/fluid
-        // facts for industrial-era-world's level behaviour (level::Behaviours::load).
+        // facts for industrial_era-world's level behaviour (level::Behaviours::load).
         run.stage();
         let behaviour = single(
             "block behaviours",
@@ -1691,7 +1691,10 @@ mod tests {
 
     #[test]
     fn an_output_in_the_scratch_folder_is_one_folder_however_it_is_named() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-prepare-same-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-same-{}",
+            std::process::id()
+        ));
         let local = dir.join(".local");
         assert!(same_dir(&local, &dir.join("x").join("..").join(".local")).unwrap());
         assert!(!same_dir(&local, &local.join("industrial-era-client")).unwrap());
@@ -1702,8 +1705,10 @@ mod tests {
 
     #[test]
     fn datagen_reports_are_installed_beside_resources_and_missing_reports_need_repair() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-prepare-reports-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-reports-{}",
+            std::process::id()
+        ));
         let root = dir.join("resources");
         let reports = dir.join("reports");
         mkdir(&root).unwrap();
@@ -1823,8 +1828,10 @@ mod tests {
 
     #[test]
     fn stamps_skip_an_export_only_while_its_inputs_and_outputs_are_unchanged() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-prepare-stamp-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-stamp-{}",
+            std::process::id()
+        ));
         let outputs = [dir.join("out/a.json"), dir.join("out/b.nbt")];
         mkdir(&dir.join("out")).unwrap();
         for output in &outputs {
@@ -1861,8 +1868,10 @@ mod tests {
     #[test]
     fn client_resources_are_extracted_once_and_repaired_when_damaged() {
         use std::io::Write;
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-prepare-extract-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-extract-{}",
+            std::process::id()
+        ));
         mkdir(&dir).unwrap();
         let jar = dir.join("client.jar");
         let mut archive = zip::ZipWriter::new(fs::File::create(&jar).unwrap());
@@ -1921,7 +1930,8 @@ mod tests {
     #[test]
     fn clones_of_a_jar_read_on_their_own() {
         use std::io::Write;
-        let dir = std::env::temp_dir().join(format!("industrial-era-prepare-jar-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-prepare-jar-{}", std::process::id()));
         mkdir(&dir).unwrap();
         let path = dir.join("a.jar");
         let mut archive = zip::ZipWriter::new(fs::File::create(&path).unwrap());

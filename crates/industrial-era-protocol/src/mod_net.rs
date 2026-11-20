@@ -12,7 +12,7 @@ use crate::{
 };
 
 /// The custom payload channel, both ways.
-pub const CHANNEL: &str = "industrial-era:mod_net";
+pub const CHANNEL: &str = "industrial_era:mod_net";
 /// Characters in each half of a message's channel at most.
 pub const MAX_PART: usize = 64;
 /// Bytes of a message's data at most: a serverbound payload may hold
@@ -105,7 +105,7 @@ mod tests {
             "cells:Has Spaces",
             "cells:a:b",
             "minecraft:brand",
-            "industrial-era:mod_net",
+            "industrial_era:mod_net",
         ] {
             assert!(!channel_ok(bad), "{bad}");
         }

@@ -95,7 +95,9 @@ impl Game<'_> {
         match owner {
             Owner::Block(p) => {
                 let size = match self.world.block_entities.get(&(p[0], p[1], p[2])) {
-                    Some(industrial_era_client::containers::BlockEntity::Chest(items)) => items.len(),
+                    Some(industrial_era_client::containers::BlockEntity::Chest(items)) => {
+                        items.len()
+                    }
                     _ => 0,
                 };
                 for i in 0..size {
@@ -978,7 +980,10 @@ impl Game<'_> {
 }
 
 /// Edit a stack's components as their saved compound.
-fn edit_components(stack: &mut ItemStack, f: impl FnOnce(&mut industrial_era_world::nbt::Compound)) {
+fn edit_components(
+    stack: &mut ItemStack,
+    f: impl FnOnce(&mut industrial_era_world::nbt::Compound),
+) {
     let mut c = match industrial_era_client::item_data::encode_components(stack) {
         Some(Tag::Compound(c)) => c,
         _ => industrial_era_world::nbt::Compound::new(),

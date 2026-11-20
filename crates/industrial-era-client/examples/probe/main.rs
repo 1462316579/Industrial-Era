@@ -1,4 +1,4 @@
-//! Every industrial-era-client parity probe in one binary: `probe <name> [arguments]` runs `<name>.rs` as its own
+//! Every industrial_era-client parity probe in one binary: `probe <name> [arguments]` runs `<name>.rs` as its own
 //! example did (tools/test_*_parity.py, tools/oracle_harness.py, tools/audio_harness.py). Linking ~80 examples,
 //! each with the whole client in it, was most of the parity job's probe build; one binary builds it once.
 //!

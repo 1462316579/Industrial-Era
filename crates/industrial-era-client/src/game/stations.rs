@@ -1300,7 +1300,10 @@ impl Game<'_> {
     }
     /// Ctrl+A/C/V/X in the anvil's rename box (an `EditBox` of 50) or the
     /// recipe book's search box.
-    pub(super) fn station_shortcut(&mut self, shortcut: industrial_era_client::clipboard::EditShortcut) {
+    pub(super) fn station_shortcut(
+        &mut self,
+        shortcut: industrial_era_client::clipboard::EditShortcut,
+    ) {
         if self.recipe_search_focused() {
             self.recipe_shortcut(shortcut);
             return;
@@ -1728,7 +1731,10 @@ impl Game<'_> {
                             let mut lines =
                                 vec![(industrial_era_client::text::Text::literal(clue), u32::MAX)];
                             if !self.creative {
-                                lines.push((industrial_era_client::text::Text::literal(""), u32::MAX));
+                                lines.push((
+                                    industrial_era_client::text::Text::literal(""),
+                                    u32::MAX,
+                                ));
                                 if level < cost {
                                     lines.push((
                                         industrial_era_client::text::Text::literal(
@@ -1935,7 +1941,10 @@ impl Game<'_> {
                             self.gui
                                 .atlas
                                 .font
-                                .split_lines(&industrial_era_client::text::Text::literal(text), 115.0)
+                                .split_lines(
+                                    &industrial_era_client::text::Text::literal(text),
+                                    115.0,
+                                )
                                 .into_iter()
                                 .map(|(line, _)| (line, u32::MAX))
                                 .collect(),
@@ -2127,19 +2136,23 @@ impl Game<'_> {
         let display = industrial_era_client::item_tooltip::TooltipDisplay::for_stack(stack);
         let mut lines = Vec::new();
         if !nested && display.name_visible(self.screen == Screen::Creative) {
-            let name =
-                industrial_era_client::item_tooltip::styled_name(stack, || self.stack_hover_name(stack));
+            let name = industrial_era_client::item_tooltip::styled_name(stack, || {
+                self.stack_hover_name(stack)
+            });
             lines.push((name, color));
         }
         let translate = |k: &str| self.pack.names.display_get(k);
-        let push = |lines: &mut Vec<(industrial_era_client::text::Text, u32)>, s: String, c: u32| {
-            lines.push((industrial_era_client::text::Text::legacy(&s), c));
-        };
+        let push =
+            |lines: &mut Vec<(industrial_era_client::text::Text, u32)>, s: String, c: u32| {
+                lines.push((industrial_era_client::text::Text::legacy(&s), c));
+            };
         let gray = rgba(170, 170, 170, 255);
         let item_info = self.items().get(&stack.item);
         // SmithingTemplateItem.appendHoverText: `Item.appendHoverText` comes
         // before the components.
-        for (text, c) in industrial_era_client::item_tooltip::smithing_template_lines(stack, &translate) {
+        for (text, c) in
+            industrial_era_client::item_tooltip::smithing_template_lines(stack, &translate)
+        {
             push(&mut lines, text, c);
         }
         // HangingEntityItem.appendHoverText: a painting's variant, its title,
@@ -2148,7 +2161,8 @@ impl Game<'_> {
             use industrial_era_client::text::Text;
             if let Some(v) = self.painting_variants.of_stack(stack) {
                 for part in [&v.title, &v.author].into_iter().flatten() {
-                    let text = industrial_era_client::component::to_text(part, &mut |_| Text::empty());
+                    let text =
+                        industrial_era_client::component::to_text(part, &mut |_| Text::empty());
                     lines.push((text, u32::MAX));
                 }
                 let size = [v.width, v.height].map(|n| Text::literal(n.to_string()));
@@ -2160,7 +2174,10 @@ impl Game<'_> {
                     .is_none()
             {
                 let random = Text::translate("painting.random", &[]);
-                lines.push((random.with_color(industrial_era_client::text::GRAY), u32::MAX));
+                lines.push((
+                    random.with_color(industrial_era_client::text::GRAY),
+                    u32::MAX,
+                ));
             }
         }
         // TropicalFish.Pattern.addToTooltip.
@@ -2179,13 +2196,15 @@ impl Game<'_> {
             .and_then(|d| d.map_id)
             .and_then(|id| self.maps.data.get(&id))
             .map(|m| (m.locked, m.scale));
-        for text in
-            industrial_era_client::item_tooltip::map_id_lines(stack, &display, advanced, map, &translate)
-        {
+        for text in industrial_era_client::item_tooltip::map_id_lines(
+            stack, &display, advanced, map, &translate,
+        ) {
             push(&mut lines, text, gray);
         }
         // Bees.addToTooltip.
-        if let Some(text) = industrial_era_client::item_tooltip::bees_line(stack, &display, &translate) {
+        if let Some(text) =
+            industrial_era_client::item_tooltip::bees_line(stack, &display, &translate)
+        {
             push(&mut lines, text, gray);
         }
         // ItemContainerContents.addToTooltip.
@@ -2203,7 +2222,10 @@ impl Game<'_> {
         }
         // BannerPatternLayers.addToTooltip: up to six layer names.
         if display.shows("minecraft:banner_patterns") {
-            for layer in industrial_era_client::banner::tooltip_layers(stack).iter().take(6) {
+            for layer in industrial_era_client::banner::tooltip_layers(stack)
+                .iter()
+                .take(6)
+            {
                 let key = self.stations().banners.layer_key(layer);
                 push(
                     &mut lines,
@@ -2213,7 +2235,9 @@ impl Game<'_> {
             }
         }
         // WrittenBookContent.addToTooltip.
-        for text in industrial_era_client::item_tooltip::written_book_lines(stack, &display, &translate) {
+        for text in
+            industrial_era_client::item_tooltip::written_book_lines(stack, &display, &translate)
+        {
             push(&mut lines, text, gray);
         }
         // ChargedProjectiles.addToTooltip: each run of equal projectiles, then
@@ -2288,15 +2312,16 @@ impl Game<'_> {
                 push(&mut lines, text, c);
             }
             // The attribute modifiers of the effects (`When Applied:`).
-            for (text, c) in industrial_era_client::item_tooltip::potion_modifier_lines(stack, &translate)
+            for (text, c) in
+                industrial_era_client::item_tooltip::potion_modifier_lines(stack, &translate)
             {
                 push(&mut lines, text, c);
             }
         }
         // JukeboxPlayable.addToTooltip.
-        if let Some(text) =
-            industrial_era_client::item_tooltip::jukebox_line(stack, item_info, &display, &translate)
-        {
+        if let Some(text) = industrial_era_client::item_tooltip::jukebox_line(
+            stack, item_info, &display, &translate,
+        ) {
             push(&mut lines, text, gray);
         }
         if display.shows("minecraft:trim")
@@ -2384,9 +2409,11 @@ impl Game<'_> {
                     ),
                 ]
             });
-            for (text, c) in
-                industrial_era_client::item_tooltip::attribute_lines(&modifiers, player_base, &translate)
-            {
+            for (text, c) in industrial_era_client::item_tooltip::attribute_lines(
+                &modifiers,
+                player_base,
+                &translate,
+            ) {
                 push(&mut lines, text, c);
             }
         }
@@ -2413,7 +2440,9 @@ impl Game<'_> {
             push(&mut lines, text, c);
         }
         // BlockItemStateProperties.addToTooltip.
-        if let Some(text) = industrial_era_client::item_tooltip::honey_line(stack, &display, &translate) {
+        if let Some(text) =
+            industrial_era_client::item_tooltip::honey_line(stack, &display, &translate)
+        {
             push(&mut lines, text, gray);
         }
         // TypedEntityData.addToTooltip: a spawn egg of a monster in Peaceful.
@@ -2511,7 +2540,8 @@ impl Game<'_> {
             .into_iter()
             .enumerate()
             {
-                let text = industrial_era_client::text::Text::legacy(&self.translate(key, fallback));
+                let text =
+                    industrial_era_client::text::Text::legacy(&self.translate(key, fallback));
                 lines.push((
                     if i == 0 { text.bold() } else { text },
                     rgba(255, 85, 85, 255),
@@ -2689,7 +2719,8 @@ impl Game<'_> {
         let lines = Self::resolved(&lines);
         // The component's height does not depend on where it is drawn, so a
         // probe at the origin gives the box its extra height.
-        let probe = industrial_era_client::bundle::tooltip_layout(self.items(), stack, 0.0, 0.0, 96.0);
+        let probe =
+            industrial_era_client::bundle::tooltip_layout(self.items(), stack, 0.0, 0.0, 96.0);
         let bundle_extra = probe.as_ref().map_or(0.0, |l| l.height + 2.0);
         let mut component = None;
         self.native_tooltip_component(stack, &mut component);
@@ -2708,9 +2739,13 @@ impl Game<'_> {
         self.tooltip_box(batch, Some(stack), x, y, w, h);
         let text_h = h - extra;
         Self::tooltip_text(batch, atlas, &lines, x, y);
-        if let Some(layout) =
-            industrial_era_client::bundle::tooltip_layout(self.items(), stack, x, y + text_h + 2.0, w)
-        {
+        if let Some(layout) = industrial_era_client::bundle::tooltip_layout(
+            self.items(),
+            stack,
+            x,
+            y + text_h + 2.0,
+            w,
+        ) {
             self.draw_bundle_tooltip(batch, &layout);
             self.draw_bundle_selected_name(batch, &layout, x, y + text_h + 2.0, w);
         }
@@ -2738,8 +2773,9 @@ impl Game<'_> {
         let Some((_, stack)) = layout.selected.and_then(|i| layout.slots.get(i)) else {
             return;
         };
-        let name =
-            industrial_era_client::item_tooltip::styled_name(stack, || self.stack_hover_name(stack));
+        let name = industrial_era_client::item_tooltip::styled_name(stack, || {
+            self.stack_hover_name(stack)
+        });
         let lines = Self::resolved(&[(name, self.rarity_color(stack))]);
         let atlas = &self.gui.atlas;
         let tw = atlas.font.width_text(&lines[0].0);

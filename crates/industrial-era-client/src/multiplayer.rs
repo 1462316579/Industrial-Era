@@ -509,7 +509,10 @@ fn draw_server_icon(
     x: f32,
     y: f32,
 ) {
-    let sprite = format!("industrial-era/world-icon{}", slot % crate::hud::WORLD_ICON_SLOTS);
+    let sprite = format!(
+        "industrial-era/world-icon{}",
+        slot % crate::hud::WORLD_ICON_SLOTS
+    );
     if let Some(pixels) = pixels
         && let Some(rect) = atlas.sprites.get(&sprite)
     {
@@ -2258,7 +2261,8 @@ mod tests {
 
     #[test]
     fn the_official_server_is_added_once_at_the_top() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-official-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-official-{}", std::process::id()));
         let (name, address) = OFFICIAL_SERVER;
         let file = dir.join("servers.dat");
         let ips = || -> Vec<String> { servers::load(&file).into_iter().map(|s| s.ip).collect() };
@@ -2302,7 +2306,8 @@ mod tests {
 
     #[test]
     fn a_moved_official_server_moves_the_old_entry_once() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-moved-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-moved-{}", std::process::id()));
         let address = OFFICIAL_SERVER.1;
         let file = dir.join("servers.dat");
         let marker = dir.join(OFFICIAL_MARKER);
@@ -2329,9 +2334,16 @@ mod tests {
             format!("{address}\n")
         );
         // Once: the old address added back afterwards is the player's.
-        servers::prepend(&file, &ServerEntry::new("Old", "industrial-era.bunchy7s.dev")).unwrap();
+        servers::prepend(
+            &file,
+            &ServerEntry::new("Old", "industrial-era.bunchy7s.dev"),
+        )
+        .unwrap();
         add_official_server(&dir).unwrap();
-        assert_eq!(ips(), ["industrial-era.bunchy7s.dev", "127.0.0.1:2", address]);
+        assert_eq!(
+            ips(),
+            ["industrial-era.bunchy7s.dev", "127.0.0.1:2", address]
+        );
         // The new address already listed: no second entry.
         offered_before(&[
             ServerEntry::new("Old", "industrial-era.bunchy7s.dev"),
@@ -2340,7 +2352,10 @@ mod tests {
         add_official_server(&dir).unwrap();
         assert_eq!(ips(), [address]);
         // Deleted by the player before the move: not offered again; another port is left alone.
-        offered_before(&[ServerEntry::new("Test", "industrial-era.bunchy7s.dev:25570")]);
+        offered_before(&[ServerEntry::new(
+            "Test",
+            "industrial-era.bunchy7s.dev:25570",
+        )]);
         add_official_server(&dir).unwrap();
         assert_eq!(ips(), ["industrial-era.bunchy7s.dev:25570"]);
         let _ = std::fs::remove_dir_all(&dir);
@@ -2348,7 +2363,8 @@ mod tests {
 
     #[test]
     fn arrow_keys_select_servers_and_shift_moves_them() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-keys-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-keys-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
         let file = servers_file(&saves);
@@ -2397,7 +2413,8 @@ mod tests {
 
     #[test]
     fn enter_joins_the_selected_server() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-enter-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-enter-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
         let file = servers_file(&saves);
@@ -2432,7 +2449,8 @@ mod tests {
 
     #[test]
     fn icon_arrows_join_and_move_servers() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-arrows-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-arrows-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
         let file = servers_file(&saves);
@@ -2491,7 +2509,8 @@ mod tests {
 
     #[test]
     fn delete_asks_before_removing_the_server() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-delete-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-delete-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
         let file = servers_file(&saves);
@@ -2557,7 +2576,8 @@ mod tests {
 
     #[test]
     fn edit_cycles_and_saves_the_server_resource_pack_setting() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mp-packs-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mp-packs-{}", std::process::id()));
         let saves = dir.join("saves");
         std::fs::create_dir_all(&saves).unwrap();
         let file = servers_file(&saves);

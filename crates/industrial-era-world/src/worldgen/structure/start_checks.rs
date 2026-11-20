@@ -5,11 +5,11 @@
 //! in a radius must be one the structure allows, the start column may not
 //! end in liquid, and the terrain in a radius must lie within a height range.
 //! Carry (`industrial-era-port-pack`) maps those structures to `minecraft:jigsaw`
-//! and writes the checks under `"industrial-era:start_checks"`; vanilla data never
+//! and writes the checks under `"industrial_era:start_checks"`; vanilla data never
 //! has the key, so vanilla structures are unchanged.
 //!
 //! ```json
-//! "industrial-era:start_checks": {
+//! "industrial_era:start_checks": {
 //!   "biome_radius": 2,        // chunks; every noise biome must be allowed
 //!   "liquid": "top",          // "top": the column's highest block; "lowest": the block above min_y
 //!   "terrain_radius": 1,      // chunks, with terrain_range and/or min_y, max_y
@@ -104,7 +104,7 @@ impl<T: super::start::StartContext> CheckQueries for T {
 }
 
 impl StartChecks {
-    /// `"industrial-era:start_checks"` of a structure, or none.
+    /// `"industrial_era:start_checks"` of a structure, or none.
     pub fn decode(value: Option<&Value>) -> Self {
         let Some(v) = value else {
             return Self::default();

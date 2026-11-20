@@ -1,7 +1,9 @@
 //! Transport for placement decoding, emissions, failures and random state.
 use crate::support::placement_queries as queries;
 use industrial_era_core::random::{LegacyRandom, RandomSource, XoroshiroRandom};
-use industrial_era_world::worldgen::{anchor::WorldGenerationContext, placement::PlacementModifier};
+use industrial_era_world::worldgen::{
+    anchor::WorldGenerationContext, placement::PlacementModifier,
+};
 use serde_json::Value;
 use std::cell::RefCell;
 use std::{

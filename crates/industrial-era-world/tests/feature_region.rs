@@ -253,7 +253,10 @@ fn query_bindings_reject_foreign_registries_and_preserve_resolved_tag_snapshot()
         region.fluid_state([-1, 0, 0]),
         Err(PlacementQueryError::Unavailable)
     );
-    let tags = BTreeMap::from([("industrial-era:ground".into(), vec!["minecraft:stone".into()])]);
+    let tags = BTreeMap::from([(
+        "industrial_era:ground".into(),
+        vec!["minecraft:stone".into()],
+    )]);
     // Deliberately make the water tag contain EMPTY, not water, to catch a
     // hard-coded water-family check instead of resolved tag membership.
     let fluids = BTreeMap::from([("minecraft:water".into(), vec!["minecraft:empty".into()])]);
@@ -276,12 +279,12 @@ fn query_bindings_reject_foreign_registries_and_preserve_resolved_tag_snapshot()
         .unwrap();
     assert!(
         region
-            .block_matches_tag([-1, 0, 0], "industrial-era:ground")
+            .block_matches_tag([-1, 0, 0], "industrial_era:ground")
             .unwrap()
     );
     assert!(
         !region
-            .block_matches_tag([-1, 0, 0], "industrial-era:missing")
+            .block_matches_tag([-1, 0, 0], "industrial_era:missing")
             .unwrap()
     );
     assert!(region.water_at([-1, 0, 0]).unwrap());

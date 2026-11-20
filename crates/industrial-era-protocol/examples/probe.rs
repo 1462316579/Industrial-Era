@@ -2,7 +2,7 @@
 //! seconds, reporting packet counts and any decode failures. A differential
 //! check of the codecs against a real vanilla server:
 //!
-//!     cargo run -p industrial-era-protocol --example protocol_probe -- 127.0.0.1:25565 [seconds] [registries.json]
+//!     cargo run -p industrial_era-protocol --example protocol_probe -- 127.0.0.1:25565 [seconds] [registries.json]
 use industrial_era_protocol::{
     PROTOCOL_VERSION, State,
     connection::Connection,
@@ -118,8 +118,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             Err(e) => return Err(e.into()),
         };
-        let name =
-            ids::name(State::Play, industrial_era_protocol::Direction::Clientbound, id).unwrap_or("?");
+        let name = ids::name(
+            State::Play,
+            industrial_era_protocol::Direction::Clientbound,
+            id,
+        )
+        .unwrap_or("?");
         let entry = counts.entry(name).or_default();
         entry.0 += 1;
         match play::Clientbound::decode(id, &payload) {

@@ -1,6 +1,6 @@
 //! `industrial-era-ctl mcp`: the Model Context Protocol over stdin and stdout
 //! (JSON-RPC 2.0, one message per line, like the launcher's `mcp`), so AI
-//! agents can play Industrial Era. Each tool is a industrial-era-ctl command from the
+//! agents can play Industrial Era. Each tool is a industrial_era-ctl command from the
 //! shared table, run through the same `Session` as the CLI.
 use crate::{Session, commands};
 use serde_json::{Value, json};
@@ -11,7 +11,11 @@ const INSTRUCTIONS: &str = "Play Industrial Era, a Rust reimplementation of Mine
 /// The revisions this server advertises: `industrial_era_mcp` serves them (`2026-07-28` stateless,
 /// `2025-06-18` for the clients that still open with `initialize`).
 fn server() -> industrial_era_mcp::Server<'static> {
-    industrial_era_mcp::Server::new("industrial-era-ctl", industrial_era_core::release::VERSION, INSTRUCTIONS)
+    industrial_era_mcp::Server::new(
+        "industrial-era-ctl",
+        industrial_era_core::release::VERSION,
+        INSTRUCTIONS,
+    )
 }
 
 fn tools() -> Vec<Value> {
@@ -63,7 +67,8 @@ impl Session {
             );
         };
         if cmd.name == "screenshot" {
-            let path = std::env::temp_dir().join(format!("industrial-era-ctl-{}.png", std::process::id()));
+            let path =
+                std::env::temp_dir().join(format!("industrial-era-ctl-{}.png", std::process::id()));
             let result = if industrial_era_client::control::is_remote(&self.socket) {
                 self.remote_screenshot()
             } else {
@@ -190,7 +195,10 @@ mod tests {
 
     #[test]
     fn protocol_basics() {
-        let mut s = Session::new(std::env::temp_dir().join("industrial-era-ctl-mcp-test.sock"), None);
+        let mut s = Session::new(
+            std::env::temp_dir().join("industrial-era-ctl-mcp-test.sock"),
+            None,
+        );
         let mut app = |method: &str, params: &Value| s.handle(method, params);
         let server = server();
         let line = |method: &str, params: Value| {
@@ -213,7 +221,10 @@ mod tests {
             industrial_era_mcp::VERSION_KEY.to_owned(),
             json!(industrial_era_mcp::MODERN),
         );
-        meta.insert(industrial_era_mcp::CLIENT_CAPABILITIES_KEY.to_owned(), json!({}));
+        meta.insert(
+            industrial_era_mcp::CLIENT_CAPABILITIES_KEY.to_owned(),
+            json!({}),
+        );
         let params = json!({ "_meta": Value::Object(meta) });
         let list = server
             .handle_line(&line("tools/list", params), &mut app)

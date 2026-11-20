@@ -40,7 +40,11 @@ impl Notice {
 }
 
 /// The prompts' and notices' box: dark, a faint edge.
-fn panel(batch: &mut HudBatch, atlas: &industrial_era_client::hud::HudAtlas, [px, py, pw, ph]: [f32; 4]) {
+fn panel(
+    batch: &mut HudBatch,
+    atlas: &industrial_era_client::hud::HudAtlas,
+    [px, py, pw, ph]: [f32; 4],
+) {
     batch.fill(atlas, px, py, pw, ph, rgba(0, 0, 0, 210));
     let edge = rgba(255, 255, 255, 90);
     for [x, y, fw, fh] in [

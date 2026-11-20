@@ -127,9 +127,14 @@ fn with_mesh(root: &Path, name: &str, mut model: CuboidModel) -> CuboidModel {
     let Some(source) = &model.obj else {
         return model;
     };
-    match industrial_era_assets::obj::read_mesh(source, |path| fs::read_to_string(root.join(path)).ok()) {
+    match industrial_era_assets::obj::read_mesh(source, |path| {
+        fs::read_to_string(root.join(path)).ok()
+    }) {
         Ok(faces) => model.mesh = Some(Arc::new(faces)),
-        Err(e) => log::warn!("Industrial Era: model {name}'s OBJ mesh {}: {e}", source.model),
+        Err(e) => log::warn!(
+            "Industrial Era: model {name}'s OBJ mesh {}: {e}",
+            source.model
+        ),
     }
     model
 }
@@ -158,15 +163,19 @@ mod tests {
 
     #[test]
     fn shared_views_preserve_resolution_errors_builtins_and_reload() -> Result<()> {
-        let fixture = Fixture(
-            std::env::temp_dir().join(format!("industrial-era-shared-models-{}", std::process::id())),
+        let fixture = Fixture(std::env::temp_dir().join(format!(
+            "industrial-era-shared-models-{}",
+            std::process::id()
+        )));
+        fixture.write("industrial_era:parent", r##"{"textures":{"side":"#all","all":"block/stone"},"elements":[{"from":[0,0,0],"to":[16,8,16],"faces":{"up":{"texture":"#side"}}}]}"##);
+        fixture.write("industrial_era:nested/child", r#"{"parent":"industrial_era:parent","textures":{"all":"block/glass"},"display":{"gui":{"rotation":[30,45,0]}}}"#);
+        fixture.write("industrial_era:broken", "{");
+        fixture.write(
+            "industrial_era:dangling",
+            r#"{"parent":"industrial_era:absent"}"#,
         );
-        fixture.write("industrial-era:parent", r##"{"textures":{"side":"#all","all":"block/stone"},"elements":[{"from":[0,0,0],"to":[16,8,16],"faces":{"up":{"texture":"#side"}}}]}"##);
-        fixture.write("industrial-era:nested/child", r#"{"parent":"industrial-era:parent","textures":{"all":"block/glass"},"display":{"gui":{"rotation":[30,45,0]}}}"#);
-        fixture.write("industrial-era:broken", "{");
-        fixture.write("industrial-era:dangling", r#"{"parent":"industrial-era:absent"}"#);
-        fixture.write("industrial-era:a", r#"{"parent":"industrial-era:b"}"#);
-        fixture.write("industrial-era:b", r#"{"parent":"industrial-era:a"}"#);
+        fixture.write("industrial_era:a", r#"{"parent":"industrial_era:b"}"#);
+        fixture.write("industrial_era:b", r#"{"parent":"industrial_era:a"}"#);
         fixture.write(
             GENERATED_MODEL,
             r#"{"elements":[{"from":[0,0,0],"to":[1,1,1],"faces":{"up":{"texture":"particle"}}}],"gui_light":"side"}"#,
@@ -175,21 +184,29 @@ mod tests {
         let parsed = ParsedModels::load(&fixture.0);
         let direct = ParsedModels::default();
         let names = vec![
-            "industrial-era:nested/child".into(),
+            "industrial_era:nested/child".into(),
             GENERATED_MODEL.into(),
             MISSING_MODEL.into(),
-            "industrial-era:a".into(),
+            "industrial_era:a".into(),
         ];
         let old = direct.block_library(&fixture.0, names.clone())?;
         let shared = parsed.block_library(&fixture.0, names)?;
-        for name in ["industrial-era:nested/child", GENERATED_MODEL, MISSING_MODEL] {
+        for name in [
+            "industrial_era:nested/child",
+            GENERATED_MODEL,
+            MISSING_MODEL,
+        ] {
             assert_eq!(
                 format!("{:?}", old.resolve(name)?),
                 format!("{:?}", shared.resolve(name)?)
             );
         }
-        assert!(shared.resolve("industrial-era:a").is_err());
-        for name in ["industrial-era:broken", "industrial-era:absent", "industrial-era:dangling"] {
+        assert!(shared.resolve("industrial_era:a").is_err());
+        for name in [
+            "industrial_era:broken",
+            "industrial_era:absent",
+            "industrial_era:dangling",
+        ] {
             let load = |models: &ParsedModels| {
                 models
                     .block_library(&fixture.0, vec![name.into()])
@@ -207,8 +224,8 @@ mod tests {
             );
         }
         let items = parsed.into_item_library()?;
-        let block = shared.resolve("industrial-era:nested/child")?;
-        let item = items.resolve("industrial-era:nested/child")?;
+        let block = shared.resolve("industrial_era:nested/child")?;
+        let item = items.resolve("industrial_era:nested/child")?;
         assert!(std::ptr::eq(
             block.elements().as_ptr(),
             item.elements().as_ptr()
@@ -221,30 +238,36 @@ mod tests {
         assert!(items.resolve(GENERATED_MODEL)?.elements().is_empty());
         assert!(items.resolve(GENERATED_MODEL)?.uses_item_generator());
         for name in [
-            "industrial-era:broken",
-            "industrial-era:absent",
-            "industrial-era:dangling",
+            "industrial_era:broken",
+            "industrial_era:absent",
+            "industrial_era:dangling",
             MISSING_MODEL,
         ] {
             assert_eq!(items.resolve(name)?.elements().len(), 1);
         }
-        assert!(items.resolve("industrial-era:a").is_err());
-        fixture.write("industrial-era:parent", r#"{"elements":[]}"#);
+        assert!(items.resolve("industrial_era:a").is_err());
+        fixture.write("industrial_era:parent", r#"{"elements":[]}"#);
         let reloaded = ParsedModels::load(&fixture.0).into_item_library()?;
         assert!(
             reloaded
-                .resolve("industrial-era:nested/child")?
+                .resolve("industrial_era:nested/child")?
                 .elements()
                 .is_empty()
         );
-        assert_eq!(items.resolve("industrial-era:nested/child")?.elements().len(), 1);
+        assert_eq!(
+            items
+                .resolve("industrial_era:nested/child")?
+                .elements()
+                .len(),
+            1
+        );
         // An unrelated bad item identifier must not make block preparation fail
         // (which would trigger resource-pack rollback at a different stage).
-        fixture.write("industrial-era:INVALID", "{}");
+        fixture.write("industrial_era:INVALID", "{}");
         let parsed = ParsedModels::load(&fixture.0);
         assert!(
             parsed
-                .block_library(&fixture.0, vec!["industrial-era:nested/child".into()])
+                .block_library(&fixture.0, vec!["industrial_era:nested/child".into()])
                 .is_ok()
         );
         assert!(parsed.into_item_library().is_err());

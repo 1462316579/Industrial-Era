@@ -42,7 +42,7 @@ pub fn note(shared: &Shared, level: &str, message: &str) {
 
 /// The folder's lock: one supervisor per server folder. Released when the process ends, even by a crash.
 pub fn lock(dir: &Path) -> Result<File, String> {
-    let state = dir.join(".industrial-era");
+    let state = dir.join(".industrial_era");
     std::fs::create_dir_all(&state).map_err(|e| format!("{}: {e}", state.display()))?;
     let file = File::options()
         .create(true)
@@ -298,7 +298,7 @@ fn switch(
     let Some(install) = shared.install.as_ref() else {
         shared.finish_update(
             false,
-            "Not updated: this industrial-era-server wasn't installed".into(),
+            "Not updated: this industrial_era-server wasn't installed".into(),
         );
         return None;
     };
@@ -732,8 +732,10 @@ mod tests {
     #[cfg(unix)]
     fn installed(name: &str, releases: &[(&str, i32)]) -> (Arc<Shared>, std::path::PathBuf) {
         use std::os::unix::fs::PermissionsExt;
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-server-sw-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-server-sw-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         let root = {
             std::fs::create_dir_all(&root).unwrap();
@@ -889,7 +891,8 @@ mod tests {
 
     #[test]
     fn one_supervisor_per_folder() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-lock-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-server-lock-{}", std::process::id()));
         let first = lock(&dir).unwrap();
         assert!(lock(&dir).unwrap_err().contains("already running"));
         drop(first);

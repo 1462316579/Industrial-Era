@@ -251,7 +251,10 @@ mod tests {
     #[test]
     fn the_reserved_namespace_names_only_files_inside_the_root() {
         // A pack's own `industrial_era_cit` namespace would map back to another file.
-        assert_eq!(sprite_id("assets/industrial_era_cit/textures/item/x.png"), None);
+        assert_eq!(
+            sprite_id("assets/industrial_era_cit/textures/item/x.png"),
+            None
+        );
         // A model may write any id: only ones inside the root name a file.
         for id in [
             "industrial_era_cit:../../etc/x",
@@ -271,7 +274,11 @@ mod tests {
     fn both_id_forms_find_their_file() {
         let root = Path::new("/r");
         assert_eq!(
-            texture_path(root, "industrial_era_cit:minecraft/optifine/cit/a", "textures"),
+            texture_path(
+                root,
+                "industrial_era_cit:minecraft/optifine/cit/a",
+                "textures"
+            ),
             root.join("assets/minecraft/optifine/cit/a.png")
         );
         assert_eq!(
@@ -282,7 +289,8 @@ mod tests {
 
     #[test]
     fn rule_models_load_with_their_relative_textures_and_parents() {
-        let root = std::env::temp_dir().join(format!("industrial-era-cit-models-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-cit-models-{}", std::process::id()));
         let cit = root.join("assets/minecraft/optifine/cit");
         fs::create_dir_all(cit.join("swords")).unwrap();
         let write = |rel: &str, text: &str| fs::write(cit.join(rel), text).unwrap();
@@ -294,8 +302,9 @@ mod tests {
             "base.json",
             r#"{"parent":"item/handheld","textures":{"layer2":"./glow.png"}}"#,
         );
-        let props =
-            industrial_era_optifine::Properties::parse_equals_first("items=stick\nmodel=./swords/flame");
+        let props = industrial_era_optifine::Properties::parse_equals_first(
+            "items=stick\nmodel=./swords/flame",
+        );
         let rule = Rule::parse("assets/minecraft/optifine/cit/a.properties", &props, |p| {
             root.join(p).is_file()
         })

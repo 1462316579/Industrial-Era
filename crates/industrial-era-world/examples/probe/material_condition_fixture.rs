@@ -372,7 +372,7 @@ impl RuleData {
     ) -> Result<MaterialRuleLibrary, Box<dyn std::error::Error>> {
         let mut definitions = self.definitions.clone();
         if let Some(query) = query {
-            definitions.insert("industrial-era:query".to_owned(), query.to_owned());
+            definitions.insert("industrial_era:query".to_owned(), query.to_owned());
         }
         let blocks = BlockStateJsonCodec::new(&self.blocks, self.integers.clone())?;
         let densities = DensityRegistry::from_json(noises, &self.densities)?;

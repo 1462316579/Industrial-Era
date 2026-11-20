@@ -15,7 +15,7 @@ use std::{
 /// The `custom_data` key holding an exploration map's search until the game
 /// runs it (vanilla runs `ExplorationMapFunction` when the chest is unpacked,
 /// on first open; here loot is rolled with the chunk).
-const PENDING_MAP: &str = "industrial-era:exploration_map";
+const PENDING_MAP: &str = "industrial_era:exploration_map";
 const CUSTOM_DATA: &str = "minecraft:custom_data";
 
 /// A generated chest's item, with its exploration map search kept in
@@ -79,7 +79,9 @@ pub fn loot_item_with_components(s: &industrial_era_world::loot::LootStack) -> I
 }
 
 /// The exploration map search an item still waits for, removed from it.
-pub fn take_pending_map(item: &mut ItemStack) -> Option<industrial_era_world::loot::ExplorationMap> {
+pub fn take_pending_map(
+    item: &mut ItemStack,
+) -> Option<industrial_era_world::loot::ExplorationMap> {
     let data = item.extra.as_deref_mut()?;
     let i = data
         .other
@@ -138,7 +140,9 @@ fn load_loot(root: &Path, overlay: &industrial_era_world::loot::PackOverlay) -> 
     let data = match LootData::load(root, overlay) {
         Ok(data) => Some(Arc::new(data)),
         Err(e) => {
-            log::warn!("Industrial Era: loot tables unavailable, structure containers stay empty: {e}");
+            log::warn!(
+                "Industrial Era: loot tables unavailable, structure containers stay empty: {e}"
+            );
             None
         }
     };
@@ -148,7 +152,10 @@ fn load_loot(root: &Path, overlay: &industrial_era_world::loot::PackOverlay) -> 
 /// Loot data of the resource root with the world's packs over it, loaded
 /// once per process (a world open with other packs, or `/reload`, loads it
 /// again).
-pub fn loot_data(root: &Path, overlay: &industrial_era_world::loot::PackOverlay) -> Option<Arc<LootData>> {
+pub fn loot_data(
+    root: &Path,
+    overlay: &industrial_era_world::loot::PackOverlay,
+) -> Option<Arc<LootData>> {
     let mut loot = LOOT.lock().unwrap_or_else(|e| e.into_inner());
     loot.get_or_insert_with(|| load_loot(root, overlay))
         .1
@@ -410,7 +417,8 @@ mod tests {
     #[test]
     fn a_world_open_reuses_loot_data_of_the_same_packs() {
         use industrial_era_world::loot::PackOverlay;
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-reuse-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-reuse-{}", std::process::id()));
         std::fs::create_dir_all(root.join("data/minecraft/loot_table")).unwrap();
         std::fs::write(root.join("items.json"), "{}").unwrap();
         let mut slot = None;

@@ -46,7 +46,10 @@ impl Game<'_> {
             return;
         };
         // The acting player must be the saved owner (`getOwner`).
-        if !industrial_era_client::mobs::tame::owned_by(self.mobs[i].extra.owner, self.acting_uuid()) {
+        if !industrial_era_client::mobs::tame::owned_by(
+            self.mobs[i].extra.owner,
+            self.acting_uuid(),
+        ) {
             return;
         }
         if self.riding.is_some()

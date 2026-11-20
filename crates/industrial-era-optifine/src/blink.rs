@@ -139,8 +139,10 @@ mod tests {
     use super::*;
 
     fn pack(name: &str, files: &[(&str, &str)]) -> (std::path::PathBuf, Blinks) {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-blink-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-blink-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         for (path, text) in files {
             let path = root.join(path);

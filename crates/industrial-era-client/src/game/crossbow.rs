@@ -162,7 +162,10 @@ impl Game<'_> {
     }
     /// `Monster.getProjectile`: the projectile `weapon` supports in the off
     /// hand, then the main hand (`getHeldProjectile`), else a new arrow.
-    fn mob_vanilla_ammo(extra: &industrial_era_client::mobs::Extra, weapon: &ItemStack) -> ItemStack {
+    fn mob_vanilla_ammo(
+        extra: &industrial_era_client::mobs::Extra,
+        weapon: &ItemStack,
+    ) -> ItemStack {
         let supported =
             |s: &ItemStack| is_arrow(s) || &*weapon.item == CROSSBOW && &*s.item == FIREWORK_ROCKET;
         extra

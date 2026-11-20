@@ -550,7 +550,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         .tags
         .keys()
         .cloned()
-        .chain(std::iter::once("industrial-era:absent".into()))
+        .chain(std::iter::once("industrial_era:absent".into()))
         .collect();
     let mut out = io::BufWriter::new(fs::File::create(dir.join("rust.txt"))?);
     let zones: Value = serde_json::from_str(&fs::read_to_string(dir.join("zones.json"))?)?;

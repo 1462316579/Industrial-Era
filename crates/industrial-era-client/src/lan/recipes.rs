@@ -73,7 +73,8 @@ pub(super) fn overlay_recipes(
     out: &mut BTreeMap<String, Value>,
 ) {
     for (id, files) in overlay.kind("recipe") {
-        if let Ok(v) = serde_json::from_slice::<Value>(industrial_era_world::loot::PackOverlay::top(files))
+        if let Ok(v) =
+            serde_json::from_slice::<Value>(industrial_era_world::loot::PackOverlay::top(files))
         {
             out.insert(id.to_owned(), v);
         }
@@ -278,8 +279,11 @@ pub fn update_recipes(all: &BTreeMap<String, Box<str>>, sync: &SyncData) -> Vec<
         }
         w.varint(item_stack);
         w.varint(
-            item(industrial_era_world::loot::recipe_result_id(&r["result"]).unwrap_or("minecraft:air"))
-                .unwrap_or(0),
+            item(
+                industrial_era_world::loot::recipe_result_id(&r["result"])
+                    .unwrap_or("minecraft:air"),
+            )
+            .unwrap_or(0),
         );
         w.varint(r["result"]["count"].as_i64().unwrap_or(1) as i32);
         w.varint(0); // no components added
@@ -291,7 +295,7 @@ pub fn update_recipes(all: &BTreeMap<String, Box<str>>, sync: &SyncData) -> Vec<
 /// The Industrial Era channel a server sends its clients the recipes its native mods
 /// asked for (`native_datapack_sync`), NeoForge's
 /// `OnDatapackSyncEvent.sendRecipes`. Industrial Era clients only.
-pub const CONTENT_CHANNEL: &str = "industrial-era:recipe_content";
+pub const CONTENT_CHANNEL: &str = "industrial_era:recipe_content";
 /// `ClientboundCustomPayloadPacket`'s cap on a payload, less room for the
 /// envelope.
 const CONTENT_MAX: usize = 1_048_576 - 1024;

@@ -55,7 +55,7 @@ pub struct EntityMemory {
 /// (`PersistentEntitySectionManager.addNewEntity`: `/summon`, a portal
 /// arrival), not an entity loaded from disk. Taken off before the compound
 /// is kept or saved.
-const FRESH_ADD: &str = "industrial-era:fresh_add";
+const FRESH_ADD: &str = "industrial_era:fresh_add";
 
 /// Queue `tag` with the chunk loads as a fresh add.
 pub(super) fn mark_fresh(tag: &mut Tag) {
@@ -68,7 +68,7 @@ pub(super) fn mark_fresh(tag: &mut Tag) {
 /// moving within its level (an End gateway: `Entity.teleport` takes
 /// `teleportSameDimension`, which moves the entity without removing it), so
 /// it doesn't join the level again. Taken off like [`FRESH_ADD`].
-const SAME_LEVEL_MOVE: &str = "industrial-era:same_level_move";
+const SAME_LEVEL_MOVE: &str = "industrial_era:same_level_move";
 
 /// Queue `tag` with the chunk loads as an entity moving within its level.
 pub(super) fn mark_moved(tag: &mut Tag) {
@@ -125,8 +125,9 @@ fn read_attachments(
     maps: &mut HashMap<[i32; 4], industrial_era_world::attachments::Attachments>,
 ) {
     if let Ok(Some(data)) = attachment_compound(tag.get(ATTACHMENTS_KEY)) {
-        maps.entry(uuid)
-            .or_insert_with(|| industrial_era_world::attachments::Attachments::from_nbt(data.clone()));
+        maps.entry(uuid).or_insert_with(|| {
+            industrial_era_world::attachments::Attachments::from_nbt(data.clone())
+        });
     }
 }
 
@@ -215,9 +216,10 @@ impl Game<'_> {
             }
         }
         if let Some(t) = self.world.inhabited.get(&(chunk.x, chunk.z)) {
-            extras
-                .root
-                .insert("InhabitedTime".into(), industrial_era_world::nbt::Tag::Long(*t));
+            extras.root.insert(
+                "InhabitedTime".into(),
+                industrial_era_world::nbt::Tag::Long(*t),
+            );
         }
         chunk.saved = Some(Arc::new(extras));
     }
@@ -579,8 +581,9 @@ impl Game<'_> {
                             }
                             b.velocity = velocity;
                             // AbstractBoat.readAdditionalSaveData: the lead's holder.
-                            b.leash_pending =
-                                industrial_era_client::mobs::leash::pending_from_nbt(tag.get("leash"));
+                            b.leash_pending = industrial_era_client::mobs::leash::pending_from_nbt(
+                                tag.get("leash"),
+                            );
                             self.remember(id, uuid, tag);
                             self.boats.push(b);
                             for rider in riders {
@@ -656,15 +659,16 @@ impl Game<'_> {
                             self.next_entity += 1;
                             let id = self.next_entity;
                             self.remember(id, uuid, tag);
-                            self.paintings.push(industrial_era_client::entities::Painting {
-                                id,
-                                pos,
-                                facing,
-                                variant: v.id,
-                                width: v.width,
-                                height: v.height,
-                                check_interval: 0,
-                            });
+                            self.paintings
+                                .push(industrial_era_client::entities::Painting {
+                                    id,
+                                    pos,
+                                    facing,
+                                    variant: v.id,
+                                    width: v.width,
+                                    height: v.height,
+                                    check_interval: 0,
+                                });
                         } else {
                             self.persist.unknown.entry(key).or_default().push(tag);
                         }
@@ -700,7 +704,7 @@ impl Game<'_> {
         let mut tag = tag;
         let mut finalize = false;
         if let Tag::Compound(c) = &mut tag {
-            finalize = c.remove(&"industrial-era:finalize".into()).is_some();
+            finalize = c.remove(&"industrial_era:finalize".into()).is_some();
         }
         let riders = self.take_mob_passengers(&mut tag);
         let mut m = entity_nbt::mob_from_nbt(
@@ -716,9 +720,11 @@ impl Game<'_> {
         // end time, and the mob is angry at the target again, through
         // `Mob.setTarget` -> `asValidTarget`: a player the golem cannot attack
         // (`IronGolem.canAttack`) comes back as no target.
-        m.extra.anger = industrial_era_client::mobs::anger_left(m.extra.anger_end, self.world.game_time);
+        m.extra.anger =
+            industrial_era_client::mobs::anger_left(m.extra.anger_end, self.world.game_time);
         if m.extra.anger > 0 && m.extra.angry_at.is_some() {
-            m.ai.target = (!m.built_by_player()).then_some(industrial_era_client::mobs::Who::Player);
+            m.ai.target =
+                (!m.built_by_player()).then_some(industrial_era_client::mobs::Who::Player);
         }
         m.extra.mount = mount;
         m.extra.passenger = mount.is_some();
@@ -1048,8 +1054,10 @@ impl Game<'_> {
         if industrial_era_client::mobs::camel::is_camel(self.mobs[i].species())
             && let Tag::Compound(c) = &mut tag
         {
-            let tick =
-                industrial_era_client::mobs::camel::synced_pose_tick(&self.mobs[i], self.world.game_time);
+            let tick = industrial_era_client::mobs::camel::synced_pose_tick(
+                &self.mobs[i],
+                self.world.game_time,
+            );
             c.insert("LastPoseTick".into(), Tag::Long(tick));
         }
         self.write_leash(&mut tag, i);
@@ -1688,7 +1696,7 @@ fn anon_uuid_raw(persist: &EntityMemory, kind: &str, at: Vec3) -> ([i32; 4], Opt
 /// Only a mob is finalized; another entity drops the request.
 fn strip_finalize(tag: &mut Tag) {
     if let Tag::Compound(c) = tag {
-        c.remove(&"industrial-era:finalize".into());
+        c.remove(&"industrial_era:finalize".into());
     }
 }
 /// `riders` under `tag`'s `Passengers`, after the passengers it kept from

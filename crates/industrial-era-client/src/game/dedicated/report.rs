@@ -211,7 +211,9 @@ impl Game<'_> {
                     "Industrial Era: performance report written to {}\n{text}",
                     path.display()
                 ),
-                Err(e) => log::error!("Industrial Era: could not write the performance report: {e}"),
+                Err(e) => {
+                    log::error!("Industrial Era: could not write the performance report: {e}")
+                }
             }
         });
     }

@@ -385,7 +385,10 @@ impl Game<'_> {
             self.send_pack_status(id, status);
         }
     }
-    fn start_pack_downloads(&mut self, requests: Vec<industrial_era_client::server_packs::Request>) {
+    fn start_pack_downloads(
+        &mut self,
+        requests: Vec<industrial_era_client::server_packs::Request>,
+    ) {
         let state = &mut self.server_packs;
         if state.queue.is_none() {
             let dir = std::env::current_dir()
@@ -405,10 +408,12 @@ impl Game<'_> {
                         .notifiers
                         .push(PackNotifier::new(events, requests.len()));
                     let failed = requests.iter().map(|r| r.id).collect();
-                    state.packs.downloaded(industrial_era_client::server_packs::Batch {
-                        downloaded: Vec::new(),
-                        failed,
-                    });
+                    state
+                        .packs
+                        .downloaded(industrial_era_client::server_packs::Batch {
+                            downloaded: Vec::new(),
+                            failed,
+                        });
                     return;
                 }
             }

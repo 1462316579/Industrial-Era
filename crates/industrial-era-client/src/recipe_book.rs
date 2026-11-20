@@ -769,7 +769,8 @@ impl RecipeIndex {
                     first_display: 0,
                     station: crafting_station(kind),
                     notify: v["show_notification"].as_bool().unwrap_or(true),
-                    result: industrial_era_world::loot::recipe_result_id(&v["result"]).map(str::to_owned),
+                    result: industrial_era_world::loot::recipe_result_id(&v["result"])
+                        .map(str::to_owned),
                 },
             );
         };
@@ -784,7 +785,9 @@ impl RecipeIndex {
             mods
         };
         let conditions_hold = |v: &serde_json::Value| {
-            industrial_era_world::conditions::conditions_hold(v, &|id: &str| mods.iter().any(|m| m == id))
+            industrial_era_world::conditions::conditions_hold(v, &|id: &str| {
+                mods.iter().any(|m| m == id)
+            })
         };
         // The whole folder, `brewing/` under it too, in id order
         // (`SimpleJsonResourceReloadListener` walks it recursively): a
@@ -1061,8 +1064,10 @@ mod tests {
 
     #[test]
     fn mod_category_mapping_validates_ids_icons_and_conflicts() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-book-categories-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-book-categories-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&root).unwrap();
         std::fs::write(
             root.join("items.json"),
@@ -1141,7 +1146,8 @@ mod tests {
     }
     #[test]
     fn the_index_knows_each_recipes_toast_station_and_result() {
-        let root = std::env::temp_dir().join(format!("industrial-era-toast-index-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-toast-index-{}", std::process::id()));
         let dir = root.join("data/minecraft/recipe");
         std::fs::create_dir_all(&dir).unwrap();
         for (name, json) in [
@@ -1296,8 +1302,10 @@ mod tests {
     }
     #[test]
     fn a_knowledge_book_unlocks_its_recipes_and_is_used_up() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-knowledge-book-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-knowledge-book-{}",
+            std::process::id()
+        ));
         let dir = root.join("data/minecraft/recipe");
         std::fs::create_dir_all(&dir).unwrap();
         for name in ["stick", "crafting_table", "torch"] {

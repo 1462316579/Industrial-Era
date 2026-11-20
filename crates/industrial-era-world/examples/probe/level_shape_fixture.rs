@@ -126,7 +126,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .map(|c| c.queued())
                     .unwrap_or_default()
                 {
-                    let name = industrial_era_world::fluid::FluidKind::ALL[tick.kind.0 as usize].name();
+                    let name =
+                        industrial_era_world::fluid::FluidKind::ALL[tick.kind.0 as usize].name();
                     scheduled.insert(format!(
                         "{name}@{},{},{}+{}p{}",
                         tick.pos.x, tick.pos.y, tick.pos.z, tick.trigger_tick, tick.priority as i32

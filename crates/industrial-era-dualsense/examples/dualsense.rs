@@ -1,7 +1,7 @@
 //! Plays each output on a real DualSense and reads back what the pad reports, so a change to the
 //! reports can be checked without the game:
 //!
-//!     cargo run -p industrial-era-dualsense --example dualsense -- [status|rumble|lightbar|leds|triggers|link|all|watch]
+//!     cargo run -p industrial_era-dualsense --example dualsense -- [status|rumble|lightbar|leds|triggers|link|all|watch]
 //!
 //! The pad's input report carries the triggers' active effect, and its accelerometer and gyro
 //! pick up the motors, so `rumble` measures the shake against the pad lying still.
@@ -262,7 +262,10 @@ fn link() {
     }
     println!("  open over {:?} after {:?}", link.open(), start.elapsed());
     link.set(State {
-        triggers: [TRIGGER_OFF, industrial_era_dualsense::trigger::weapon(2, 6, 6)],
+        triggers: [
+            TRIGGER_OFF,
+            industrial_era_dualsense::trigger::weapon(2, 6, 6),
+        ],
         lightbar: Some([0x8b, 0x5c, 0xf6]),
         player_leds: Some(0b00100),
     });

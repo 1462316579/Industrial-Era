@@ -11,7 +11,7 @@ pub const DIR: &str = "shaderpacks";
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Kind {
     /// A folder with `industrial-era-shaders.toml`, or a `.hshader`.
-    Industrial Era,
+    IndustrialEra,
     /// A folder with a `shaders` folder, or a `.zip`.
     Classic,
 }
@@ -98,7 +98,7 @@ fn entry(path: &Path) -> Option<Entry> {
         return Some(Entry {
             file,
             title,
-            kind: Kind::Industrial Era,
+            kind: Kind::IndustrialEra,
             options,
             values,
             pages,
@@ -240,14 +240,19 @@ mod tests {
 
     #[test]
     fn lists_both_kinds_industrial_era_first_and_skips_the_rest() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-shader-list-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-shader-list-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let d = dir.as_path();
         let manifest = "schema = 1\nid = \"warm\"\nname = \"Warm Light\"\nversion = \"1\"\n\
             api = \"0.1\"\n[[post]]\nfile = \"p.wgsl\"\n";
         std::fs::create_dir(d.join("warm")).unwrap();
-        std::fs::write(d.join("warm").join(industrial_era_shader_api::MANIFEST), manifest).unwrap();
+        std::fs::write(
+            d.join("warm").join(industrial_era_shader_api::MANIFEST),
+            manifest,
+        )
+        .unwrap();
         std::fs::create_dir_all(d.join("Classic Folder/shaders")).unwrap();
         std::fs::write(d.join("archive.zip"), b"").unwrap();
         std::fs::write(d.join("notes.txt"), b"").unwrap();
@@ -261,7 +266,7 @@ mod tests {
         assert_eq!(
             listed,
             [
-                ("warm", "Warm Light", Kind::Industrial Era),
+                ("warm", "Warm Light", Kind::IndustrialEra),
                 ("archive.zip", "archive.zip", Kind::Classic),
                 ("Classic Folder", "Classic Folder", Kind::Classic),
             ]
@@ -307,8 +312,10 @@ mod tests {
         let on = OptionKind::Bool { default: true };
         assert_eq!(step_value(&on, 1.0, false), 0.0);
 
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-shader-values-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-shader-values-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let pack = dir.join("p.hshader");

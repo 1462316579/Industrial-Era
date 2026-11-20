@@ -68,7 +68,8 @@ impl Game<'_> {
                 })
             } else {
                 let w = self.mob_world_base(&[]);
-                let eye = industrial_era_core::geometry::Vec3::new(pos.x, self.mobs[i].eye_y(), pos.z);
+                let eye =
+                    industrial_era_core::geometry::Vec3::new(pos.x, self.mobs[i].eye_y(), pos.z);
                 // The sensor looks in the allay's box grown by (32, 16, 32).
                 let b = self.mobs[i].bounds();
                 let (low, high) = (b.min_position().y - 16.0, b.max_position().y + 16.0);
@@ -164,7 +165,11 @@ impl Game<'_> {
                 .into_iter()
                 .find(|p| p.uuid == uuid && !p.spectator)
                 .map(|p| {
-                    industrial_era_core::geometry::Vec3::new(p.position[0], p.position[1], p.position[2])
+                    industrial_era_core::geometry::Vec3::new(
+                        p.position[0],
+                        p.position[1],
+                        p.position[2],
+                    )
                 })
         });
         found.filter(|p| p.distance_squared(m.position) < 64.0 * 64.0)

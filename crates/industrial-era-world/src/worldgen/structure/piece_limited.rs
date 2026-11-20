@@ -2,10 +2,10 @@
 //! Structure Lib (PieceLimitedJigsawManager, the same code in both), for
 //! their structures carried over from a modpack (docs/modpacks.md). Carry
 //! maps their jigsaw types to `minecraft:jigsaw` with a
-//! `"industrial-era:piece_limited"` key; vanilla data never has it.
+//! `"industrial_era:piece_limited"` key; vanilla data never has it.
 //!
 //! ```json
-//! "industrial-era:piece_limited": {
+//! "industrial_era:piece_limited": {
 //!   "library": "moogs",            // or "repurposed": their few differences
 //!   "min_y": 40, "max_y": 120,     // y_allowance: pieces stay inside, unless buried
 //!   "burying": "lowest_corner",    // or "average_land", "lowest_side"
@@ -90,7 +90,7 @@ struct Counted {
     max: Option<i32>,
 }
 
-/// `"industrial-era:piece_limited"` of a jigsaw structure.
+/// `"industrial_era:piece_limited"` of a jigsaw structure.
 #[derive(Debug)]
 pub struct Config {
     library: Library,

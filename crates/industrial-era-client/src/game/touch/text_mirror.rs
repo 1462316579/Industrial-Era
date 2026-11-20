@@ -224,7 +224,9 @@ fn digits_set(edit: &mut EditBox, text: &str, cursor: usize, anchor: usize) {
 
 impl Game<'_> {
     /// The game rules' screen whose box takes the keys: World Options' or Create New World's.
-    fn typing_rules(&mut self) -> Option<&mut industrial_era_client::game_rules_screen::RulesScreen> {
+    fn typing_rules(
+        &mut self,
+    ) -> Option<&mut industrial_era_client::game_rules_screen::RulesScreen> {
         let rules = match self.text_context()? {
             "world" => self.world_rules()?,
             "title" => self.title.as_mut()?.creation_rules()?,

@@ -341,7 +341,10 @@ impl Keyboard {
             (Button::West, tr("industrial-era.osk.delete", "Delete")),
             (Button::North, tr("industrial-era.osk.space", "Space")),
             (Button::LeftTrigger, tr("industrial-era.osk.shift", "Shift")),
-            (Button::RightBumper, tr("industrial-era.osk.symbols", "Symbols")),
+            (
+                Button::RightBumper,
+                tr("industrial-era.osk.symbols", "Symbols"),
+            ),
             (Button::Start, tr("gui.done", "Done")),
             (Button::East, tr("industrial-era.osk.close", "Close")),
         ];

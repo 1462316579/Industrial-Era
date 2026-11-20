@@ -1564,7 +1564,8 @@ impl ArgType {
                 let id = read_identifier(reader)?;
                 let known = reg.ids("minecraft:particle_type");
                 let exists = if known.is_empty() {
-                    industrial_era_client_core::particle_type::ParticleType::from_name(&id).is_some()
+                    industrial_era_client_core::particle_type::ParticleType::from_name(&id)
+                        .is_some()
                 } else {
                     known.contains(&id)
                 };
@@ -1765,8 +1766,9 @@ impl ArgType {
                     ids.push(format!("teamkill.{c}"));
                     ids.push(format!("killedByTeam.{c}"));
                 }
-                let stat =
-                    |ty: &str, key: &str| industrial_era_client_core::scoreboard::stat_criteria(ty, key);
+                let stat = |ty: &str, key: &str| {
+                    industrial_era_client_core::scoreboard::stat_criteria(ty, key)
+                };
                 ids.extend(reg.blocks.keys().map(|b| stat("mined", b)));
                 for ty in ["crafted", "used", "broken", "picked_up", "dropped"] {
                     ids.extend(reg.items.iter().map(|i| stat(ty, i)));
@@ -1790,10 +1792,11 @@ impl ArgType {
             ArgType::Particle => {
                 let known = reg.ids("minecraft:particle_type");
                 if known.is_empty() {
-                    let names: Vec<String> = industrial_era_client_core::particle_type::ParticleType::ALL
-                        .iter()
-                        .map(|t| format!("minecraft:{}", t.name()))
-                        .collect();
+                    let names: Vec<String> =
+                        industrial_era_client_core::particle_type::ParticleType::ALL
+                            .iter()
+                            .map(|t| format!("minecraft:{}", t.name()))
+                            .collect();
                     suggest_resources(builder, &names, "");
                 } else {
                     suggest_resources(builder, known, "");

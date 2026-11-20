@@ -370,7 +370,10 @@ impl Client {
             match read_frame(&mut self.pipe)? {
                 (FRAME, frame) if ours(&frame) => {
                     if frame["evt"] == "ERROR" {
-                        log::info!("Industrial Era: Discord presence: {}", frame["data"]["message"]);
+                        log::info!(
+                            "Industrial Era: Discord presence: {}",
+                            frame["data"]["message"]
+                        );
                     }
                     return Ok(());
                 }
@@ -581,7 +584,8 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn talks_to_discord_over_its_socket() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-discord-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-discord-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("discord-ipc-0");
         let _ = std::fs::remove_file(&path);

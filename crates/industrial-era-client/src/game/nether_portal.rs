@@ -1061,15 +1061,19 @@ impl Game<'_> {
                 .and_then(|a| a.last_state)
                 .map(|s| self.state_to_nbt(s));
             let raw = self.persist_raw(id);
-            let Some(tag) =
-                industrial_era_client::entity_nbt::arrow_to_nbt(p, uuid, p.owner_uuid, in_block, raw)
-                    .or_else(|| {
-                        industrial_era_client::entity_nbt::fireball_to_nbt(p, uuid, p.owner_uuid, raw)
-                    })
-                    .or_else(|| {
-                        industrial_era_client::entity_nbt::throwable_to_nbt(p, uuid, p.owner_uuid, raw)
-                    })
-            else {
+            let Some(tag) = industrial_era_client::entity_nbt::arrow_to_nbt(
+                p,
+                uuid,
+                p.owner_uuid,
+                in_block,
+                raw,
+            )
+            .or_else(|| {
+                industrial_era_client::entity_nbt::fireball_to_nbt(p, uuid, p.owner_uuid, raw)
+            })
+            .or_else(|| {
+                industrial_era_client::entity_nbt::throwable_to_nbt(p, uuid, p.owner_uuid, raw)
+            }) else {
                 return;
             };
             self.creatures.projectiles.remove(i);

@@ -598,7 +598,9 @@ impl Game<'_> {
                     if m.extra.variant > 0 {
                         m.extra.vector[0] = -1.0;
                         m.extra.variant =
-                            industrial_era_client::mobs::copper_golem::weather_previous(m.extra.variant);
+                            industrial_era_client::mobs::copper_golem::weather_previous(
+                                m.extra.variant,
+                            );
                     }
                 }
                 _ => {}

@@ -118,7 +118,7 @@ pub fn too_new(level: u32, function: Option<&str>) -> Option<String> {
     })
 }
 
-/// The functions a mod's component imports from Industrial Era (`industrial-era:mods/*`),
+/// The functions a mod's component imports from Industrial Era (`industrial_era:mods/*`),
 /// as `interface.function`, in the component's order.
 #[cfg(feature = "index")]
 pub fn imports(wasm: &[u8]) -> Result<Vec<String>, String> {
@@ -136,8 +136,8 @@ pub fn imports(wasm: &[u8]) -> Result<Vec<String>, String> {
         };
         for import in section {
             let name = import.map_err(|e| e.to_string())?.name.name;
-            // `industrial-era:mods/render@0.1.0` → `render`.
-            let Some(interface) = name.strip_prefix("industrial-era:mods/") else {
+            // `industrial_era:mods/render@0.1.0` → `render`.
+            let Some(interface) = name.strip_prefix("industrial_era:mods/") else {
                 continue;
             };
             let interface = interface.split('@').next().unwrap_or(interface);
@@ -175,7 +175,8 @@ mod tests {
     #[test]
     fn the_mark_carries_the_level() {
         assert_eq!(read_mark(&MARK), Some(LEVEL));
-        let mut program = b"\0\x7fELF industrial-era-mod-api-level: industrial-era-mod-api-level:".to_vec();
+        let mut program =
+            b"\0\x7fELF industrial_era-mod-api-level: industrial-era-mod-api-level:".to_vec();
         program.extend_from_slice(&MARK);
         program.extend_from_slice(b"\0rest");
         assert_eq!(read_mark(&program), Some(LEVEL));
@@ -197,7 +198,9 @@ mod tests {
         assert_eq!(too_new(LEVEL, None), None);
         assert_eq!(
             too_new(LEVEL + 1, Some("render.set-sky")).as_deref(),
-            Some("made for a newer Industrial Era (it uses render.set-sky): update Industrial Era to run it")
+            Some(
+                "made for a newer Industrial Era (it uses render.set-sky): update Industrial Era to run it"
+            )
         );
     }
 }

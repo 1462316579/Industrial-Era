@@ -342,7 +342,12 @@ impl Game<'_> {
         };
         self.adv.pending_tree = std::thread::Builder::new()
             .name("industrial-era-advancements".into())
-            .spawn(move || Tree::shared(&data, &industrial_era_world::loot::PackOverlay { files: &files }))
+            .spawn(move || {
+                Tree::shared(
+                    &data,
+                    &industrial_era_world::loot::PackOverlay { files: &files },
+                )
+            })
             .ok();
     }
     pub(super) fn load_advancements(&mut self) {
@@ -515,7 +520,10 @@ impl Game<'_> {
         }
     }
     /// A dropped item as the predicates see it.
-    pub(super) fn item_entity_view(&self, e: &industrial_era_client::entities::ItemEntity) -> EntityView {
+    pub(super) fn item_entity_view(
+        &self,
+        e: &industrial_era_client::entities::ItemEntity,
+    ) -> EntityView {
         EntityView {
             kind: "minecraft:item".into(),
             position: [e.position.x, e.position.y, e.position.z],
@@ -676,7 +684,9 @@ impl Game<'_> {
                     .remove_recipes(&world_stations!(self).recipe_index, &refused);
                 if self.lan_acting.is_some() && !removed.is_empty() {
                     self.guest_packets.push(C::RecipeBookRemove(
-                        industrial_era_protocol::packets::recipes::RecipeBookRemove { ids: removed },
+                        industrial_era_protocol::packets::recipes::RecipeBookRemove {
+                            ids: removed,
+                        },
                     ));
                 }
             }
@@ -807,10 +817,9 @@ impl Game<'_> {
                         let text = Text::translate(key, &[self.player_display_text(), name]);
                         // The guests hear of the host's advancement too.
                         if let Some(host) = &self.lan {
-                            host.hub
-                                .system_message(industrial_era_client::lan::data::component_nbt(
-                                    &text.component(),
-                                ));
+                            host.hub.system_message(
+                                industrial_era_client::lan::data::component_nbt(&text.component()),
+                            );
                         }
                         self.system_message(text);
                     }
@@ -1462,7 +1471,10 @@ impl Game<'_> {
         });
     }
     /// `EnterBlockTrigger`: the block, its state properties and the player.
-    pub(super) fn trigger_enter_block(&mut self, state: industrial_era_world::registry::BlockStateId) {
+    pub(super) fn trigger_enter_block(
+        &mut self,
+        state: industrial_era_world::registry::BlockStateId,
+    ) {
         let Some(definition) = self.pack.assets.registry.state(state).cloned() else {
             return;
         };

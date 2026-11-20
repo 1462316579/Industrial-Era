@@ -152,7 +152,11 @@ impl OldWorld for SavedOldWorld {
         }
         false
     }
-    fn saved_starts(&self, x: i32, z: i32) -> Vec<industrial_era_world::worldgen::blending::SavedStart> {
+    fn saved_starts(
+        &self,
+        x: i32,
+        z: i32,
+    ) -> Vec<industrial_era_world::worldgen::blending::SavedStart> {
         self.save
             .raw_chunk(x, z)
             .map(|root| starts_of(&root.tag))

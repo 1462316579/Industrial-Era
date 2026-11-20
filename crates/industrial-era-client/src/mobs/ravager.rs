@@ -135,9 +135,9 @@ pub fn ai_step(m: &mut Mob, w: &MobWorld, events: &mut Vec<MobEvent>) {
     // through a crop destroys it, drops and all, with mobGriefing; a pitcher
     // crop (PitcherCropBlock.entityInside) goes the same way, both halves.
     if w.mob_griefing {
-        let b = m
-            .bounds()
-            .deflate(industrial_era_core::geometry::Vec3::new(1.0e-5, 1.0e-5, 1.0e-5));
+        let b = m.bounds().deflate(industrial_era_core::geometry::Vec3::new(
+            1.0e-5, 1.0e-5, 1.0e-5,
+        ));
         let (lo, hi) = (b.min_position(), b.max_position());
         for x in lo.x.floor() as i32..=hi.x.floor() as i32 {
             for y in lo.y.floor() as i32..=hi.y.floor() as i32 {

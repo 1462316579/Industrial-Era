@@ -3,7 +3,7 @@
 //! one entity's frame over and over. CPU time is the figure to compare: the wall clock counts
 //! whatever else the machine runs.
 //!
-//! `cargo run --release -p industrial-era-optifine --example cem_expr_bench`
+//! `cargo run --release -p industrial_era-optifine --example cem_expr_bench`
 
 use industrial_era_optifine::cem::expr::compile;
 use std::{hint::black_box, time::Instant};

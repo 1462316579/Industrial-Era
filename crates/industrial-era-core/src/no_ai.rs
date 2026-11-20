@@ -78,7 +78,8 @@ mod tests {
 
     #[test]
     fn set_writes_only_when_needed() {
-        let home = std::env::temp_dir().join(format!("industrial-era-no-ai-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial-era-no-ai-{}", std::process::id()));
         let _ = fs::remove_dir_all(&home);
         set(&home, false).unwrap();
         assert!(!home.join(FILE).exists(), "off needs no file");

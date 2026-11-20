@@ -1,7 +1,7 @@
 //! The stages' WGSL against the Rust definitions: the preludes compile, the
 //! frame's WGSL layout is the uploaded struct's, and
 //! docs/api/shaders-reference.md is up to date. Rewrite the reference with
-//! `HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-shader-api --test reference`.
+//! `HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-shader-api --test reference`.
 use industrial_era_shader_api::{Frame, Pack, StageKind, compose, reference};
 use std::path::Path;
 
@@ -120,6 +120,6 @@ fn the_reference_is_up_to_date() {
         .replace("\r\n", "\n");
     assert!(
         have == want,
-        "{DOC} is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-shader-api --test reference"
+        "{DOC} is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-shader-api --test reference"
     );
 }

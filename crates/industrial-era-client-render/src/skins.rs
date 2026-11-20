@@ -439,7 +439,10 @@ pub fn parse_profile(v: &serde_json::Value) -> ProfileInfo {
     ProfileInfo {
         // `createPartialProfile`: the id, else the name's offline UUID, else nil.
         id: id
-            .or_else(|| name.as_deref().map(industrial_era_protocol::crypto::offline_uuid))
+            .or_else(|| {
+                name.as_deref()
+                    .map(industrial_era_protocol::crypto::offline_uuid)
+            })
             .unwrap_or(0),
         textures,
         dynamic,
@@ -1136,7 +1139,10 @@ mod tests {
                 .unwrap();
             (out, rgba)
         };
-        let dir = std::env::temp_dir().join(format!("industrial-era-offline-skin-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-offline-skin-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("steve.png");
         for (h, model, slim) in [(64, "slim", true), (32, "classic", false), (64, "", false)] {
@@ -1311,7 +1317,8 @@ mod tests {
     /// in turn. Those drawn keep their slots; the rest wait.
     #[test]
     fn skins_drawn_last_frame_keep_their_slots() {
-        let mut d = super::Downloader::new(std::env::temp_dir().join("industrial-era-test-skin-slots"));
+        let mut d =
+            super::Downloader::new(std::env::temp_dir().join("industrial-era-test-skin-slots"));
         let skins: Vec<String> = (0..6).map(|i| format!("skins/{i}")).collect();
         for (i, s) in skins.iter().enumerate() {
             d.remember(s.clone(), vec![i as u8]);

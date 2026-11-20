@@ -238,8 +238,8 @@ impl Mob {
         zd: f64,
         max_rad: f64,
     ) -> Option<[i32; 3]> {
-        let center =
-            industrial_era_core::geometry::trig::atan2(zd, xd) - f64::from(std::f32::consts::FRAC_PI_2);
+        let center = industrial_era_core::geometry::trig::atan2(zd, xd)
+            - f64::from(std::f32::consts::FRAC_PI_2);
         let yrad = center + f64::from(2.0 * self.random.next_float() - 1.0) * max_rad;
         let dist = (min + self.random.next_double().sqrt() * (max - min))
             * f64::from(std::f32::consts::SQRT_2);

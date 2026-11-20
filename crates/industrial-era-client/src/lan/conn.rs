@@ -103,7 +103,8 @@ fn component_value(tag: &industrial_era_world::nbt::Tag) -> crate::server::json:
         Tag::List(items) => Json::Array(items.iter().map(component_value).collect()),
         Tag::Compound(map) => {
             if map.len() == 1
-                && let Some(Tag::String(t)) = map.get(&industrial_era_world::nbt::JavaString::from("text"))
+                && let Some(Tag::String(t)) =
+                    map.get(&industrial_era_world::nbt::JavaString::from("text"))
             {
                 return Json::String(t.to_string_lossy());
             }
@@ -957,18 +958,23 @@ fn login_and_configure(
     // require Industrial Era clients even when it has no custom components.
     if brand != "industrial-era"
         && (shared.config.industrial_era_clients_only
-            || industrial_era_protocol::item::custom::entries().next().is_some())
+            || industrial_era_protocol::item::custom::entries()
+                .next()
+                .is_some())
     {
         let text = if shared.config.industrial_era_clients_only {
             super::HORIZON_CLIENTS_ONLY_REASON
         } else {
             crate::content_identity::MISMATCH
         };
-        let reason = industrial_era_world::nbt::Tag::String(industrial_era_world::nbt::JavaString::from(text));
+        let reason = industrial_era_world::nbt::Tag::String(
+            industrial_era_world::nbt::JavaString::from(text),
+        );
         let _ = send(c, cfg::Clientbound::Disconnect(cfg::Disconnect { reason }));
         if let Some(log) = &shared.config.log {
-            let line =
-                format!("Disconnecting {name}: its client is \"{brand}\", not Industrial Era ({text})");
+            let line = format!(
+                "Disconnecting {name}: its client is \"{brand}\", not Industrial Era ({text})"
+            );
             (log.write)("Server thread", "INFO", &line);
         }
         lost(shared, &format!("{name} ({})", uuid_string(uuid)), text);
@@ -1011,9 +1017,9 @@ fn login_and_configure(
             c,
             cfg::Clientbound::CustomPayload(cfg::CustomPayload {
                 channel: industrial_era_protocol::mod_list::CHANNEL.into(),
-                data: industrial_era_protocol::mod_list::encode(&industrial_era_protocol::mod_list::shared(
-                    &server_mods,
-                )),
+                data: industrial_era_protocol::mod_list::encode(
+                    &industrial_era_protocol::mod_list::shared(&server_mods),
+                ),
             }),
         )?;
         send(c, cfg::Clientbound::Ping(cfg::Ping { id: 1 }))?;
@@ -1025,7 +1031,8 @@ fn login_and_configure(
                 cfg::Serverbound::CustomPayload(p)
                     if p.channel == industrial_era_protocol::mod_list::CHANNEL =>
                 {
-                    client_mods = industrial_era_protocol::mod_list::decode(&p.data).unwrap_or_default();
+                    client_mods =
+                        industrial_era_protocol::mod_list::decode(&p.data).unwrap_or_default();
                 }
                 cfg::Serverbound::Pong(p) if p.id == 1 => break,
                 cfg::Serverbound::ClientInformation(i) => info = i,
@@ -1035,9 +1042,9 @@ fn login_and_configure(
         let difference = industrial_era_protocol::mod_list::compare(&server_mods, &client_mods);
         if !difference.is_empty() {
             let text = difference.reason();
-            let reason = industrial_era_world::nbt::Tag::String(industrial_era_world::nbt::JavaString::from(
-                text.as_str(),
-            ));
+            let reason = industrial_era_world::nbt::Tag::String(
+                industrial_era_world::nbt::JavaString::from(text.as_str()),
+            );
             let _ = send(c, cfg::Clientbound::Disconnect(cfg::Disconnect { reason }));
             lost(shared, &format!("{name} ({})", uuid_string(uuid)), &text);
             return Ok(None);
@@ -1069,9 +1076,9 @@ fn login_and_configure(
             }
         }
         if !content_match {
-            let reason = industrial_era_world::nbt::Tag::String(industrial_era_world::nbt::JavaString::from(
-                crate::content_identity::MISMATCH,
-            ));
+            let reason = industrial_era_world::nbt::Tag::String(
+                industrial_era_world::nbt::JavaString::from(crate::content_identity::MISMATCH),
+            );
             let _ = send(c, cfg::Clientbound::Disconnect(cfg::Disconnect { reason }));
             lost(
                 shared,
@@ -1122,7 +1129,11 @@ const PACK_DECLINED: i32 = 1;
 
 /// ServerCommonPacketListenerImpl.handleResourcePackResponse: a player who
 /// declined the required pack is disconnected. The reason and its text.
-fn pack_rejected(shared: &Shared, name: &str, pack: u128) -> (industrial_era_world::nbt::Tag, String) {
+fn pack_rejected(
+    shared: &Shared,
+    name: &str,
+    pack: u128,
+) -> (industrial_era_world::nbt::Tag, String) {
     let reason = translatable("multiplayer.requiredTexturePrompt.disconnect", &[]);
     let Some(log) = &shared.config.log else {
         return (reason, String::new());
@@ -1503,7 +1514,11 @@ impl SharedFrames {
     }
     /// `frame::contents(body, Some(threshold))`, compressed only when no
     /// connection has sent the same body lately.
-    fn contents(&self, body: &[u8], threshold: usize) -> industrial_era_protocol::Result<Arc<[u8]>> {
+    fn contents(
+        &self,
+        body: &[u8],
+        threshold: usize,
+    ) -> industrial_era_protocol::Result<Arc<[u8]>> {
         use std::hash::BuildHasher;
         let key = (
             body.len(),
@@ -1515,7 +1530,8 @@ impl SharedFrames {
         if let Some(contents) = cache().frames.get(&key) {
             return Ok(contents.clone());
         }
-        let contents: Arc<[u8]> = industrial_era_protocol::frame::contents(body, Some(threshold))?.into();
+        let contents: Arc<[u8]> =
+            industrial_era_protocol::frame::contents(body, Some(threshold))?.into();
         let mut cache = cache();
         if cache.frames.insert(key, contents.clone()).is_none() {
             cache.order.push_back(key);

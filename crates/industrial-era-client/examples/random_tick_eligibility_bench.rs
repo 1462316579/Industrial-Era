@@ -1,5 +1,5 @@
 //! Selection cost only (not block simulation). Run with prepared client resources.
-//! cargo run --profile fast -p industrial-era-client --example random_tick_eligibility_bench -- RESOURCES
+//! cargo run --profile fast -p industrial_era-client --example random_tick_eligibility_bench -- RESOURCES
 extern crate industrial_era_client_lib as industrial_era_client;
 use industrial_era_client::{
     blocks::BlockFacts,

@@ -262,7 +262,7 @@ impl VanillaTerrain {
             if !dir.join("blocks/block-properties.nbt").exists() {
                 log::warn!(
                     "Industrial Era: the worldgen bundle lacks the block behavior exports (worldgen/blocks/*.nbt); \
-                     prepare again (the launcher, or industrial-era-prepare --prepare) to add them"
+                     prepare again (the launcher, or industrial_era-prepare --prepare) to add them"
                 );
             }
         }
@@ -484,7 +484,10 @@ impl VanillaTerrain {
     }
     /// The chunks an older version saved, which new chunks blend with
     /// (`Blender.of`).
-    pub fn set_old_world(&self, world: Arc<dyn industrial_era_world::worldgen::blending::OldWorld>) {
+    pub fn set_old_world(
+        &self,
+        world: Arc<dyn industrial_era_world::worldgen::blending::OldWorld>,
+    ) {
         self.generator.set_old_world(world);
     }
     /// The generator's resources, for what reads saved chunks the way it does.
@@ -693,7 +696,10 @@ pub fn shared_data_with(
     }
     let started = std::time::Instant::now();
     let data = GeneratorData::load_with(dir, registry, overrides)?;
-    log::info!("Industrial Era: worldgen data loaded in {:?}", started.elapsed());
+    log::info!(
+        "Industrial Era: worldgen data loaded in {:?}",
+        started.elapsed()
+    );
     for warning in data.warnings() {
         log::warn!("Industrial Era: data pack worldgen: {warning}");
     }

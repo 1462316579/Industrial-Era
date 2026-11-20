@@ -2,7 +2,7 @@
 //! server with Industrial Era's light engine and compare every SkyLight/BlockLight
 //! value with the arrays vanilla stored.
 //!
-//! cargo run --profile fast -p industrial-era-client --example probe -- light_parity \
+//! cargo run --profile fast -p industrial_era-client --example probe -- light_parity \
 //!     RESOURCES DIMENSION_DIR [--nether] [--chunks X0 Z0 X1 Z1]
 use industrial_era_client::{
     assets::Assets,

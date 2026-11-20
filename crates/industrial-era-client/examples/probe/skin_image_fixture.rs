@@ -22,7 +22,9 @@ pub fn main() -> Result<()> {
         let png = industrial_era_client::skins::base64_decode(line).ok_or("bad base64")?;
         let result = industrial_era_client::hud::decode_bytes(&png)
             .ok()
-            .and_then(|(w, h, rgba)| industrial_era_client::skins::process_legacy_skin(w, h, &rgba));
+            .and_then(|(w, h, rgba)| {
+                industrial_era_client::skins::process_legacy_skin(w, h, &rgba)
+            });
         match result {
             Some(rgba) => writeln!(out, "{}", industrial_era_client::lan::base64(&rgba))?,
             None => writeln!(out, "refused")?,

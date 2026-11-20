@@ -35,14 +35,14 @@ pub(super) enum Stage {
 pub(super) enum Card {
     Folder(Stage),
     /// Industrial Era Android's worlds and packs: true once the player picked its folder.
-    Industrial Era(bool),
+    IndustrialEra(bool),
 }
 
 #[derive(Default)]
 pub(super) struct FilesOffer {
     stage: Option<Stage>,
     /// Industrial Era Android's offer, shown when the folder's is not: true once its folder is picked.
-    industrial-era: Option<bool>,
+    industrial_era: Option<bool>,
     started: bool,
     /// Made again from a folder button (Open Pack Folder...): it shows over any screen.
     asked: bool,
@@ -86,7 +86,7 @@ pub(super) fn texts(stage: Stage) -> [&'static str; 4] {
 fn card_texts(card: Card) -> [&'static str; 4] {
     match card {
         Card::Folder(stage) => texts(stage),
-        Card::Industrial Era(false) => [
+        Card::IndustrialEra(false) => [
             "Coming from Industrial Era Android?",
             "Industrial Era Android is part of Starling now: bring your worlds and resource packs over. \
              Close Industrial Era Android first, then, in the folder that opens, tap Use this folder and \
@@ -94,7 +94,7 @@ fn card_texts(card: Card) -> [&'static str; 4] {
             "Bring them over",
             "Not now",
         ],
-        Card::Industrial Era(true) => [
+        Card::IndustrialEra(true) => [
             "Coming from Industrial Era Android?",
             "Your worlds and resource packs are on their way: the note at the top says what each \
              one added. Tap Done when they are in.",
@@ -115,8 +115,8 @@ impl Game<'_> {
         let offer = &mut self.files_offer;
         if !offer.started {
             offer.started = true;
-            let private =
-                industrial_era_client::logging::game_home() == industrial_era_client::logging::private_home();
+            let private = industrial_era_client::logging::game_home()
+                == industrial_era_client::logging::private_home();
             if private && !declined().exists() {
                 offer.stage = Some(if crate::android::file_access_allowed() {
                     Stage::Restart
@@ -128,7 +128,7 @@ impl Game<'_> {
                 && !HORIZON_LATER.load(std::sync::atomic::Ordering::Relaxed)
                 && crate::android::industrial_era_android_installed()
             {
-                offer.industrial-era = Some(false);
+                offer.industrial_era = Some(false);
             }
         }
         if matches!(offer.stage, Some(Stage::Ask | Stage::Waiting))
@@ -160,9 +160,9 @@ impl Game<'_> {
             return Some(Card::Folder(stage));
         }
         offer
-            .industrial-era
+            .industrial_era
             .filter(|_| self.title.is_some())
-            .map(Card::Industrial Era)
+            .map(Card::IndustrialEra)
     }
 
     /// A card in the middle of the title screen, the rest dimmed.
@@ -261,20 +261,20 @@ impl Game<'_> {
                 offer.stage = None;
                 offer.asked = false;
             }
-            (Card::Industrial Era(false), 0) | (Card::Industrial Era(true), 1) => {
+            (Card::IndustrialEra(false), 0) | (Card::IndustrialEra(true), 1) => {
                 if crate::android::import_industrial_era_android() {
-                    offer.industrial-era = Some(true);
+                    offer.industrial_era = Some(true);
                 } else {
                     self.imports.say_failed("No folder picker opened".into());
                 }
             }
-            (Card::Industrial Era(true), _) => {
+            (Card::IndustrialEra(true), _) => {
                 let _ = std::fs::write(industrial_era_answered(), b"");
-                offer.industrial-era = None;
+                offer.industrial_era = None;
             }
-            (Card::Industrial Era(false), _) => {
+            (Card::IndustrialEra(false), _) => {
                 HORIZON_LATER.store(true, std::sync::atomic::Ordering::Relaxed);
-                offer.industrial-era = None;
+                offer.industrial_era = None;
             }
         }
         true

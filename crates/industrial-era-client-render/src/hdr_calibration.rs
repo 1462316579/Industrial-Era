@@ -121,7 +121,7 @@ fn over(cursor: (f32, f32), (x, y, w): (f32, f32, f32)) -> bool {
 
 impl Calibration {
     pub fn new(s: &Settings) -> Self {
-        let g = &s.industrial-era;
+        let g = &s.industrial_era;
         Self {
             step: 0,
             values: [
@@ -280,7 +280,7 @@ impl Calibration {
     }
     /// Writes what the player landed on into Industrial Era's settings.
     pub fn save(&self, s: &mut Settings) {
-        let g = &mut s.industrial-era;
+        let g = &mut s.industrial_era;
         let scale = [100.0, 1.0, 1.0];
         let [black, peak, paper_white] = [0, 1, 2].map(|i| match self.auto[i] {
             Some(auto) if auto == self.values[i] => 0,
@@ -299,14 +299,14 @@ mod tests {
     #[test]
     fn calibration_saves_only_on_save() {
         let mut s = Settings::default();
-        s.industrial-era.hdr_black_level = 5;
-        let before = s.industrial-era.clone();
+        s.industrial_era.hdr_black_level = 5;
+        let before = s.industrial_era.clone();
         let mut c = Calibration::new(&s);
         assert_eq!(c.key(KeyCode::ArrowLeft), Outcome::Changed);
         assert_eq!(c.key(KeyCode::ArrowLeft), Outcome::Changed);
         assert!((c.picture(100.0).1 - 0.03).abs() < 1e-6);
         assert_eq!(c.key(KeyCode::Escape), Outcome::Cancel);
-        assert_eq!(s.industrial-era, before);
+        assert_eq!(s.industrial_era, before);
         // Black, then Peak (one step up), then Paper White, then Save.
         assert_eq!(c.key(KeyCode::Enter), Outcome::Click);
         assert_eq!(c.key(KeyCode::ArrowRight), Outcome::Changed);
@@ -314,8 +314,8 @@ mod tests {
         assert_eq!(c.picture(100.0).0, Step::PaperWhite);
         assert_eq!(c.key(KeyCode::Enter), Outcome::Save);
         c.save(&mut s);
-        assert_eq!(s.industrial-era.hdr_black_level, 3);
-        assert_eq!(s.industrial-era.hdr_peak, before.peak_nits() + 50);
-        assert_eq!(s.industrial-era.hdr_paper_white, before.hdr_paper_white);
+        assert_eq!(s.industrial_era.hdr_black_level, 3);
+        assert_eq!(s.industrial_era.hdr_peak, before.peak_nits() + 50);
+        assert_eq!(s.industrial_era.hdr_paper_white, before.hdr_paper_white);
     }
 }

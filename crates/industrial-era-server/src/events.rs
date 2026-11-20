@@ -232,8 +232,10 @@ mod tests {
     #[test]
     fn a_stream_sends_what_happens() {
         use std::io::{BufRead, BufReader};
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-events-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-events-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         let shared = Shared::with_install(&dir, None);
         shared.log_line("before".into());

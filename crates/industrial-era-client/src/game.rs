@@ -639,7 +639,8 @@ impl Options {
             resources: if sibling.join("industrial-era-resources.json").exists() {
                 sibling
             } else {
-                std::path::Path::new(".local/industrial-era-client").join(industrial_era_core::VANILLA_VERSION)
+                std::path::Path::new(".local/industrial-era-client")
+                    .join(industrial_era_core::VANILLA_VERSION)
             },
             distance: 12,
             distance_override: None,
@@ -685,13 +686,16 @@ impl Options {
             match arg.as_str() {
                 "--help" | "-h" => {
                     println!(
-                        "Industrial Era — Minecraft Java Edition {} in Rust\n\n  --resources PATH        Prepared resources (industrial-era-prepare)\n  --render-distance N     Chunks, 2..128 (default 12)\n  --world NAME            World folder under saves/ (default \"New World\")\n  --seed N                World seed for new worlds (default 0)\n  --width N, --height N   Window size (default 1280 x 720)\n  --creative              Creative mode (default survival)\n  --test-terrain          Simple test terrain instead of vanilla generation\n  --frames N              Exit after N frames (testing)\n  --world-frames N        Exit after N frames drawn in the world (testing)\n  --smoke-report PATH     Write a JSON report on exit\n  --benchmark SCENARIO    Run a benchmark (standard, village, forest, ocean, mountain), write its report to benchmarks/ and quit\n  --control               Accept industrial-era-ctl commands on a local socket\n  --control-socket PATH   Control socket path (default $XDG_RUNTIME_DIR/industrial-era-control.sock)\n  --server HOST[:PORT]    Join a multiplayer server (offline mode) at start\n  --quickPlaySingleplayer WORLD  Open this world of saves/ at start, only if it exists (vanilla's)\n  --quickPlayMultiplayer HOST[:PORT]  The same as --server (vanilla's name)\n  --name NAME             Player name for multiplayer (default: generated once, kept in industrial-era-player.txt)\n  --session-file PATH     Signed-in account from the launcher (read once, then deleted)\n  --session-stdin         The same account as JSON on standard input\n  --game-dir DIR          Game folder: saves, options.txt, packs, mods (default: the working directory)\n  --home DIR              Logs and crash reports (default $HORIZON_HOME, else the platform data folder)\n  --player-dir DIR        This player's own files when several play in one game folder: options.txt, logs, industrial-era-player.txt, servers.dat, screenshots\n  --fullscreen            Open the window fullscreen\n  --launch-api            Print the Launch API version and options as JSON (docs/api/launch.md)\n  --dev-mod PATH          A content mod (.hmod or folder) to develop: always on\n  --pregen                Add Industrial Era's /pregen command (docs/pregeneration.md)\n\nControls: mouse look, WASD move, Space jump, Left Shift sneak, Left Ctrl sprint,\nleft click break, right click place/use, 1-9/scroll hotbar, E inventory,\nQ drop, F3 debug, Esc pause.",
+                        "Industrial Era — Minecraft Java Edition {} in Rust\n\n  --resources PATH        Prepared resources (industrial-era-prepare)\n  --render-distance N     Chunks, 2..128 (default 12)\n  --world NAME            World folder under saves/ (default \"New World\")\n  --seed N                World seed for new worlds (default 0)\n  --width N, --height N   Window size (default 1280 x 720)\n  --creative              Creative mode (default survival)\n  --test-terrain          Simple test terrain instead of vanilla generation\n  --frames N              Exit after N frames (testing)\n  --world-frames N        Exit after N frames drawn in the world (testing)\n  --smoke-report PATH     Write a JSON report on exit\n  --benchmark SCENARIO    Run a benchmark (standard, village, forest, ocean, mountain), write its report to benchmarks/ and quit\n  --control               Accept industrial_era-ctl commands on a local socket\n  --control-socket PATH   Control socket path (default $XDG_RUNTIME_DIR/industrial-era-control.sock)\n  --server HOST[:PORT]    Join a multiplayer server (offline mode) at start\n  --quickPlaySingleplayer WORLD  Open this world of saves/ at start, only if it exists (vanilla's)\n  --quickPlayMultiplayer HOST[:PORT]  The same as --server (vanilla's name)\n  --name NAME             Player name for multiplayer (default: generated once, kept in industrial_era-player.txt)\n  --session-file PATH     Signed-in account from the launcher (read once, then deleted)\n  --session-stdin         The same account as JSON on standard input\n  --game-dir DIR          Game folder: saves, options.txt, packs, mods (default: the working directory)\n  --home DIR              Logs and crash reports (default $HORIZON_HOME, else the platform data folder)\n  --player-dir DIR        This player's own files when several play in one game folder: options.txt, logs, industrial-era-player.txt, servers.dat, screenshots\n  --fullscreen            Open the window fullscreen\n  --launch-api            Print the Launch API version and options as JSON (docs/api/launch.md)\n  --dev-mod PATH          A content mod (.hmod or folder) to develop: always on\n  --pregen                Add Industrial Era's /pregen command (docs/pregeneration.md)\n\nControls: mouse look, WASD move, Space jump, Left Shift sneak, Left Ctrl sprint,\nleft click break, right click place/use, 1-9/scroll hotbar, E inventory,\nQ drop, F3 debug, Esc pause.",
                         industrial_era_core::VANILLA_VERSION
                     );
                     return Ok(None);
                 }
                 "--launch-api" => {
-                    println!("{}", launch_api::reply(&industrial_era_client::crash::version()));
+                    println!(
+                        "{}",
+                        launch_api::reply(&industrial_era_client::crash::version())
+                    );
                     return Ok(None);
                 }
                 "--fullscreen" => o.fullscreen = true,
@@ -717,7 +721,9 @@ impl Options {
                     "Industrial Era: {arg} was removed: single player runs on its server thread."
                 ),
                 // Industrial Era's own commands (/pregen), off by default as on vanilla.
-                "--pregen" => industrial_era_client::command::vanilla::set_industrial_era_commands(true),
+                "--pregen" => {
+                    industrial_era_client::command::vanilla::set_industrial_era_commands(true)
+                }
                 _ => {
                     let value = args
                         .next()
@@ -1689,13 +1695,15 @@ impl LevelAccess for GameLevel<'_> {
         let mut scene = collisions::SceneCollisions {
             world: &*self.world,
             binding: self.collision,
-            subject: player.map(|player| industrial_era_client::collisions::PowderSnowSubject {
-                fall_distance: player.fall_distance,
-                falling_block: false,
-                leather_boots: player.leather_boots,
-                walkable_type: false,
-                lava_walker: false,
-            }),
+            subject: player.map(
+                |player| industrial_era_client::collisions::PowderSnowSubject {
+                    fall_distance: player.fall_distance,
+                    falling_block: false,
+                    leather_boots: player.leather_boots,
+                    walkable_type: false,
+                    lava_walker: false,
+                },
+            ),
         };
         let Ok(shape) = self
             .collision
@@ -1817,7 +1825,8 @@ impl LevelAccess for GameLevel<'_> {
         for (k, v) in [("x", pos.x), ("y", pos.y), ("z", pos.z)] {
             nbt.insert(k.into(), Tag::Int(v));
         }
-        if let Some((key, entity)) = industrial_era_client::save::decode_block_entity(&Tag::Compound(nbt))
+        if let Some((key, entity)) =
+            industrial_era_client::save::decode_block_entity(&Tag::Compound(nbt))
         {
             self.world.block_entities.insert(key, entity);
         }
@@ -3830,13 +3839,14 @@ impl Game<'_> {
         let sprite = Self::block_particle_sprite(&self.pack, state)?;
         let chunks = &self.world.chunks;
         let (cx, cz) = (pos[0] >> 4, pos[2] >> 4);
-        let region: [[Option<&industrial_era_client::chunk::Chunk>; 3]; 3] = std::array::from_fn(|dz| {
-            std::array::from_fn(|dx| {
-                chunks
-                    .get(&(cx + dx as i32 - 1, cz + dz as i32 - 1))
-                    .map(|c| &**c)
-            })
-        });
+        let region: [[Option<&industrial_era_client::chunk::Chunk>; 3]; 3] =
+            std::array::from_fn(|dz| {
+                std::array::from_fn(|dx| {
+                    chunks
+                        .get(&(cx + dx as i32 - 1, cz + dz as i32 - 1))
+                        .map(|c| &**c)
+                })
+            });
         let tint = self
             .pack
             .context
@@ -3910,7 +3920,8 @@ impl Game<'_> {
         let boxes = self.particle_shape(pos, state);
         // Keep client effects separate from the authoritative world RNG.
         let r = self.particles.random();
-        let Some(p) = industrial_era_client::particles::breaking_position(r, pos, face, &boxes) else {
+        let Some(p) = industrial_era_client::particles::breaking_position(r, pos, face, &boxes)
+        else {
             return;
         };
         let mut particle = Particle::terrain(r, p, [0.0; 3], sprite, tint);
@@ -4000,7 +4011,11 @@ impl Game<'_> {
     /// The block entity at `pos` saved with its id and position
     /// (`saveWithFullMetadata`), or the saved one Industrial Era keeps as loaded:
     /// what a broken block's loot sees as `LootContextParams.BLOCK_ENTITY`.
-    fn loot_block_entity(&self, pos: [i32; 3], block: &str) -> Option<industrial_era_world::nbt::Tag> {
+    fn loot_block_entity(
+        &self,
+        pos: [i32; 3],
+        block: &str,
+    ) -> Option<industrial_era_world::nbt::Tag> {
         let key = (pos[0], pos[1], pos[2]);
         match self.world.block_entities.get(&key) {
             Some(entity) => Some(industrial_era_client::save::encode_block_entity(
@@ -4048,23 +4063,22 @@ impl Game<'_> {
         let registry = self.pack.assets.registry;
         let dynamic = self.pending.dynamic(pos);
         let place = self.loot_place_at(pos.map(|v| f64::from(v) + 0.5), block_entity);
-        let mut drops =
-            industrial_era_world::loot::with_native_loot_place(place, || {
-                match world_items!(self).block_loot_sequence(registry, state) {
-                    Some(sequence) => {
-                        let random = self.rand_sequences.get(&sequence, self.level.seed);
-                        world_items!(self)
-                            .block_drops_by_player(registry, state, held, &dynamic, random)
-                    }
-                    None => world_items!(self).block_drops_by_player(
-                        registry,
-                        state,
-                        held,
-                        &dynamic,
-                        &mut self.world.random,
-                    ),
+        let mut drops = industrial_era_world::loot::with_native_loot_place(place, || {
+            match world_items!(self).block_loot_sequence(registry, state) {
+                Some(sequence) => {
+                    let random = self.rand_sequences.get(&sequence, self.level.seed);
+                    world_items!(self)
+                        .block_drops_by_player(registry, state, held, &dynamic, random)
                 }
-            });
+                None => world_items!(self).block_drops_by_player(
+                    registry,
+                    state,
+                    held,
+                    &dynamic,
+                    &mut self.world.random,
+                ),
+            }
+        });
         let player = self.native_acting_id();
         self.native_block_drops(pos, state, Some(player), held, None, &mut drops);
         drops
@@ -4176,7 +4190,8 @@ impl Game<'_> {
         let mut cells = industrial_era_client::entities::ItemCells::new(&items);
         // A LAN or server guest only shows the host's items.
         let merging = self.remote.is_none();
-        let obstacles = industrial_era_client::entities::ObstacleGrid::new(self.item_entity_collisions());
+        let obstacles =
+            industrial_era_client::entities::ObstacleGrid::new(self.item_entity_collisions());
         let mut nearby = Vec::new();
         let mut bubble_tops = Vec::new();
         for i in 0..items.len() {
@@ -5084,7 +5099,8 @@ impl Game<'_> {
                     pos,
                     data,
                 } => {
-                    let face = industrial_era_core::geometry::Direction::ALL[data.clamp(0, 5) as usize];
+                    let face =
+                        industrial_era_core::geometry::Direction::ALL[data.clamp(0, 5) as usize];
                     self.breaking_block_effects([pos.x, pos.y, pos.z], face.normal(), id == 2020);
                 }
                 LevelEvent::LevelEvent {
@@ -5164,9 +5180,8 @@ impl Game<'_> {
                     data,
                 } => self.dragon_fireball_burst(pos, data),
                 // LevelEventHandler 2009: a wet sponge drying.
-                LevelEvent::LevelEvent { id: 2009, pos, .. } => {
-                    self.puffs_above_block(pos, industrial_era_client::particles::ParticleType::Cloud)
-                }
+                LevelEvent::LevelEvent { id: 2009, pos, .. } => self
+                    .puffs_above_block(pos, industrial_era_client::particles::ParticleType::Cloud),
                 // LevelEventHandler 2012: a turtle egg laid.
                 LevelEvent::LevelEvent {
                     id: 2012,
@@ -5794,9 +5809,9 @@ impl Game<'_> {
                 use industrial_era_client::falling_block::Inside;
                 if &*facts.get(world.block(p.x, p.y, p.z)).name == "minecraft:cobweb" {
                     Inside::Cobweb
-                } else if let Some(column) =
-                    industrial_era_client::motion::bubble_column_at(world, registry, facts, collision, p)
-                {
+                } else if let Some(column) = industrial_era_client::motion::bubble_column_at(
+                    world, registry, facts, collision, p,
+                ) {
                     Inside::BubbleColumn(column)
                 } else {
                     Inside::Nothing
@@ -6243,7 +6258,8 @@ impl Game<'_> {
             .items()
             .get(&stack.item)
             .and_then(|i| i.use_cooldown.clone());
-        let Some(component) = industrial_era_client::cooldowns::component(stack, default.as_ref()) else {
+        let Some(component) = industrial_era_client::cooldowns::component(stack, default.as_ref())
+        else {
             return;
         };
         let group = industrial_era_client::cooldowns::group(stack, default.as_ref());
@@ -6627,7 +6643,8 @@ impl Game<'_> {
             // BowItem.use: ArrowNockEvent, then FAIL without ammunition.
             let found_projectile = self.get_projectile(&stack).is_some();
             let has_ammo = found_projectile || self.creative;
-            let player = industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid());
+            let player =
+                industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid());
             let name = self.acting_player_name().to_owned();
             let (hand, mut cancel) = (self.hand, false);
             self.native_arrow_nock(player, &name, &stack, hand, has_ammo, &mut cancel);
@@ -6872,9 +6889,11 @@ impl Game<'_> {
                     for eff in effects {
                         if let Some(def) = industrial_era_client::brewing::effect(&eff.id) {
                             if def.instant {
-                                if let Some(a) =
-                                    industrial_era_client::effects::instant(def.id, eff.amplifier, 1.0)
-                                {
+                                if let Some(a) = industrial_era_client::effects::instant(
+                                    def.id,
+                                    eff.amplifier,
+                                    1.0,
+                                ) {
                                     self.apply_effect_action(a);
                                 }
                             } else {
@@ -7079,8 +7098,12 @@ impl Game<'_> {
         // playRemoveOneSound, then Player.drop and playDropContentsSound at
         // the player's block.
         let pitch = 0.8 + self.world.random.next_float() * 0.4;
-        self.audio
-            .play(industrial_era_client::bundle::REMOVE_ONE, Some(at), 0.8, pitch);
+        self.audio.play(
+            industrial_era_client::bundle::REMOVE_ONE,
+            Some(at),
+            0.8,
+            pitch,
+        );
         self.player_drop(removed);
         let block = BlockPos::containing(position);
         let pitch = 0.8 + self.world.random.next_float() * 0.4;
@@ -7496,7 +7519,9 @@ impl Game<'_> {
         // Entities added since the last tick join the level before it ticks.
         self.native_joins_flush(false, 0);
         self.share_spawn_conditions();
-        industrial_era_client::mobs::sulfur_cube::set_tnt_explodes(self.ui.rules.bool("tnt_explodes"));
+        industrial_era_client::mobs::sulfur_cube::set_tnt_explodes(
+            self.ui.rules.bool("tnt_explodes"),
+        );
         self.update_chunk_tickets();
         industrial_era_client::spans::time("tick_effects", || self.tick_effects(running));
         self.tick_sign_editor();
@@ -7564,14 +7589,18 @@ impl Game<'_> {
             self.native_joins_flush(false, 0);
             industrial_era_client::spans::time("touch_arrows", || self.touch_arrows());
         }
-        industrial_era_client::spans::time("spawn_loaded_entities", || self.spawn_loaded_entities());
+        industrial_era_client::spans::time("spawn_loaded_entities", || {
+            self.spawn_loaded_entities()
+        });
         // The ride the player's file names, once the vehicle is in the world.
         self.restore_root_vehicle();
         if running {
             industrial_era_client::spans::time("tick_mobs", || self.tick_mobs())?;
             // Dead, despawned or gone into a hive.
             self.native_leaves_flush();
-            industrial_era_client::spans::time("recheck_golem_openers", || self.recheck_golem_openers());
+            industrial_era_client::spans::time("recheck_golem_openers", || {
+                self.recheck_golem_openers()
+            });
             self.tick_mod_container_viewers();
             industrial_era_client::spans::time("tick_experience", || self.tick_experience());
             // Merged, despawned or picked up.
@@ -7603,9 +7632,15 @@ impl Game<'_> {
             industrial_era_client::spans::time("tick_tnt", || self.tick_tnt())?;
         }
         if running {
-            industrial_era_client::spans::time("tick_kinetic_machines", || self.tick_kinetic_machines())?;
-            industrial_era_client::spans::time("tick_block_entities", || self.tick_block_entities())?;
-            industrial_era_client::spans::time("tick_sculk_entities", || self.tick_sculk_entities());
+            industrial_era_client::spans::time("tick_kinetic_machines", || {
+                self.tick_kinetic_machines()
+            })?;
+            industrial_era_client::spans::time("tick_block_entities", || {
+                self.tick_block_entities()
+            })?;
+            industrial_era_client::spans::time("tick_sculk_entities", || {
+                self.tick_sculk_entities()
+            });
             industrial_era_client::spans::time("tick_sculk_blocks", || self.tick_sculk_blocks())?;
         }
         if running {
@@ -7697,11 +7732,12 @@ impl Game<'_> {
             (0, "key.sneak", self.settings.toggle_crouch),
             (1, "key.sprint", self.settings.toggle_sprint),
         ] {
-            let held = match industrial_era_client::keybinds::key_code(self.settings.keys.get(mapping)) {
-                Some(KeyCode::ShiftLeft | KeyCode::ShiftRight) => shift,
-                Some(KeyCode::ControlLeft | KeyCode::ControlRight) => control,
-                _ => continue,
-            };
+            let held =
+                match industrial_era_client::keybinds::key_code(self.settings.keys.get(mapping)) {
+                    Some(KeyCode::ShiftLeft | KeyCode::ShiftRight) => shift,
+                    Some(KeyCode::ControlLeft | KeyCode::ControlRight) => control,
+                    _ => continue,
+                };
             // A controller's stick click acts as the key without setting the modifier: it is held
             // while the pad holds it (or its release waits for a tick), not when the keyboard says.
             let pad = self.pad.holds_action(&self.settings.controller, mapping);
@@ -7997,8 +8033,8 @@ impl Game<'_> {
             if capture {
                 self.mouse.set_ignore_first_move();
             }
-            self.captured =
-                capture && self.input_mode == industrial_era_client::input_mode::InputMode::KeyboardMouse;
+            self.captured = capture
+                && self.input_mode == industrial_era_client::input_mode::InputMode::KeyboardMouse;
             if self.captured != was_grabbed {
                 crate::android::capture_pointer(self.captured);
             }
@@ -8232,8 +8268,10 @@ impl Game<'_> {
         } else {
             0
         };
-        let cooldown =
-            industrial_era_client::cooldowns::group(stack, info.and_then(|i| i.use_cooldown.as_ref()));
+        let cooldown = industrial_era_client::cooldowns::group(
+            stack,
+            info.and_then(|i| i.use_cooldown.as_ref()),
+        );
         let partial = self.clock.fraction() as f32;
         // BundleItem overrides the bar with its fullness.
         let mut bar = industrial_era_client::bundle::Contents::of(self.items(), stack)
@@ -8301,8 +8339,11 @@ impl Game<'_> {
         // Gui.extractRenderState: the debug overlay comes after the screen
         // and the toasts, so it is over everything, menus included.
         self.draw_debug_overlay(&mut batch, size);
-        self.frame_graph
-            .draw(self.settings.industrial-era.overlay, &mut batch, &self.gui.atlas);
+        self.frame_graph.draw(
+            self.settings.industrial_era.overlay,
+            &mut batch,
+            &self.gui.atlas,
+        );
         self.draw_stats_overlay(&mut batch);
         self.draw_pad_cursor(&mut batch);
         self.lift_over_keyboard(&mut batch);
@@ -8411,7 +8452,8 @@ impl Game<'_> {
                 self.settings.attack_indicator,
                 !self.touch_hides_crosshair(),
             );
-            let delay = industrial_era_client::attack_strength::delay(self.main_hand_attack_speed());
+            let delay =
+                industrial_era_client::attack_strength::delay(self.main_hand_attack_speed());
             let strength = self.hand_strength.scale(0.0, self.main_hand_attack_speed());
             // The 3D crosshair (F3) takes the 2D one's place.
             // Hud.extractCrosshair: a spectator only sees it over something to open.
@@ -8507,7 +8549,8 @@ impl Game<'_> {
                     g.draw_jump_bar(batch, wi, hi);
                 }
                 if contextual == ContextualBar::Locator {
-                    let (sprite, [x, y, w, h]) = industrial_era_client::locator_bar::background(wi, hi);
+                    let (sprite, [x, y, w, h]) =
+                        industrial_era_client::locator_bar::background(wi, hi);
                     industrial_era_client::ui::nine_slice(
                         batch,
                         &g.gui.atlas,
@@ -9463,7 +9506,10 @@ impl Game<'_> {
         }
     }
     /// Several clicks on one menu instance (a quick craft drag is three).
-    fn menu_ops(&mut self, ops: &[(Option<usize>, i32, industrial_era_client::menu::Input)]) -> bool {
+    fn menu_ops(
+        &mut self,
+        ops: &[(Option<usize>, i32, industrial_era_client::menu::Input)],
+    ) -> bool {
         use industrial_era_client::menu::Input;
         // BundleMouseActions.onSlotClicked: a Shift click or a swap clears the bundle's selection.
         for &(slot, _, input) in ops {
@@ -10786,7 +10832,8 @@ impl Game<'_> {
         laps.lap("eg_prep");
         for m in &self.mobs {
             // Blaze.isOnFire: a charged blaze burns.
-            let blazing = m.species() == industrial_era_client::mobs::Species::Blaze && m.extra.flag;
+            let blazing =
+                m.species() == industrial_era_client::mobs::Species::Blaze && m.extra.flag;
             if (m.is_on_fire() || blazing) && !m.removed {
                 let at = m.previous.lerp(m.position, alpha);
                 industrial_era_client::fire_render::flames(
@@ -11052,13 +11099,13 @@ impl Game<'_> {
                 })
                 .map(|(block, _)| block);
             let block_entity_cache = CacheOptions {
-                shulker_boxes: self.settings.industrial-era.cache_shulker_boxes,
-                signs: self.settings.industrial-era.cache_signs,
-                decorated_pots: self.settings.industrial-era.cache_decorated_pots,
-                bells: self.settings.industrial-era.cache_bells,
-                chests: self.settings.industrial-era.cache_chests,
-                banners: self.settings.industrial-era.cache_banners,
-                copper_golem_statues: self.settings.industrial-era.cache_copper_golem_statues,
+                shulker_boxes: self.settings.industrial_era.cache_shulker_boxes,
+                signs: self.settings.industrial_era.cache_signs,
+                decorated_pots: self.settings.industrial_era.cache_decorated_pots,
+                bells: self.settings.industrial_era.cache_bells,
+                chests: self.settings.industrial_era.cache_chests,
+                banners: self.settings.industrial_era.cache_banners,
+                copper_golem_statues: self.settings.industrial_era.cache_copper_golem_statues,
             };
             // Entity occlusion is for ordinary entity meshes. Block entities
             // already have section and per-block frustum culling; routing them
@@ -11325,7 +11372,13 @@ impl Game<'_> {
                     .iter()
                     .any(|(_, model)| model.faces.iter().any(|f| f.translucent));
                 for (_, model) in models {
-                    industrial_era_client::breaking::geometry(model, origin, translucent, stage, &mut out);
+                    industrial_era_client::breaking::geometry(
+                        model,
+                        origin,
+                        translucent,
+                        stage,
+                        &mut out,
+                    );
                 }
             }
         }
@@ -11695,7 +11748,9 @@ impl Game<'_> {
         let old_health = self.mobs[index].health;
         let source = match from {
             Some(f) => self.attack_source(f),
-            None => industrial_era_client::mobs::Damage::of(industrial_era_client::mobs::DamageKind::Generic),
+            None => industrial_era_client::mobs::Damage::of(
+                industrial_era_client::mobs::DamageKind::Generic,
+            ),
         };
         let landed = self.hurt_by_player(index, amount, source);
         if landed && old_health > 0.0 && !self.mobs[index].alive() {
@@ -11714,17 +11769,18 @@ impl Game<'_> {
             if p.attack_log.len() >= 64 {
                 p.attack_log.remove(0);
             }
-            p.attack_log.push(industrial_era_client::health::AttackRecord {
-                game_time: p.health.game_time(),
-                target: target_kind.clone(),
-                id: self.mobs[index].id,
-                killed: landed && !self.mobs[index].alive(),
-                amount,
-                scale,
-                crit,
-                landed,
-                dealt: old_health - self.mobs[index].health,
-            });
+            p.attack_log
+                .push(industrial_era_client::health::AttackRecord {
+                    game_time: p.health.game_time(),
+                    target: target_kind.clone(),
+                    id: self.mobs[index].id,
+                    killed: landed && !self.mobs[index].alive(),
+                    amount,
+                    scale,
+                    crit,
+                    landed,
+                    dealt: old_health - self.mobs[index].health,
+                });
         }
         if landed {
             if knockback > 0.0 {
@@ -11984,7 +12040,9 @@ impl Game<'_> {
             Action::Language => {
                 self.open_options_at(true, industrial_era_client::options_ui::Page::Language)
             }
-            Action::Sounds => self.open_options_at(true, industrial_era_client::options_ui::Page::Sound),
+            Action::Sounds => {
+                self.open_options_at(true, industrial_era_client::options_ui::Page::Sound)
+            }
             Action::Credits => {
                 self.open_options_at(true, industrial_era_client::options_ui::Page::Credits)
             }
@@ -12143,7 +12201,10 @@ impl Game<'_> {
         if let Some(o) = create.filter(|o| o.pack_dir.is_none()) {
             let world = std::env::current_dir()?.join("saves").join(folder);
             if let Err(e) = std::fs::create_dir_all(&world) {
-                log::warn!("Industrial Era: data packs for {folder}: {}: {e}", world.display());
+                log::warn!(
+                    "Industrial Era: data packs for {folder}: {}: {e}",
+                    world.display()
+                );
             } else {
                 let disabled: Vec<String> =
                     industrial_era_client::datapack::feature_packs(&self.vanilla_root())
@@ -12154,7 +12215,10 @@ impl Game<'_> {
                 let json = serde_json::json!({"enabled": o.data_packs, "disabled": disabled});
                 let file = world.join("datapacks.json");
                 if let Err(e) = std::fs::write(&file, json.to_string()) {
-                    log::warn!("Industrial Era: data packs for {folder}: {}: {e}", file.display());
+                    log::warn!(
+                        "Industrial Era: data packs for {folder}: {}: {e}",
+                        file.display()
+                    );
                 }
             }
         }
@@ -12697,7 +12761,11 @@ impl Game<'_> {
     /// `Player.hurtArmor` -> `LivingEntity.doHurtEquipment`: each worn piece that
     /// wears when its wearer is hurt loses max(1, damage / 4) durability, except
     /// to a fire source when the piece resists fire (`ItemStack.canBeHurtBy`).
-    fn hurt_armor(&mut self, source: industrial_era_world::damage_source::DamageTypeId, damage: f32) {
+    fn hurt_armor(
+        &mut self,
+        source: industrial_era_world::damage_source::DamageTypeId,
+        damage: f32,
+    ) {
         if damage <= 0.0 {
             return;
         }
@@ -13923,7 +13991,15 @@ impl Game<'_> {
             pose[5] = if p.name == arm.name { z_rot } else { 0.0 };
             pose
         };
-        industrial_era_client::mobs::render_model(arm, m, &pose, [r.u0, r.v0, r.u1, r.v1], light, 0, out);
+        industrial_era_client::mobs::render_model(
+            arm,
+            m,
+            &pose,
+            [r.u0, r.v0, r.u1, r.v1],
+            light,
+            0,
+            out,
+        );
     }
     /// FirstPersonHandsAndItemsRenderer: the right arm or the held items of
     /// both hands in view space, converted to camera-relative world space.
@@ -14031,12 +14107,18 @@ impl Game<'_> {
                 }
                 // renderPlayerArm
                 let m = to_world
-                    * industrial_era_client::first_person::player_arm_pose(left, inverse_height, attack);
+                    * industrial_era_client::first_person::player_arm_pose(
+                        left,
+                        inverse_height,
+                        attack,
+                    );
                 self.first_person_arm(left, m, packed, &mut out);
                 continue;
             };
             if let Some(id) = maps::map_id(&stack) {
-                use industrial_era_client::first_person::{MapHold, map_arm_poses, one_handed_map_pose};
+                use industrial_era_client::first_person::{
+                    MapHold, map_arm_poses, one_handed_map_pose,
+                };
                 let hold = MapHold::of(hand, off_hand_empty);
                 // renderOneHandedMap and renderTwoHandedMap: the arms under
                 // the map, unless the player is invisible.
@@ -14137,7 +14219,12 @@ impl Game<'_> {
                 _ => ItemPose::Swing,
             };
             let m = to_world
-                * industrial_era_client::first_person::item_pose(left, inverse_height, attack, pose);
+                * industrial_era_client::first_person::item_pose(
+                    left,
+                    inverse_height,
+                    attack,
+                    pose,
+                );
             // Seeded by the player id plus the context ordinal.
             let (context, seed) = if left {
                 (
@@ -14222,8 +14309,8 @@ impl Game<'_> {
             &self.gui,
             None,
             None,
-            self.settings.industrial-era.api,
-            self.settings.industrial-era.translucent_batching,
+            self.settings.industrial_era.api,
+            self.settings.industrial_era.translucent_batching,
             shader_packs::picked_pack_draws_flat(&self.settings),
         )?;
         renderer.screenshot = screenshot;
@@ -14256,8 +14343,8 @@ impl Game<'_> {
             gui,
             self.renderer.as_ref(),
             None,
-            self.settings.industrial-era.api,
-            self.settings.industrial-era.translucent_batching,
+            self.settings.industrial_era.api,
+            self.settings.industrial_era.translucent_batching,
             shader_packs::picked_pack_draws_flat(&self.settings),
         )
     }
@@ -14427,13 +14514,14 @@ impl Game<'_> {
     /// A guest gets a packet, so its own client translates it.
     fn tell_sleeper(&mut self, key: &str, fallback: &str, overlay: bool) {
         if self.lan_acting.is_some() {
-            self.guest_packets
-                .push(industrial_era_protocol::packets::play::Clientbound::SystemChat(
+            self.guest_packets.push(
+                industrial_era_protocol::packets::play::Clientbound::SystemChat(
                     industrial_era_protocol::packets::play::SystemChat {
                         content: industrial_era_protocol::text::translatable(key, &[]),
                         overlay,
                     },
-                ));
+                ),
+            );
         } else if overlay {
             self.message = Some((self.translate(key, fallback), Instant::now()));
         } else {
@@ -15177,7 +15265,16 @@ impl Game<'_> {
                 (true, true) => "gui/sprites/widget/button_highlighted",
                 (true, false) => "gui/sprites/widget/button",
             };
-            industrial_era_client::ui::blit_sprite(batch, atlas, sprite, x, y, 20.0, 20.0, u32::MAX);
+            industrial_era_client::ui::blit_sprite(
+                batch,
+                atlas,
+                sprite,
+                x,
+                y,
+                20.0,
+                20.0,
+                u32::MAX,
+            );
             let color = if active {
                 u32::MAX
             } else {
@@ -15334,15 +15431,16 @@ impl Game<'_> {
         // The ride's tree, or none once the file's own came back.
         match vehicle {
             Some((tag, ..)) => {
-                let extra = level
-                    .player_extra
-                    .get_or_insert_with(|| industrial_era_world::nbt::Tag::Compound(Default::default()));
+                let extra = level.player_extra.get_or_insert_with(|| {
+                    industrial_era_world::nbt::Tag::Compound(Default::default())
+                });
                 if let industrial_era_world::nbt::Tag::Compound(map) = extra {
                     map.insert("RootVehicle".into(), tag);
                 }
             }
             None if local && self.pending_vehicle.is_none() => {
-                if let Some(industrial_era_world::nbt::Tag::Compound(map)) = &mut level.player_extra {
+                if let Some(industrial_era_world::nbt::Tag::Compound(map)) = &mut level.player_extra
+                {
                     map.remove(&"RootVehicle".into());
                 }
             }
@@ -15352,9 +15450,9 @@ impl Game<'_> {
             level.position = Some([p.position.x, p.position.y, p.position.z]);
             level.health = p.health.health();
             level.absorption = p.health.absorption();
-            let extra = level
-                .player_extra
-                .get_or_insert_with(|| industrial_era_world::nbt::Tag::Compound(Default::default()));
+            let extra = level.player_extra.get_or_insert_with(|| {
+                industrial_era_world::nbt::Tag::Compound(Default::default())
+            });
             if let industrial_era_world::nbt::Tag::Compound(map) = extra {
                 map.insert(
                     "Fire".into(),
@@ -15362,7 +15460,10 @@ impl Game<'_> {
                         p.fire_ticks.clamp(i32::from(i16::MIN), i32::from(i16::MAX)) as i16,
                     ),
                 );
-                map.insert("Air".into(), industrial_era_world::nbt::Tag::Short(p.air as i16));
+                map.insert(
+                    "Air".into(),
+                    industrial_era_world::nbt::Tag::Short(p.air as i16),
+                );
                 // LivingEntity.addAdditionalSaveData: AttributeMap.pack.
                 map.insert("attributes".into(), p.saved_attributes());
             }
@@ -15734,7 +15835,7 @@ impl Game<'_> {
             camera.z.floor() as i32,
         ];
         // The camera inside an opaque block sees nothing through it: disable.
-        let cave_culling = self.settings.industrial-era.cave_culling
+        let cave_culling = self.settings.industrial_era.cave_culling
             && !self
                 .res
                 .facts()
@@ -15769,7 +15870,8 @@ impl Game<'_> {
                     .map_or(plains, |c| c.biome(qx * 4, qy * 4, qz * 4))
             })
         };
-        let blend = |pick: fn(&industrial_era_client::biome::BiomeInfo) -> Option<u32>, base: [f32; 3]| {
+        let blend = |pick: fn(&industrial_era_client::biome::BiomeInfo) -> Option<u32>,
+                     base: [f32; 3]| {
             industrial_era_client::biome::blend_rgb(&weights, |b| {
                 pick(biomes.get(b)).map_or(base, industrial_era_client::biome::rgb)
             })
@@ -15838,7 +15940,8 @@ impl Game<'_> {
         }
         let debug_lines = industrial_era_client::gizmos::camera_relative(&lines, at, view);
         let debug_lines_on_top = industrial_era_client::gizmos::camera_relative(&on_top, at, view);
-        let debug_crosshair = industrial_era_client::gizmos::camera_relative(&crosshair.on_top, at, view);
+        let debug_crosshair =
+            industrial_era_client::gizmos::camera_relative(&crosshair.on_top, at, view);
         // LevelExtractor.extractBlockOutline: model translucency controls draw order.
         let mut outline_after_terrain = false;
         // GameRenderer.shouldRenderBlockOutline: not with the HUD hidden (F1), and only for a
@@ -16018,7 +16121,7 @@ impl Game<'_> {
         {
             // Camera.doesMobEffectBlockSky: no sun, moon or stars.
             self.celestial_geometry(&sky, rain)
-        } else if self.dim == Dim::End && self.settings.industrial-era.sky {
+        } else if self.dim == Dim::End && self.settings.industrial_era.sky {
             (self.end_flash_geometry(), None)
         } else {
             (Vec::new(), None)
@@ -16048,7 +16151,10 @@ impl Game<'_> {
         if !title {
             self.end_geometry(camera, &mut entities);
         }
-        let weather = if !title && self.dim == Dim::Overworld && self.settings.industrial-era.weather {
+        let weather = if !title
+            && self.dim == Dim::Overworld
+            && self.settings.industrial_era.weather
+        {
             industrial_era_client::spans::time("weather", || self.weather_geometry(camera, alpha))
         } else {
             Vec::new()
@@ -16078,7 +16184,10 @@ impl Game<'_> {
         let skin = std::mem::take(self.skin_frame.get_mut());
         let frame = Frame {
             weather: &weather,
-            weather_time: industrial_era_client::weather::Time::new(self.world.game_time, alpha as f32),
+            weather_time: industrial_era_client::weather::Time::new(
+                self.world.game_time,
+                alpha as f32,
+            ),
             nether_lighting: self.dim == Dim::Nether,
             camera,
             yaw,
@@ -16091,7 +16200,7 @@ impl Game<'_> {
             spin,
             sky,
             shadow_scene_revision: (self.world.revision, self.world.chunks.membership_revision()),
-            shadow_cache: self.settings.industrial-era.shadow_cache,
+            shadow_cache: self.settings.industrial_era.shadow_cache,
             distance,
             detail_distance: (self.streaming.radius * 16) as f32,
             depth_far,
@@ -16117,10 +16226,11 @@ impl Game<'_> {
                         [camera.x, camera.y, camera.z],
                         &self.near_plane(),
                     ),
-                    industrial_era_client::fog::FogType::Lava | industrial_era_client::fog::FogType::PowderSnow
+                    industrial_era_client::fog::FogType::Lava
+                        | industrial_era_client::fog::FogType::PowderSnow
                 ),
-            skybox: self.dim == Dim::Overworld && self.settings.industrial-era.sky,
-            end_sky: self.dim == Dim::End && self.settings.industrial-era.sky,
+            skybox: self.dim == Dim::Overworld && self.settings.industrial_era.sky,
+            end_sky: self.dim == Dim::End && self.settings.industrial_era.sky,
             end_sky_sprite: self
                 .gui
                 .atlas
@@ -16143,7 +16253,10 @@ impl Game<'_> {
             glint_ticks: self.glint_frame.scroll_ticks(),
             clouds: (!title
                 && self.dim == Dim::Overworld
-                && industrial_era_client::clouds::visible(&self.settings.clouds, sky.cloud_color[3]))
+                && industrial_era_client::clouds::visible(
+                    &self.settings.clouds,
+                    sky.cloud_color[3],
+                ))
             .then(|| self.gui.atlas.sprites.get("industrial-era/white"))
             .flatten()
             .map(|white| industrial_era_client::clouds::Input {
@@ -16174,12 +16287,12 @@ impl Game<'_> {
             additive: &additive,
             see_through: &see_through,
             shadow_only: &shadow_only,
-            celestial: if self.settings.industrial-era.sky || title {
+            celestial: if self.settings.industrial_era.sky || title {
                 &celestial
             } else {
                 &[]
             },
-            stars: stars.filter(|_| self.settings.industrial-era.sky || title),
+            stars: stars.filter(|_| self.settings.industrial_era.sky || title),
             hand: &hand,
             hand_fov_degrees: self.hud_fov_degrees(camera_alpha as f32, camera.to_array()),
             screen: &screen,
@@ -16339,8 +16452,10 @@ impl Game<'_> {
             self.border_section = Some(section);
         }
         // Camera.depthFar, as the renderer's far plane.
-        let depth_far =
-            industrial_era_client::camera::depth_far(self.terrain_distance(), self.settings.cloud_range);
+        let depth_far = industrial_era_client::camera::depth_far(
+            self.terrain_distance(),
+            self.settings.cloud_range,
+        );
         if !self
             .border_renderer
             .prepare(&self.border_state, camera, distance, depth_far)
@@ -16662,7 +16777,7 @@ impl Game<'_> {
     /// LOD Distance and Far Detail Reduced as the player chose them, the
     /// distance no farther than a server sampling far terrain for us allows.
     fn far_terrain_choice(&self) -> (u32, bool) {
-        let g = &self.settings.industrial-era;
+        let g = &self.settings.industrial_era;
         let reduced = g.far_detail == industrial_era_client::graphics::FarDetail::Reduced;
         let distance = if self.ram_limit.far_off() {
             0
@@ -16775,7 +16890,7 @@ impl Game<'_> {
                 // Past them, the server's BlueMap, if the player named it or
                 // lets Industrial Era look for it (on the BlueMap worker).
                 let maps = root.join(terrain::server_folder(address)).join("BlueMap");
-                let settings = &self.settings.industrial-era.blue_map;
+                let settings = &self.settings.industrial_era.blue_map;
                 let blue_map = industrial_era_client::bluemap_detect::source(
                     settings,
                     address,
@@ -16785,7 +16900,10 @@ impl Game<'_> {
                 .map(|source| {
                     use industrial_era_client::{bluemap, bluemap_detect::Source};
                     // The map's address only at debug: logs land in crash reports.
-                    log::info!("Industrial Era: far terrain also draws {}'s BlueMap", remote.level);
+                    log::info!(
+                        "Industrial Era: far terrain also draws {}'s BlueMap",
+                        remote.level
+                    );
                     if let Source::Url { url, .. } = &source {
                         log::debug!("Industrial Era: BlueMap at {url}");
                     }
@@ -16833,7 +16951,10 @@ impl Game<'_> {
             _ => Some(self.streaming.lod_source()),
         };
         if let Some(source) = source {
-            self.lod = Some(industrial_era_client::lod::Lod::new(source, self.worker_context()));
+            self.lod = Some(industrial_era_client::lod::Lod::new(
+                source,
+                self.worker_context(),
+            ));
             self.lod_observe.extend(self.world.chunks.keys().copied());
         }
     }
@@ -16880,8 +17001,9 @@ impl Game<'_> {
         self.streaming
             .extra
             .extend(waiting.into_iter().map(|chunk| (chunk, 0)));
-        let (uploads, unloaded) =
-            industrial_era_client::spans::time("streaming", || self.streaming.update(&mut self.world));
+        let (uploads, unloaded) = industrial_era_client::spans::time("streaming", || {
+            self.streaming.update(&mut self.world)
+        });
         self.streaming.extra.truncate(areas);
         self.spawn_fresh_chunks();
         // Before the unloaded chunks' block entities are written and dropped.
@@ -16914,7 +17036,8 @@ impl Game<'_> {
             .filter(|c| self.world.modified.remove(&(c.x, c.z)))
             .cloned()
             .collect();
-        let modified = industrial_era_client::spans::time("with_entities", || self.with_entities(&dirty));
+        let modified =
+            industrial_era_client::spans::time("with_entities", || self.with_entities(&dirty));
         industrial_era_client::spans::time("unload_entities", || self.unload_entities(&unloaded));
         if !unloaded.is_empty() {
             let gone: industrial_era_client::fast_hash::FxHashSet<(i32, i32)> =
@@ -16947,7 +17070,7 @@ impl Game<'_> {
         let now = Instant::now();
         let arriving = self.view_arrival.arriving(view, now, has) || self.remote_backlog() > 0;
         if let Some(renderer) = self.renderer.as_mut() {
-            let g = &self.settings.industrial-era;
+            let g = &self.settings.industrial_era;
             let budgeted = g.chunk_updates > 0 || g.upload_budget_kib > 0;
             // The meshes, once copied, are freed by a worker (`Streaming::free`).
             if !budgeted && self.pending_uploads.is_empty() && uploads.len() <= AUTO_UPLOADS_AT_ONCE
@@ -17028,8 +17151,10 @@ impl Game<'_> {
                 arriving || (meshing && self.view_arrival.recent(now)) || sampling,
             );
             if let (Some(lod), Some(player)) = (&mut self.lod, &self.player) {
-                let lod_distance =
-                    industrial_era_client::graphics::lod_distance_capped(far_distance, &renderer.info);
+                let lod_distance = industrial_era_client::graphics::lod_distance_capped(
+                    far_distance,
+                    &renderer.info,
+                );
                 lod.set_near_loading(self.streaming.terrain_loading());
                 lod.set_reduced_detail(far_reduced);
                 // The covered columns change only with the complete ones and
@@ -17102,10 +17227,12 @@ impl ApplicationHandler for Game<'_> {
         let attributes = Window::default_attributes()
             .with_title("Industrial Era")
             .with_window_icon(industrial_era_client::window::icon());
-        // Wayland names the window by its app id, which the industrial-era.desktop entry matches.
+        // Wayland names the window by its app id, which the industrial_era.desktop entry matches.
         #[cfg(target_os = "linux")]
         let attributes = winit::platform::wayland::WindowAttributesExtWayland::with_name(
-            attributes, "industrial-era", "industrial-era",
+            attributes,
+            "industrial-era",
+            "industrial-era",
         );
         // `--offscreen` renders into a texture: its window would only show white.
         let window_step = startup::step("window.create");
@@ -17816,10 +17943,11 @@ impl Game<'_> {
                             self.spectator_scroll(-wheel);
                         } else if self.spectator() {
                             if let Some(player) = &mut self.player {
-                                player.flying_speed = industrial_era_client::mouse::spectator_flying_speed(
-                                    player.flying_speed,
-                                    vertical_steps,
-                                );
+                                player.flying_speed =
+                                    industrial_era_client::mouse::spectator_flying_speed(
+                                        player.flying_speed,
+                                        vertical_steps,
+                                    );
                             }
                         } else {
                             self.selected =
@@ -18779,7 +18907,8 @@ impl Game<'_> {
             }
             return;
         }
-        if let Err(error) = industrial_era_client::spans::time("world_entry", || self.resume_world_entry())
+        if let Err(error) =
+            industrial_era_client::spans::time("world_entry", || self.resume_world_entry())
         {
             self.error = Some(error);
             self.exit_on_error(event_loop);
@@ -18870,15 +18999,17 @@ impl Game<'_> {
 }
 /// clouds.png as filled cells (`CloudRenderer.prepare`: alpha 10 or more).
 fn load_clouds(root: &std::path::Path) -> (u32, u32, Vec<bool>) {
-    industrial_era_client::hud::decode(&root.join("assets/minecraft/textures/environment/clouds.png"))
-        .map(|(w, h, px)| {
-            (
-                w,
-                h,
-                px.as_chunks::<4>().0.iter().map(|p| p[3] >= 10).collect(),
-            )
-        })
-        .unwrap_or((1, 1, vec![false]))
+    industrial_era_client::hud::decode(
+        &root.join("assets/minecraft/textures/environment/clouds.png"),
+    )
+    .map(|(w, h, px)| {
+        (
+            w,
+            h,
+            px.as_chunks::<4>().0.iter().map(|p| p[3] >= 10).collect(),
+        )
+    })
+    .unwrap_or((1, 1, vec![false]))
 }
 /// misc/forcefield.png for the world border wall (square, power of two).
 fn load_forcefield(root: &std::path::Path) -> (u32, u32, Vec<u8>) {
@@ -18912,7 +19043,7 @@ impl<'a> Game<'a> {
         let save = Arc::new(SaveDir::new(
             std::env::current_dir()?
                 .join("saves")
-                .join(".industrial-era-title"),
+                .join(".industrial_era-title"),
             industrial_era_client::save::LevelShape::OVERWORLD,
         ));
         let prepared = prepared
@@ -19061,7 +19192,9 @@ impl<'a> Game<'a> {
             touch: Default::default(),
             #[cfg(target_os = "android")]
             mobile: Default::default(),
-            input_mode: industrial_era_client::input_mode::InputMode::first(cfg!(target_os = "android")),
+            input_mode: industrial_era_client::input_mode::InputMode::first(cfg!(
+                target_os = "android"
+            )),
             frames: 0,
             glint_frame: Default::default(),
             kept_block_entities: Default::default(),
@@ -19126,7 +19259,8 @@ impl<'a> Game<'a> {
             love_cause: HashMap::new(),
             died: Default::default(),
             be_anims: {
-                let mut anims = industrial_era_client::block_entity_anim::BlockEntityAnims::default();
+                let mut anims =
+                    industrial_era_client::block_entity_anim::BlockEntityAnims::default();
                 anims.classify(registry);
                 anims
             },
@@ -19257,7 +19391,9 @@ impl<'a> Game<'a> {
                 downloads
             }),
             skin_profiles: RefCell::new(industrial_era_client::skins::Resolver::new()),
-            skin_slots: industrial_era_client::skins::SkinSlots::new(industrial_era_client::hud::SKIN_SLOTS),
+            skin_slots: industrial_era_client::skins::SkinSlots::new(
+                industrial_era_client::hud::SKIN_SLOTS,
+            ),
             own_skin: Default::default(),
             cosmetics: Default::default(),
             trim_slots: Vec::new(),
@@ -19485,7 +19621,10 @@ struct EntityModels {
     /// EvokerFangsModel.
     evoker_fangs: Option<Arc<industrial_era_client::mobs::Part>>,
     /// BannerModel's pole and flag (a raid captain's banner).
-    banner: Option<(industrial_era_client::mobs::Part, industrial_era_client::mobs::Part)>,
+    banner: Option<(
+        industrial_era_client::mobs::Part,
+        industrial_era_client::mobs::Part,
+    )>,
 }
 impl EntityModels {
     fn load(document: Option<&industrial_era_client::mobs::EntityModelDocument>) -> Self {
@@ -19617,7 +19756,8 @@ impl Game<'_> {
         let on_world_screens = self.title.as_ref().is_some_and(|title| {
             !matches!(
                 title.mode,
-                industrial_era_client::title::Mode::Main | industrial_era_client::title::Mode::Multiplayer(_)
+                industrial_era_client::title::Mode::Main
+                    | industrial_era_client::title::Mode::Multiplayer(_)
             )
         });
         world_loading::preload_world_data(
@@ -19806,7 +19946,8 @@ impl Game<'_> {
         };
         // The recipe tables, the stations and the recipe book read one folder:
         // hold its files so it is read once.
-        let _recipe_files = industrial_era_client::json_folder::read(&root.join("data/minecraft/recipe"));
+        let _recipe_files =
+            industrial_era_client::json_folder::read(&root.join("data/minecraft/recipe"));
         let recipes = match Recipes::load(root, &items, &overlay) {
             Ok(recipes) => recipes,
             Err(e) => {
@@ -19856,7 +19997,9 @@ impl Game<'_> {
                         self.run_native_advancement_grants();
                     }
                     Err(e) => {
-                        log::warn!("Industrial Era: the players are not sent the reloaded data: {e}")
+                        log::warn!(
+                            "Industrial Era: the players are not sent the reloaded data: {e}"
+                        )
                     }
                 }
             }
@@ -20086,9 +20229,13 @@ fn load_core(
                 let library = render.model_library.clone();
                 let item_renderer = startup::time("core.item_models", || {
                     if headless {
-                        industrial_era_client::item_render::ItemRenderer::load_for_server(root, library)
+                        industrial_era_client::item_render::ItemRenderer::load_for_server(
+                            root, library,
+                        )
                     } else {
-                        industrial_era_client::item_render::ItemRenderer::load_with_library(root, library)
+                        industrial_era_client::item_render::ItemRenderer::load_with_library(
+                            root, library,
+                        )
                     }
                 })
                 .map_err(|e| e.to_string());
@@ -20215,11 +20362,11 @@ fn load_resources(
     progress: &Progress,
     publish: &mut dyn FnMut(UiResources, &std::path::Path),
 ) -> Result<Loaded> {
-    let threads = settings.industrial-era.worker_threads();
+    let threads = settings.industrial_era.worker_threads();
     // One pool of workers for every level's streaming, the client's and the
     // server thread's (industrial_era_threads::jobs), sized before any world opens.
     industrial_era_threads::jobs::configure(threads);
-    industrial_era_client::sprites::set_texture_budget(settings.industrial-era.texture_budget_mib);
+    industrial_era_client::sprites::set_texture_budget(settings.industrial_era.texture_budget_mib);
     industrial_era_client::sprites::set_labpbr_maps(shader_packs::picks_native_pack(settings));
     // Stage A: the menu bundle (atlas and panorama). With a loading screen it is
     // published at once so the title screen can appear while the world bundle
@@ -20461,7 +20608,9 @@ fn load_resources(
 /// the next starts read them from one file (#1961).
 fn write_prepared_files(root: PathBuf) {
     use industrial_era_core::prepared_files;
-    if prepared_files::open(&root).is_some() || !root.join("industrial-era-resources.json").is_file() {
+    if prepared_files::open(&root).is_some()
+        || !root.join("industrial-era-resources.json").is_file()
+    {
         return;
     }
     let spawned = std::thread::Builder::new()
@@ -20475,7 +20624,10 @@ fn write_prepared_files(root: PathBuf) {
                     prepared_files::FILE_NAME,
                     started.elapsed().as_millis()
                 ),
-                Err(e) => log::info!("Industrial Era: {} not written: {e}", prepared_files::FILE_NAME),
+                Err(e) => log::info!(
+                    "Industrial Era: {} not written: {e}",
+                    prepared_files::FILE_NAME
+                ),
             }
         });
     if let Err(e) = spawned {
@@ -20513,7 +20665,8 @@ fn load_world_rest(
         progress.set(7);
         // The recipe tables, the stations and the recipe book read one folder:
         // hold its files so it is read once.
-        let _recipe_files = industrial_era_client::json_folder::read(&root.join("data/minecraft/recipe"));
+        let _recipe_files =
+            industrial_era_client::json_folder::read(&root.join("data/minecraft/recipe"));
         let recipes = startup::time("rest.recipes", || Recipes::load(root, &items, overlay))?;
         let stations = startup::time("rest.stations", || {
             industrial_era_client::stations::StationData::load(root, &items, overlay)
@@ -20541,7 +20694,10 @@ fn load_world_rest(
         } else {
             Default::default()
         };
-        Ok((animate, industrial_era_client::fog::FogTables::load(root, biomes)))
+        Ok((
+            animate,
+            industrial_era_client::fog::FogTables::load(root, biomes),
+        ))
     };
     let load_mobs = || -> Result<_> {
         let _step = startup::step("rest.mobs");
@@ -20559,7 +20715,8 @@ fn load_world_rest(
     };
     let load_transformers = || -> Result<_> {
         let _step = startup::step("rest.transformers_models");
-        let transformers = industrial_era_client::block_transform::Transformers::load(root, registry)?;
+        let transformers =
+            industrial_era_client::block_transform::Transformers::load(root, registry)?;
         let models = (
             perspective::player_type(root),
             player_arms(root, "minecraft:player#main"),
@@ -20616,8 +20773,8 @@ fn load_world_rest(
     progress.set(8);
     let _tail = startup::step("rest.tail");
     // Content mods' kinetic blocks (none without them): their networks (game/kinetics.rs).
-    let kinetics =
-        industrial_era_client::kinetics::KineticTable::load(root, registry).unwrap_or_else(|e| {
+    let kinetics = industrial_era_client::kinetics::KineticTable::load(root, registry)
+        .unwrap_or_else(|e| {
             log::warn!("Industrial Era: kinetic parts not loaded: {e}");
             Default::default()
         });
@@ -20738,7 +20895,8 @@ fn build_renderer(
     // driver that has already shown frames.
     #[cfg(target_os = "android")]
     let start_marker = previous.is_none().then(|| {
-        let marker = Game::options_path().with_file_name(industrial_era_client::graphics::RENDERER_MARKER);
+        let marker =
+            Game::options_path().with_file_name(industrial_era_client::graphics::RENDERER_MARKER);
         let _ = std::fs::write(&marker, "the renderer was starting\n");
         marker
     });
@@ -21256,10 +21414,12 @@ impl Loading {
         let attributes = Window::default_attributes()
             .with_title("Industrial Era")
             .with_window_icon(industrial_era_client::window::icon());
-        // Wayland names the window by its app id, which the industrial-era.desktop entry matches.
+        // Wayland names the window by its app id, which the industrial_era.desktop entry matches.
         #[cfg(target_os = "linux")]
         let attributes = winit::platform::wayland::WindowAttributesExtWayland::with_name(
-            attributes, "industrial-era", "industrial-era",
+            attributes,
+            "industrial-era",
+            "industrial-era",
         );
         // `--offscreen` renders into a texture: its window would only show white.
         let window_step = startup::step("window.create");
@@ -21308,7 +21468,7 @@ impl Loading {
             Some(&self.boot),
             None,
             None,
-            self.settings.industrial-era.api,
+            self.settings.industrial_era.api,
         ) {
             Ok(r) => self.renderer = Some(r),
             Err(e) => {
@@ -21439,10 +21599,11 @@ impl Loading {
             Some(&bundle.atlas),
             Some(&bundle.panorama),
             self.renderer.as_ref(),
-            self.settings.industrial-era.api,
+            self.settings.industrial_era.api,
         ) {
             Ok(r) => {
-                industrial_era_client::hud::GUI_SCALE.store(self.settings.gui_scale, Ordering::Relaxed);
+                industrial_era_client::hud::GUI_SCALE
+                    .store(self.settings.gui_scale, Ordering::Relaxed);
                 self.renderer = Some(r);
             }
             Err(e) => self.error = Some(e),
@@ -21668,13 +21829,13 @@ impl Loading {
         let detail = if industrial_era_client::platform::registered() {
             // Android: the prepared folder, zipped, comes in through "Open with" or the picker.
             format!(
-                "{failure}\n\nStarling needs the Minecraft resources industrial-era-prepare makes from your \
+                "{failure}\n\nStarling needs the Minecraft resources industrial_era-prepare makes from your \
                  own copy of the game. Zip that folder, then open the zip with Starling from your \
                  file manager, or tap anywhere here to pick it."
             )
         } else {
             format!(
-                "{failure}\n\nResources are read from {}: copy the folder industrial-era-prepare made there.",
+                "{failure}\n\nResources are read from {}: copy the folder industrial_era-prepare made there.",
                 self.vanilla_root.display()
             )
         };
@@ -21722,8 +21883,8 @@ impl Loading {
                 &gui,
                 self.renderer.as_ref(),
                 loaded.renderer_cpu,
-                self.settings.industrial-era.api,
-                self.settings.industrial-era.translucent_batching,
+                self.settings.industrial_era.api,
+                self.settings.industrial_era.translucent_batching,
                 shader_packs::picked_pack_draws_flat(&self.settings),
             )
         })?;
@@ -21891,7 +22052,7 @@ fn missing_resources(root: &std::path::Path) -> Option<String> {
     }
     let shown = std::path::absolute(root).unwrap_or_else(|_| root.to_path_buf());
     Some(format!(
-        "Industrial Era's prepared game files are missing: no industrial-era-resources.json in {}\n\
+        "Industrial Era's prepared game files are missing: no industrial_era-resources.json in {}\n\
          Industrial Era is started from its launcher: download it at {} (Download). It needs your \
          own Minecraft: Java Edition; the launcher signs you in and prepares the game files.\n\
          Developers: industrial-era-prepare --prepare, or pass --resources <folder>",
@@ -22044,9 +22205,9 @@ pub fn run_with() -> Result<()> {
     // industrial-era-ctl drives: those start in a source checkout and wrote the list there.
     if !options.offscreen && !synchronous_startup(&options) {
         industrial_era_client::heartbeat::start();
-        if let Err(e) =
-            industrial_era_client::multiplayer::add_official_server(&industrial_era_client::logging::player_dir())
-        {
+        if let Err(e) = industrial_era_client::multiplayer::add_official_server(
+            &industrial_era_client::logging::player_dir(),
+        ) {
             log::warn!("could not add the official server to servers.dat: {e}");
         }
     }
@@ -22058,11 +22219,13 @@ pub fn run_with() -> Result<()> {
     #[cfg(target_os = "android")]
     if options.execution_role.is_client()
         && vanilla_root.join("industrial-era-resources.json").is_file()
-        && let Err(e) = industrial_era_client::android_control_assets::fetch(&vanilla_root, |_, _| {})
+        && let Err(e) =
+            industrial_era_client::android_control_assets::fetch(&vanilla_root, |_, _| {})
     {
         log::warn!("Original Android control textures: {e}");
     }
-    if options.execution_role.is_client() && !industrial_era_client::bedrock_touch::present(&vanilla_root)
+    if options.execution_role.is_client()
+        && !industrial_era_client::bedrock_touch::present(&vanilla_root)
     {
         let root = vanilla_root.clone();
         let _ = std::thread::Builder::new()
@@ -22083,7 +22246,7 @@ pub fn run_with() -> Result<()> {
             "Industrial Era: first start on a {} tier device: render distance {}, resolution {}%",
             tier.name(),
             early_settings.render_distance,
-            early_settings.industrial-era.resolution_scale
+            early_settings.industrial_era.resolution_scale
         );
     }
     // Minecraft's constructor opens the narrator; a server has none.
@@ -22096,7 +22259,10 @@ pub fn run_with() -> Result<()> {
             || options.offscreen
             || options.frames.is_some()
             || options.world_frames.is_some();
-        industrial_era_client::discord_presence::start(early_settings.extras.discord_presence, automated);
+        industrial_era_client::discord_presence::start(
+            early_settings.extras.discord_presence,
+            automated,
+        );
     }
     // Snapshots of derived tables live in the game folder (or its private
     // half), never beside the shared resources.
@@ -22166,7 +22332,10 @@ pub fn run_with() -> Result<()> {
 
 /// The right and left arms of a player model layer (`PlayerModel.rightArm`
 /// and `leftArm`, with their sleeves).
-fn player_arms(root: &std::path::Path, key: &str) -> [Option<industrial_era_client::mobs::Part>; 2] {
+fn player_arms(
+    root: &std::path::Path,
+    key: &str,
+) -> [Option<industrial_era_client::mobs::Part>; 2] {
     let model = industrial_era_client::mobs::load_model(root, key);
     ["right_arm", "left_arm"].map(|name| {
         model
@@ -22291,11 +22460,15 @@ mod startup_cpu_tests {
 
     #[test]
     fn a_folder_without_prepared_files_is_named_before_loading() {
-        let root = std::env::temp_dir().join(format!("industrial-era-unprepared-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-unprepared-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         let missing = missing_resources(&root.join(".local/industrial-era-client/26.3"))
             .expect("no manifest is reported");
-        assert!(missing.contains("industrial-era-resources.json"), "{missing}");
+        assert!(
+            missing.contains("industrial-era-resources.json"),
+            "{missing}"
+        );
         assert!(missing.contains("industrial-era-unprepared-"), "{missing}");
         assert!(missing.contains("launcher"), "{missing}");
         std::fs::create_dir_all(&root).unwrap();
@@ -22306,7 +22479,8 @@ mod startup_cpu_tests {
 
     #[test]
     fn worker_prepares_owned_models_and_inventory_before_handoff() {
-        let root = std::env::temp_dir().join(format!("industrial-era-startup-cpu-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-startup-cpu-{}", std::process::id()));
         std::fs::create_dir_all(&root).unwrap();
         std::fs::write(
             root.join("entity-models.json"),
@@ -22989,10 +23163,11 @@ mod tests {
             alt
         };
 
-        let should_ignore =
-            |quit_shortcuts: bool, modifiers: ModifiersState, keys: &HashSet<KeyCode>| {
-                !quit_shortcuts && industrial_era_client::input::is_quit_shortcut_down(modifiers, keys)
-            };
+        let should_ignore = |quit_shortcuts: bool,
+                             modifiers: ModifiersState,
+                             keys: &HashSet<KeyCode>| {
+            !quit_shortcuts && industrial_era_client::input::is_quit_shortcut_down(modifiers, keys)
+        };
 
         // When enabled, close requests from shortcuts proceed normally.
         assert!(!should_ignore(quit_shortcuts_enabled, mods, &keys));

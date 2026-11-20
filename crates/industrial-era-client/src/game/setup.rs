@@ -29,7 +29,7 @@ enum Step {
     /// Industrial Era Android is on the phone: its worlds and resource packs can come over
     /// (HorizonImport.java). True once its folder was asked for: they are arriving.
     #[cfg(target_os = "android")]
-    Industrial Era(bool),
+    IndustrialEra(bool),
     /// Nothing under way: sign in, play offline, or bring resources from a computer.
     Start,
     /// Play offline chosen: whether the player is sure (most servers need a sign-in).
@@ -70,7 +70,7 @@ enum Action {
     /// Industrial Era Android's folder in the system's picker (again, if the player came back without
     /// picking it).
     #[cfg(target_os = "android")]
-    Industrial Era,
+    IndustrialEra,
     /// Skip, or Next once its files are on their way: not offered again.
     #[cfg(target_os = "android")]
     HorizonDone,
@@ -212,7 +212,7 @@ fn account_step(setup: &Setup, state: State) -> Step {
             // After the folder: what comes over lands in the game folder that stays.
             #[cfg(target_os = "android")]
             if industrial_era_offer(setup) {
-                return Step::Industrial Era(setup.industrial_era_picked);
+                return Step::IndustrialEra(setup.industrial_era_picked);
             }
             Step::Start
         }
@@ -238,7 +238,8 @@ fn account_step(setup: &Setup, state: State) -> Step {
 #[cfg(target_os = "android")]
 fn folder_offer(setup: &Setup) -> Option<super::files_offer::Stage> {
     use super::files_offer::{Stage, declined};
-    let private = industrial_era_client::logging::game_home() == industrial_era_client::logging::private_home();
+    let private = industrial_era_client::logging::game_home()
+        == industrial_era_client::logging::private_home();
     if !private || setup.folder_later || declined().exists() {
         return None;
     }
@@ -267,7 +268,9 @@ pub(super) static HORIZON_LATER: std::sync::atomic::AtomicBool =
 /// Whether to offer Industrial Era Android's worlds and packs: it is installed, and not answered yet.
 #[cfg(target_os = "android")]
 fn industrial_era_offer(setup: &Setup) -> bool {
-    if industrial_era_answered().exists() || HORIZON_LATER.load(std::sync::atomic::Ordering::Relaxed) {
+    if industrial_era_answered().exists()
+        || HORIZON_LATER.load(std::sync::atomic::Ordering::Relaxed)
+    {
         return false;
     }
     setup.industrial_era_installed.get().unwrap_or_else(|| {
@@ -290,7 +293,7 @@ fn texts(step: &Step) -> (&'static str, String, Option<String>) {
             (title, body.into(), None)
         }
         #[cfg(target_os = "android")]
-        Step::Industrial Era(false) => (
+        Step::IndustrialEra(false) => (
             "Coming from Industrial Era Android?",
             "Industrial Era Android is part of Starling now: bring your worlds and resource packs over. \
              Close Industrial Era Android first, then, in the folder that opens, tap Use this folder and \
@@ -299,7 +302,7 @@ fn texts(step: &Step) -> (&'static str, String, Option<String>) {
             Some("They are copied: Industrial Era Android keeps its own.".into()),
         ),
         #[cfg(target_os = "android")]
-        Step::Industrial Era(true) => (
+        Step::IndustrialEra(true) => (
             "Coming from Industrial Era Android?",
             "Your worlds and resource packs are on their way: the note at the top says what each \
              one added. Tap Next when they are in."
@@ -377,14 +380,14 @@ fn buttons(step: &Step) -> Vec<(String, Action)> {
             ]
         }
         #[cfg(target_os = "android")]
-        Step::Industrial Era(false) => vec![
-            literal("Bring them over", Action::Industrial Era),
+        Step::IndustrialEra(false) => vec![
+            literal("Bring them over", Action::IndustrialEra),
             literal("Skip", Action::HorizonDone),
         ],
         #[cfg(target_os = "android")]
-        Step::Industrial Era(true) => vec![
+        Step::IndustrialEra(true) => vec![
             literal("Next", Action::HorizonDone),
-            literal("Pick the folder again", Action::Industrial Era),
+            literal("Pick the folder again", Action::IndustrialEra),
         ],
         Step::Start => vec![
             (tr("setup.microsoft"), Action::SignIn),
@@ -872,7 +875,8 @@ impl Loading {
                 }
             }
             Action::Register => {
-                let _ = industrial_era_client::platform::open_link("https://account.ely.by/register");
+                let _ =
+                    industrial_era_client::platform::open_link("https://account.ely.by/register");
             }
             Action::CancelSignIn => {
                 accounts::cancel();
@@ -897,11 +901,13 @@ impl Loading {
                 self.setup.folder_later = true;
             }
             #[cfg(target_os = "android")]
-            Action::Industrial Era => {
+            Action::IndustrialEra => {
                 if crate::android::import_industrial_era_android() {
                     self.setup.industrial_era_picked = true;
                 } else {
-                    log::warn!("Industrial Era: no folder picker for Industrial Era Android's files");
+                    log::warn!(
+                        "Industrial Era: no folder picker for Industrial Era Android's files"
+                    );
                 }
             }
             #[cfg(target_os = "android")]
@@ -949,7 +955,9 @@ impl Loading {
                 self.setup.fishing.release(Instant::now());
                 self.setup.fishing_open = false;
             }
-            Action::Settings => self.open_menu_options(industrial_era_client::options_ui::Page::Main),
+            Action::Settings => {
+                self.open_menu_options(industrial_era_client::options_ui::Page::Main)
+            }
             Action::Diagnostics => {
                 if let Some(form) = &mut self.setup.form {
                     form.hide();

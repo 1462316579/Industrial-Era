@@ -23,7 +23,7 @@ impl Game<'_> {
             }
             return;
         };
-        let has_far = self.settings.industrial-era.lod_distance > 0;
+        let has_far = self.settings.industrial_era.lod_distance > 0;
         let pressure = ram_limit::pressure(limit, self.fps);
         let step = self
             .ram_limit

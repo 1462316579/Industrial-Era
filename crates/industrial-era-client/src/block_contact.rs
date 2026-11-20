@@ -96,8 +96,12 @@ pub fn swept_inside<'a>(
     }
     let bounds = bounds.deflate(industrial_era_core::geometry::Vec3::new(1e-5, 1e-5, 1e-5));
     let mut visited = std::collections::HashSet::new();
-    let _ =
-        industrial_era_core::geometry::sweep_intersected_blocks(from, to, bounds, 1_000_000, |p, step| {
+    let _ = industrial_era_core::geometry::sweep_intersected_blocks(
+        from,
+        to,
+        bounds,
+        1_000_000,
+        |p, step| {
             if step >= 16 {
                 return false;
             }
@@ -112,7 +116,8 @@ pub fn swept_inside<'a>(
                 }));
             }
             true
-        });
+        },
+    );
 }
 
 #[cfg(test)]

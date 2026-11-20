@@ -1497,8 +1497,10 @@ capabilities = ["registries"]
     const ITEM: &[u8] = br#"{"template": "minecraft:diamond", "rarity": "uncommon"}"#;
 
     fn scratch(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-content-{}-{name}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-content-{}-{name}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -1535,7 +1537,10 @@ capabilities = ["registries"]
                 hmod(
                     "bad-collision",
                     MANIFEST_TEXT,
-                    &[("data/ruby/industrial-era/block/a.json", declaration.as_bytes(),)]
+                    &[(
+                        "data/ruby/industrial-era/block/a.json",
+                        declaration.as_bytes(),
+                    )]
                 )
                 .is_err(),
                 "{value}"
@@ -1803,8 +1808,10 @@ capabilities = ["registries"]
                 "missing field",
             ),
         ] {
-            let files: &[(&str, &[u8])] =
-                &[("data/ruby/industrial-era/mob_effect/a.json", file.as_bytes())];
+            let files: &[(&str, &[u8])] = &[(
+                "data/ruby/industrial-era/mob_effect/a.json",
+                file.as_bytes(),
+            )];
             let e = hmod(case, MANIFEST_TEXT, files).unwrap_err();
             assert!(e.contains(why), "{case}: {e}");
         }
@@ -1850,7 +1857,8 @@ capabilities = ["registries"]
             ("menu-key", r#"{"slots": 3, "rows": 1}"#, "unknown field"),
             ("menu-missing", r#"{"data_slots": 1}"#, "missing field"),
         ] {
-            let files: &[(&str, &[u8])] = &[("data/ruby/industrial-era/menu/a.json", file.as_bytes())];
+            let files: &[(&str, &[u8])] =
+                &[("data/ruby/industrial-era/menu/a.json", file.as_bytes())];
             let e = hmod(case, MANIFEST_TEXT, files).unwrap_err();
             assert!(e.contains(why), "{case}: {e}");
         }
@@ -1913,7 +1921,10 @@ capabilities = ["registries"]
         ] {
             let files: &[(&str, &[u8])] = &[
                 ("data/ruby/industrial-era/item/gem.json", ITEM),
-                ("data/ruby/industrial-era/entity_type/a.json", file.as_bytes()),
+                (
+                    "data/ruby/industrial-era/entity_type/a.json",
+                    file.as_bytes(),
+                ),
             ];
             let e = hmod(case, MANIFEST_TEXT, files).unwrap_err();
             assert!(e.contains(why), "{case}: {e}");
@@ -1921,8 +1932,14 @@ capabilities = ["registries"]
         let shared = snowball(r#", "item": "ruby:gem""#);
         let files: &[(&str, &[u8])] = &[
             ("data/ruby/industrial-era/item/gem.json", ITEM),
-            ("data/ruby/industrial-era/entity_type/a.json", shared.as_bytes()),
-            ("data/ruby/industrial-era/entity_type/b.json", shared.as_bytes()),
+            (
+                "data/ruby/industrial-era/entity_type/a.json",
+                shared.as_bytes(),
+            ),
+            (
+                "data/ruby/industrial-era/entity_type/b.json",
+                shared.as_bytes(),
+            ),
         ];
         let e = hmod("type-shared", MANIFEST_TEXT, files).unwrap_err();
         assert!(e.contains("already throws another entity type"), "{e}");
@@ -1935,7 +1952,8 @@ capabilities = ["registries"]
             let text = format!(
                 r#"{{"template": "minecraft:dirt", {own}, "properties": {{"random_ticks": {ticks}}}}}"#
             );
-            let files: &[(&str, &[u8])] = &[("data/ruby/industrial-era/block/crop.json", text.as_bytes())];
+            let files: &[(&str, &[u8])] =
+                &[("data/ruby/industrial-era/block/crop.json", text.as_bytes())];
             hmod("random-ticks", MANIFEST_TEXT, files)
         };
         let ticks =
@@ -1981,7 +1999,8 @@ capabilities = ["registries"]
     #[test]
     fn a_kinetic_block_names_its_part_its_models_and_a_render_shape() {
         let block = |json: &str| {
-            let files: &[(&str, &[u8])] = &[("data/ruby/industrial-era/block/part.json", json.as_bytes())];
+            let files: &[(&str, &[u8])] =
+                &[("data/ruby/industrial-era/block/part.json", json.as_bytes())];
             hmod("kinetic", MANIFEST_TEXT, files)
         };
         let content = block(
@@ -2051,7 +2070,10 @@ capabilities = ["registries"]
         let package = Package::read(&dir).unwrap();
         assert!(package.wasm.is_none());
         let content = Content::read(&dir, &package.manifest).unwrap();
-        assert_eq!(content.files, ["data/ruby/industrial-era/block/ruby_block.json"]);
+        assert_eq!(
+            content.files,
+            ["data/ruby/industrial-era/block/ruby_block.json"]
+        );
         assert_eq!(content.file(&content.files[0]).unwrap(), BLOCK);
         std::fs::remove_dir_all(&dir).unwrap();
     }
@@ -2096,8 +2118,10 @@ capabilities = ["registries"]
     #[test]
     fn signs_name_their_wood_and_wall_form() {
         let block = |json: &str| {
-            let files: &[(&str, &[u8])] =
-                &[("data/ruby/industrial-era/block/notice.json", json.as_bytes())];
+            let files: &[(&str, &[u8])] = &[(
+                "data/ruby/industrial-era/block/notice.json",
+                json.as_bytes(),
+            )];
             hmod("sign", MANIFEST_TEXT, files)
         };
         let files: &[(&str, &[u8])] = &[
@@ -2167,7 +2191,10 @@ capabilities = ["registries"]
                 ("data/ruby/industrial-era/block/wall.json", wall.as_bytes()),
             ];
             if wanted == "already paired" {
-                files.push(("data/ruby/industrial-era/block/second.json", second.as_bytes()));
+                files.push((
+                    "data/ruby/industrial-era/block/second.json",
+                    second.as_bytes(),
+                ));
             }
             let e = hmod("sign-wall", MANIFEST_TEXT, &files).unwrap_err();
             assert!(e.contains(wanted), "{wanted}: {e}");
@@ -2213,8 +2240,10 @@ capabilities = ["registries"]
     #[test]
     fn creative_tabs_name_their_items() {
         let tab = |json: &str| {
-            let files: &[(&str, &[u8])] =
-                &[("data/ruby/industrial-era/creative_tab/gems.json", json.as_bytes())];
+            let files: &[(&str, &[u8])] = &[(
+                "data/ruby/industrial-era/creative_tab/gems.json",
+                json.as_bytes(),
+            )];
             hmod("tab", MANIFEST_TEXT, files)
         };
         let content =
@@ -2240,7 +2269,10 @@ capabilities = ["registries"]
             assert!(!e.is_empty());
             e
         };
-        let e = refused("other-ns", &[("data/other/industrial-era/block/a.json", BLOCK)]);
+        let e = refused(
+            "other-ns",
+            &[("data/other/industrial-era/block/a.json", BLOCK)],
+        );
         assert!(e.contains("own namespaces"), "{e}");
         refused(
             "vanilla-asset",
@@ -2291,7 +2323,10 @@ capabilities = ["registries"]
             ],
         );
         assert!(e.contains("also a block's item"), "{e}");
-        refused("other-kind", &[("data/ruby/industrial-era/entity/a.json", b"{}")]);
+        refused(
+            "other-kind",
+            &[("data/ruby/industrial-era/entity/a.json", b"{}")],
+        );
         refused(
             "stack",
             &[(
@@ -2347,7 +2382,10 @@ capabilities = ["registries"]
             ),
         ] {
             let item = format!(r#"{{"template": "minecraft:stick", "components": {components}}}"#);
-            let e = refused(case, &[("data/ruby/industrial-era/item/a.json", item.as_bytes())]);
+            let e = refused(
+                case,
+                &[("data/ruby/industrial-era/item/a.json", item.as_bytes())],
+            );
             assert!(e.contains(why), "{case}: {e}");
         }
         let glass = br#"{"template": "minecraft:glass", "item": false}"#;

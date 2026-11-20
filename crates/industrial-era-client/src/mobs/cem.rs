@@ -399,7 +399,10 @@ impl CemLayer {
             let mut bone = part(&p.bone, &mut count, &mut ids);
             bone.pose[6..9].fill(p.scale);
             let Some(node) = find_mut(&mut out, &target) else {
-                log::warn!("Industrial Era: custom entity model {name}: no part {}", p.part);
+                log::warn!(
+                    "Industrial Era: custom entity model {name}: no part {}",
+                    p.part
+                );
                 continue;
             };
             if !p.attach {
@@ -601,7 +604,8 @@ mod tests {
 
     /// A fresh pack folder for the test `test` holding `files` (paths under `assets/minecraft/`).
     fn pack(test: &str, files: &[(&str, &str)]) -> std::path::PathBuf {
-        let root = std::env::temp_dir().join(format!("industrial-era-cem-{test}-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-cem-{test}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         for (path, text) in files {
             let path = root.join("assets/minecraft").join(path);

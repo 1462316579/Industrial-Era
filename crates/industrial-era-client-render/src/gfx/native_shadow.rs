@@ -6,7 +6,9 @@
 //! draw lists (`ShadowView`) serve both; the map's texels are distorted toward the camera as the
 //! prelude's `shadow_position` undoes.
 
-use industrial_era_shader_api::{Frame as FrameInputs, manifest::Shadow as Settings, stages::GROUP};
+use industrial_era_shader_api::{
+    Frame as FrameInputs, manifest::Shadow as Settings, stages::GROUP,
+};
 use industrial_era_shaders::Shadow;
 
 use super::native_material::TerrainShape;

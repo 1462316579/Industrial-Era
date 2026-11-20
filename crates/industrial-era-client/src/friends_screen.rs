@@ -180,7 +180,10 @@ fn layout(
             x: cx - 154.0,
             y: h - 27.0,
             w: 150.0,
-            label: tr("industrial-era.friends.troubleshooting", "Troubleshooting..."),
+            label: tr(
+                "industrial-era.friends.troubleshooting",
+                "Troubleshooting...",
+            ),
             action: Action::Help,
             active: true,
         });
@@ -276,7 +279,10 @@ mod tests {
     use super::*;
 
     fn atlas() -> HudAtlas {
-        HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets")).unwrap()
+        HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap()
     }
 
     #[test]

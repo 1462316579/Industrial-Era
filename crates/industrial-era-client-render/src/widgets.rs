@@ -249,7 +249,7 @@ pub fn last_labelled() -> Vec<Widget> {
 
 // Screen narration: what a frame's screen and widgets would narrate
 // (`Screen.updateNarrationState` and each `NarratableEntry`), recorded by the
-// drawers as they draw, for industrial-era-client's `screen_narrator` to read once the
+// drawers as they draw, for industrial_era-client's `screen_narrator` to read once the
 // frame is done. Nothing is recorded (nor built: the record calls take
 // closures) unless the narrator asked for it with `set_narrating`.
 

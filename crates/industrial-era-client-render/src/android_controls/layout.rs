@@ -2095,8 +2095,10 @@ mod tests {
     }
     #[test]
     fn swap_factory_migration_keeps_custom_positions() {
-        let file =
-            std::env::temp_dir().join(format!("industrial-era-swap-layout-{}.json", std::process::id()));
+        let file = std::env::temp_dir().join(format!(
+            "industrial-era-swap-layout-{}.json",
+            std::process::id()
+        ));
         let mut settings = Settings::default();
         settings.layouts[0][Control::Offhand as usize] = super::Placement::new(0.68, 0.80, 0.09);
         settings.layouts[1][Control::Offhand as usize].center = [0.55, 0.43];
@@ -2177,7 +2179,8 @@ mod tests {
             assert!(!b.layouts[0].visible_in_menu, "{game_btn} not in menu");
         }
         // Named profile save & load
-        let tmp = std::env::temp_dir().join(format!("industrial-era-named-prof-{}", std::process::id()));
+        let tmp =
+            std::env::temp_dir().join(format!("industrial-era-named-prof-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
         settings.save_profile(&tmp, "My Custom PvP").unwrap();
         let listed = Settings::list_profiles(&tmp);
@@ -2189,7 +2192,8 @@ mod tests {
 
     #[test]
     fn independent_mcpe_and_goycontrol_storage_and_protected_defaults() {
-        let tmp = std::env::temp_dir().join(format!("industrial-era-sep-systems-{}", std::process::id()));
+        let tmp =
+            std::env::temp_dir().join(format!("industrial-era-sep-systems-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
 
         // Fresh default is MCPE Default
@@ -2266,7 +2270,8 @@ mod tests {
 
     #[test]
     fn virtual_mouse_and_floating_menu_settings_persist_across_system_switches() {
-        let tmp = std::env::temp_dir().join(format!("industrial-era-vm-persist-{}", std::process::id()));
+        let tmp =
+            std::env::temp_dir().join(format!("industrial-era-vm-persist-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
 
         let mut settings = Settings {

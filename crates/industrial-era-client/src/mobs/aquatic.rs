@@ -546,7 +546,8 @@ fn squid_step(m: &mut Mob, client: bool) {
         }
         let mv = m.velocity;
         let horizontal = (mv.x * mv.x + mv.z * mv.z).sqrt();
-        m.body_yaw += (-(industrial_era_core::geometry::trig::atan2(mv.x, mv.z) as f32) * 57.295776
+        m.body_yaw += (-(industrial_era_core::geometry::trig::atan2(mv.x, mv.z) as f32)
+            * 57.295776
             - m.body_yaw)
             * 0.1;
         m.yaw = m.body_yaw;

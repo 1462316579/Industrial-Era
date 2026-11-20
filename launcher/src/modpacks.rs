@@ -7,7 +7,7 @@
 //! `home/`, the profile's own saves and options. Nothing is uploaded or shared: mod jars are
 //! often All Rights Reserved, so the ports stay on the player's machine.
 use crate::backend;
-use crate::browser::industrial-era::pack as industrial_era_pack;
+use crate::browser::industrial_era: :pack as industrial_era_pack;
 use industrial_era_port_pack::{
     fetch::{Fetched, How},
     import::Pack,

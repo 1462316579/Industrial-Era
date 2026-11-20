@@ -42,10 +42,10 @@ fn bound_recursive_providers_and_registry_lists_before_sampling() {
     let oversized = serde_json::json!({"type":"rule_based","rules":vec![branching;8192]});
     assert!(BlockStateProvider::from_json(&oversized.to_string(), &bindings).is_err());
     // Content mods' blocks join shared tags: the cap is 2^20 blocks.
-    let tags = BTreeMap::from([("industrial-era:large".into(), vec!["stone".into(); 8193])]);
+    let tags = BTreeMap::from([("industrial_era:large".into(), vec!["stone".into(); 8193])]);
     assert!(StateProviderBindings::new(&registry, BTreeSet::new(), &tags).is_ok());
     let tags = BTreeMap::from([(
-        "industrial-era:oversized".into(),
+        "industrial_era:oversized".into(),
         vec!["stone".into(); (1 << 20) + 1],
     )]);
     assert!(StateProviderBindings::new(&registry, BTreeSet::new(), &tags).is_err());
@@ -53,20 +53,30 @@ fn bound_recursive_providers_and_registry_lists_before_sampling() {
     assert!(StateProviderBindings::new(&registry, BTreeSet::new(), &tags).is_err());
     let definitions = BTreeMap::from([
         (
-            "industrial-era:cycle".into(),
-            r#"{"type":"copy_properties","source":"industrial-era:cycle"}"#.into(),
+            "industrial_era:cycle".into(),
+            r#"{"type":"copy_properties","source":"industrial_era:cycle"}"#.into(),
         ),
-        ("industrial-era:valid".into(), r#"{"id":"stone"}"#.into()),
-        ("industrial-era:invalid".into(), r#"{"type":"missing"}"#.into()),
-        ("industrial-era:alias".into(), r#""industrial-era:valid""#.into()),
+        ("industrial_era:valid".into(), r#"{"id":"stone"}"#.into()),
+        (
+            "industrial_era:invalid".into(),
+            r#"{"type":"missing"}"#.into(),
+        ),
+        (
+            "industrial_era:alias".into(),
+            r#""industrial_era:valid""#.into(),
+        ),
     ]);
     let catalog = StateProviderCatalog::from_resources(&definitions).unwrap();
-    assert!(catalog.provider(r#""industrial-era:valid""#, &bindings).is_ok());
+    assert!(
+        catalog
+            .provider(r#""industrial_era:valid""#, &bindings)
+            .is_ok()
+    );
     for name in [
-        "industrial-era:cycle",
-        "industrial-era:invalid",
-        "industrial-era:alias",
-        "industrial-era:missing",
+        "industrial_era:cycle",
+        "industrial_era:invalid",
+        "industrial_era:alias",
+        "industrial_era:missing",
     ] {
         assert!(
             catalog
@@ -76,7 +86,7 @@ fn bound_recursive_providers_and_registry_lists_before_sampling() {
     }
     assert!(
         catalog
-            .direct_provider(r#""industrial-era:valid""#, &bindings)
+            .direct_provider(r#""industrial_era:valid""#, &bindings)
             .is_err()
     );
     let duplicate = BTreeMap::from([

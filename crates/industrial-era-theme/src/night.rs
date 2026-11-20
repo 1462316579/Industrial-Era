@@ -44,7 +44,7 @@ pub const UNCARDED_STOPS: usize = 3;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Night {
-    /// The sky from the top of the window to the industrial-era, drawn in bands.
+    /// The sky from the top of the window to the industrial_era, drawn in bands.
     pub sky: [u32; 6],
     /// Behind everything before the sky is drawn, and the sidebar.
     pub page: u32,

@@ -766,7 +766,7 @@ impl Plan {
 /// there cost a far tile's work for broad boxes that fine tiles replace
 /// moments later. Then a coarse backdrop (`Plan::backdrop`) out to the
 /// industrial-era, then every other planned tile nearest first, each replacing its
-/// part of the backdrop: the industrial-era fills in early and sharpens from the
+/// part of the backdrop: the industrial_era fills in early and sharpens from the
 /// player outward, whichever way they look.
 /// A tile `ready` and `stale` (`Lod::refresh`) is wanted again, its old
 /// samples drawn meanwhile: it needs no backdrop.
@@ -3864,7 +3864,7 @@ mod tests {
     /// of the near terrain is drawn as finely as the plan wants it (one
     /// block wide in Full): until then nothing is drawn there. And before
     /// every far column is drawn, by its tile or a coarse stand-in: until
-    /// then the far terrain ends short of the industrial-era. Checks that no coarse
+    /// then the far terrain ends short of the industrial_era. Checks that no coarse
     /// tile is ever drawn at the seam.
     fn jobs_until_fine_seam(camera: [i32; 2], reduced: bool) -> ([(usize, i32); 2], usize) {
         let (detail, distance) = (12, 128);
@@ -3898,12 +3898,12 @@ mod tests {
                 }
             }
         }
-        let mut industrial-era = Vec::new();
+        let mut industrial_era = Vec::new();
         for z in (camera[1] - 2048..camera[1] + 2048).step_by(64) {
             for x in (camera[0] - 2048..camera[0] + 2048).step_by(64) {
                 if !covered.contains(&(x.div_euclid(16), z.div_euclid(16))) && leaf(x, z).is_some()
                 {
-                    industrial-era.push((x, z));
+                    industrial - era.push((x, z));
                 }
             }
         }
@@ -3940,7 +3940,7 @@ mod tests {
             if fine.is_none() && seam.iter().all(|&(x, z, leaf)| drawn(x, z, leaf.level)) {
                 fine = Some((jobs, cost));
             }
-            if reached.is_none() && industrial-era.iter().all(|&(x, z)| drawn(x, z, MAX_LEVEL)) {
+            if reached.is_none() && industrial - era.iter().all(|&(x, z)| drawn(x, z, MAX_LEVEL)) {
                 reached = Some((jobs, cost));
             }
             if let (Some(fine), Some(reached)) = (fine, reached) {
@@ -3978,7 +3978,7 @@ mod tests {
     }
     #[test]
     fn a_coarse_backdrop_reaches_the_industrial_era_early() {
-        // Sampling only planned tiles, nearest first, reached the industrial-era
+        // Sampling only planned tiles, nearest first, reached the industrial_era
         // with the last of ~3000 jobs in Full (500000 lattice points), ~1050
         // in Reduced (200000): for minutes on a slow machine the far terrain
         // ended in a hard edge. The backdrop adds ~230 coarse tiles (~80 in
@@ -4634,7 +4634,8 @@ mod tests {
                 .registry
                 .default_state("minecraft:stone")
                 .unwrap();
-            let dir = std::env::temp_dir().join(format!("industrial-era-{name}-{}", std::process::id()));
+            let dir =
+                std::env::temp_dir().join(format!("industrial-era-{name}-{}", std::process::id()));
             let _ = std::fs::remove_dir_all(&dir);
             Ok(Self {
                 lod: Lod::new(source(&dir), context),

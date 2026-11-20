@@ -1099,7 +1099,7 @@ impl PlacementContext for World<'_> {
     }
     fn add_entity(&mut self, mut nbt: crate::nbt::Compound) -> Result<(), PlacementQueryError> {
         if let Some(mobs) = self.structure_mobs.clone()
-            && nbt.contains_key(&"industrial-era:finalize".into())
+            && nbt.contains_key(&"industrial_era:finalize".into())
         {
             let at = block_of(&nbt).unwrap_or([0; 3]);
             let biome = self
@@ -1115,7 +1115,7 @@ impl PlacementContext for World<'_> {
                 .map(|s| s.name.clone())
                 .collect();
             if mobs.finalize(&mut nbt, &biome, &structures, self.level_random) {
-                nbt.remove(&"industrial-era:finalize".into());
+                nbt.remove(&"industrial_era:finalize".into());
             }
         }
         self.entities.push(nbt);

@@ -1730,7 +1730,7 @@ impl<'a> Ui<'a> {
     // ---- the launcher's components & animated Industrial Era intro ----
 
     /// Draws the procedural crisp vector Industrial Era `H` mark centered at `(cx, cy)` in `size x size` dp:
-    /// left pillar sliding up, right pillar sliding down, and tilted industrial-era bridge sweeping across
+    /// left pillar sliding up, right pillar sliding down, and tilted industrial_era bridge sweeping across
     /// with a subtle accent glow ring.
     pub fn draw_animated_industrial_era_mark(
         &mut self,
@@ -1815,7 +1815,7 @@ impl<'a> Ui<'a> {
             color::with_alpha(theme.accent, t_right * a),
         );
 
-        // Tilted industrial-era bridge sweeping across from left pillar to right pillar
+        // Tilted industrial_era bridge sweeping across from left pillar to right pillar
         if t_bridge > 0.02 {
             let x0 = cx - offset_x;
             let y0 = cy + size * 0.065;
@@ -1842,7 +1842,12 @@ impl<'a> Ui<'a> {
 
     /// Renders a clean, modern, minimal animated Industrial Era intro screen centered on the
     /// procedural Industrial Era `H` logo with real initialization progress and smooth cross-dissolve.
-    pub fn draw_industrial_era_intro(&mut self, elapsed: f32, loading_progress: f32, status_text: &str) {
+    pub fn draw_industrial_era_intro(
+        &mut self,
+        elapsed: f32,
+        loading_progress: f32,
+        status_text: &str,
+    ) {
         let real_prog = loading_progress.clamp(0.0, 1.0);
         let dissolve = if real_prog >= 0.999 && elapsed > 1.15 {
             1.0 - motion::ease_out_cubic(((elapsed - 1.15) / 0.40).clamp(0.0, 1.0))

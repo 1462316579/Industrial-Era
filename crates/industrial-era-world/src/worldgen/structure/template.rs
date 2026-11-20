@@ -412,7 +412,10 @@ impl StructureTemplate {
         BoundingBox::from_corners(a, b).moved(position)
     }
     /// The palette selected by StructurePlaceSettings.getRandomPalette.
-    pub fn palette_index(&self, random: &mut impl industrial_era_core::random::RandomSource) -> usize {
+    pub fn palette_index(
+        &self,
+        random: &mut impl industrial_era_core::random::RandomSource,
+    ) -> usize {
         random
             .next_int_bound(self.palettes.len().max(1) as i32)
             .unwrap_or(0) as usize

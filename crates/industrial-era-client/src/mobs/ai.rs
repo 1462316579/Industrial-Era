@@ -3075,7 +3075,10 @@ mod hit_effect_tests {
                     Vec3::new(0.5, 64.0, 0.5),
                     0.0,
                 );
-                let (mut lr, mut events) = (industrial_era_core::random::LegacyRandom::new(0), Vec::new());
+                let (mut lr, mut events) = (
+                    industrial_era_core::random::LegacyRandom::new(0),
+                    Vec::new(),
+                );
                 let mut cx = Cx {
                     w,
                     lr: &mut lr,
@@ -3134,7 +3137,10 @@ mod hit_effect_tests {
                 Vec3::new(0.5, 64.0, 0.5),
                 0.0,
             );
-            let (mut lr, mut events) = (industrial_era_core::random::LegacyRandom::new(0), Vec::new());
+            let (mut lr, mut events) = (
+                industrial_era_core::random::LegacyRandom::new(0),
+                Vec::new(),
+            );
             let mut cx = Cx {
                 w: &easy,
                 lr: &mut lr,

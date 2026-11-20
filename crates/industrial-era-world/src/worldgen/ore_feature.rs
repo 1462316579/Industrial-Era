@@ -239,7 +239,8 @@ impl OreFeature {
             let yy = y0 + step64 * (y1 - y0);
             let zz = z0 + step64 * (z1 - z0);
             let ss = random.next_double() * f64::from(self.size) / 16.0;
-            let sine = industrial_era_core::geometry::trig::sin(f64::from(std::f32::consts::PI * step));
+            let sine =
+                industrial_era_core::geometry::trig::sin(f64::from(std::f32::consts::PI * step));
             let r = (f64::from(sine + 1.0) * ss + 1.0) / 2.0;
             *entry = [xx, yy, zz, r];
         }

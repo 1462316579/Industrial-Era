@@ -10,7 +10,7 @@ use std::{
 pub const MANIFEST: &str = "industrial-era-mod.toml";
 /// The component's file name in a `.hmod` or a mod folder.
 pub const WASM: &str = "mod.wasm";
-/// The API (WIT package `industrial-era:mods`) versions this build runs: a mod
+/// The API (WIT package `industrial_era:mods`) versions this build runs: a mod
 /// built for any 0.1.x SDK.
 pub const API: &str = "0.1";
 /// The manifest `api` lines this build loads. 0.2 is 0.1 plus content:
@@ -25,7 +25,7 @@ pub const SERVER_API: &str = "0.3";
 const RESERVED_NAMESPACES: [&str; 3] = ["minecraft", "c", "industrial-era"];
 /// A mod's data (capability `storage`), in `industrial-era-mods/` beside the mods
 /// (`find` never mistakes it for a mod: it has no manifest).
-pub const STORAGE_DIR: &str = ".industrial-era-mod-data";
+pub const STORAGE_DIR: &str = ".industrial_era-mod-data";
 /// The biggest `mod.wasm` a mod may ship.
 const MAX_WASM: u64 = 32 << 20;
 
@@ -160,7 +160,7 @@ impl Capability {
             Capability::Storage | Capability::Players | Capability::World
         )
     }
-    /// The WIT interface it grants, in `industrial-era:mods`.
+    /// The WIT interface it grants, in `industrial_era:mods`.
     pub fn interface(self) -> &'static str {
         match self {
             Capability::GameRead => "game",
@@ -212,10 +212,14 @@ impl Capability {
     /// mod has; `Err` for an import Industrial Era does not offer.
     pub fn of_import(name: &str) -> Result<Option<Capability>, String> {
         let unknown = || format!("imports {name}, which Industrial Era does not offer");
-        let rest = name.strip_prefix("industrial-era:mods/").ok_or_else(unknown)?;
+        let rest = name
+            .strip_prefix("industrial_era:mods/")
+            .ok_or_else(unknown)?;
         let (interface, version) = rest.split_once('@').ok_or_else(unknown)?;
         if !version.starts_with("0.1.") {
-            return Err(format!("needs API {version}; this Industrial Era runs {API}"));
+            return Err(format!(
+                "needs API {version}; this Industrial Era runs {API}"
+            ));
         }
         if interface == "log" {
             return Ok(None);
@@ -520,30 +524,33 @@ capabilities = ["game-read", "hud"]
         assert_eq!(m.side, Side::Client);
         assert_eq!(m.capabilities, [Capability::GameRead, Capability::Hud]);
         let ok = [
-            "industrial-era:mods/log@0.1.0",
-            "industrial-era:mods/game@0.1.0",
-            "industrial-era:mods/hud@0.1.2",
+            "industrial_era:mods/log@0.1.0",
+            "industrial_era:mods/game@0.1.0",
+            "industrial_era:mods/hud@0.1.2",
         ];
         assert_eq!(m.check_imports(ok), Ok(()));
-        let chat = m.check_imports(["industrial-era:mods/chat@0.1.0"]);
+        let chat = m.check_imports(["industrial_era:mods/chat@0.1.0"]);
         assert_eq!(
             chat,
-            Err("uses capability chat, missing from industrial-era-mod.toml".into())
+            Err("uses capability chat, missing from industrial_era-mod.toml".into())
         );
         assert!(m.check_imports(["wasi:filesystem/types@0.2.0"]).is_err());
-        assert!(m.check_imports(["industrial-era:mods/game@0.2.0"]).is_err());
-        let storage = m.check_imports(["industrial-era:mods/storage@0.1.0"]);
+        assert!(m.check_imports(["industrial_era:mods/game@0.2.0"]).is_err());
+        let storage = m.check_imports(["industrial_era:mods/storage@0.1.0"]);
         assert_eq!(
             storage,
-            Err("uses capability storage, missing from industrial-era-mod.toml".into())
+            Err("uses capability storage, missing from industrial_era-mod.toml".into())
         );
         assert_eq!(
-            m.check_imports(["industrial-era:mods/command@0.1.0"]),
-            Err("uses capability command, missing from industrial-era-mod.toml".into())
+            m.check_imports(["industrial_era:mods/command@0.1.0"]),
+            Err("uses capability command, missing from industrial_era-mod.toml".into())
         );
         let with_storage = EXAMPLE.replace("\"hud\"", "\"hud\", \"storage\"");
         let m = Manifest::parse(&with_storage).unwrap();
-        assert_eq!(m.check_imports(["industrial-era:mods/storage@0.1.0"]), Ok(()));
+        assert_eq!(
+            m.check_imports(["industrial_era:mods/storage@0.1.0"]),
+            Ok(())
+        );
     }
 
     #[test]
@@ -564,7 +571,10 @@ capabilities = ["game-read", "hud"]
             ))
         };
         let m = server("0.3", "server", "\"players\", \"storage\"").unwrap();
-        let imports = ["industrial-era:mods/players@0.1.0", "industrial-era:mods/storage@0.1.0"];
+        let imports = [
+            "industrial_era:mods/players@0.1.0",
+            "industrial_era:mods/storage@0.1.0",
+        ];
         assert_eq!(m.check_imports(imports), Ok(()));
         for (api, side) in [("0.3", "client"), ("0.3", "both"), ("0.1", "server")] {
             let e = server(api, side, "").unwrap_err();

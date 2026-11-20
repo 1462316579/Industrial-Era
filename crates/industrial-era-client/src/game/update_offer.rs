@@ -204,7 +204,9 @@ impl Game<'_> {
                             .unwrap_or_else(PoisonError::into_inner)
                             .release = release;
                     }
-                    Err(e) => log::info!("Industrial Era: could not look for a newer Starling: {e}"),
+                    Err(e) => {
+                        log::info!("Industrial Era: could not look for a newer Starling: {e}")
+                    }
                 });
             return;
         }

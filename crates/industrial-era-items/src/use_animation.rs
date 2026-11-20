@@ -1,6 +1,8 @@
 //! The use animation a `consumable` component names.
 
-pub fn consumable_animation(v: &serde_json::Value) -> industrial_era_world::consumable::UseAnimation {
+pub fn consumable_animation(
+    v: &serde_json::Value,
+) -> industrial_era_world::consumable::UseAnimation {
     use industrial_era_world::consumable::UseAnimation;
     match v
         .get("animation")

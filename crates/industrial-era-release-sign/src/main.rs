@@ -11,7 +11,9 @@
 //! may go out unsigned, or signed with a key nobody can check yet, only while release-keys.txt
 //! lists no key; once it lists one, anything launchers would refuse fails the release.
 
-use industrial_era_release_sign::{SIGNATURE, SUMS, Sha256, SigningKey, parse_keys, trusted_keys, verify};
+use industrial_era_release_sign::{
+    SIGNATURE, SUMS, Sha256, SigningKey, parse_keys, trusted_keys, verify,
+};
 use std::io::{IsTerminal, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;

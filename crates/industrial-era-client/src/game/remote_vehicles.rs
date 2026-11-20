@@ -214,7 +214,8 @@ impl Game<'_> {
             // STAYS_STILL confirms it), and the rider lands on top of the ghast
             // (`place_ghast_under`).
             if let Some(m) = self.mobs.iter_mut().find(|m| {
-                m.id == vehicle_id && m.species() == industrial_era_client::mobs::Species::HappyGhast
+                m.id == vehicle_id
+                    && m.species() == industrial_era_client::mobs::Species::HappyGhast
             }) {
                 m.extra.counter = 10;
                 if let Some(r) = self.remote.as_mut() {

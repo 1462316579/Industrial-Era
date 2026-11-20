@@ -320,10 +320,11 @@ impl Game<'_> {
             for cz in ocz - 4..=ocz + 4 {
                 let mut chunk = Chunk::empty(cx, cz);
                 for section in &mut chunk.sections {
-                    Arc::make_mut(section).biomes = industrial_era_core::paletted::PalettedContainer::new(
-                        industrial_era_client::chunk::BIOME_STRATEGY,
-                        plains,
-                    );
+                    Arc::make_mut(section).biomes =
+                        industrial_era_core::paletted::PalettedContainer::new(
+                            industrial_era_client::chunk::BIOME_STRATEGY,
+                            plains,
+                        );
                 }
                 chunk.lit = true;
                 self.world.chunks.insert((cx, cz), Arc::new(chunk));

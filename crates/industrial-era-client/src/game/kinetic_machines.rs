@@ -120,7 +120,10 @@ impl Recipes {
                 .iter()
                 .map(|k| format!("{} {k}", out.by_type.get(k).map_or(0, HashMap::len)))
                 .collect();
-            log::info!("Industrial Era: Create recipes by item: {}", counts.join(", "));
+            log::info!(
+                "Industrial Era: Create recipes by item: {}",
+                counts.join(", ")
+            );
         }
         out
     }

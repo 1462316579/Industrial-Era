@@ -1950,7 +1950,7 @@ mod tests {
     }
     /// Relight cost for torches placed and removed near chunk borders with
     /// slabs flickering around them (fluids next to lava, in the game).
-    /// `cargo test --profile fast -p industrial-era-client relight_bench -- --ignored --nocapture`
+    /// `cargo test --profile fast -p industrial_era-client relight_bench -- --ignored --nocapture`
     #[test]
     #[ignore]
     fn relight_bench() {

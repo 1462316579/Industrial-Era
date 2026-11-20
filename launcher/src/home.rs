@@ -116,7 +116,7 @@ impl Launcher {
                 shell::text(night::UI, c(n.ink_soft)).child(instances_page::played_line(i))
             }));
         // A Java instance (no Industrial Era tag) isn't offered Industrial Era's updates.
-        if let Some(release) = self.updates.industrial-era.as_ref().filter(|_| !tag.is_empty()) {
+        if let Some(release) = self.updates.industrial_era.as_ref().filter(|_| !tag.is_empty()) {
             let installing = self.installing.as_ref().filter(|(t, _)| *t == release.tag);
             let line = shell::text(night::CAPTION, c(n.muted))
                 .flex()

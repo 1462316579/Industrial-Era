@@ -7,7 +7,7 @@
 //! and stew effects) and whether encoding the decoded stack gives the same
 //! bytes back.
 //!
-//!     cargo run -p industrial-era-protocol --example item_wire_probe -- vanilla.jsonl rust.jsonl
+//!     cargo run -p industrial_era-protocol --example item_wire_probe -- vanilla.jsonl rust.jsonl
 use industrial_era_protocol::{
     buf::{Codec, Reader, Writer},
     item::{Component, Slot},

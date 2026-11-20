@@ -199,7 +199,7 @@ const TOOLS: &[Tool] = &[
     },
     Tool {
         name: "stop",
-        what: "Stop the game and industrial-era-server",
+        what: "Stop the game and industrial_era-server",
         args: &[CONFIRM],
         destructive: true,
     },
@@ -470,7 +470,8 @@ mod tests {
 
     #[test]
     fn the_protocol_answers_without_a_server() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-mcp-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-server-mcp-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         // A client that opens with the handshake revision, as the launcher's game_* tools do.
         let mut app = |method: &str, params: &Value| handle(&dir, method, params);
@@ -484,14 +485,20 @@ mod tests {
             )
             .unwrap();
         assert_eq!(init["result"]["protocolVersion"], "2025-06-18");
-        assert_eq!(init["result"]["serverInfo"]["name"], "industrial-era-server");
+        assert_eq!(
+            init["result"]["serverInfo"]["name"],
+            "industrial-era-server"
+        );
         // A modern client gets the same tools with the framing that revision requires.
         let mut meta = serde_json::Map::new();
         meta.insert(
             industrial_era_mcp::VERSION_KEY.to_owned(),
             json!(industrial_era_mcp::MODERN),
         );
-        meta.insert(industrial_era_mcp::CLIENT_CAPABILITIES_KEY.to_owned(), json!({}));
+        meta.insert(
+            industrial_era_mcp::CLIENT_CAPABILITIES_KEY.to_owned(),
+            json!({}),
+        );
         let list = server()
             .handle_line(
                 &line("tools/list", json!({ "_meta": Value::Object(meta) })),

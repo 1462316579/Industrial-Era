@@ -284,7 +284,7 @@ fn project_of(p: &index::Project) -> Option<Project> {
     let mut game_versions: Vec<String> = p.versions.iter().map(|v| v.game.clone()).collect();
     game_versions.dedup();
     Some(Project {
-        source: SourceId::Industrial Era,
+        source: SourceId::IndustrialEra,
         id: p.id.clone(),
         slug: p.id.clone(),
         title: p.name.clone(),
@@ -406,7 +406,7 @@ pub struct Registry;
 
 impl Source for Registry {
     fn id(&self) -> SourceId {
-        SourceId::Industrial Era
+        SourceId::IndustrialEra
     }
 
     fn search(&self, query: &Query) -> Result<Vec<Project>, String> {
@@ -655,7 +655,7 @@ fn install_version(
         false => relative(project.kind, &p.id, &v.file.name)?,
     };
     let mut list = installed::Installed::load(home);
-    let ours = |e: &installed::Entry| e.source == SourceId::Industrial Era && e.project == p.id;
+    let ours = |e: &installed::Entry| e.source == SourceId::IndustrialEra && e.project == p.id;
     let old = list.entries.iter().find(|e| ours(e)).cloned();
     if old.as_ref().is_some_and(|o| o.version == v.version) {
         return Ok(old.expect("checked"));
@@ -711,7 +711,7 @@ fn install_version(
         java::set_enabled(home, &p.id, true)?;
     }
     let entry = installed::Entry {
-        source: SourceId::Industrial Era,
+        source: SourceId::IndustrialEra,
         project: p.id.clone(),
         slug: p.id.clone(),
         title: p.name.clone(),
@@ -758,7 +758,7 @@ pub fn turn_off_revoked(index: &Index, home: &Path) -> Vec<String> {
     let mut out = Vec::new();
     for e in installed::Installed::load(home).entries {
         let hash = e.checksum.strip_prefix("SHA-256:").unwrap_or_default();
-        let Some(r) = (e.source == SourceId::Industrial Era)
+        let Some(r) = (e.source == SourceId::IndustrialEra)
             .then(|| index.revoked(&e.project, hash))
             .flatten()
         else {
@@ -788,7 +788,7 @@ pub fn before_play(home: &Path) {
     let from_registry = installed::Installed::load(home)
         .entries
         .iter()
-        .any(|e| e.source == SourceId::Industrial Era);
+        .any(|e| e.source == SourceId::IndustrialEra);
     if !from_registry {
         return;
     }

@@ -687,7 +687,7 @@ impl Item {
                 "In a world, another controller can join as a new player: press A when it asks, then pick a profile and where to play."
             }
             Item::AgentControl => {
-                "Your own AI agent can play this game through industrial-era-ctl or an MCP client, on this computer only."
+                "Your own AI agent can play this game through industrial_era-ctl or an MCP client, on this computer only."
             }
             Item::ReproKeys => {
                 "F3+R starts or stops a repro recording and F3+E writes its bundle. Off by default: a recording copies the world."

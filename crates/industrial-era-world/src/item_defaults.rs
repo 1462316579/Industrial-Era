@@ -92,7 +92,8 @@ mod tests {
     /// count the wire and the save carry).
     #[test]
     fn data_pack_sizes_stay_in_vanilla_range() {
-        let root = std::env::temp_dir().join(format!("industrial-era-stack-sizes-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-stack-sizes-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
         let items = r#"{"a:none": {"minecraft:max_stack_size": 0},
             "a:less": {"minecraft:max_stack_size": -5},
@@ -141,7 +142,8 @@ mod tests {
             loot_function: |_, _, _, _| {},
             loot_condition: |_, _, _, _| {},
         });
-        let root = std::env::temp_dir().join(format!("industrial-era-mod-sizes-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-mod-sizes-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
         let items = r#"{"a:raised": {"minecraft:max_stack_size": 64},
             "a:zero": {"minecraft:max_stack_size": 16},

@@ -691,7 +691,8 @@ impl Lists<'_> {
     }
 
     fn bans(&self) -> Value {
-        let list: industrial_era_server_files::user_lists::BanList = self.load("banned-players.json");
+        let list: industrial_era_server_files::user_lists::BanList =
+            self.load("banned-players.json");
         list.entries()
             .iter()
             .map(|b| {

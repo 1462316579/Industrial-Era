@@ -233,15 +233,16 @@ impl Game<'_> {
             .container
             .map(|k| self.world.block(k.0, k.1, k.2))
             .is_some_and(|state| self.containers().prop(state, "triggered") == Some("true"));
-        let draws =
-            industrial_era_client::screen_layout::crafter(&industrial_era_client::screen_layout::CrafterView {
+        let draws = industrial_era_client::screen_layout::crafter(
+            &industrial_era_client::screen_layout::CrafterView {
                 width: 176,
                 height: 166,
                 left: 0,
                 top: 0,
                 disabled: c.disabled,
                 powered,
-            });
+            },
+        );
         // The background goes first, then the labels, then the slot decorations.
         let (background, rest) = draws.split_at(2.min(draws.len()));
         self.paint_screen(batch, ox, oy, background, true);

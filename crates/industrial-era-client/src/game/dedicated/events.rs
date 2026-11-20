@@ -1,4 +1,4 @@
-//! What happened on the dedicated server, typed, for industrial-era-server's event stream (`GET /api/v1/events`,
+//! What happened on the dedicated server, typed, for industrial_era-server's event stream (`GET /api/v1/events`,
 //! docs/api/server.md): players joining, leaving and kicked, chat, and deaths. The log says the same in
 //! vanilla's words; these carry the player's UUID and the parts apart, so a bot needn't parse lines.
 //! `server-events SINCE` on the control endpoint answers the events after the SINCE-th.

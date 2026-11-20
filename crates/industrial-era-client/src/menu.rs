@@ -3597,8 +3597,10 @@ pub(crate) mod tests {
     /// cursor nor the inventory holds the item (no dupe).
     #[test]
     fn a_cancelled_anvil_craft_leaves_the_menu_as_it_was() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-anvil-cancel-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-anvil-cancel-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(root.join("data/minecraft/recipe")).unwrap();
         let items = Items::for_tests(Default::default());
         let recipes = Recipes::load(&root, &items, &PackOverlay::NONE).unwrap();
@@ -3673,7 +3675,8 @@ pub(crate) mod tests {
     #[test]
     fn a_mod_menu_result_is_take_only() {
         // No game data: an item table of no items, each stacking to 64.
-        let root = std::env::temp_dir().join(format!("industrial-era-mod-menu-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-mod-menu-{}", std::process::id()));
         std::fs::create_dir_all(root.join("data/minecraft/recipe")).unwrap();
         let items = Items::for_tests(Default::default());
         let recipes = Recipes::load(&root, &items, &PackOverlay::NONE).unwrap();

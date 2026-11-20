@@ -315,13 +315,15 @@ impl Goal for GhastLook {
         match m.ai.target.and_then(|t| cx.w.target_info(t)) {
             None => {
                 let v = m.velocity;
-                m.yaw = -(industrial_era_core::geometry::trig::atan2(v.x, v.z) as f32) * ghast_deg();
+                m.yaw =
+                    -(industrial_era_core::geometry::trig::atan2(v.x, v.z) as f32) * ghast_deg();
                 m.body_yaw = m.yaw;
             }
             Some(t) => {
                 if m.distance_sqr(t.position) < 4096.0 {
                     let (dx, dz) = (t.position.x - m.position.x, t.position.z - m.position.z);
-                    m.yaw = -(industrial_era_core::geometry::trig::atan2(dx, dz) as f32) * ghast_deg();
+                    m.yaw =
+                        -(industrial_era_core::geometry::trig::atan2(dx, dz) as f32) * ghast_deg();
                     m.body_yaw = m.yaw;
                 }
             }

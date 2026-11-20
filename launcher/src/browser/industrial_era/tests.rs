@@ -272,7 +272,7 @@ fn refuses_a_changed_file_a_taken_id_and_local_files_from_the_real_registry() {
 fn registry_versions_run_when_made_for_this_game() {
     use super::super::{pick, support, Support};
     let v = |game: &str| vec![game.to_owned()];
-    let industrial-era = vec![LOADER.to_owned()];
+    let industrial_era = vec![LOADER.to_owned()];
     assert_eq!(support(Kind::Mod, &v(GAME), &industrial-era), Support::Works);
     assert!(!support(Kind::Mod, &v("26.2"), &industrial-era).installable());
     let index = sample();

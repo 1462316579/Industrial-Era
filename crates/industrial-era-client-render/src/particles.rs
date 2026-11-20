@@ -3684,7 +3684,8 @@ impl ParticleEngine {
                 }
                 let y_progress_linear =
                     ((p.position[1] - start_y) / (max_y - start_y)).clamp(0.0, 1.0);
-                let y_progress_exponential = industrial_era_core::jmath::pow(y_progress_linear, 3.0);
+                let y_progress_exponential =
+                    industrial_era_core::jmath::pow(y_progress_linear, 3.0);
                 p.gravity = propulsion * y_progress_exponential as f32 * 0.12;
                 p.velocity[0] = y_progress_linear * f64::from(spray[0]);
                 p.velocity[2] = y_progress_linear * f64::from(spray[1]);
@@ -4468,8 +4469,10 @@ mod tests {
 
     #[test]
     fn a_mod_particles_json_becomes_its_sprite_set() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-mod-particles-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-mod-particles-{}",
+            std::process::id()
+        ));
         let particles = dir.join("assets/mymod/particles");
         std::fs::create_dir_all(&particles).unwrap();
         std::fs::write(

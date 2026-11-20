@@ -185,7 +185,7 @@ impl GameFiles {
     }
 }
 
-/// The layouts industrial-era-prepare reads in `folder`: the official launcher's, then ATLauncher's,
+/// The layouts industrial_era-prepare reads in `folder`: the official launcher's, then ATLauncher's,
 /// which saves Mojang's version JSON as is in `configs/json/minecraft` and the client jar as
 /// the library `net.minecraft:client:<version>`.
 fn layouts(folder: &Path, version: &str) -> [GameFiles; 2] {
@@ -1008,8 +1008,10 @@ mod tests {
         fn new() -> Self {
             static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
             let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-            let directory = std::env::temp_dir()
-                .join(format!("industrial-era-import-reuse-{}-{n}", std::process::id()));
+            let directory = std::env::temp_dir().join(format!(
+                "industrial-era-import-reuse-{}-{n}",
+                std::process::id()
+            ));
             let source = directory.join("old");
             let target = directory.join("new");
             fs::create_dir_all(&target).unwrap();
@@ -1262,7 +1264,8 @@ mod tests {
     /// as the imported one is then used.
     #[test]
     fn a_rewritten_version_file_falls_back_to_mojangs() {
-        let root = std::env::temp_dir().join(format!("industrial-era-rewritten-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-rewritten-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let mojang = r#"{"id":"9.9","javaVersion":{"majorVersion":25},"downloads":{"client":{"sha1":"c"},"server":{"sha1":"s"}}}"#;
         let rewritten = r#"{"id":"9.9","javaVersion":{"majorVersion":25},"downloads":{"client":{"sha1":"c"},"server":{"sha1":"s"}},"patches":[],"root":true}"#;
@@ -1575,7 +1578,10 @@ mod tests {
             "Missing {}",
             empty.join("versions/9.9/9.9.json").display()
         )));
-        assert!(error.contains("Industrial Era looked for 9.9 in:"), "{error}");
+        assert!(
+            error.contains("Industrial Era looked for 9.9 in:"),
+            "{error}"
+        );
         assert!(error.contains(&format!("\n  {} (the folder chosen)", empty.display())));
         assert!(error.contains(&format!(
             "\n  {} (the launcher above it)",

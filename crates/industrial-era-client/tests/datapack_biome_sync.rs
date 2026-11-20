@@ -42,13 +42,18 @@ fn write_base(root: &std::path::Path) -> Biomes {
 
 #[test]
 fn a_pack_biome_is_sent_with_its_data_and_read_back_by_a_client() {
-    let root = std::env::temp_dir().join(format!("industrial-era-sync-biomes-{}", std::process::id()));
+    let root =
+        std::env::temp_dir().join(format!("industrial-era-sync-biomes-{}", std::process::id()));
     let _scratch = Scratch(root.clone());
     let base = write_base(&root);
     let pack: Value = serde_json::from_str(r##"{"effects":{"grass_color":"#123456"}}"##).unwrap();
     let world = base.with_packs([("minecraft:tundra_x", &pack)]);
-    let sync =
-        SyncData::load_with(&root, &industrial_era_world::loot::PackOverlay::NONE, Some(&world)).unwrap();
+    let sync = SyncData::load_with(
+        &root,
+        &industrial_era_world::loot::PackOverlay::NONE,
+        Some(&world),
+    )
+    .unwrap();
 
     // The encoder numbers a biome by its place in this list: none may be
     // missing, and the pack's is not the first.
@@ -105,7 +110,10 @@ fn a_pack_biome_is_sent_with_its_data_and_read_back_by_a_client() {
 
 #[test]
 fn recolouring_twice_starts_from_the_biome_files_each_time() {
-    let root = std::env::temp_dir().join(format!("industrial-era-recolor-biomes-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!(
+        "industrial-era-recolor-biomes-{}",
+        std::process::id()
+    ));
     let _scratch = Scratch(root.clone());
     let base = write_base(&root);
     let grass = |b: &Biomes| b.get(b.id("minecraft:plains")).grass;

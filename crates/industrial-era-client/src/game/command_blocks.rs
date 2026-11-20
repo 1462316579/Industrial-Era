@@ -849,7 +849,9 @@ impl Game<'_> {
         self.close_command_block();
     }
     /// The command box, for the on-screen keyboard's editor (game/touch/text_mirror.rs).
-    pub(super) fn command_box(&mut self) -> Option<&mut industrial_era_client::screen_draw::TextField> {
+    pub(super) fn command_box(
+        &mut self,
+    ) -> Option<&mut industrial_era_client::screen_draw::TextField> {
         self.command_block_screen
             .as_mut()
             .map(|s| &mut s.command.input)

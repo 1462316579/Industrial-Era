@@ -118,7 +118,9 @@ impl Game<'_> {
             self.level_maps(&held)
         });
         let env = Env {
-            maps: maps.as_ref().map(|m| m as &dyn industrial_era_client::menu::Maps),
+            maps: maps
+                .as_ref()
+                .map(|m| m as &dyn industrial_era_client::menu::Maps),
             ..self.menu_env()
         };
         load_player(menu, &host.hub.guests[gi]);

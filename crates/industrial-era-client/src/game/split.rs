@@ -386,8 +386,8 @@ impl<'a> Split<'a> {
         let window = self.host.window.clone().ok_or("no window")?;
         let mut old = self.host.renderer.take().ok_or("no renderer")?;
         old.release_surface();
-        let api = self.host.settings.industrial-era.api;
-        let batching = self.host.settings.industrial-era.translucent_batching;
+        let api = self.host.settings.industrial_era.api;
+        let batching = self.host.settings.industrial_era.translucent_batching;
         let shader_pack = super::shader_packs::picked_pack_draws_flat(&self.host.settings);
         let built = build_renderer(
             window.clone(),
@@ -463,8 +463,8 @@ impl<'a> Split<'a> {
         self.host.window = Some(window.clone());
         let old = self.host.renderer.take().ok_or("no renderer")?;
         old.take_back(main.compositor);
-        let api = self.host.settings.industrial-era.api;
-        let batching = self.host.settings.industrial-era.translucent_batching;
+        let api = self.host.settings.industrial_era.api;
+        let batching = self.host.settings.industrial_era.translucent_batching;
         let shader_pack = super::shader_packs::picked_pack_draws_flat(&self.host.settings);
         let built = build_renderer(
             window.clone(),

@@ -190,7 +190,9 @@ impl Game<'_> {
                 (m.head_pitch, m.yaw)
             }
         };
-        Some(industrial_era_world::view_direction::view_vector(pitch, yaw))
+        Some(industrial_era_world::view_direction::view_vector(
+            pitch, yaw,
+        ))
     }
 
     /// `Projectile.deflect(AIM_DEFLECT, player, player, true)`.

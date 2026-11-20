@@ -3,7 +3,7 @@
 //! posed model with `mobs::render::draw` under the case's living-entity root
 //! transform and writes each drawn part's packed vertex normals.
 //!
-//! cargo run --profile fast -p industrial-era-client --example probe -- entity_anim_fixture \
+//! cargo run --profile fast -p industrial_era-client --example probe -- entity_anim_fixture \
 //!     RESOURCES VANILLA.jsonl OUT.jsonl
 use industrial_era_client::mesher::Vertex;
 use industrial_era_client::mobs::{

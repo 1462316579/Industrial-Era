@@ -1,5 +1,5 @@
 //! Compare the old two-parse loading path with catalog construction from shared facts.
-//! Run: cargo run -p industrial-era-client --profile fast --example model_states_bench -- 15
+//! Run: cargo run -p industrial_era-client --profile fast --example model_states_bench -- 15
 extern crate industrial_era_client_lib as industrial_era_client;
 use industrial_era_client::{Result, models::StateModels, sprites::Sprites};
 use industrial_era_core::position::BlockPos;
@@ -20,8 +20,10 @@ struct Fixture {
 }
 impl Fixture {
     fn new(target_bytes: usize) -> Result<Self> {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-model-states-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-model-states-{}",
+            std::process::id()
+        ));
         fs::create_dir_all(root.join("assets/minecraft/blockstates"))?;
         fs::create_dir_all(root.join("assets/minecraft/models/block"))?;
         let mut possible = Vec::new();

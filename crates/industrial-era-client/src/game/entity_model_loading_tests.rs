@@ -256,7 +256,8 @@ fn content_mods_equipment_loads_under_its_namespace() {
             .contains_key("gems:ruby")
     );
     fs::write(
-        root.0.join(industrial_era_items::content_namespaces::MARKER),
+        root.0
+            .join(industrial_era_items::content_namespaces::MARKER),
         br#"["gems"]"#,
     )
     .unwrap();

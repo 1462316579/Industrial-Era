@@ -1,6 +1,6 @@
 //! docs/api/server-reference.md: `industrial-era-server`'s commands, every `server.toml` key and the control API's
 //! endpoints, generated from the source, and the tests that fail when it is out of date. Update it with:
-//! `HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-server reference`.
+//! `HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-server reference`.
 
 use crate::{api::ROUTES, config};
 use std::fmt::Write;
@@ -42,7 +42,7 @@ pub fn markdown() -> String {
     let w = &mut out;
     let _ = writeln!(
         w,
-        "<!-- Generated from crates/industrial-era-server/src (the help text, config::TEMPLATE, api::ROUTES) by reference.rs; a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-server reference -->"
+        "<!-- Generated from crates/industrial-era-server/src (the help text, config::TEMPLATE, api::ROUTES) by reference.rs; a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-server reference -->"
     );
     let _ = writeln!(w, "# Server reference\n");
     let _ = writeln!(
@@ -94,7 +94,7 @@ pub fn markdown() -> String {
     let _ = writeln!(
         w,
         "HTTP and JSON on 127.0.0.1. A running server writes its address and a random token to \
-         `.industrial-era/api.json`, readable only by its own user; every request sends \
+         `.industrial_era/api.json`, readable only by its own user; every request sends \
          `Authorization: Bearer <token>` and a `Host` that is that address. Errors answer \
          `{{\"error\": \"...\"}}` with 400, 401, 403, 404, 405 or 409. The web panel uses the same \
          routes with its session.\n"
@@ -132,7 +132,7 @@ fn the_server_reference_is_up_to_date() {
         .replace("\r\n", "\n");
     assert!(
         have == want,
-        "{DOC} is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-server reference"
+        "{DOC} is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-server reference"
     );
 }
 

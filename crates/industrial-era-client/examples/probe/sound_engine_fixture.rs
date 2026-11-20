@@ -91,7 +91,8 @@ pub fn main() {
             }
             "stop" => engine.stop(instances[a[1]], &mut backend),
             "stopmatch" => {
-                let sound = (a[1] != "-").then(|| industrial_era_client::sound_events::normalize(a[1]));
+                let sound =
+                    (a[1] != "-").then(|| industrial_era_client::sound_events::normalize(a[1]));
                 let src = (a[2] != "-").then(|| source(2));
                 engine.stop_matching(sound.as_deref(), src, &mut backend);
             }

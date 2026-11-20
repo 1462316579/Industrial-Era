@@ -1,5 +1,5 @@
 //! Says its arguments with the platform's narrator, as the game would:
-//! `cargo run -p industrial-era-narrator --example say -- [--volume 0.5] Hello there`.
+//! `cargo run -p industrial_era-narrator --example say -- [--volume 0.5] Hello there`.
 fn main() {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     let mut volume = 1.0;

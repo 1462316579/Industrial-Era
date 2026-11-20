@@ -3,7 +3,7 @@
 //! writes what Industrial Era makes of every block state, drop, recipe and tag the
 //! NeoForge oracle exported.
 //!
-//! cargo run -p industrial-era-client --example mod_port_probe -- PREPARED WORK OUT.json [MOD...]
+//! cargo run -p industrial_era-client --example mod_port_probe -- PREPARED WORK OUT.json [MOD...]
 //!
 //! WORK is a `industrial-era-port-pack` work folder: `oracle/facts.json` and
 //! `mods/<id>/carry/`. The root is built in `WORK/industrial-era-root`.

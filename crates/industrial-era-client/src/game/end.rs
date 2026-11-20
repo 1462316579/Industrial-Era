@@ -367,7 +367,11 @@ impl Game<'_> {
     /// LightmapRenderStateExtractor: End flashes add to the sky light factor
     /// unless Hide Lightning Flashes is on (the sky sprite is not gated), a
     /// third of it under a boss bar's world fog.
-    pub(super) fn end_flash_sky(&self, sky: &mut industrial_era_client::environment::Sky, partial: f64) {
+    pub(super) fn end_flash_sky(
+        &self,
+        sky: &mut industrial_era_client::environment::Sky,
+        partial: f64,
+    ) {
         if self.dim == Dim::End && !self.settings.file.bool("hideLightningFlashes") {
             let intensity = self.end.flash.intensity(partial as f32);
             sky.sky_light_factor += if self.boss_overlay.should_create_world_fog() {
@@ -1132,7 +1136,11 @@ impl Game<'_> {
                     f64::from(target[2]) + 0.5,
                 );
                 let delta = feet - from
-                    + glam::DVec3::new(0.0, f64::from(industrial_era_client::end_crystal::y(age)), 0.0);
+                    + glam::DVec3::new(
+                        0.0,
+                        f64::from(industrial_era_client::end_crystal::y(age)),
+                        0.0,
+                    );
                 self.crystal_beam(from, delta, age, camera, out);
             }
         }
@@ -1350,9 +1358,10 @@ impl Game<'_> {
         let mut inside: Vec<(u32, BlockPos)> = Vec::new();
         for (id, to, width, height) in items.into_iter().chain(mobs) {
             let from = self.portals.before.get(&id).copied().unwrap_or(to);
-            let found = industrial_era_client::end_gateway::swept_gateway(from, to, width, height, |p| {
-                is_gateway(self, p)
-            });
+            let found =
+                industrial_era_client::end_gateway::swept_gateway(from, to, width, height, |p| {
+                    is_gateway(self, p)
+                });
             if let Some(pos) = found {
                 inside.push((id, pos));
             }
@@ -1363,7 +1372,8 @@ impl Game<'_> {
             .projectiles
             .iter()
             .filter_map(|p| {
-                let pos = industrial_era_client::end_gateway::pearl_gateway(p, |b| is_gateway(self, b))?;
+                let pos =
+                    industrial_era_client::end_gateway::pearl_gateway(p, |b| is_gateway(self, b))?;
                 Some((p.id, p.owner, p.guest, pos))
             })
             .collect();

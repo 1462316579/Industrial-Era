@@ -25,8 +25,8 @@ pub(super) fn register_components(root: &std::path::Path) -> industrial_era_clie
     if names.is_empty() {
         return Ok(());
     }
-    let path =
-        industrial_era_protocol::registry::Builtin::find(root).ok_or("registries.json not found")?;
+    let path = industrial_era_protocol::registry::Builtin::find(root)
+        .ok_or("registries.json not found")?;
     let builtin = industrial_era_protocol::registry::Builtin::load(&path)?;
     let types = builtin
         .get("minecraft:data_component_type")
@@ -226,7 +226,9 @@ pub(super) fn content_root(
         if known.is_none() {
             match mod_content::known_components(root) {
                 Ok(types) => known = Some(types),
-                Err(e) => log::warn!("Industrial Era: native mods' blocks and items not loaded: {e}"),
+                Err(e) => {
+                    log::warn!("Industrial Era: native mods' blocks and items not loaded: {e}")
+                }
             }
         }
         if let Some(known) = &known {
@@ -624,7 +626,7 @@ mod tests {
 
     /// A minimal `.hnmod` the registry accepts: its manifest and its mixin's.
     fn hnmod(dir: &std::path::Path, id: &str) {
-        let industrial-era = "a".repeat(40);
+        let industrial_era = "a".repeat(40);
         let manifest = serde_json::json!({
             "schema": 1, "id": id, "version": "0.3.0", "game": "26.3",
             "industrial-era": industrial-era, "mixins": "b".repeat(40),
@@ -635,7 +637,8 @@ mod tests {
         let file = std::fs::File::create(dir.join(format!("{id}.hnmod"))).unwrap();
         let mut zip = zip::ZipWriter::new(file);
         let options = zip::write::SimpleFileOptions::default();
-        zip.start_file("industrial-era-native.json", options).unwrap();
+        zip.start_file("industrial-era-native.json", options)
+            .unwrap();
         zip.write_all(manifest.to_string().as_bytes()).unwrap();
         zip.start_file(format!("mixins/{id}/industrial-era-mixin.toml"), options)
             .unwrap();
@@ -657,7 +660,8 @@ mod tests {
 
     #[test]
     fn native_mods_installed_but_not_built_get_a_row_saying_so() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-not-built-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-not-built-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         for id in ["veinminer", "zoom", "minimap"] {

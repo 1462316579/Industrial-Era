@@ -345,8 +345,14 @@ mod tests {
     fn signed(tag: &str) -> (SigningKey, String, String) {
         let (key, _) = SigningKey::generate().unwrap();
         let sums = sums_file(&[
-            ("industrial-era-linux-x86_64.tar.gz".into(), sha256_hex(b"linux")),
-            ("industrial-era-windows-x64.zip".into(), sha256_hex(b"windows")),
+            (
+                "industrial-era-linux-x86_64.tar.gz".into(),
+                sha256_hex(b"linux"),
+            ),
+            (
+                "industrial-era-windows-x64.zip".into(),
+                sha256_hex(b"windows"),
+            ),
         ]);
         let signature = key.sign(tag, sums.as_bytes()) + "\n";
         (key, sums, signature)

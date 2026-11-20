@@ -1875,7 +1875,8 @@ impl Game<'_> {
                         self.spawn_at_location(at, height, ItemStack::new(&body, 1));
                     }
                     // setItemSlot(BODY, EMPTY): an unequip.
-                    let ctx = self.who_context(Some(industrial_era_client::mobs::Who::Mob(id)), None);
+                    let ctx =
+                        self.who_context(Some(industrial_era_client::mobs::Who::Mob(id)), None);
                     self.post_game_event("minecraft:unequip", [at.x, at.y, at.z], ctx);
                     self.mobs[i].extra.ints[3] = sulfur_cube::PICKUP_TIMER;
                     self.audio
@@ -1952,7 +1953,8 @@ impl Game<'_> {
                     let id = self.mobs[i].id;
                     // setItemSlot(EQUIPMENT_SLOT_ANTENNA, EMPTY): an unequip.
                     self.mobs[i].set_saddle(None);
-                    let ctx = self.who_context(Some(industrial_era_client::mobs::Who::Mob(id)), None);
+                    let ctx =
+                        self.who_context(Some(industrial_era_client::mobs::Who::Mob(id)), None);
                     self.post_game_event("minecraft:unequip", [at.x, at.y, at.z], ctx);
                     if let Some(antenna) = antenna {
                         self.spawn_at_location(at, 1.5, antenna);
@@ -2235,7 +2237,9 @@ pub(super) fn tipped_effect(stack: &ItemStack) -> Option<(&'static str, i32)> {
         .and_then(|def| {
             def.effects
                 .iter()
-                .find(|(id, _, _)| !industrial_era_client::brewing::effect(id).is_some_and(|e| e.instant))
+                .find(|(id, _, _)| {
+                    !industrial_era_client::brewing::effect(id).is_some_and(|e| e.instant)
+                })
                 .map(|(id, duration, _)| {
                     (
                         industrial_era_client::brewing::namespaced(id),

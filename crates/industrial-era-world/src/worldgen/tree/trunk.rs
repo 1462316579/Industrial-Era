@@ -691,7 +691,8 @@ impl TrunkPlacer {
         let trunk_height = (f64::from(height) * 0.618).floor() as i32;
         Self::place_below_trunk(run, tree, tb::offset(origin, 0, -1, 0))?;
         let clusters_per_y = 1.min(
-            (1.382 + industrial_era_core::jmath::pow(1.0 * f64::from(height) / 13.0, 2.0)).floor() as i32,
+            (1.382 + industrial_era_core::jmath::pow(1.0 * f64::from(height) / 13.0, 2.0)).floor()
+                as i32,
         );
         let trunk_top = origin[1].wrapping_add(trunk_height);
         let mut relative_y = height - 5;

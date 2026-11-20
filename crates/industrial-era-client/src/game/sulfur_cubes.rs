@@ -104,7 +104,9 @@ impl Game<'_> {
         if m.is_baby() {
             // Slime balls grow a baby up by a tenth (`canAgeUp`: not while an
             // age lock holds it).
-            if !m.kind.food.iter().any(|f| f == item) || !industrial_era_client::mobs::ai::can_age_up(m) {
+            if !m.kind.food.iter().any(|f| f == item)
+                || !industrial_era_client::mobs::ai::can_age_up(m)
+            {
                 return false;
             }
             let m = &mut self.mobs[index];

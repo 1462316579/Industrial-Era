@@ -169,7 +169,8 @@ impl GameLevel<'_, '_> {
     /// The block whose noise cell `BiomeManager.getBiome` reads.
     fn zoomed(&self, x: i32, y: i32, z: i32) -> [i32; 3] {
         let zoom = self.game.streaming.biome_zoom;
-        let [qx, qy, qz] = zoom.quart_at_block(industrial_era_core::position::BlockPos::new(x, y, z));
+        let [qx, qy, qz] =
+            zoom.quart_at_block(industrial_era_core::position::BlockPos::new(x, y, z));
         [qx << 2, qy << 2, qz << 2]
     }
     fn zoomed_biome(&self, x: i32, y: i32, z: i32) -> Option<&BiomeInfo> {

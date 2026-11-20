@@ -2,7 +2,7 @@
 //! resources): a stand-in vanilla root, a server-style zip pack of many namespaces, and a
 //! high-resolution pack over vanilla's own textures. Each stage runs a few times; the median
 //! is printed as a Markdown table.
-//! `cargo run --profile fast -p industrial-era-client-render --example pack_load_bench [-- --scale 1]`
+//! `cargo run --profile fast -p industrial_era-client-render --example pack_load_bench [-- --scale 1]`
 //! (`.github/workflows/pack-bench.yml` runs it on a branch and on its base, side by side).
 use industrial_era_client_render::{
     hud::HudAtlas,
@@ -294,7 +294,8 @@ fn main() {
         .and_then(|i| args.get(i + 1))
         .map_or(1, |s| s.parse().unwrap());
     let runs = 3;
-    let scratch = std::env::temp_dir().join(format!("industrial-era-pack-bench-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-pack-bench-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     fs::create_dir_all(&scratch).unwrap();
     let mut noise = Noise(0x9e37_79b9_7f4a_7c15);

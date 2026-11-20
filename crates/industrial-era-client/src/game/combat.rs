@@ -218,7 +218,8 @@ impl Game<'_> {
     /// `getLastHurtByMob`: the last mob to hurt the player, for 100 ticks.
     pub(super) fn player_hurt_by(&self) -> Option<(industrial_era_client::mobs::Who, i64)> {
         let ((id, _), at) = self.combat.last_hurt_by.as_ref()?;
-        (self.world.game_time - at <= 100).then_some((industrial_era_client::mobs::Who::Mob(*id), *at))
+        (self.world.game_time - at <= 100)
+            .then_some((industrial_era_client::mobs::Who::Mob(*id), *at))
     }
     /// Remember who deals the next `damage_type` damage to the player.
     pub(super) fn note_attacker(&mut self, damage_type: &str, mob: u32) {
@@ -358,7 +359,8 @@ impl Game<'_> {
                 (p.position.y + 0.1).floor() as i32,
                 p.position.z.floor() as i32,
             ));
-            (f.fluid == industrial_era_client::blocks::Fluid::Water || f.waterlogged).then_some("water")
+            (f.fluid == industrial_era_client::blocks::Fluid::Water || f.waterlogged)
+                .then_some("water")
         };
         (location, distance)
     }
@@ -412,7 +414,8 @@ impl Game<'_> {
             return None;
         }
         if let Some(g) = industrial_era_client::mobs::gear::gear(m) {
-            stack.data_mut().enchantments = g.slots[industrial_era_client::mobs::gear::MAIN].clone();
+            stack.data_mut().enchantments =
+                g.slots[industrial_era_client::mobs::gear::MAIN].clone();
         }
         Some(self.stack_display_name(&stack))
     }

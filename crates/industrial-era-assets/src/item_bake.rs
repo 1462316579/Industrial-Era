@@ -339,8 +339,8 @@ mod tests {
             [
                 ("item/generated", r#"{"parent":"builtin/generated","display":{"gui":{"scale":[2,2,2]}}}"#),
                 ("item/stick", r#"{"parent":"item/generated","textures":{"layer0":"item/stick"}}"#),
-                ("industrial-era:loop", r#"{"parent":"industrial-era:loop2"}"#),
-                ("industrial-era:loop2", r#"{"parent":"industrial-era:loop"}"#),
+                ("industrial_era:loop", r#"{"parent":"industrial_era:loop2"}"#),
+                ("industrial_era:loop2", r#"{"parent":"industrial_era:loop"}"#),
                 ("block/slab", r##"{"textures":{"particle":"#side","side":"block/absent"},"elements":[{"from":[0,0,0],"to":[16,8,16],"faces":{"up":{"texture":"#side"},"down":{"texture":"#side","cullface":"down"}}}]}"##),
             ]
             .map(|(name, json)| (name.to_owned(), CuboidModel::from_json(json).unwrap())),
@@ -358,7 +358,7 @@ mod tests {
         assert_eq!(slab.quads.len(), 2);
         assert_eq!(slab.particle.sprite, MISSING_SPRITE);
         // A cyclic chain, an error to `resolve`, bakes as the missing cube.
-        let cyclic = bake_item_model(&library, &Sprites, "industrial-era:loop").unwrap();
+        let cyclic = bake_item_model(&library, &Sprites, "industrial_era:loop").unwrap();
         assert_eq!(cyclic.quads.len(), 6);
         assert!(
             cyclic

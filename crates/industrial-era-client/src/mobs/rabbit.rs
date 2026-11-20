@@ -573,7 +573,10 @@ mod tests {
         let mut m = rabbit();
         m.extra.in_love = 570;
         let tag = crate::entity_nbt::mob_to_nbt(&m, [0, 0, 0, 1], None, None);
-        assert_eq!(tag.get("InLove"), Some(&industrial_era_world::nbt::Tag::Int(570)));
+        assert_eq!(
+            tag.get("InLove"),
+            Some(&industrial_era_world::nbt::Tag::Int(570))
+        );
         let types = HashMap::from([(m.kind.id.clone(), m.kind.clone())]);
         let back = crate::entity_nbt::mob_from_nbt(&tag, &types, 2, None).unwrap();
         assert_eq!(back.extra.in_love, 570);

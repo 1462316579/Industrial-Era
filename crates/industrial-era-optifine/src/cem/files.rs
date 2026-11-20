@@ -41,7 +41,9 @@ pub fn jem_files(root: &Path) -> BTreeMap<String, Vec<String>> {
 /// parsed.
 pub fn load_jem(root: &Path, path: &str) -> Option<EntityModel> {
     let Some(text) = read_small(&root.join(path)) else {
-        log::warn!("Industrial Era: custom entity model {path}: unreadable or over {MAX_BYTES} bytes");
+        log::warn!(
+            "Industrial Era: custom entity model {path}: unreadable or over {MAX_BYTES} bytes"
+        );
         return None;
     };
     let jem = match parse_jem(path, &text, &mut |p: &str| read_small(&root.join(p))) {
@@ -93,7 +95,8 @@ mod tests {
 
     #[test]
     fn emf_files_win_and_a_flat_file_beats_its_folder() {
-        let root = std::env::temp_dir().join(format!("industrial-era-jem-files-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-jem-files-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         for path in [
             // EMF's folder form over OptiFine's flat file.

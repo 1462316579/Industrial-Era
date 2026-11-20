@@ -433,8 +433,10 @@ mod tests {
 
     #[test]
     fn tcp_endpoint_round_trip() {
-        let path =
-            std::env::temp_dir().join(format!("industrial-era-ctl-test-{}.json", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "industrial-era-ctl-test-{}.json",
+            std::process::id()
+        ));
         let server = Server::start(&path).unwrap();
         let text = std::fs::read_to_string(&path).unwrap();
         assert!(text.contains("\"tcp\""));
@@ -457,8 +459,10 @@ mod tests {
 
     #[test]
     fn tcp_refuses_a_wrong_token() {
-        let path =
-            std::env::temp_dir().join(format!("industrial-era-ctl-bad-{}.json", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "industrial-era-ctl-bad-{}.json",
+            std::process::id()
+        ));
         let _server = Server::start(&path).unwrap();
         let (port, _) = read_endpoint(&path).unwrap();
         let mut stream = TcpStream::connect((Ipv4Addr::LOCALHOST, port)).unwrap();
@@ -481,8 +485,10 @@ mod tests {
             assert_eq!(unbase64(&base64(bytes)).as_deref(), Some(bytes));
         }
         assert_eq!(unbase64("Zm9v!"), None);
-        let path =
-            std::env::temp_dir().join(format!("industrial-era-ctl-remote-{}.json", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "industrial-era-ctl-remote-{}.json",
+            std::process::id()
+        ));
         std::fs::write(&path, r#"{"port":47800,"token":"t","remote":true}"#).unwrap();
         assert!(is_remote(&path));
         std::fs::write(&path, r#"{"port":47800,"token":"t"}"#).unwrap();

@@ -28,7 +28,7 @@ pub enum AttachmentError {
 }
 
 /// NBT key reserved for server-owned attachment maps.
-pub const ATTACHMENTS_KEY: &str = "industrial-era:attachments";
+pub const ATTACHMENTS_KEY: &str = "industrial_era:attachments";
 
 /// Read the reserved compound without replacing an invalid saved value.
 pub fn attachment_compound(tag: Option<&Tag>) -> Result<Option<&Compound>, AttachmentError> {

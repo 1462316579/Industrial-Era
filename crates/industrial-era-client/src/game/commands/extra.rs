@@ -332,7 +332,10 @@ impl Game<'_> {
                 .and_then(|p| {
                     let k = p.attributes.key("minecraft:waypoint_transmit_range")?;
                     p.attributes
-                        .value(Some(k), industrial_era_world::attribute_map::ValueKind::Computed)
+                        .value(
+                            Some(k),
+                            industrial_era_world::attribute_map::ValueKind::Computed,
+                        )
                         .ok()
                 })
                 .unwrap_or(0.0);

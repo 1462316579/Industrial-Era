@@ -758,7 +758,7 @@ mod tests {
     fn the_game_folders_mount_is_found() {
         let mountinfo = "22 1 259:2 / / rw - ext4 /dev/nvme0n1p2 rw\n30 22 8:1 / /mnt/games rw - ext4 /dev/sda1 rw\n";
         assert_eq!(
-            mount_source(mountinfo, Path::new("/home/x/.industrial-era")).as_deref(),
+            mount_source(mountinfo, Path::new("/home/x/.industrial_era")).as_deref(),
             Some("/dev/nvme0n1p2")
         );
         assert_eq!(
@@ -900,7 +900,7 @@ mod tests {
         assert_eq!(gpu_vendor("llvmpipe (LLVM 19)", 0x10005), "software");
     }
 
-    /// `cargo test -p industrial-era-telemetry -- --ignored --nocapture what_this_machine_sends`
+    /// `cargo test -p industrial_era-telemetry -- --ignored --nocapture what_this_machine_sends`
     #[test]
     #[ignore]
     fn what_this_machine_sends() {

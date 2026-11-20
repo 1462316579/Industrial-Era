@@ -1052,9 +1052,9 @@ impl Game<'_> {
         host.play.insert(conn, play);
         for event in turn_events {
             match event {
-                MotionEvent::Health(industrial_era_client::health::HealthEvent::DamageBroadcast {
-                    source,
-                }) => self.guest_damage_broadcast(host, conn, source),
+                MotionEvent::Health(
+                    industrial_era_client::health::HealthEvent::DamageBroadcast { source },
+                ) => self.guest_damage_broadcast(host, conn, source),
                 MotionEvent::HurtSound(sound) => self.guest_hurt_sound(host, conn, sound),
                 _ => {}
             }
@@ -1242,7 +1242,9 @@ impl Game<'_> {
         // (BaseContainerBlockEntity.getName) or its default name.
         let custom = |k: (i32, i32, i32)| self.world.block_names.get(&k).map(String::as_str);
         let title = match slots {
-            Slots::Ender => industrial_era_protocol::text::translatable("container.enderchest", &[]),
+            Slots::Ender => {
+                industrial_era_protocol::text::translatable("container.enderchest", &[])
+            }
             Slots::Double(first, second) => {
                 industrial_era_client::containers::double_chest_name(custom(first), custom(second))
             }
@@ -1271,7 +1273,9 @@ impl Game<'_> {
         // The block entity's createMenu: a shulker box opens a ShulkerBoxMenu
         // (not a 9x3 ChestMenu), whose slots refuse shulker boxes.
         let menu = match slots {
-            Slots::Block(_) => industrial_era_client::containers::block_menu_type(name).unwrap_or(menu),
+            Slots::Block(_) => {
+                industrial_era_client::containers::block_menu_type(name).unwrap_or(menu)
+            }
             _ => menu,
         };
         // BaseContainerBlockEntity.createMenu (and a double chest's own menu
@@ -1321,7 +1325,8 @@ impl Game<'_> {
                 ],
                 _ => [0.0; 3],
             };
-            let source = industrial_era_client::settings::sound_source("minecraft:block.chest.locked");
+            let source =
+                industrial_era_client::settings::sound_source("minecraft:block.chest.locked");
             host.hub.sound(
                 "minecraft:block.chest.locked",
                 at,
@@ -1600,7 +1605,11 @@ impl Game<'_> {
     /// `ContainerEntity.isChestVehicleStillValid`: the chest minecart or chest
     /// boat is still there and within the guest's entity interaction range
     /// plus 4 of its box.
-    fn chest_vehicle_still_valid(&self, id: i32, g: &industrial_era_client::lan::guest::Guest) -> bool {
+    fn chest_vehicle_still_valid(
+        &self,
+        id: i32,
+        g: &industrial_era_client::lan::guest::Guest,
+    ) -> bool {
         let bounds = self
             .carts
             .iter()
@@ -1663,7 +1672,8 @@ impl Game<'_> {
         let Some(info) = self.items().get(&stack.item).cloned() else {
             return false;
         };
-        (info.block.is_some() || industrial_era_client::items::bucket_contents(&stack.item).is_some())
+        (info.block.is_some()
+            || industrial_era_client::items::bucket_contents(&stack.item).is_some())
             && !self
                 .cooldowns
                 .is_on_cooldown(&industrial_era_client::cooldowns::group(
@@ -1680,7 +1690,9 @@ impl Game<'_> {
             } else {
                 "build.tooLow"
             },
-            &[industrial_era_client::text::Text::literal(limit.to_string())],
+            &[industrial_era_client::text::Text::literal(
+                limit.to_string(),
+            )],
         )
         .with_color(industrial_era_client::text::RED);
         host.hub.send_to(
@@ -2501,10 +2513,9 @@ impl Game<'_> {
             S::TeleportToEntity(p) if spectator => self.guest_spectate_teleport(host, gi, p.uuid),
             S::SpectatorAction(p) => self.guest_spectator_action(host, gi, p.target),
             S::ChangeGameMode(p) if host.hub.guests[gi].permission >= 2 => {
-                if let Some(mode) = usize::try_from(p.mode)
-                    .ok()
-                    .and_then(|index| industrial_era_client::command::args::GameMode::ALL.get(index))
-                {
+                if let Some(mode) = usize::try_from(p.mode).ok().and_then(|index| {
+                    industrial_era_client::command::args::GameMode::ALL.get(index)
+                }) {
                     let lines = self.as_guest(host, conn, |g| {
                         g.chat_capture = Some(Vec::new());
                         g.change_game_mode(*mode);
@@ -2512,7 +2523,9 @@ impl Game<'_> {
                             .take()
                             .unwrap_or_default()
                             .iter()
-                            .map(|t| industrial_era_client::lan::data::component_nbt(&t.component()))
+                            .map(|t| {
+                                industrial_era_client::lan::data::component_nbt(&t.component())
+                            })
                             .collect::<Vec<_>>()
                     });
                     for content in lines.unwrap_or_default() {
@@ -2528,10 +2541,9 @@ impl Game<'_> {
                 }
             }
             S::ChangeGameMode(p) => {
-                if let Some(mode) = usize::try_from(p.mode)
-                    .ok()
-                    .and_then(|index| industrial_era_client::command::args::GameMode::ALL.get(index))
-                {
+                if let Some(mode) = usize::try_from(p.mode).ok().and_then(|index| {
+                    industrial_era_client::command::args::GameMode::ALL.get(index)
+                }) {
                     let name = industrial_era_client::text::Text::translate(
                         &format!("gameMode.{}", mode.name()),
                         &[],
@@ -2631,7 +2643,11 @@ impl Game<'_> {
 
     /// `ServerLevel.getEntity(id)`'s `Entity.saveWithoutId`: the player or
     /// other entity of the level in place with that network id.
-    fn level_entity_tag(&mut self, host: &mut LanHost, id: i32) -> Option<industrial_era_world::nbt::Tag> {
+    fn level_entity_tag(
+        &mut self,
+        host: &mut LanHost,
+        id: i32,
+    ) -> Option<industrial_era_world::nbt::Tag> {
         use super::commands::Target;
         let player = host
             .hub
@@ -3218,7 +3234,10 @@ impl Game<'_> {
             host.hub.send_to(
                 conn,
                 &C::SystemChat(play::SystemChat {
-                    content: industrial_era_protocol::text::translatable("command.unknown.command", &[]),
+                    content: industrial_era_protocol::text::translatable(
+                        "command.unknown.command",
+                        &[],
+                    ),
                     overlay: false,
                 }),
             );
@@ -3818,7 +3837,10 @@ impl Game<'_> {
                 let text = match cause {
                     Some(key) => industrial_era_client::text::Text::translate(&key, &[me]),
                     None if at[1] < f64::from(self.world.bottom_y() - 64) => {
-                        industrial_era_client::text::Text::translate("death.attack.outOfWorld", &[me])
+                        industrial_era_client::text::Text::translate(
+                            "death.attack.outOfWorld",
+                            &[me],
+                        )
                     }
                     None => self.guest_death_message(conn, me),
                 };
@@ -3836,7 +3858,8 @@ impl Game<'_> {
                     );
                     // Only a message for everyone is logged (`broadcastSystemMessage`).
                     if board.players_team(&name).is_none_or(|t| {
-                        t.death_message_visibility == industrial_era_client::scoreboard::Visibility::Always
+                        t.death_message_visibility
+                            == industrial_era_client::scoreboard::Visibility::Always
                     }) {
                         super::dedicated::log("INFO", &format!("System chat: {}", text.plain()));
                     }
@@ -4036,7 +4059,9 @@ impl Game<'_> {
         };
         if let Some(host) = self.lan.as_ref() {
             host.hub
-                .overlay_message(industrial_era_client::lan::data::component_nbt(&text.component()));
+                .overlay_message(industrial_era_client::lan::data::component_nbt(
+                    &text.component(),
+                ));
         }
         if self.options.dedicated.is_none() {
             self.titles.set_overlay(text, false);
@@ -4059,7 +4084,9 @@ impl Game<'_> {
     pub(super) fn announce_guest_advancements(&mut self, host: &mut LanHost) {
         for text in std::mem::take(&mut self.adv.announced) {
             host.hub
-                .system_message(industrial_era_client::lan::data::component_nbt(&text.component()));
+                .system_message(industrial_era_client::lan::data::component_nbt(
+                    &text.component(),
+                ));
             if self.options.dedicated.is_none() {
                 self.system_message(text);
             }
@@ -4273,7 +4300,8 @@ impl Game<'_> {
             let velocity = marked.then_some(player.velocity);
             // Player.causeFallDamage: a fall of 2 blocks or more counts.
             for event in &events {
-                if let MotionEvent::Fall(industrial_era_client::landing::FallEvent::Statistic(cm)) = event
+                if let MotionEvent::Fall(industrial_era_client::landing::FallEvent::Statistic(cm)) =
+                    event
                 {
                     game.award_custom_stat("fall_one_cm", *cm);
                 }
@@ -4304,15 +4332,18 @@ impl Game<'_> {
             // Entity.restituteMovementAfterCollisions: GameEvent.BOUNCE.
             for event in &events {
                 if matches!(event, MotionEvent::Bounce { .. }) {
-                    game.post_entity_event("minecraft:bounce", industrial_era_client::mobs::Who::Player);
+                    game.post_entity_event(
+                        "minecraft:bounce",
+                        industrial_era_client::mobs::Who::Player,
+                    );
                 }
             }
         });
         for event in events {
             match event {
-                MotionEvent::Health(industrial_era_client::health::HealthEvent::DamageBroadcast {
-                    source,
-                }) => self.guest_damage_broadcast(host, conn, source),
+                MotionEvent::Health(
+                    industrial_era_client::health::HealthEvent::DamageBroadcast { source },
+                ) => self.guest_damage_broadcast(host, conn, source),
                 // LivingEntity.playHurtSound: the server's `Entity.playSound`
                 // reaches every player around but the hurt one, whose own
                 // client plays it from handleDamageEvent (#4149).

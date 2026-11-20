@@ -1,4 +1,4 @@
-//! The client side of `industrial-era:lod`: far terrain a server samples, as the
+//! The client side of `industrial_era:lod`: far terrain a server samples, as the
 //! `LodSource` of a client of another machine's world. Each sampling thread
 //! queues one tile request, which the game thread sends with its own packets
 //! ([`Inbox::requests`]), and waits for its reply, which the network thread

@@ -121,7 +121,7 @@ impl Launcher {
                     ),
                     (None, None, None) => (Tone::Off, tr("No version installed").into()),
                     // Following the launcher's version, which has a newer one waiting.
-                    (None, Some(_), None) if self.updates.industrial-era.is_some() => (
+                    (None, Some(_), None) if self.updates.industrial_era.is_some() => (
                         Tone::Accent(self.look.accent_soft),
                         tr("Update available").into(),
                     ),

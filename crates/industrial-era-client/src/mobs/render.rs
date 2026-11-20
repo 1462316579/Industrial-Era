@@ -999,7 +999,7 @@ pub fn layers(m: &Mob, age: f32) -> Vec<Layer> {
     v
 }
 /// The texture `humanoid_armor` gives a piece with its own equipment asset, then the layer kind.
-const OWN_EQUIPMENT: &str = "industrial-era:own_equipment/";
+const OWN_EQUIPMENT: &str = "industrial_era:own_equipment/";
 
 /// A worn piece's own equipment asset (its stack's `equippable`: a server's custom armour).
 fn own_asset(stack: &Option<crate::items::ItemStack>) -> Option<String> {
@@ -2700,7 +2700,8 @@ mod tests {
         use crate::items::ItemStack;
         let mut extra = super::super::Extra::default();
         let mut main = ItemStack::new("minecraft:crossbow", 1);
-        main.data_mut().custom_name = Some(industrial_era_world::nbt::Tag::String("Main hand".into()));
+        main.data_mut().custom_name =
+            Some(industrial_era_world::nbt::Tag::String("Main hand".into()));
         extra.set_main_hand_stack(Some(main));
         extra.off_hand = Some("minecraft:crossbow".into());
         assert_eq!(
@@ -2878,8 +2879,12 @@ mod tests {
             for baby in [false, true] {
                 for t in 0..VILLAGER_TYPES.len() {
                     for p in 0..PROFESSIONS.len() {
-                        let mut m =
-                            Mob::new(1, kind.clone(), industrial_era_core::geometry::Vec3::ZERO, 0.0);
+                        let mut m = Mob::new(
+                            1,
+                            kind.clone(),
+                            industrial_era_core::geometry::Vec3::ZERO,
+                            0.0,
+                        );
                         m.extra.age = if baby { -24000 } else { 0 };
                         (m.extra.variant, m.extra.variant2, m.extra.variant3) =
                             (t as u8, p as u8, 5);
@@ -2934,7 +2939,12 @@ mod tests {
             })
         };
         for baby in [false, true] {
-            let mut mob = Mob::new(1, kind.clone(), industrial_era_core::geometry::Vec3::ZERO, 0.0);
+            let mut mob = Mob::new(
+                1,
+                kind.clone(),
+                industrial_era_core::geometry::Vec3::ZERO,
+                0.0,
+            );
             mob.extra.age = if baby { -24000 } else { 0 };
             super::super::sulfur_cube::finalize(&mut mob);
             assert_eq!(mob.is_baby(), baby);
@@ -3029,7 +3039,12 @@ mod tests {
             })
         };
         for variant in 0..4 {
-            let mut mob = Mob::new(1, kind.clone(), industrial_era_core::geometry::Vec3::ZERO, 0.0);
+            let mut mob = Mob::new(
+                1,
+                kind.clone(),
+                industrial_era_core::geometry::Vec3::ZERO,
+                0.0,
+            );
             mob.extra.variant = variant;
             let mut vertices = Vec::new();
             render(
@@ -3176,7 +3191,12 @@ mod tests {
         }
         let types = super::super::MobTypes::load(&root).unwrap();
         let kind = std::sync::Arc::new(types.types["minecraft:zombie"].clone());
-        let mut mob = Mob::new(1, kind.clone(), industrial_era_core::geometry::Vec3::ZERO, 0.0);
+        let mut mob = Mob::new(
+            1,
+            kind.clone(),
+            industrial_era_core::geometry::Vec3::ZERO,
+            0.0,
+        );
         mob.hurt_time = 5;
         let data = MobData {
             states: Vec::new(),
@@ -3379,7 +3399,12 @@ mod scroll_tests {
         let types = super::super::MobTypes::load(&root).unwrap();
         let kind = std::sync::Arc::new(types.types["minecraft:sheep"].clone());
         let sheep = |color: u8, sheared: bool, baby: bool| {
-            let mut m = Mob::new(1, kind.clone(), industrial_era_core::geometry::Vec3::ZERO, 0.0);
+            let mut m = Mob::new(
+                1,
+                kind.clone(),
+                industrial_era_core::geometry::Vec3::ZERO,
+                0.0,
+            );
             m.extra.color = color;
             m.extra.sheared = sheared;
             m.extra.age = if baby { -24000 } else { 0 };
@@ -3459,7 +3484,7 @@ mod scroll_tests {
     /// The CPU cost of posing a mob farm (tools/stress_scenes.py `stress_mobs`): 1000 mobs of
     /// 8 kinds through `render_with`, as `mob_geometry` draws them each frame. Prints the median
     /// thread CPU time per frame (busy machines stretch wall time), the vertices and a hash of them (the same hash before and after a speed-up
-    /// means the same picture). `cargo test --profile fast -p industrial-era-client --lib
+    /// means the same picture). `cargo test --profile fast -p industrial_era-client --lib
     /// benchmark_mob_farm_geometry -- --ignored --nocapture`.
     #[test]
     #[ignore = "manual benchmark; needs the prepared resources"]
@@ -3523,7 +3548,10 @@ mod scroll_tests {
         hash.write(bytemuck::cast_slice(&out));
         // The thread's own CPU time where the platform gives it, else wall time.
         let timed = |f: &mut dyn FnMut()| {
-            let (wall, cpu) = (Instant::now(), industrial_era_client_render::spans::thread_cpu());
+            let (wall, cpu) = (
+                Instant::now(),
+                industrial_era_client_render::spans::thread_cpu(),
+            );
             f();
             match (industrial_era_client_render::spans::thread_cpu(), cpu) {
                 (Some(end), Some(start)) => (end - start).as_secs_f64() * 1000.0,
@@ -3595,7 +3623,9 @@ mod scroll_tests {
 mod emissive_tests {
     use super::*;
     use crate::mobs::{Polygon, Species};
-    use industrial_era_optifine::{blink::Blinks, emissive::Emissive, random_textures::RandomTextures};
+    use industrial_era_optifine::{
+        blink::Blinks, emissive::Emissive, random_textures::RandomTextures,
+    };
     use std::sync::{Arc, RwLock};
 
     /// A silverfish (drawn with its type's texture) whose model is one quad.
@@ -3917,8 +3947,10 @@ mod random_texture_tests {
 
     /// A pack whose silverfish has a second variant, every silverfish wearing it.
     fn data() -> MobData {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-render-random-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-render-random-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         let dir = root.join("assets/minecraft/optifine/random/entity");
         std::fs::create_dir_all(&dir).unwrap();

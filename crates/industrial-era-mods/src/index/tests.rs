@@ -222,7 +222,8 @@ fn shader_packs_pass_the_game_s_own_check() {
             .package()
             .unwrap()
     };
-    let dir = std::env::temp_dir().join(format!("industrial-era-mods-shader-{}", std::process::id()));
+    let dir =
+        std::env::temp_dir().join(format!("industrial-era-mods-shader-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let good = dir.join("glow-1.0.0.hshader");
     std::fs::write(

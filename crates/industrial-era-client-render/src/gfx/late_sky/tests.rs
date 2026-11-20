@@ -322,7 +322,7 @@ fn the_late_sky_draws_the_usual_pixels() {
     let sun = Vec3::new(0.0, 0.2, -0.98).normalize();
     let mut uploads = Uploads::new(&device);
     let mut seen = [false; PARTS.len()];
-    // Toward the sunrise fan (which lies around -X), above and below the industrial-era, and away from it.
+    // Toward the sunrise fan (which lies around -X), above and below the industrial_era, and away from it.
     for look in [
         Vec3::new(-1.0, 0.0, 0.0),
         Vec3::new(-1.0, 0.4, 0.2),

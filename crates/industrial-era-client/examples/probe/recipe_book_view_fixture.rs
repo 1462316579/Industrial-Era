@@ -26,7 +26,9 @@ pub fn main() -> industrial_era_client::Result<()> {
     let index = RecipeIndex::load(root, &PackOverlay::NONE);
     let mut book = Book::build(&recipes, &items);
     book.set_display_ids(&index);
-    let max = |s: &industrial_era_client::items::ItemStack| items.get(&s.item).map_or(64, |i| i.max_stack);
+    let max = |s: &industrial_era_client::items::ItemStack| {
+        items.get(&s.item).map_or(64, |i| i.max_stack)
+    };
     let names = industrial_era_client::creative::Names::load(root);
     let translate = |k: &str| names.get(k).map(str::to_owned);
     let tooltip = |s: &industrial_era_client::items::ItemStack| {

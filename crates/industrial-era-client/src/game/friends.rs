@@ -14,7 +14,9 @@ use industrial_era_client::{
     lang,
     text::Text,
 };
-use industrial_era_friends::{Host, HostConfig, HostEvent, PathMode, host::DEFAULT_PORT, reach, stun};
+use industrial_era_friends::{
+    Host, HostConfig, HostEvent, PathMode, host::DEFAULT_PORT, reach, stun,
+};
 use industrial_era_protocol::{GAME_VERSION, PROTOCOL_VERSION};
 use std::time::{Duration, Instant};
 
@@ -37,7 +39,7 @@ pub const HELP: &[&str] = &[
     "friends status                 the code, how friends reach this host, the guests",
 ];
 
-/// `HORIZON_STUN_SERVERS`, else `friendsStun` in industrial-era.txt, else the defaults.
+/// `HORIZON_STUN_SERVERS`, else `friendsStun` in industrial_era.txt, else the defaults.
 fn stun_servers() -> Vec<String> {
     if std::env::var_os("HORIZON_STUN_SERVERS").is_some() {
         return stun::servers_from_env();
@@ -145,7 +147,9 @@ impl Game<'_> {
         for event in sharing.host.poll() {
             match event {
                 HostEvent::Code(code) => {
-                    if sharing.code.is_some() && sharing.wrong >= industrial_era_friends::host::MAX_WRONG {
+                    if sharing.code.is_some()
+                        && sharing.wrong >= industrial_era_friends::host::MAX_WRONG
+                    {
                         sharing.notice = Some(lang::get_or(
                             "industrial-era.friends.short_code_changed",
                             "Someone kept trying a wrong short code, so it changed.",

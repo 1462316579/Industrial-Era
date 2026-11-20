@@ -528,8 +528,10 @@ mod tests {
 
     #[test]
     fn latin1_rules_are_read() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-random-latin1-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-random-latin1-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let dir = root.join(RANDOM).join("creeper");
         fs::create_dir_all(&dir).unwrap();

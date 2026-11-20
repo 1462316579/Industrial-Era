@@ -635,7 +635,14 @@ fn place(name: &str, owned: &[&str]) -> Option<bool> {
 
 /// Namespaces no carried mod claims: vanilla's, the convention tags', the
 /// game's own and the loaders'.
-const NOT_CLAIMED: [&str; 6] = ["minecraft", "c", "industrial-era", "forge", "neoforge", "fabric"];
+const NOT_CLAIMED: [&str; 6] = [
+    "minecraft",
+    "c",
+    "industrial-era",
+    "forge",
+    "neoforge",
+    "fabric",
+];
 
 /// The namespaces besides `id` a mod's content owns. Some mods ship their
 /// files under other names than their id (Towns and Towers, `t_and_t`,
@@ -1087,7 +1094,7 @@ pub fn carry(
             "data/{id}/worldgen/structure_set/{}/{file}.json",
             crate::worldgen::ADDED
         );
-        let v = json!({"industrial-era:add_to": set, "structures": entries});
+        let v = json!({"industrial_era:add_to": set, "structures": entries});
         write(
             &inside.join(to),
             &serde_json::to_vec_pretty(&v).unwrap_or_default(),
@@ -1292,7 +1299,7 @@ pub fn carry(
     let q = |s: &str| toml::Value::String(s.to_owned()).to_string();
     let name = if info.name.is_empty() { id } else { &info.name };
     let mut manifest = format!(
-        "# Carried over from {jar} by industrial-era-port-pack, for local use only.\n# Licence: {license}\nid = {}\nname = {}\nversion = {}\napi = \"0.2\"\nside = \"both\"\ncapabilities = [\"registries\"]\n",
+        "# Carried over from {jar} by industrial_era-port-pack, for local use only.\n# Licence: {license}\nid = {}\nname = {}\nversion = {}\napi = \"0.2\"\nside = \"both\"\ncapabilities = [\"registries\"]\n",
         q(id),
         q(name),
         q(&info.version),
@@ -1737,7 +1744,8 @@ mod tests {
     /// A small NeoForge jar carried over is a content mod Industrial Era loads.
     #[test]
     fn carried_jar_is_a_content_mod() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-port-pack-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-port-pack-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let jar = dir.join("gem-1.0.jar");
@@ -1885,12 +1893,14 @@ mod tests {
         // A lithostitched pool addition, as a file the game merges, upgraded
         // as the mod's own pools are.
         let added: Value = serde_json::from_slice(
-            &fs::read(carried.join("data/gem/worldgen/template_pool/industrial_era_added/houses.json"))
-                .unwrap(),
+            &fs::read(
+                carried.join("data/gem/worldgen/template_pool/industrial_era_added/houses.json"),
+            )
+            .unwrap(),
         )
         .unwrap();
         assert_eq!(
-            added["industrial-era:add_to"],
+            added["industrial_era:add_to"],
             json!(["minecraft:village/plains/houses"])
         );
         assert_eq!(
@@ -1917,7 +1927,10 @@ mod tests {
     /// and a pack mod's namespace stay outside.
     #[test]
     fn claims_the_namespaces_its_files_name() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-port-pack-ns-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-port-pack-ns-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let jar = dir.join("towers-1.0.jar");
@@ -2004,8 +2017,10 @@ mod tests {
     /// Overrides make looks of the mod's own models only, and never of an item it registers.
     #[test]
     fn override_targets_lose_their_definition_only_when_they_are_looks() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-port-pack-looks-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-port-pack-looks-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let jar = dir.join("gem-1.0.jar");
@@ -2087,8 +2102,10 @@ mod tests {
     /// nothing: not into `carry`, not into `outside`, nowhere.
     #[test]
     fn entry_names_cannot_escape_the_output() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-port-pack-esc-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-port-pack-esc-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let jar = dir.join("evil-1.0.jar");

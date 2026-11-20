@@ -234,7 +234,10 @@ impl SectionCoder {
         (w.data.into(), entities.into())
     }
 
-    fn section(&self, section: &Section) -> (industrial_era_protocol::chunk::Section, Vec<(u16, u32)>) {
+    fn section(
+        &self,
+        section: &Section,
+    ) -> (industrial_era_protocol::chunk::Section, Vec<(u16, u32)>) {
         let (mut non_empty, mut fluids, mut entities) = (0i16, 0i16, Vec::new());
         let mut count = |state: u32, n: i16| {
             let f = self.flags.get(state as usize).copied().unwrap_or(0);
@@ -1741,7 +1744,8 @@ mod tests {
     #[test]
     fn a_proto_neighbour_counts_for_the_light_layers() {
         let encoder = encoder();
-        let mut world = crate::world::World::new(industrial_era_world::registry::BlockStateId(0), 0);
+        let mut world =
+            crate::world::World::new(industrial_era_world::registry::BlockStateId(0), 0);
         for x in -1..=1 {
             for z in -1..=1 {
                 let mut chunk = Chunk::empty(x, z);
@@ -1827,7 +1831,8 @@ mod tests {
         let packet = |encoder: &ChunkEncoder, around: SectionMask| {
             let mut packet = encoder.encode_blocks(&chunk, &entities);
             packet.light = encoder.light_data(&chunk, around);
-            industrial_era_protocol::packets::play::Clientbound::LevelChunkWithLight(packet).encode()
+            industrial_era_protocol::packets::play::Clientbound::LevelChunkWithLight(packet)
+                .encode()
         };
         let sent = encoder
             .encode_blocks(&chunk, &entities)
@@ -1903,7 +1908,8 @@ mod tests {
             "minecraft:oak_sign",
         ]
         .map(|n| (Arc::<str>::from(n), n.ends_with("water")));
-        let mut world = crate::world::World::new(industrial_era_world::registry::BlockStateId(0), 0);
+        let mut world =
+            crate::world::World::new(industrial_era_world::registry::BlockStateId(0), 0);
         for x in -2..2 {
             for z in -2..2 {
                 let mut chunk = Chunk::empty(x, z);

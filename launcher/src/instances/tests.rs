@@ -312,7 +312,7 @@ fn a_java_instance_plays_one_minecraft_version_in_its_own_folder() {
     assert_eq!(java.java.as_ref().unwrap().minecraft, "1.21.4");
     let copy = create_in(&home, &data, "Second", Some(&java), None).unwrap();
     assert_eq!(copy.java, java.java);
-    let industrial-era = create_in(&home, &data, "Industrial Era two", None, None).unwrap();
+    let industrial_era = create_in(&home, &data, "Industrial Era two", None, None).unwrap();
     assert_eq!(industrial-era.java, None);
     let store = fs::read_to_string(data.join(FILE)).unwrap();
     assert_eq!(

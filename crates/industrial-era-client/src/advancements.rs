@@ -108,7 +108,8 @@ impl Tree {
         // the prepared data file, and read once while a load holds the folder.
         let mut json: BTreeMap<String, Value> = BTreeMap::new();
         for ns in namespaces.flatten() {
-            let Ok(folder) = industrial_era_world::json_folder::read(&ns.path().join("advancement"))
+            let Ok(folder) =
+                industrial_era_world::json_folder::read(&ns.path().join("advancement"))
             else {
                 continue;
             };
@@ -120,7 +121,9 @@ impl Tree {
             }
         }
         for (id, files) in overlay.kind("advancement") {
-            match serde_json::from_slice::<Value>(industrial_era_world::loot::PackOverlay::top(files)) {
+            match serde_json::from_slice::<Value>(industrial_era_world::loot::PackOverlay::top(
+                files,
+            )) {
                 Ok(v) => {
                     json.insert(id.to_owned(), v);
                 }
@@ -1323,7 +1326,7 @@ mod tests {
     use super::*;
 
     /// The criteria an inventory change and a recipe unlock test, on vanilla's tree:
-    /// `cargo test -p industrial-era-client --lib -- --ignored --nocapture index_on_vanilla_tree`
+    /// `cargo test -p industrial_era-client --lib -- --ignored --nocapture index_on_vanilla_tree`
     /// with HORIZON_RESOURCES set to the prepared resources.
     #[test]
     #[ignore = "needs the prepared resources"]

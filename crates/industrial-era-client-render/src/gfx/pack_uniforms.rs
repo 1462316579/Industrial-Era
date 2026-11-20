@@ -821,7 +821,7 @@ mod tests {
     fn noon_is_straight_up_and_the_sun_sets_in_the_west() {
         assert!(body(0.0, 0.0).abs_diff_eq(Vec3::new(0.0, 100.0, 0.0), 1e-3));
         assert!(body(90.0, 0.0).abs_diff_eq(Vec3::new(-100.0, 0.0, 0.0), 1e-3));
-        // sunPathRotation tilts noon toward -Z and leaves sunset on the industrial-era.
+        // sunPathRotation tilts noon toward -Z and leaves sunset on the industrial_era.
         assert!(body(0.0, 30.0).abs_diff_eq(Vec3::new(0.0, 86.60254, -50.0), 1e-3));
         assert!(body(90.0, 30.0).abs_diff_eq(Vec3::new(-100.0, 0.0, 0.0), 1e-3));
     }

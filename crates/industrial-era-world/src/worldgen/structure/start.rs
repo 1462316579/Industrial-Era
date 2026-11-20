@@ -57,12 +57,12 @@ pub struct JigsawDef {
     aliases: Vec<Value>,
     padding: [i32; 2],
     waterlogging: bool,
-    /// A carried mod's start rules (`"industrial-era:start_checks"`).
+    /// A carried mod's start rules (`"industrial_era:start_checks"`).
     checks: super::start_checks::StartChecks,
     /// Vanilla's draws, or YUNG's API's for `yungsapi:yung_jigsaw`.
     draws: super::jigsaw::Draws,
     /// Laid out by Repurposed Structures' and Moog's piece-limited
-    /// assembler (`"industrial-era:piece_limited"`).
+    /// assembler (`"industrial_era:piece_limited"`).
     piece_limited: Option<super::piece_limited::Config>,
 }
 #[derive(Debug)]
@@ -94,7 +94,7 @@ pub enum StructureKind {
     Fortress,
     NetherFossil(HeightProvider),
     EndCity,
-    /// `industrial-era:formations`: Formations' SimpleStructure.
+    /// `industrial_era:formations`: Formations' SimpleStructure.
     Formations(super::formations::Def),
     /// A structure type whose generator is not implemented yet.
     Unsupported(String),
@@ -107,7 +107,7 @@ pub struct StructureDef {
     pub step: usize,
     pub terrain: TerrainAdjustment,
     /// A structure library's terrain kernel
-    /// (`"industrial-era:enhanced_terrain_adaptation"`).
+    /// (`"industrial_era:enhanced_terrain_adaptation"`).
     pub enhanced_terrain: Option<super::enhanced_terrain::StructureAdaptation>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -144,20 +144,20 @@ pub struct StructureSet {
     reduction: Reduction,
     exclusion: Option<(String, i32)>,
     /// A carried mod's placement rules: no start nearer the world origin
-    /// than this many blocks (`"industrial-era:min_distance_from_world_origin"`),
+    /// than this many blocks (`"industrial_era:min_distance_from_world_origin"`),
     /// and none within `chunk_count` chunks of any of several sets
-    /// (`"industrial-era:exclusion_zone"`: `other_sets`, `chunk_count`).
+    /// (`"industrial_era:exclusion_zone"`: `other_sets`, `chunk_count`).
     min_distance: Option<i64>,
     avoid: Option<Avoid>,
-    /// `"industrial-era:ring_sections"`: starts only in odd rings around the origin.
+    /// `"industrial_era:ring_sections"`: starts only in odd rings around the origin.
     rings: Option<RingSections>,
-    /// `"industrial-era:avoid_biomes"`: no start with one of these biomes near.
+    /// `"industrial_era:avoid_biomes"`: no start with one of these biomes near.
     avoid_biomes: Option<AvoidBiomes>,
     /// `placement.locate_offset` (buried treasure's [9, 0, 9]).
     locate_offset: [i32; 3],
 }
 
-/// `"industrial-era:exclusion_zone"`: no start within `chunk_count` chunks of a
+/// `"industrial_era:exclusion_zone"`: no start within `chunk_count` chunks of a
 /// start of any of `sets`. With `"their_zones": false` those sets' own
 /// exclusion zones are not checked (Mo' Structures' ModStructurePlacement
 /// tests the sets it avoids by their spread and frequency alone).
@@ -174,7 +174,7 @@ struct Avoid {
 /// placed only in the odd ones, and in none past `max_section`.
 ///
 /// ```json
-/// "industrial-era:ring_sections": {"distance_to_first_ring": 80, "thickness": 96, "max_section": 5}
+/// "industrial_era:ring_sections": {"distance_to_first_ring": 80, "thickness": 96, "max_section": 5}
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct RingSections {
@@ -207,7 +207,7 @@ impl RingSections {
 /// between samples, closest first).
 ///
 /// ```json
-/// "industrial-era:avoid_biomes": {"biomes": ["#minecraft:is_river", "#minecraft:is_ocean"],
+/// "industrial_era:avoid_biomes": {"biomes": ["#minecraft:is_river", "#minecraft:is_ocean"],
 ///   "radius": 48, "step": 2, "y": 120}
 /// ```
 #[derive(Debug)]
@@ -333,9 +333,11 @@ impl StructureRegistry {
                     aliases: v["pool_aliases"].as_array().cloned().unwrap_or_default(),
                     padding: pair(v.get("dimension_padding"), "bottom", "top", 0, 0),
                     waterlogging: v["liquid_settings"].as_str() != Some("ignore_waterlogging"),
-                    checks: super::start_checks::StartChecks::decode(v.get("industrial-era:start_checks")),
+                    checks: super::start_checks::StartChecks::decode(
+                        v.get("industrial_era:start_checks"),
+                    ),
                     piece_limited: v
-                        .get("industrial-era:piece_limited")
+                        .get("industrial_era:piece_limited")
                         .map(super::piece_limited::Config::decode),
                 }),
                 "minecraft:buried_treasure" => StructureKind::BuriedTreasure,
@@ -375,9 +377,9 @@ impl StructureRegistry {
                 "minecraft:nether_fossil" => StructureKind::NetherFossil(
                     HeightProvider::from_json(&v["height"].to_string())?,
                 ),
-                "industrial-era:formations" => match super::formations::Def::decode(&v) {
+                "industrial_era:formations" => match super::formations::Def::decode(&v) {
                     Ok(def) => StructureKind::Formations(def),
-                    Err(_) => StructureKind::Unsupported("industrial-era:formations".into()),
+                    Err(_) => StructureKind::Unsupported("industrial_era:formations".into()),
                 },
                 other => StructureKind::Unsupported(other.to_owned()),
             };
@@ -391,7 +393,7 @@ impl StructureRegistry {
                     .unwrap_or(4),
                 terrain: terrain(v["terrain_adaptation"].as_str()),
                 enhanced_terrain: v
-                    .get("industrial-era:enhanced_terrain_adaptation")
+                    .get("industrial_era:enhanced_terrain_adaptation")
                     .map(super::enhanced_terrain::StructureAdaptation::decode)
                     .transpose()?,
             });
@@ -448,9 +450,9 @@ impl StructureRegistry {
                     )
                 }),
                 min_distance: p
-                    .get("industrial-era:min_distance_from_world_origin")
+                    .get("industrial_era:min_distance_from_world_origin")
                     .and_then(Value::as_i64),
-                avoid: p.get("industrial-era:exclusion_zone").map(|z| Avoid {
+                avoid: p.get("industrial_era:exclusion_zone").map(|z| Avoid {
                     sets: z["other_sets"]
                         .as_array()
                         .into_iter()
@@ -460,9 +462,11 @@ impl StructureRegistry {
                     chunk_count: z["chunk_count"].as_i64().unwrap_or(0) as i32,
                     their_zones: z["their_zones"].as_bool().unwrap_or(true),
                 }),
-                rings: p.get("industrial-era:ring_sections").map(RingSections::decode),
+                rings: p
+                    .get("industrial_era:ring_sections")
+                    .map(RingSections::decode),
                 avoid_biomes: p
-                    .get("industrial-era:avoid_biomes")
+                    .get("industrial_era:avoid_biomes")
                     .map(|a| AvoidBiomes::decode(a, biome_set))
                     .transpose()?,
             });
@@ -1498,7 +1502,7 @@ mod tests {
         let set = |avoid: Value| {
             json!({"structures": [{"structure": "t:s", "weight": 1}],
                 "placement": {"type": "minecraft:random_spread", "spacing": 1, "separation": 0,
-                    "salt": 1, "industrial-era:exclusion_zone": avoid}})
+                    "salt": 1, "industrial_era:exclusion_zone": avoid}})
         };
         let r = registry(
             &[("t:s", json!({"type": "minecraft:igloo", "biomes": []}))],
@@ -1554,7 +1558,7 @@ mod tests {
                 "yung:temples",
                 json!({"structures": [], "placement": {"type": "minecraft:random_spread",
                     "spacing": 24, "separation": 8, "salt": 1,
-                    "industrial-era:avoid_biomes": {"biomes": ["#t:one", "#t:two"],
+                    "industrial_era:avoid_biomes": {"biomes": ["#t:one", "#t:two"],
                         "radius": 48, "step": 2, "y": 120}}}),
             )],
         );

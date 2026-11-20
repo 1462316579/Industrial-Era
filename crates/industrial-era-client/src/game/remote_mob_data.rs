@@ -345,9 +345,10 @@ fn apply(m: &mut Mob, values: &[(u8, i32, Value)], builtin: &Builtin, local_enti
             // Mannequin.DATA_IMMOVABLE and DATA_DESCRIPTION (an empty one is hidden).
             (Species::Mannequin, 18, Value::Bool(immovable)) => m.extra.immovable = *immovable,
             (Species::Mannequin, 19, Value::OptText(description)) => {
-                m.extra.description = industrial_era_client::mobs::MannequinDescription::from_component(
-                    description.as_ref(),
-                );
+                m.extra.description =
+                    industrial_era_client::mobs::MannequinDescription::from_component(
+                        description.as_ref(),
+                    );
             }
             _ => {}
         }
@@ -645,7 +646,8 @@ mod tests {
         use industrial_era_client::mobs::MobTypes;
         use std::{fs, sync::Arc};
 
-        let root = std::env::temp_dir().join(format!("industrial-era-baby-flag-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-baby-flag-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
         fs::write(
             root.join("entity-types.json"),
@@ -700,8 +702,10 @@ mod tests {
         use std::{collections::HashMap, fs, sync::Arc};
 
         // Original minimal resources keep this regression runnable without vanilla data.
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-bat-animation-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-bat-animation-{}",
+            std::process::id()
+        ));
         fs::create_dir(&root).unwrap();
         fs::write(root.join("entity-types.json"), r#"{"minecraft:bat": {}}"#).unwrap();
         fs::write(

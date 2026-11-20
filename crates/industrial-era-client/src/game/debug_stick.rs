@@ -156,13 +156,16 @@ impl Game<'_> {
     /// game's HUD; a server client receives it as a packet.
     fn debug_stick_message(&mut self, message: Text) {
         if self.lan_acting.is_some() {
-            self.guest_packets
-                .push(industrial_era_protocol::packets::play::Clientbound::SystemChat(
+            self.guest_packets.push(
+                industrial_era_protocol::packets::play::Clientbound::SystemChat(
                     industrial_era_protocol::packets::play::SystemChat {
-                        content: industrial_era_client::lan::data::component_nbt(&message.component()),
+                        content: industrial_era_client::lan::data::component_nbt(
+                            &message.component(),
+                        ),
                         overlay: true,
                     },
-                ));
+                ),
+            );
         } else if self.options.dedicated.is_none() {
             self.titles.set_overlay(message, false);
         }

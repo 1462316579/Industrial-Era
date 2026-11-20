@@ -22,41 +22,41 @@ fn canonical_duplicates_cycles_and_unknown_unselected_children_fail() {
     );
     let features = map(&[
         (
-            "industrial-era:loop",
-            r#"{"type":"sequence","features":["industrial-era:loop"]}"#,
+            "industrial_era:loop",
+            r#"{"type":"sequence","features":["industrial_era:loop"]}"#,
         ),
-        ("industrial-era:unused", r#"{"type":"not_implemented"}"#),
+        ("industrial_era:unused", r#"{"type":"not_implemented"}"#),
     ]);
     let placed = map(&[(
-        "industrial-era:loop",
-        r#"{"feature":"industrial-era:loop","placement":[]}"#,
+        "industrial_era:loop",
+        r#"{"feature":"industrial_era:loop","placement":[]}"#,
     )]);
     let catalog = FeatureCatalog::from_resources(&features, &placed, &tags).unwrap();
-    assert!(catalog.feature(r#""industrial-era:loop""#).is_err());
-    assert!(catalog.placed_feature(r#""industrial-era:loop""#).is_err());
+    assert!(catalog.feature(r#""industrial_era:loop""#).is_err());
+    assert!(catalog.placed_feature(r#""industrial_era:loop""#).is_err());
     assert!(catalog.feature(r#"{"type":"no_op"}"#).is_ok());
-    assert!(catalog.feature(r#"{"type":"weighted_random_selector","features":[{"data":"industrial-era:missing","weight":0}]}"#).is_err());
+    assert!(catalog.feature(r#"{"type":"weighted_random_selector","features":[{"data":"industrial_era:missing","weight":0}]}"#).is_err());
 }
 #[test]
 fn shared_reference_expansion_is_bounded_before_building_a_large_tree() {
     let leaf = r#"{"feature":{"type":"no_op"},"placement":[]}"#;
     let branch = format!(
         r#"{{"type":"sequence","features":[{}]}}"#,
-        vec![r#""industrial-era:leaf""#; 8192].join(",")
+        vec![r#""industrial_era:leaf""#; 8192].join(",")
     );
-    let features = BTreeMap::from([("industrial-era:branch".into(), branch)]);
+    let features = BTreeMap::from([("industrial_era:branch".into(), branch)]);
     let placed = map(&[
-        ("industrial-era:leaf", leaf),
+        ("industrial_era:leaf", leaf),
         (
-            "industrial-era:branch",
-            r#"{"feature":"industrial-era:branch","placement":[]}"#,
+            "industrial_era:branch",
+            r#"{"feature":"industrial_era:branch","placement":[]}"#,
         ),
     ]);
     let catalog =
         FeatureCatalog::from_resources(&features, &placed, &TagDefinitions::default()).unwrap();
     let root = format!(
         r#"{{"type":"sequence","features":[{}]}}"#,
-        [r#""industrial-era:branch""#; 9].join(",")
+        [r#""industrial_era:branch""#; 9].join(",")
     );
     assert!(catalog.feature(&root).is_err());
 }

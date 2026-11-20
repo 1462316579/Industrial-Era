@@ -2,7 +2,7 @@
 //! vanilla's `JsonRpcSslContextProvider` sets it up: a PKCS12 keystore holding the server's certificate and
 //! key, its password from the `MINECRAFT_MANAGEMENT_TLS_KEYSTORE_PASSWORD` environment variable, else
 //! `management-server-tls-keystore-password`. Vanilla won't start with TLS on and no keystore; Industrial Era makes
-//! one instead (a self-signed certificate in `.industrial-era/`), so turning the protocol on is enough, and logs the
+//! one instead (a self-signed certificate in `.industrial_era/`), so turning the protocol on is enough, and logs the
 //! certificate's fingerprint for clients to pin.
 
 use industrial_era_server_files::properties::{SystemEntropy, generate_secret_key};
@@ -14,7 +14,7 @@ use std::{path::Path, sync::Arc};
 pub const PASSWORD_VARIABLE: &str = "MINECRAFT_MANAGEMENT_TLS_KEYSTORE_PASSWORD";
 
 /// Where the generated keystore goes, relative to the server's folder.
-pub const GENERATED: &str = ".industrial-era/management-keystore.p12";
+pub const GENERATED: &str = ".industrial_era/management-keystore.p12";
 
 /// `JsonRpcSslContextProvider.printInstructions`, with the Industrial Era way: server.toml's `[properties]`.
 pub const INSTRUCTIONS: [&str; 5] = [
@@ -127,8 +127,10 @@ mod tests {
 
     #[test]
     fn a_generated_keystore_opens_as_vanillas_would() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-management-tls-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-management-tls-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         let password = generate(&dir, "example.org").unwrap();
         assert_eq!(password.len(), 40);

@@ -4,8 +4,8 @@ use super::*;
 /// `colorAsTerrainParticle` (#1034: grass blocks crumbled as tinted grass tops).
 #[test]
 fn terrain_particles_use_the_particle_sprite_and_vanilla_tint_sources() {
-    let root =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../.local/industrial-era-client/26.3");
     if !root.join("industrial-era-resources.json").exists() {
         return;
     }
@@ -60,8 +60,8 @@ fn terrain_particles_use_the_particle_sprite_and_vanilla_tint_sources() {
 /// as in the world, not left gray like its particles.
 #[test]
 fn block_tints_match_the_chunk_mesh_for_grass_blocks() {
-    let root =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../.local/industrial-era-client/26.3");
     if !root.join("industrial-era-resources.json").exists() {
         return;
     }

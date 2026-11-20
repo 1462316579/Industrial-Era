@@ -680,8 +680,9 @@ fn generate(root: &Path, check: bool) -> Result<(), String> {
         &fs::read_to_string(root.join("native-hooks.json")).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    let source = fs::read_to_string(root.join("crates/industrial-era-client/src/game/native_hooks.rs"))
-        .map_err(|e| e.to_string())?;
+    let source =
+        fs::read_to_string(root.join("crates/industrial-era-client/src/game/native_hooks.rs"))
+            .map_err(|e| e.to_string())?;
     let file = syn::parse_file(&source).map_err(|e| e.to_string())?;
     let mut methods = Vec::new();
     for item in file.items {
@@ -1082,8 +1083,14 @@ fn generate(root: &Path, check: bool) -> Result<(), String> {
             "crates/industrial-era-client-render/src/gfx/native_render/generated.rs",
             render_code,
         ),
-        ("crates/industrial-era-client/src/mod_api/generated.rs", code),
-        ("crates/industrial-era-client/src/mod_api/generated_host.rs", host),
+        (
+            "crates/industrial-era-client/src/mod_api/generated.rs",
+            code,
+        ),
+        (
+            "crates/industrial-era-client/src/mod_api/generated_host.rs",
+            host,
+        ),
         (
             "crates/industrial-era-client/src/game/mod_api_host_generated.rs",
             implementation,
@@ -1442,9 +1449,10 @@ mod tests {
             .find(|h| h["name"] == "recipes_received")
             .unwrap();
         assert_eq!(hook["mod_api"]["contract"], "listen");
-        let generated =
-            std::fs::read_to_string(root.join("crates/industrial-era-client/src/mod_api/generated.rs"))
-                .unwrap();
+        let generated = std::fs::read_to_string(
+            root.join("crates/industrial-era-client/src/mod_api/generated.rs"),
+        )
+        .unwrap();
         assert!(generated.contains("fn recipes_received("));
 
         let dir = root
@@ -1898,12 +1906,18 @@ mod tests {
         ] {
             assert_eq!(
                 super::free_function_source(target),
-                Some(("industrial-era-client", "menu::native_menu_slot_rules".to_owned()))
+                Some((
+                    "industrial-era-client",
+                    "menu::native_menu_slot_rules".to_owned()
+                ))
             );
         }
         assert_eq!(
             super::free_function_source("horizon_client_lib::crafting::native_ingredient"),
-            Some(("industrial-era-client", "crafting::native_ingredient".to_owned()))
+            Some((
+                "industrial-era-client",
+                "crafting::native_ingredient".to_owned()
+            ))
         );
         assert_eq!(
             super::free_function_source(

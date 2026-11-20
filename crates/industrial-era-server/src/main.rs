@@ -139,7 +139,9 @@ fn main() -> ExitCode {
         Some("service") => service::command(&dir, &args[1..]),
         Some("restore") => match args.get(1) {
             Some(name) => cli::restore(&dir, name, args[2..].iter().any(|a| a == "--yes")),
-            None => Err("restore needs a backup (`industrial-era-server backups` lists them)".into()),
+            None => {
+                Err("restore needs a backup (`industrial-era-server backups` lists them)".into())
+            }
         },
         Some("import") => import(&dir, &args[1..]),
         Some("config") => settings::command(&dir, &args[1..]),

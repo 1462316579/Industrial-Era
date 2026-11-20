@@ -37,7 +37,7 @@ impl Faces {
         Self::try_load(root, defaults).unwrap_or_else(|error| {
             log::warn!(
                 "Industrial Era: no title panorama ({error}); prepare the game again in the launcher \
-                 (or run industrial-era-prepare panorama)"
+                 (or run industrial_era-prepare panorama)"
             );
             Self::colour([96, 110, 111, 255])
         })

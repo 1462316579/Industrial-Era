@@ -135,7 +135,11 @@ impl Game<'_> {
             return;
         };
         let mut random = self.mobs[i].random.clone();
-        industrial_era_client::mobs::finalize::halloween_head(&mut self.mobs[i], &mut random, halloween);
+        industrial_era_client::mobs::finalize::halloween_head(
+            &mut self.mobs[i],
+            &mut random,
+            halloween,
+        );
         self.mobs[i].random = random;
     }
     fn enchant_slot(&mut self, id: u32, slot: usize, chance: f32, special: f32) {

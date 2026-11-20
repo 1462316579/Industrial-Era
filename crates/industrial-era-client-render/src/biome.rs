@@ -170,9 +170,9 @@ fn color(v: &Value) -> Option<u32> {
 }
 fn colormap(root: &Path, name: &str) -> Result<Vec<u32>> {
     let path = root.join(format!("assets/minecraft/textures/colormap/{name}.png"));
-    let mut decoder = png::Decoder::new(std::io::Cursor::new(industrial_era_core::prepared_files::read(
-        &path,
-    )?));
+    let mut decoder = png::Decoder::new(std::io::Cursor::new(
+        industrial_era_core::prepared_files::read(&path)?,
+    ));
     decoder.ignore_checksums(true);
     decoder.set_transformations(png::Transformations::EXPAND | png::Transformations::STRIP_16);
     // A protected pack's wrong checksums, which Minecraft's STB never checks.
@@ -282,7 +282,8 @@ impl Biomes {
         let mut list = Vec::new();
         // The folder's own files (not its subfolders'), by file name: through `json_folder`,
         // from the prepared data file when there is one.
-        let folder = industrial_era_world::json_folder::read(&root.join("data/minecraft/worldgen/biome"))?;
+        let folder =
+            industrial_era_world::json_folder::read(&root.join("data/minecraft/worldgen/biome"))?;
         let mut files: Vec<_> = folder
             .files
             .iter()

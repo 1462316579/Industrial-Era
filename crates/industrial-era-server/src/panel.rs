@@ -194,7 +194,10 @@ fn handle(shared: &Arc<Shared>, address: SocketAddr, request: &Request) -> Respo
         );
     }
     if path == "/api/v1/panel/login" {
-        return Response::error(403, "login links come from `industrial-era-server panel` only");
+        return Response::error(
+            403,
+            "login links come from `industrial-era-server panel` only",
+        );
     }
     api::route(shared, request)
 }
@@ -245,7 +248,10 @@ mod tests {
 
     #[test]
     fn sign_in_with_a_link() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-panel-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-panel-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         let shared = Shared::new(&dir);
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();

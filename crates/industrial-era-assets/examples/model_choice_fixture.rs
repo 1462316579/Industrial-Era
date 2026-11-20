@@ -10,7 +10,7 @@ use std::{
 };
 fn choice(value: &Value, index: usize) -> VariantSet {
     let variant = |suffix| Variant {
-        model: format!("industrial-era:part{index}_{suffix}"),
+        model: format!("industrial_era:part{index}_{suffix}"),
         rotations: [0; 3],
         uv_lock: false,
     };

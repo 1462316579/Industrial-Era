@@ -77,7 +77,8 @@ pub fn client_biomes(
     Some(known.with_packs(files.iter().map(|(n, v)| (*n, v))))
 }
 /// KnownPack.vanilla("core") for this version.
-pub const CORE_PACK: (&str, &str, &str) = ("minecraft", "core", industrial_era_protocol::GAME_VERSION);
+pub const CORE_PACK: (&str, &str, &str) =
+    ("minecraft", "core", industrial_era_protocol::GAME_VERSION);
 
 /// Synchronized registries a world's data packs add entries to (or replace
 /// them in). The others stay the game's own: Industrial Era's gameplay reads them
@@ -245,7 +246,9 @@ impl SyncData {
         let root: PathBuf = resources.join("data/minecraft");
         let mut registries = Vec::new();
         let mut dynamic = Dynamic {
-            custom_components: industrial_era_protocol::item::custom::entries().next().is_some(),
+            custom_components: industrial_era_protocol::item::custom::entries()
+                .next()
+                .is_some(),
             ..Default::default()
         };
         for key in SYNCHRONIZED {
@@ -301,7 +304,9 @@ impl SyncData {
         Self::merge_dialog_tags(&mut tags, &root, overlay, &builtin, &dynamic);
         drop(tags_step);
         let content_identity = if resources.join(crate::content_identity::MARKER).exists()
-            || industrial_era_protocol::item::custom::entries().next().is_some()
+            || industrial_era_protocol::item::custom::entries()
+                .next()
+                .is_some()
         {
             Some(
                 startup::time("sync.content_identity", || {

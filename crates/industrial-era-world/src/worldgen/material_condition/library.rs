@@ -311,12 +311,12 @@ mod tests {
         let conditions = MaterialConditionRegistry::default();
         let definitions = BTreeMap::from([
             (
-                "industrial-era:a".to_owned(),
-                r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial-era:z"}"#
+                "industrial_era:a".to_owned(),
+                r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial_era:z"}"#
                     .to_owned(),
             ),
             (
-                "industrial-era:z".to_owned(),
+                "industrial_era:z".to_owned(),
                 r#"{"type":"block","result_state":"stone"}"#.to_owned(),
             ),
         ]);
@@ -332,13 +332,13 @@ mod tests {
         };
         let mut valid = load(&definitions).unwrap();
         for bad in [
-            r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial-era:a"}"#,
-            r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial-era:missing"}"#,
-            r#""industrial-era:z""#,
-            r#"{"type":"ore_vein","ore_block":"stone","raw_ore_block":"stone","filler_block":"stone","raw_ore_chance":0.1,"density":"industrial-era:missing","richness":0,"filler_gap":0}"#,
+            r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial_era:a"}"#,
+            r#"{"type":"condition","if_true":{"type":"hole"},"then_run":"industrial_era:missing"}"#,
+            r#""industrial_era:z""#,
+            r#"{"type":"ore_vein","ore_block":"stone","raw_ore_block":"stone","filler_block":"stone","raw_ore_chance":0.1,"density":"industrial_era:missing","richness":0,"filler_gap":0}"#,
         ] {
             let mut invalid = definitions.clone();
-            invalid.insert("industrial-era:z".to_owned(), bad.to_owned());
+            invalid.insert("industrial_era:z".to_owned(), bad.to_owned());
             assert!(load(&invalid).is_err());
         }
         let mut duplicate = definitions;
@@ -350,7 +350,7 @@ mod tests {
         assert!(load(&duplicate).is_err());
         assert_eq!(
             valid.names().collect::<Vec<_>>(),
-            vec!["industrial-era:a", "industrial-era:z"]
+            vec!["industrial_era:a", "industrial_era:z"]
         );
         let mut random = LegacyRandom::new(0);
         let mut worker = MaterialConditions::<LegacyRandom, _>::new(
@@ -358,7 +358,9 @@ mod tests {
             random.fork_positional(),
             Surface,
         );
-        let index = worker.add_rule(valid.rule("industrial-era:a").unwrap()).unwrap();
+        let index = worker
+            .add_rule(valid.rule("industrial_era:a").unwrap())
+            .unwrap();
         assert_eq!(
             worker.try_apply(index, BlockPos::new(0, 64, 0)).unwrap(),
             Some(BlockStateId(0))

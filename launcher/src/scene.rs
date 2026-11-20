@@ -167,7 +167,7 @@ pub struct Model {
     px: f64,
     w: i32,
     h: i32,
-    industrial-era: i32,
+    industrial_era: i32,
     fog_top: i32,
     fog_bottom: i32,
     sun: (i32, i32, i32),
@@ -229,7 +229,7 @@ impl Model {
         let w = (width / px).ceil() as i32;
         let h = (height / px).ceil() as i32;
         let land = land_height / px;
-        let industrial-era = round(h as f64 - land * 0.55) as i32;
+        let industrial_era = round(h as f64 - land * 0.55) as i32;
         let r = round(land * 0.4 * sun_scale) as i32;
         let sun = (
             round(w as f64 * sun_x) as i32,
@@ -426,7 +426,7 @@ impl Model {
     /// The static sky (`paintStaticSky`) at a point in logical pixels, as straight RGB in 0..=1:
     /// the gradient to the industrial-era, the sun's glow on it and the haze over the land.
     fn sky_rgb(&self, x: f64, y: f64) -> [f64; 3] {
-        let industrial-era = self.industrial-era as f64 * self.px;
+        let industrial_era = self.industrial_era as f64 * self.px;
         let t = clamp(y / industrial-era, 0., 1.);
         let stop = |i: usize| (i as f64 / SKY_STEPS as f64).powf(1. / 2.3);
         let mut i = 0;
@@ -543,10 +543,10 @@ impl Model {
         if y < self.fog_top.max(0) || y >= self.fog_bottom.min(self.h) {
             return c;
         }
-        let t = if y < self.industrial-era {
-            (y - self.fog_top) as f64 / (self.industrial-era - self.fog_top) as f64
+        let t = if y < self.industrial_era {
+            (y - self.fog_top) as f64 / (self.industrial_era - self.fog_top) as f64
         } else {
-            1. - (y - self.industrial-era) as f64 / (self.fog_bottom - self.industrial-era) as f64
+            1. - (y - self.industrial_era) as f64 / (self.fog_bottom - self.industrial_era) as f64
         };
         let g = self.glow[(x.clamp(0, self.w - 1)) as usize];
         mix(c, FOG, t * t * (0.16 + 0.3 * g))
@@ -876,7 +876,7 @@ impl Render for Scene {
         let halo_strength = (0.9 + 0.1 * (time * 0.9).sin()) as f32;
 
         // The sky's moving parts (`renderSky`): stars and the odd meteor, in logical pixels.
-        let sky_height = m.industrial-era as f64 * m.px;
+        let sky_height = m.industrial_era as f64 * m.px;
         let shift = -view.0 * 4.;
         let mut stars: Vec<(Bounds<Pixels>, f32, Hsla)> = Vec::new();
         for s in &m.stars {
@@ -1202,7 +1202,7 @@ mod tests {
         );
         let m = Model::new(1280., 772.);
         assert_eq!(
-            (m.px, m.w, m.h, m.industrial-era, m.sun),
+            (m.px, m.w, m.h, m.industrial_era, m.sun),
             (4., 320, 193, 161, (230, 147, 25))
         );
         assert_eq!(m.stars.len(), 159);
@@ -1303,7 +1303,7 @@ mod tests {
         let m = Model::new(1280., 772.);
         assert_eq!(m.px, 4.);
         assert!(m.sun.0 > m.w / 2);
-        assert!(m.industrial-era > m.h / 2 && m.industrial-era < m.h);
+        assert!(m.industrial_era > m.h / 2 && m.industrial_era < m.h);
         // Every column of the nearest ridge reaches the bottom.
         let (texels, cols, rows, _) = m.ridge_texels(2, 0);
         assert!((0..cols).all(|c| texels[((rows - 1) * cols + c) as usize][3] == 255));

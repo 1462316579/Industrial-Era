@@ -311,7 +311,8 @@ fn villager_flag(m: &mut Mob, flag: &str) {
         "gossip" => {
             let g: Vec<&str> = v.split(':').collect();
             assert_eq!(g[0], "player", "gossip about the player only");
-            let kind = industrial_era_client::gossip::GossipType::from_id(g[1]).expect("gossip type");
+            let kind =
+                industrial_era_client::gossip::GossipType::from_id(g[1]).expect("gossip type");
             villager::ext_mut(m)
                 .gossips
                 .add(PLAYER_UUID, kind, g[2].parse().unwrap());
@@ -436,7 +437,12 @@ fn villager_events(
                 child.extra.bed = Some(bed);
                 let seed = spawn_seed(index);
                 child.random = LegacyRandom::new(seed);
-                industrial_era_client::mobs::villager_brain::init(&mut child, w.game_time, day_time, seed);
+                industrial_era_client::mobs::villager_brain::init(
+                    &mut child,
+                    w.game_time,
+                    day_time,
+                    seed,
+                );
                 born.push(child);
             }
             _ => i += 1,
@@ -557,7 +563,8 @@ fn hive_state(registry: &BlockRegistry, world: &World, at: [i32; 3]) -> (Option<
         .map(|s| s.properties.clone())
         .unwrap_or_default();
     let honey = props.get("honey_level").and_then(|v| v.parse().ok());
-    let facing = industrial_era_client::beehive::facing_step(props.get("facing").map(String::as_str));
+    let facing =
+        industrial_era_client::beehive::facing_step(props.get("facing").map(String::as_str));
     (honey, facing)
 }
 fn is_hive(b: &[String]) -> bool {
@@ -1054,10 +1061,13 @@ pub fn main() -> industrial_era_client::Result<()> {
                     // Set once the brain exists (below).
                     x if x.starts_with("cooldown=") => {}
                     "dead" => m.health = 0.0,
-                    "leashed" => m.extra.leash = Some(industrial_era_client::mobs::leash::Holder::Player),
+                    "leashed" => {
+                        m.extra.leash = Some(industrial_era_client::mobs::leash::Holder::Player)
+                    }
                     x if x.starts_with("leashto=") => {
                         let n: u32 = x[8..].parse().unwrap();
-                        m.extra.leash = Some(industrial_era_client::mobs::leash::Holder::Mob(100_000 + n));
+                        m.extra.leash =
+                            Some(industrial_era_client::mobs::leash::Holder::Mob(100_000 + n));
                     }
                     other => villager_flag(&mut m, other),
                 }
@@ -1069,7 +1079,9 @@ pub fn main() -> industrial_era_client::Result<()> {
             ) {
                 // The oracle draws FollowFlockLeaderGoal's first delay again once seeded.
                 let delay =
-                    industrial_era_client::mobs::aquatic::FollowFlockLeader::next_start_tick(&mut m);
+                    industrial_era_client::mobs::aquatic::FollowFlockLeader::next_start_tick(
+                        &mut m,
+                    );
                 m.ai.goals.set_start_delay("FollowFlockLeaderGoal", delay);
             }
             if m.species() == Species::Bee {
@@ -1322,7 +1334,11 @@ pub fn main() -> industrial_era_client::Result<()> {
                     continue;
                 }
                 if let Some(Some((name, volume, pitch))) =
-                    industrial_era_client::mobs::ai::feed_animal(&mut mobs[i], &mut level_random, None)
+                    industrial_era_client::mobs::ai::feed_animal(
+                        &mut mobs[i],
+                        &mut level_random,
+                        None,
+                    )
                 {
                     events.push(MobEvent::Sound(name, [0.0; 3], volume, pitch));
                 }
@@ -1439,8 +1455,10 @@ pub fn main() -> industrial_era_client::Result<()> {
                     else {
                         continue;
                     };
-                    let tag = industrial_era_client::entity_nbt::mob_to_nbt(&mobs[i], [0; 4], None, None);
-                    let flower = industrial_era_client::mobs::bee::get(&mobs[i]).and_then(|b| b.flower);
+                    let tag =
+                        industrial_era_client::entity_nbt::mob_to_nbt(&mobs[i], [0; 4], None, None);
+                    let flower =
+                        industrial_era_client::mobs::bee::get(&mobs[i]).and_then(|b| b.flower);
                     let mut honey = Vec::new();
                     let stored = {
                         let w = mob_world!(&snapshot);

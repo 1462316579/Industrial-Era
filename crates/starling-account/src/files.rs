@@ -2,7 +2,7 @@
 //! manifest gives, as the official launcher does. Starling pins the version JSON itself (`research-lock.json`), so the
 //! chain of hashes starts from Starling's own files. Nothing of the game ships with Starling:
 //! the files land on the player's device, in the official launcher's layout
-//! (`versions/<v>/<v>.jar`, `libraries/…`, `assets/indexes|objects`) that industrial-era-prepare reads.
+//! (`versions/<v>/<v>.jar`, `libraries/…`, `assets/indexes|objects`) that industrial_era-prepare reads.
 use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::io::{Read, Write};

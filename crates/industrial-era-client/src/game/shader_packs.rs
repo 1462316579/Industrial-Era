@@ -83,7 +83,8 @@ fn picked_pack(settings: &industrial_era_client::settings::Settings) -> &str {
     static DEV_PACK: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
     let dev = DEV_PACK.get_or_init(|| std::env::var("HORIZON_SHADER_PACK").ok());
     active_pack(
-        dev.as_deref().unwrap_or(&settings.industrial-era.shader_pack),
+        dev.as_deref()
+            .unwrap_or(&settings.industrial_era.shader_pack),
         &settings.mods,
     )
 }
@@ -122,7 +123,8 @@ fn active_pack<'a>(picked: &'a str, mods: &industrial_era_client::mod_list::ModL
 pub(super) fn picks_native_pack(settings: &industrial_era_client::settings::Settings) -> bool {
     let dev = std::env::var("HORIZON_SHADER_PACK").ok();
     let picked = active_pack(
-        dev.as_deref().unwrap_or(&settings.industrial-era.shader_pack),
+        dev.as_deref()
+            .unwrap_or(&settings.industrial_era.shader_pack),
         &settings.mods,
     );
     !picked.is_empty()
@@ -223,7 +225,8 @@ fn picked_values(
                         .collect::<Vec<_>>()
                         .join(", ")
                 );
-                values = industrial_era_shaders::Values::profile(properties, found).unwrap_or_default();
+                values =
+                    industrial_era_shaders::Values::profile(properties, found).unwrap_or_default();
             }
             None => log::info!("shader pack {name}: Auto finds no profile to start from"),
         }
@@ -277,7 +280,7 @@ impl Game<'_> {
         // one goes, of either kind.
         let choice = self
             .settings
-            .industrial-era
+            .industrial_era
             .shader_choice()
             .filter(|(name, _)| !active_pack(name, &self.settings.mods).is_empty());
         if choice != self.shader_choice && self.screen != super::Screen::Options {
@@ -287,8 +290,12 @@ impl Game<'_> {
             self.pack_ids = None;
             self.pack_making = None;
             let scale = self.world_scale();
-            let industrial-era = &self.settings.industrial-era;
-            let (antialias, taa, upscale) = (industrial-era.fxaa, industrial-era.taa, industrial-era.upscaling.ratio());
+            let industrial_era = &self.settings.industrial_era;
+            let (antialias, taa, upscale) = (
+                industrial - era.fxaa,
+                industrial - era.taa,
+                industrial - era.upscaling.ratio(),
+            );
             if let Some(renderer) = &mut self.renderer {
                 renderer.drop_shader_packs();
                 renderer.set_world_post(scale, antialias, taa, upscale);
@@ -348,7 +355,8 @@ impl Game<'_> {
                             // or the stage files and the properties disagree about the options.
                             macros = Macros::standard();
                             renderer.define_pack_macros(&mut macros);
-                            properties = industrial_era_shaders::read_properties(&pack, &mut macros).0;
+                            properties =
+                                industrial_era_shaders::read_properties(&pack, &mut macros).0;
                         }
                         let separate_ao = properties
                             .get("separateAo")
@@ -455,9 +463,10 @@ impl Game<'_> {
                                         uses(&post.entities),
                                     );
                                 }
-                                for note in
-                                    industrial_era_shaders::resolve_resources(&mut post.textures, &read)
-                                {
+                                for note in industrial_era_shaders::resolve_resources(
+                                    &mut post.textures,
+                                    &read,
+                                ) {
                                     log::warn!("shader pack {pack_name}: {note}");
                                 }
                                 let names: Vec<&str> = biomes.iter().map(String::as_str).collect();
@@ -605,7 +614,7 @@ impl Game<'_> {
     /// The world's resolution, of the screen's: the player's, and no more than Auto's while it
     /// runs a pack that isn't a light one.
     pub(super) fn world_scale(&self) -> f32 {
-        let chosen = self.settings.industrial-era.resolution_scale as f32 / 100.0;
+        let chosen = self.settings.industrial_era.resolution_scale as f32 / 100.0;
         match &self.shader_choice {
             Some((name, profile))
                 if profile == AUTO_PROFILE
@@ -622,7 +631,7 @@ impl Game<'_> {
 
     /// The Shader Options page opened: the picked pack's options, screens and names.
     pub(super) fn open_shader_options(&mut self) {
-        let Some((name, profile)) = self.settings.industrial-era.shader_choice() else {
+        let Some((name, profile)) = self.settings.industrial_era.shader_choice() else {
             return;
         };
         let mut macros = Macros::standard();
@@ -656,8 +665,8 @@ impl Game<'_> {
             // Marks this dimension as loaded, without a pack, so it is not tried again.
             renderer.set_shader_pack(dimension, None, &[]);
         }
-        if self.settings.industrial-era.shader_pack == name {
-            self.settings.industrial-era.shader_pack.clear();
+        if self.settings.industrial_era.shader_pack == name {
+            self.settings.industrial_era.shader_pack.clear();
             self.settings.save(&Self::options_path());
         }
         self.system_message(Text::colored(
@@ -669,10 +678,10 @@ impl Game<'_> {
     /// The device was lost with a pack picked: most likely its frames were too long for the
     /// driver, so the rebuilt renderer starts without it and it stays off at the next start.
     pub(super) fn shader_pack_lost_device(&mut self) {
-        if self.settings.industrial-era.shader_pack.is_empty() {
+        if self.settings.industrial_era.shader_pack.is_empty() {
             return;
         }
-        let name = std::mem::take(&mut self.settings.industrial-era.shader_pack);
+        let name = std::mem::take(&mut self.settings.industrial_era.shader_pack);
         log::error!("shader pack {name}: turned off after the graphics device was lost");
         self.pack_ids = None;
         self.pack_making = None;
@@ -1043,7 +1052,8 @@ mod native_pack_tests {
 
     #[test]
     fn shaders_packs_and_packs_with_a_shadow_pass_draw_flat() {
-        let root = std::env::temp_dir().join(format!("industrial-era-flat-packs-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-flat-packs-{}", std::process::id()));
         // A folder without a manifest is a `shaders/` pack; with one, a pack of Industrial Era's own.
         let pack = |name: &str, manifest: Option<&str>| {
             let dir = root.join(name);

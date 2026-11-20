@@ -616,9 +616,12 @@ mod tests {
                 }
             }
         };
-        let border =
-            industrial_era_core::geometry::border::BorderGeometry::new([0.0, 0.0], 10.0, 29_999_984)
-                .unwrap();
+        let border = industrial_era_core::geometry::border::BorderGeometry::new(
+            [0.0, 0.0],
+            10.0,
+            29_999_984,
+        )
+        .unwrap();
         crate::mobs::world::with_built_test_world(&[], build, |w, _| {
             let mut free = enderman();
             assert!(teleport_to(&mut free, w, 20.5, 0.0, 0.5, &mut Vec::new()));

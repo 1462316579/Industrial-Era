@@ -55,14 +55,19 @@ pub fn swept_gateway(
     )
     .deflate(Vec3::new(1.0e-5, 1.0e-5, 1.0e-5));
     let mut found = None;
-    let _ =
-        industrial_era_core::geometry::sweep_intersected_blocks(from, to, bounds, 1_000_000, |p, _| {
+    let _ = industrial_era_core::geometry::sweep_intersected_blocks(
+        from,
+        to,
+        bounds,
+        1_000_000,
+        |p, _| {
             if is_gateway(p) {
                 found = Some(p);
                 return false;
             }
             true
-        });
+        },
+    );
     found
 }
 

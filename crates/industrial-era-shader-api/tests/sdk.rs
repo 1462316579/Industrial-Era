@@ -6,7 +6,10 @@ use std::{path::Path, process::Command};
 const TOOL: &str = env!("CARGO_BIN_EXE_horizon-shader");
 
 fn scratch(name: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!("industrial-era-shader-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial-era-shader-{name}-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     dir
@@ -24,7 +27,7 @@ fn the_example_pack_passes() {
     let dir = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/packs/golden_hour"));
     let report = check(&Pack::read(dir).unwrap()).unwrap();
     let labels: Vec<_> = report.stages.iter().map(|s| s.label.as_str()).collect();
-    assert_eq!(labels, ["Warm industrial-era", "Glow", "Colour grade"]);
+    assert_eq!(labels, ["Warm industrial_era", "Glow", "Colour grade"]);
 }
 
 #[test]

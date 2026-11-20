@@ -642,7 +642,10 @@ impl<'a> Split<'a> {
             if guest.game.remote.is_some() {
                 // One failing to leave doesn't keep the others in.
                 if let Err(e) = guest.game.leave_server(None) {
-                    log::warn!("Industrial Era: splitscreen: P{} could not leave: {e}", guest.seat);
+                    log::warn!(
+                        "Industrial Era: splitscreen: P{} could not leave: {e}",
+                        guest.seat
+                    );
                 }
             } else {
                 // No connection yet: remove the picker and its view immediately.

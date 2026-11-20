@@ -53,7 +53,7 @@ impl<W: Write> DecorationWorld for World<'_, W> {
         match feature {
             Some(id) => writeln!(
                 self.out,
-                "generating ResourceKey[minecraft:worldgen/placed_feature / industrial-era:f{}]",
+                "generating ResourceKey[minecraft:worldgen/placed_feature / industrial_era:f{}]",
                 id.0
             ),
             None => writeln!(self.out, "generating none"),
@@ -157,7 +157,7 @@ fn fixture(
     )?;
     writeln!(out, "plan ok")?;
     let names = (0..=settings.len())
-        .map(|i| (format!("industrial-era:b{i}"), DecorationBiome(i as u32)))
+        .map(|i| (format!("industrial_era:b{i}"), DecorationBiome(i as u32)))
         .collect::<BTreeMap<_, _>>();
     let biomes = Arc::new(BiomePredicateBindings::new(&names, &BTreeMap::new())?);
     let bindings = FeatureBlockBindings::new(registry, BTreeSet::new())?.with_biomes(biomes);

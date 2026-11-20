@@ -421,9 +421,12 @@ fn game_folder(private: &Path, notes: &mut Vec<String>) -> PathBuf {
             )),
         }
     }
-    let probe = shared.join(".industrial-era-probe");
+    let probe = shared.join(".industrial_era-probe");
     if let Err(e) = std::fs::create_dir_all(shared).and_then(|()| std::fs::write(&probe, b"")) {
-        notes.push(format!("Industrial Era: cannot use {}: {e}", shared.display()));
+        notes.push(format!(
+            "Industrial Era: cannot use {}: {e}",
+            shared.display()
+        ));
         return private.to_path_buf();
     }
     let _ = std::fs::remove_file(&probe);

@@ -3,7 +3,7 @@
 //! the whole pipeline (proto chunk, decoration, final column, light) as when a
 //! world loads, once per worker count, each on a freshly seeded generator.
 //!
-//!     cargo run --release -p industrial-era-client-lib --example gen_light_bench -- \
+//!     cargo run --release -p industrial_era-client-lib --example gen_light_bench -- \
 //!         .local/industrial-era-client/26.3 [--seed 1234] [--center CX CZ] [--radius 12]
 //!         [--threads 1,2,4,8] [--period-ms 2] [--repeat 1] [--json]
 //!

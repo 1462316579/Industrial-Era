@@ -1,4 +1,4 @@
-//! Every industrial-era-world parity probe in one binary: `probe <name> [arguments]` runs `<name>.rs` as its own
+//! Every industrial_era-world parity probe in one binary: `probe <name> [arguments]` runs `<name>.rs` as its own
 //! example did (tools/test_*_parity.py). Linking ~170 examples, each instantiating the crate's generics again,
 //! was most of the parity job's probe build; one binary builds them once.
 //!

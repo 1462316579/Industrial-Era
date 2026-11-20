@@ -377,13 +377,15 @@ impl Game<'_> {
             }
             "test.run" => {
                 let tests = match ctx.get("tests") {
-                    Some(Arg::Str(pattern)) => industrial_era_client::command::args::select_resources(
-                        self.ui.registries.ids("minecraft:test_instance"),
-                        pattern,
-                    )
-                    .into_iter()
-                    .cloned()
-                    .collect(),
+                    Some(Arg::Str(pattern)) => {
+                        industrial_era_client::command::args::select_resources(
+                            self.ui.registries.ids("minecraft:test_instance"),
+                            pattern,
+                        )
+                        .into_iter()
+                        .cloned()
+                        .collect()
+                    }
                     _ => Vec::new(),
                 };
                 let copies = if has("runmultiple") {

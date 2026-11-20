@@ -387,7 +387,8 @@ mod tests {
 
     /// A stick, a bow's frames and a potion; with `cit`, rules over them.
     fn root(name: &str, cit: bool) -> PathBuf {
-        let root = std::env::temp_dir().join(format!("industrial-era-cit-{name}-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-cit-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let write = |rel: &str, text: &str| {
             let path = root.join(rel);

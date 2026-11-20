@@ -777,8 +777,11 @@ pub fn summon_golem<L: super::spawn_rules::SpawnLevel, R: RandomSource, T>(
         if yaw >= 180.0 {
             yaw -= 360.0;
         }
-        let at =
-            industrial_era_core::geometry::Vec3::new(f64::from(x) + 0.5, f64::from(y), f64::from(z) + 0.5);
+        let at = industrial_era_core::geometry::Vec3::new(
+            f64::from(x) + 0.5,
+            f64::from(y),
+            f64::from(z) + 0.5,
+        );
         let golem = create(random, at, yaw);
         if golem_fits(l, [x, y, z]) {
             return Some(golem);

@@ -1,7 +1,9 @@
 //! A shader pack's custom textures (`texture.<stage>.<name>`, `texture.noise`) on the GPU, and
 //! which of them a program's sampler reads.
 
-use industrial_era_shaders::{CustomTexture, Group, Kind, Texels, Texture, TextureDim, TextureSource};
+use industrial_era_shaders::{
+    CustomTexture, Group, Kind, Texels, Texture, TextureDim, TextureSource,
+};
 
 /// What a custom texture is once uploaded: an image of ours, or one the game already has.
 pub(super) enum Image {
@@ -116,7 +118,9 @@ pub(super) fn find(textures: &[PackTexture], group: Group, ty: &str, name: &str)
     });
     staged.or_else(|| {
         textures.iter().position(|t| {
-            t.stage == industrial_era_shaders::EVERY_STAGE && t.dimension == dimension && t.name == name
+            t.stage == industrial_era_shaders::EVERY_STAGE
+                && t.dimension == dimension
+                && t.name == name
         })
     })
 }

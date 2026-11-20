@@ -32,7 +32,7 @@ pub const OPTIONS: &[(&str, Option<&str>)] = &[
 pub const EXIT_CODES: &[i64] = &[0, 1, 2];
 
 /// `--launch-api`'s reply for this preparer (`industrial-era`, its version) and the pins beside it.
-pub fn reply(industrial-era: &str, lock: &Lock) -> String {
+pub fn reply_industrial_era(industrial_era: &str, lock: &Lock) -> String {
     let int = |n: i64| Value::Int(n.to_string());
     let options = OPTIONS
         .iter()
@@ -45,7 +45,7 @@ pub fn reply(industrial-era: &str, lock: &Lock) -> String {
         .collect();
     let reply = Value::Object(vec![
         ("launch_api".into(), Value::str(VERSION)),
-        ("industrial-era".into(), Value::str(industrial-era)),
+        ("industrial-era".into(), Value::str(industrial_era)),
         ("minecraft".into(), Value::str(&lock.version)),
         ("java_major".into(), int(lock.java_major)),
         ("schema".into(), int(crate::SCHEMA)),
@@ -68,7 +68,8 @@ mod tests {
 
     #[test]
     fn the_reply_names_the_pins_and_the_layout() {
-        let root = std::env::temp_dir().join(format!("industrial-era-launch-api-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-launch-api-{}", std::process::id()));
         std::fs::create_dir_all(&root).unwrap();
         std::fs::write(
             root.join("research-lock.json"),

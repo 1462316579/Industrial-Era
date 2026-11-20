@@ -673,9 +673,9 @@ impl Game<'_> {
     /// `file` is `shaderpacks/<name>`: the list is read again, and if that pack was the one on, none is.
     fn after_shader_pack_removed(&mut self, file: &str) {
         let name = file.rsplit('/').next().unwrap_or(file);
-        if self.settings.industrial-era.shader_pack == name {
-            self.settings.industrial-era.shader_pack.clear();
-            self.settings.industrial-era.shader_profile.clear();
+        if self.settings.industrial_era.shader_pack == name {
+            self.settings.industrial_era.shader_pack.clear();
+            self.settings.industrial_era.shader_profile.clear();
             self.settings.save(&Self::options_path());
         }
         self.settings.shader_packs =
@@ -825,8 +825,9 @@ impl Game<'_> {
                 match done {
                     Done::NativeMod => self.list_new_native_mods(),
                     Done::ShaderPack => {
-                        self.settings.shader_packs =
-                            industrial_era_client::shader_pack_list::scan(&Self::shader_packs_dir());
+                        self.settings.shader_packs = industrial_era_client::shader_pack_list::scan(
+                            &Self::shader_packs_dir(),
+                        );
                     }
                     // The Resource Packs page lists what was read when Options opened, and its
                     // folder watcher only sees what changes with the page open. A selection

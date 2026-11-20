@@ -368,7 +368,8 @@ mod tests {
 
     #[test]
     fn statuses_and_reasons() {
-        let work = std::env::temp_dir().join(format!("industrial-era-report-{}", std::process::id()));
+        let work =
+            std::env::temp_dir().join(format!("industrial-era-report-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&work);
         let write = |key: &str, carry: Value, harness: Option<Value>| {
             let dir = work.join("mods").join(key);

@@ -39,7 +39,12 @@ fn program() -> Result<PathBuf, String> {
         .map(|p| std::env::split_paths(&p).collect::<Vec<_>>())
         .unwrap_or_default()
         .into_iter()
-        .map(|d| d.join(format!("industrial-era-server{}", std::env::consts::EXE_SUFFIX)))
+        .map(|d| {
+            d.join(format!(
+                "industrial-era-server{}",
+                std::env::consts::EXE_SUFFIX
+            ))
+        })
         .find(|p| p.is_file());
     match on_path {
         Some(path) => Ok(path),
@@ -223,7 +228,7 @@ fn launchd_path(label: &str) -> Result<PathBuf, String> {
 
 fn launchd_label(dir: &Path) -> String {
     format!(
-        "dev.industrial-era.server.{}",
+        "dev.industrial_era.server.{}",
         name(dir).trim_start_matches("industrial-era-server-")
     )
 }
@@ -458,14 +463,14 @@ mod tests {
             Path::new("/srv/mc"),
             Some("mc"),
         );
-        assert!(
-            unit.contains("ExecStart=\"/home/a/.local/bin/industrial-era-server\" --dir \"/srv/mc\" run")
-        );
+        assert!(unit.contains(
+            "ExecStart=\"/home/a/.local/bin/industrial-era-server\" --dir \"/srv/mc\" run"
+        ));
         assert!(unit.contains("User=mc\n"));
         assert!(unit.contains("WantedBy=multi-user.target"));
         let dir = Path::new("/srv/R&D");
         let plist = launchd_plist(
-            "dev.industrial-era.server.mc",
+            "dev.industrial_era.server.mc",
             Path::new("/opt/h/industrial-era-server"),
             dir,
         );
@@ -506,7 +511,7 @@ mod tests {
     }
 
     /// Creates and deletes a real task as this user, unelevated, as the launcher's toggle does.
-    /// By hand on Windows: `cargo test -p industrial-era-server -- --ignored windows_task`.
+    /// By hand on Windows: `cargo test -p industrial_era-server -- --ignored windows_task`.
     #[cfg(windows)]
     #[test]
     #[ignore = "creates a scheduled task on this computer"]
@@ -538,8 +543,10 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn an_installed_release_runs_through_current() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-service-current-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-service-current-{}",
+            std::process::id()
+        ));
         let release = root.join("releases/v1");
         std::fs::create_dir_all(&release).unwrap();
         let exe = release.join("industrial-era-server");
@@ -547,7 +554,10 @@ mod tests {
         // Not the release in use (or no installer layout): this program as it is.
         assert_eq!(through_current(&exe), exe);
         std::os::unix::fs::symlink(&release, root.join("current")).unwrap();
-        assert_eq!(through_current(&exe), root.join("current/industrial-era-server"));
+        assert_eq!(
+            through_current(&exe),
+            root.join("current/industrial-era-server")
+        );
         let other = root.join("bin/industrial-era-server");
         assert_eq!(through_current(&other), other);
         std::fs::remove_dir_all(&root).unwrap();

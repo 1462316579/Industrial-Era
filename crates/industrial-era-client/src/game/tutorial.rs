@@ -203,7 +203,10 @@ impl super::Game<'_> {
         tags.get(tag).is_some_and(|members| members.contains(id))
     }
 
-    pub(super) fn tutorial_get_item(&mut self, stack: Option<&industrial_era_client::items::ItemStack>) {
+    pub(super) fn tutorial_get_item(
+        &mut self,
+        stack: Option<&industrial_era_client::items::ItemStack>,
+    ) {
         // The server thread's settings are a stale copy of the window's: a
         // guest's tutorial is their own client's to record.
         if self.options.dedicated.is_some()

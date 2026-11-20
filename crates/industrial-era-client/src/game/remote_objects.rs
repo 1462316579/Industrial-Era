@@ -204,7 +204,9 @@ impl Game<'_> {
                     (0, Value::Byte(flags)) => a.invisible = flags & 0x20 != 0,
                     // Entity.DATA_CUSTOM_NAME and DATA_CUSTOM_NAME_VISIBLE.
                     (2, Value::OptText(name)) => {
-                        a.custom_name = name.as_ref().map(industrial_era_client::entity_nbt::name_text);
+                        a.custom_name = name
+                            .as_ref()
+                            .map(industrial_era_client::entity_nbt::name_text);
                     }
                     (2, Value::Text(name)) => {
                         a.custom_name = Some(industrial_era_client::entity_nbt::name_text(name));

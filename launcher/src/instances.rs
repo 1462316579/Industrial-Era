@@ -7,7 +7,7 @@
 //! chooses about an instance (its name, icon, group) is kept in `instances.json` in the
 //! launcher's data folder, so renaming one never moves a folder.
 use crate::backend;
-use crate::browser::industrial-era::pack as registry_pack;
+use crate::browser::industrial_era: :pack as registry_pack;
 use crate::launch::Launch;
 use crate::modpacks;
 use serde::{Deserialize, Serialize};
@@ -252,7 +252,7 @@ pub struct Instance {
 impl Instance {
     /// Ok when it plays Industrial Era; for a Java instance, which starts its own game
     /// (`backend::java_game`), that Industrial Era's options don't apply to it.
-    fn industrial-era(&self) -> Result<(), String> {
+    fn industrial_era(&self) -> Result<(), String> {
         match &self.java {
             None => Ok(()),
             Some(java) => Err(format!(
@@ -266,7 +266,7 @@ impl Instance {
     /// The installed version this instance plays: its pinned one, else `requested` (the
     /// command line's `--version`) or the launcher's (`backend::resolve_version`).
     pub fn resolve_version(&self, requested: Option<&str>) -> Result<String, String> {
-        self.industrial-era()?;
+        self.industrial_era()?;
         match (requested, &self.version) {
             (None, Some(pinned)) => backend::resolve_version(Some(pinned)).map_err(|_| {
                 format!(
@@ -453,7 +453,7 @@ const NOT_COPIED: &[&str] = &[
     "sessions",
     "telemetry",
     "mod-browser",
-    ".industrial-era-cache",
+    ".industrial_era-cache",
     // Far terrain's copies of what servers sent, rebuilt as the instance plays.
     "server-terrain",
 ];
@@ -660,7 +660,7 @@ pub fn play_time(played: Duration) -> String {
 /// player's answers that hold everywhere follow it in: data collection and No AI as the
 /// launcher has them, and options.txt and the offline name when it has none yet.
 pub fn apply(cmd: &mut Command, instance: &Instance) -> Result<(), String> {
-    instance.industrial-era()?;
+    instance.industrial_era()?;
     match instance.kind {
         Kind::Default => return Ok(()),
         Kind::Own => {

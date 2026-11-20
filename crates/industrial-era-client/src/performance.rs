@@ -178,7 +178,8 @@ fn reports(home: &Path) -> Vec<PathBuf> {
         .map(|e| e.path())
         .filter(|p| {
             p.file_name().is_some_and(|n| {
-                n.to_string_lossy().starts_with("industrial-era-performance-")
+                n.to_string_lossy()
+                    .starts_with("industrial-era-performance-")
                     && p.extension().is_some_and(|e| e == "jsonl")
             })
         })

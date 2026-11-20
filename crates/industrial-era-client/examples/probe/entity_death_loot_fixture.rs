@@ -169,7 +169,9 @@ pub fn main() -> industrial_era_client::Result<()> {
                             None
                         }
                         "saddle" => {
-                            m.set_saddle(Some(industrial_era_client::items::ItemStack::new(&s.item, 1)));
+                            m.set_saddle(Some(industrial_era_client::items::ItemStack::new(
+                                &s.item, 1,
+                            )));
                             None
                         }
                         "chest" => {

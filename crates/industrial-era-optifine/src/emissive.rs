@@ -133,8 +133,10 @@ mod tests {
     use super::*;
 
     fn pack(name: &str, files: &[&str], suffix: Option<&str>) -> (std::path::PathBuf, Emissive) {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-emissive-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-emissive-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         for path in files {
             let path = root.join(path);

@@ -47,7 +47,7 @@ fn a_mac_app_runs_a_script_that_plays_its_instance() {
     let (_, plist, _) = &files[0];
     let plist = String::from_utf8(plist.clone()).unwrap();
     assert!(plist.contains("<string>Tom &amp; Jerry</string>"));
-    assert!(plist.contains("<string>dev.industrial-era.instance.it-s</string>"));
+    assert!(plist.contains("<string>dev.industrial_era.instance.it-s</string>"));
     assert!(plist.contains("<key>LSUIElement</key>\n\t<true/>"));
     let (path, script, program) = &files[1];
     assert_eq!((*path, *program), ("Contents/MacOS/play", true));

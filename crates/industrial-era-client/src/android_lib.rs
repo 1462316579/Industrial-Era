@@ -1,6 +1,6 @@
 //! Industrial Era on Android (Starling): the cdylib's entry points.
 //!
-//! The crate root of industrial-era-android (crates/industrial-era-android/Cargo.toml). Android and the JVM look
+//! The crate root of industrial_era-android (crates/industrial-era-android/Cargo.toml). Android and the JVM look
 //! these up by name in the library, so they live here, in the library that is linked last; each
 //! one calls `industrial_era_client::android`, where the game's Android hooks and its start-up are.
 #![cfg(target_os = "android")]

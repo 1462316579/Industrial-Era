@@ -1,6 +1,6 @@
 //! The sunrise/sunset fan (`SkyRenderer.renderSunriseAndSunset`) as the sky
 //! shader tests it. The fan's 16 triangles depend only on the sunrise alpha
-//! and the industrial-era the sun is on, so their vertices are built here once a
+//! and the industrial_era the sun is on, so their vertices are built here once a
 //! frame instead of in every sky pixel (#3143: with the per-pixel build, four
 //! `sin`/`cos` per triangle, the sky pass took 10.2 ms at dawn at 1080p on an
 //! Intel UHD 730 against 0.6 ms by day; now 1.8 ms).
@@ -48,10 +48,10 @@ pub fn mesh(alpha: f32, sun: Vec3) -> [[f32; 4]; VERTICES] {
 }
 
 /// The fan's apex and rim in camera space, as vanilla builds them: the
-/// fan turned to the industrial-era the sun sets on (or rises from), its rim
+/// fan turned to the industrial_era the sun sets on (or rises from), its rim
 /// tilted by the alpha.
 fn vertices(alpha: f32, sun: Vec3) -> (Vec3, [Vec3; TRIANGLES]) {
-    // sin(sunAngle) < 0 flips the fan to the other industrial-era; sun.z = -sin(sunAngle).
+    // sin(sunAngle) < 0 flips the fan to the other industrial_era; sun.z = -sin(sunAngle).
     let flip = if -sun.z < 0.0 { 180f32 } else { 0.0 };
     let (s, c) = (flip + 90.0).to_radians().sin_cos();
     let rotate_x90 = |v: Vec3| Vec3::new(v.x, -v.z, v.y);

@@ -2490,7 +2490,16 @@ impl Game<'_> {
             }
             let m = base * glam::Mat4::from_scale(glam::Vec3::new(-1.0, -1.0, 1.0));
             let poses = Poses::new(model);
-            industrial_era_client::mobs::render::draw(model, m, &poses, uv, 0xFFFF_FFFF, packed, 0, out);
+            industrial_era_client::mobs::render::draw(
+                model,
+                m,
+                &poses,
+                uv,
+                0xFFFF_FFFF,
+                packed,
+                0,
+                out,
+            );
             self.cull_entity_vertices(out, entity_start);
         }
     }
@@ -2562,7 +2571,10 @@ impl Minecart {
             put("Fire", Tag::Short(0));
             match self.kind {
                 CartKind::Chest | CartKind::Hopper => {
-                    put("Items", industrial_era_client::save::encode_items(&self.items));
+                    put(
+                        "Items",
+                        industrial_era_client::save::encode_items(&self.items),
+                    );
                     if self.kind == CartKind::Hopper {
                         put("Enabled", Tag::Byte(i8::from(self.enabled)));
                     }
@@ -2638,9 +2650,9 @@ impl Minecart {
         }
         // MinecartSpawner.readAdditionalSaveData: BaseSpawner.load.
         if kind == CartKind::Spawner {
-            c.spawner = Some(Box::new(industrial_era_client::mobs::spawner::SpawnerExt::load(
-                tag,
-            )));
+            c.spawner = Some(Box::new(
+                industrial_era_client::mobs::spawner::SpawnerExt::load(tag),
+            ));
         }
         Some(c)
     }

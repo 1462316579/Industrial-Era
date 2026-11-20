@@ -72,15 +72,18 @@ pub fn cancel_vibration() {
     crate::android::vibrate(0);
 }
 pub fn open_documents(folder: &str) -> bool {
-    industrial_era_client::platform::open_folder(&std::path::Path::new(".").join(folder)).unwrap_or(false)
+    industrial_era_client::platform::open_folder(&std::path::Path::new(".").join(folder))
+        .unwrap_or(false)
 }
 pub fn field_at(p: [f32; 2]) -> bool {
-    industrial_era_client::widgets::last_targets().iter().any(|t| {
-        let [x, y, w, h] = t.rect;
-        matches!(t.kind, industrial_era_client::widgets::Kind::Field)
-            && p[0] >= x
-            && p[0] < x + w
-            && p[1] >= y
-            && p[1] < y + h
-    })
+    industrial_era_client::widgets::last_targets()
+        .iter()
+        .any(|t| {
+            let [x, y, w, h] = t.rect;
+            matches!(t.kind, industrial_era_client::widgets::Kind::Field)
+                && p[0] >= x
+                && p[0] < x + w
+                && p[1] >= y
+                && p[1] < y + h
+        })
 }

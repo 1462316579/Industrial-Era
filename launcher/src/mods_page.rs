@@ -33,7 +33,7 @@ const CHECKING: usize = 2;
 /// The sources to pick from on the Resource packs and Modpacks tabs; CurseForge is shown beside them as coming soon.
 const SOURCES: [(SourceId, &str); 2] = [
     (SourceId::Modrinth, "Modrinth"),
-    (SourceId::Industrial Era, "Industrial Era"),
+    (SourceId::IndustrialEra, "Industrial Era"),
 ];
 const PAGE: usize = 20;
 
@@ -102,7 +102,7 @@ pub(super) struct Mods {
     native_files: std::cell::RefCell<Option<(String, Vec<native_status::Installed>)>>,
     /// Java mods' checks, by source and project.
     pub(super) checks: HashMap<(SourceId, String), Checking>,
-    /// Industrial Era registry projects' trust and capabilities, by id ([`industrial-era::trust_and_capabilities`]).
+    /// Industrial Era registry projects' trust and capabilities, by id ([`industrial_era: :trust_and_capabilities`]).
     pub(super) about: HashMap<String, Vec<String>>,
     /// The project page, filters and images.
     pub(super) browse: super::mods_project::Browse,
@@ -209,7 +209,7 @@ impl Mods {
     pub(super) fn checking(&self, p: &Project) -> bool {
         self.java_for(p.kind).is_none()
             && p.kind == PackKind::Mod
-            && p.source != SourceId::Industrial Era
+            && p.source != SourceId::IndustrialEra
             && matches!(
                 self.checks.get(&(p.source, p.id.clone())),
                 None | Some(Checking::Running)
@@ -224,7 +224,7 @@ impl Mods {
             return Support::Works;
         }
         let metadata = p.support();
-        if p.kind != PackKind::Mod || p.source == SourceId::Industrial Era || !metadata.installable() {
+        if p.kind != PackKind::Mod || p.source == SourceId::IndustrialEra || !metadata.installable() {
             return metadata;
         }
         match self.checks.get(&(p.source, p.id.clone())) {
@@ -250,7 +250,7 @@ fn count(n: u64) -> String {
 /// mean and how many; None while the ratings aren't known.
 pub(super) fn stars(id: &str, t: &theme::Theme) -> Option<Div> {
     let row = div().flex().items_center().gap(px(2.));
-    Some(match industrial-era::rating(id)? {
+    Some(match industrial_era: :rating(id)? {
         None => row.text_color(t.muted).child(tr("No ratings yet")),
         Some(r) => {
             let lit = r.average.round() as usize;
@@ -446,9 +446,9 @@ impl Launcher {
                 .ok_or_else(|| format!("{} isn't set up.", source.label()))
                 .and_then(|s| s.search(&query));
             let about: HashMap<String, Vec<String>> = match (&result, source) {
-                (Ok(found), SourceId::Industrial Era) => found
+                (Ok(found), SourceId::IndustrialEra) => found
                     .iter()
-                    .map(|p| (p.id.clone(), industrial-era::trust_and_capabilities(&p.id)))
+                    .map(|p| (p.id.clone(), industrial_era: :trust_and_capabilities(&p.id)))
                     .collect(),
                 _ => HashMap::new(),
             };
@@ -460,23 +460,23 @@ impl Launcher {
     }
 
     /// Reads the registry's index again when something installed came from it, and turns off
-    /// what it took down since (`industrial-era::turn_off_revoked`).
+    /// what it took down since (`industrial_era: :turn_off_revoked`).
     fn mods_taken_down(&mut self) {
         if !self
             .mods
             .installed
             .iter()
-            .any(|e| e.source == SourceId::Industrial Era)
+            .any(|e| e.source == SourceId::IndustrialEra)
         {
             return;
         }
         let tx = self.mods.tx.clone();
         let home = self.mods.home();
         std::thread::spawn(move || {
-            let Ok(index) = industrial-era::index() else {
+            let Ok(index) = industrial_era: :index() else {
                 return;
             };
-            let lines = industrial-era::turn_off_revoked(&index, &home);
+            let lines = industrial_era: :turn_off_revoked(&index, &home);
             if !lines.is_empty() {
                 let _ = tx.send(Event::TakenDown(lines));
             }
@@ -498,11 +498,11 @@ impl Launcher {
             }));
             return;
         }
-        let Some(id) = industrial-era::mod_id(e) else {
+        let Some(id) = industrial_era: :mod_id(e) else {
             return;
         };
         let on = !java::is_enabled(&home, id);
-        let revoked = industrial-era::known_index().and_then(|index| {
+        let revoked = industrial_era: :known_index().and_then(|index| {
             let hash = e.checksum.trim_start_matches("SHA-256:");
             index.revoked(&e.project, hash).map(|r| r.reason.clone())
         });
@@ -527,7 +527,7 @@ impl Launcher {
         }
         let todo: Vec<Project> = found
             .into_iter()
-            .filter(|p| p.kind == PackKind::Mod && p.source != SourceId::Industrial Era)
+            .filter(|p| p.kind == PackKind::Mod && p.source != SourceId::IndustrialEra)
             .filter(|p| p.support().installable())
             .filter(|p| !m.checks.contains_key(&(p.source, p.id.clone())))
             .collect();
@@ -675,9 +675,9 @@ impl Launcher {
             return;
         }
         // The first native mod: the trust notice, before anything is installed.
-        let first_native = source == SourceId::Industrial Era
+        let first_native = source == SourceId::IndustrialEra
             && !self.settings.native_mods_noticed
-            && industrial-era::is_native_mod(&id);
+            && industrial_era: :is_native_mod(&id);
         if first_native {
             self.mods.native_notice = Some((source, id, known));
             return;
@@ -745,11 +745,11 @@ impl Launcher {
                         ));
                     }
                     modpack = p.kind == PackKind::Modpack;
-                    if modpack && p.source == SourceId::Industrial Era {
-                        let pack = industrial-era::pack::install(&p.id, &progress)?;
+                    if modpack && p.source == SourceId::IndustrialEra {
+                        let pack = industrial_era: :pack::install(&p.id, &progress)?;
                         if let Some(url) = &p.icon {
                             industrial_era_launcher::instances::adopt_icon(
-                                &industrial-era::pack::home(&pack.work),
+                                &industrial_era: :pack::home(&pack.work),
                                 url,
                             );
                         }
@@ -790,7 +790,7 @@ impl Launcher {
                             names.join(", ")
                         ));
                     }
-                    if p.source == SourceId::Industrial Era && p.kind == PackKind::Mod {
+                    if p.source == SourceId::IndustrialEra && p.kind == PackKind::Mod {
                         return Ok(format!(
                             "Installed {} into industrial-era-mods and turned it on, checksum checked \
                              (Options > Mods in the game).",
@@ -954,7 +954,7 @@ impl Launcher {
             .then(|| div().flex().child(self.mods_source_switch(cx)));
         // The registry lists only what was made for Industrial Era: no "everything", no Modrinth filters,
         // only its sort.
-        let registry = self.mods.source == SourceId::Industrial Era && !java;
+        let registry = self.mods.source == SourceId::IndustrialEra && !java;
         let filters = (!registry).then(|| self.mods_filters(cx));
         // The registry's sort sits below the GitHub row, above the list it orders.
         let registry_sort = registry.then(|| self.mods_sort_bar(cx));
@@ -1269,8 +1269,8 @@ impl Launcher {
             let on = match &self.mods.java {
                 _ if e.kind != PackKind::Mod => None,
                 Some(_) => Some(java_instance::is_on(&self.mods.home(), e)),
-                None if e.source == SourceId::Industrial Era => Some(
-                    industrial-era::mod_id(e).is_some_and(|id| java::is_enabled(&self.mods.home(), id)),
+                None if e.source == SourceId::IndustrialEra => Some(
+                    industrial_era: :mod_id(e).is_some_and(|id| java::is_enabled(&self.mods.home(), id)),
                 ),
                 None => None,
             };
@@ -1477,7 +1477,7 @@ impl Launcher {
         if let (Some(tag), Some(build)) = (&version, &build) {
             detail = detail.child(div().text_color(t.muted).child(trf(
                 "Plays {build}, built on Industrial Era {version}.",
-                &[("build", tag), ("version", &build.industrial-era())],
+                &[("build", tag), ("version", &build.industrial_era())],
             )));
         }
         if self.native_step.is_some() && !mine {
@@ -1603,7 +1603,7 @@ impl Launcher {
                     ),
                     &t,
                 );
-            } else if m.source == SourceId::Industrial Era {
+            } else if m.source == SourceId::IndustrialEra {
                 tr("Nothing in Industrial Era's registry matches yet.")
             } else if m.everything {
                 tr("Nothing found.")
@@ -1689,7 +1689,7 @@ impl Launcher {
                 .child(div().truncate().child(p.summary.clone()))
                 .child(by.join(" · "))
                 .children(
-                    (p.source == SourceId::Industrial Era)
+                    (p.source == SourceId::IndustrialEra)
                         .then(|| stars(&p.id, &t))
                         .flatten(),
                 )
@@ -1701,7 +1701,7 @@ impl Launcher {
                 .children(
                     m.about
                         .get(&p.id)
-                        .filter(|_| p.source == SourceId::Industrial Era)
+                        .filter(|_| p.source == SourceId::IndustrialEra)
                         .map(|lines| div().text_color(t.ink_soft).child(lines.join(" · "))),
                 );
             let open = p.clone();
@@ -1750,7 +1750,7 @@ impl Launcher {
 fn source_for(kind: PackKind) -> SourceId {
     match kind {
         PackKind::ResourcePack | PackKind::Modpack => SourceId::Modrinth,
-        _ => SourceId::Industrial Era,
+        _ => SourceId::IndustrialEra,
     }
 }
 

@@ -19,7 +19,11 @@ const OVERRIDES: &str = "overrides/";
 const MAX_OVERRIDE: u64 = 64 << 20;
 const MAX_OVERRIDES: u64 = 256 << 20;
 /// The settings files an override may replace.
-const SETTINGS: [&str; 3] = ["options.txt", "industrial-era-graphics.txt", "industrial-era-extras.txt"];
+const SETTINGS: [&str; 3] = [
+    "options.txt",
+    "industrial-era-graphics.txt",
+    "industrial-era-extras.txt",
+];
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields)]
@@ -184,7 +188,7 @@ impl Modpack {
 fn check_override(path: &str, manifest: &Manifest) -> Result<(), String> {
     let bad = || {
         format!(
-            "overrides/{path}: only {}, resourcepacks/<name>.zip and industrial-era-mods/{STORAGE_DIR}/<a listed mod>/ may be overridden",
+            "overrides/{path}: only {}, resourcepacks/<name>.zip and industrial_era-mods/{STORAGE_DIR}/<a listed mod>/ may be overridden",
             SETTINGS.join(", ")
         )
     };
@@ -241,7 +245,10 @@ sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
     }
 
     fn scratch(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("industrial-era-hpack-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-hpack-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -268,7 +275,9 @@ sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
         Modpack::extract_overrides(&path, &home).unwrap();
         let options = std::fs::read_to_string(home.join("options.txt")).unwrap();
         assert_eq!(options, "renderDistance:8\n");
-        let corner = home.join(format!("industrial-era-mods/{STORAGE_DIR}/coords_hud/corner.txt"));
+        let corner = home.join(format!(
+            "industrial-era-mods/{STORAGE_DIR}/coords_hud/corner.txt"
+        ));
         assert!(corner.is_file());
         std::fs::remove_dir_all(&dir).unwrap();
     }
@@ -282,7 +291,7 @@ sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
             "overrides/industrial-era-mods/evil.hmod",
             "overrides/resourcepacks/../options.txt",
             "overrides/servers.dat",
-            "overrides/industrial-era-mods/.industrial-era-mod-data/other_mod/x",
+            "overrides/industrial-era-mods/.industrial_era-mod-data/other_mod/x",
             "overrides/resourcepacks/.hidden.zip",
         ] {
             let path = write_pack(&dir, PACK, &[(name, b"x")]);

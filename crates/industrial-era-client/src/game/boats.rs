@@ -1295,9 +1295,10 @@ impl Game<'_> {
         let key = (i32::MAX - 15, super::minecarts::CART_KEY_Y, b.id as i32);
         let at = [b.position.x, b.position.y, b.position.z];
         let items = b.items.clone();
-        self.world
-            .block_entities
-            .insert(key, industrial_era_client::containers::BlockEntity::Chest(items));
+        self.world.block_entities.insert(
+            key,
+            industrial_era_client::containers::BlockEntity::Chest(items),
+        );
         self.container = Some(key);
         self.screen = super::Screen::Inventory;
         self.capture(false);

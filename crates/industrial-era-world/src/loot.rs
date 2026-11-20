@@ -1915,7 +1915,8 @@ mod namespace_tests {
     /// get their own.
     #[test]
     fn loot_tables_are_shared_per_root_and_packs() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-share-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-share-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(root.join("data/minecraft/loot_table/chests")).unwrap();
         fs::write(
@@ -1957,7 +1958,8 @@ mod namespace_tests {
     /// the load.
     #[test]
     fn loot_tables_read_back_as_loaded() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-text-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-text-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let dir = root.join("data/minecraft/loot_table/blocks");
         fs::create_dir_all(&dir).unwrap();
@@ -1982,7 +1984,8 @@ mod namespace_tests {
     /// vanilla's, under their own namespaces.
     #[test]
     fn loads_every_namespace() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-ns-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-ns-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let files = [
             ("items.json", r#"{"minecraft:bread": {}}"#),
@@ -2027,7 +2030,8 @@ mod namespace_tests {
     /// `SetInstrumentFunction`: a goat horn from a loot table gets one of the options as its instrument.
     #[test]
     fn set_instrument_picks_one_of_its_options() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-horn-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-horn-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let table = r##"{"pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:goat_horn",
             "modifier": [{"type": "minecraft:set_instrument", "options": ["minecraft:ponder_goat_horn", "minecraft:sing_goat_horn"]}]}]}]}"##;
@@ -2088,7 +2092,8 @@ mod namespace_tests {
     /// `replace` drops what the lower sources put in.
     #[test]
     fn pack_tags_join_and_replace_the_game_own() {
-        let root = std::env::temp_dir().join(format!("industrial-era-loot-tag-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-loot-tag-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(root.join("data/minecraft/tags/item")).unwrap();
         fs::write(root.join("items.json"), "{}").unwrap();

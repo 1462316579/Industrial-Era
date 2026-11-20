@@ -1,6 +1,8 @@
 //! Transport for anchored provider samples and subsequent random state.
 use industrial_era_core::random::{LegacyRandom, RandomSource, XoroshiroRandom};
-use industrial_era_world::worldgen::{anchor::WorldGenerationContext, height_provider::HeightProvider};
+use industrial_era_world::worldgen::{
+    anchor::WorldGenerationContext, height_provider::HeightProvider,
+};
 use serde_json::Value;
 use std::{
     fs,

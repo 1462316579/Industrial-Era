@@ -3,7 +3,7 @@
 //!
 //!   industrial-era-bots --server 127.0.0.1:25565 --bots 1 --behaviour explore --view-distance 32 \
 //!       --seconds 60 --capture join.cap
-//!   cargo run --release -p industrial-era-protocol --example net_replay -- join.cap
+//!   cargo run --release -p industrial_era-protocol --example net_replay -- join.cap
 //!
 //! The packets go through a connection three times, as they reach the client:
 //! - `memory`: single player (an integrated server's pipe: no compression, no encryption);

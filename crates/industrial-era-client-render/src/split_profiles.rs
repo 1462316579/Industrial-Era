@@ -192,8 +192,11 @@ impl SplitProfiles {
             ));
             buttons.push((
                 [x + 180.0, y, 20.0, 20.0],
-                tr("industrial-era.splitscreen.profiles.forget_named", "Forget %s")
-                    .replacen("%s", name, 1),
+                tr(
+                    "industrial-era.splitscreen.profiles.forget_named",
+                    "Forget %s",
+                )
+                .replacen("%s", name, 1),
                 self.editable(name),
                 Target::Remove(i),
             ));
@@ -216,7 +219,10 @@ impl SplitProfiles {
         }
         buttons.push(button(
             y,
-            tr("industrial-era.splitscreen.profiles.new_button", "New Profile..."),
+            tr(
+                "industrial-era.splitscreen.profiles.new_button",
+                "New Profile...",
+            ),
             true,
             Target::New,
         ));
@@ -275,7 +281,10 @@ impl SplitProfiles {
             graphics_style::title(
                 batch,
                 atlas,
-                &Text::literal(tr("industrial-era.splitscreen.profiles.new_title", "New Profile")),
+                &Text::literal(tr(
+                    "industrial-era.splitscreen.profiles.new_title",
+                    "New Profile",
+                )),
             );
             let (x, top) = ((w / 2.0).floor() - 100.0, field_top(h));
             let label = tr(
@@ -375,7 +384,10 @@ impl SplitProfiles {
                 "Move where you play: %s",
             )
             .replacen("%s", place, 1),
-            None => tr("industrial-era.splitscreen.profiles.move", "Move where you play"),
+            None => tr(
+                "industrial-era.splitscreen.profiles.move",
+                "Move where you play",
+            ),
         };
         let keys = [PadButton::LeftBumper, PadButton::RightBumper];
         let key_width = |b: PadButton| width(b.label(style)) + 4.0;
@@ -602,7 +614,10 @@ mod tests {
     }
 
     fn atlas() -> HudAtlas {
-        HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets")).unwrap()
+        HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap()
     }
 
     fn page() -> SplitProfiles {

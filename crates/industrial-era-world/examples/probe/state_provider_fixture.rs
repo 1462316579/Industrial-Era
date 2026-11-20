@@ -360,8 +360,10 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?
     .0
     .tag;
-    let collision =
-        industrial_era_world::collision::CachedCollisionRegistry::from_nbt(&collision_tag, &registry)?;
+    let collision = industrial_era_world::collision::CachedCollisionRegistry::from_nbt(
+        &collision_tag,
+        &registry,
+    )?;
     let properties_tag = industrial_era_world::nbt::read_named(
         &fs::read(dir.join("block-properties.nbt"))?,
         industrial_era_world::nbt::Limits::default(),

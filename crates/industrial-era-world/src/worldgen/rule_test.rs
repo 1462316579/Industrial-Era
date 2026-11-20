@@ -27,7 +27,7 @@ enum Node {
     Height(i32, i32),
     Phase(Box<MatterPhase>),
 }
-/// `industrial-era:matter_phase`: Repurposed Structures' MatterPhaseRuleTest, which
+/// `industrial_era:matter_phase`: Repurposed Structures' MatterPhaseRuleTest, which
 /// its mineshafts and Nether monument use to match a block by what it is
 /// made of (`phase_to_test_for`), optionally inverted (`invert_condition`).
 #[derive(Clone, Debug)]
@@ -187,7 +187,7 @@ impl RuleTest {
                     Node::Any(values)
                 }
             }
-            "industrial-era:matter_phase" => {
+            "industrial_era:matter_phase" => {
                 Node::Phase(Box::new(MatterPhase::decode(&object, bindings)?))
             }
             _ => return Err(DecodeError::Field("replacement rule type")),

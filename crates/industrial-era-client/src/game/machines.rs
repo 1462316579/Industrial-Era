@@ -1666,8 +1666,10 @@ impl Game<'_> {
         }
         let grey = industrial_era_client::hud::rgba(64, 64, 64, 255);
         let title = &self.remote_menu_title().unwrap_or_else(|| {
-            industrial_era_client::text::Text::literal(self.container_title(self.translate(key, fallback)))
-                .resolve_legacy()
+            industrial_era_client::text::Text::literal(
+                self.container_title(self.translate(key, fallback)),
+            )
+            .resolve_legacy()
         });
         super::screen_info::name_container(|| title.plain());
         let title_x = if screen == Screen::Hopper {

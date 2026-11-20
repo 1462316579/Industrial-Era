@@ -101,7 +101,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             bindings.push(ClimbingRegistry::new(&registry, &trapdoors, c, g)?);
         }
     }
-    let invalid = BTreeSet::from(["industrial-era:missing".to_owned()]);
+    let invalid = BTreeSet::from(["industrial_era:missing".to_owned()]);
     assert!(ClimbingRegistry::new(&registry, &invalid, &climb[0], &glide[0]).is_err());
     assert!(ClimbingRegistry::new(&registry, &trapdoors, &invalid, &glide[0]).is_err());
     assert!(ClimbingRegistry::new(&registry, &trapdoors, &climb[0], &invalid).is_err());

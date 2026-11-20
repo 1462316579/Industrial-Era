@@ -729,7 +729,8 @@ fn wrap64(d: f64) -> f64 {
 }
 impl Game<'_> {
     fn fight_path(&self) -> std::path::PathBuf {
-        industrial_era_client::save::dimension_dir(&self.world_root, "minecraft:the_end").join(FIGHT_FILE)
+        industrial_era_client::save::dimension_dir(&self.world_root, "minecraft:the_end")
+            .join(FIGHT_FILE)
     }
     /// The saved fight, or `createDefault` with the gateways shuffled by the seed.
     fn load_fight(&mut self) {
@@ -2965,12 +2966,17 @@ impl Game<'_> {
         // the mask, white at `ARGB.white(1 - deathTime / 200)` and no overlay.
         let mask = sprite("entity/enderdragon/dragon_exploding").filter(|_| death > 0.0);
         let (color, overlay) = if mask.is_some() {
-            (dissolve_color(death), industrial_era_client::gfx::DISSOLVE_OVERLAY)
+            (
+                dissolve_color(death),
+                industrial_era_client::gfx::DISSOLVE_OVERLAY,
+            )
         } else {
             (0xFFFF_FFFF, u32::from(d.hurt_time > 0))
         };
         let first = out.len();
-        industrial_era_client::mobs::render::draw(model, base, &poses, skin, color, light, overlay, out);
+        industrial_era_client::mobs::render::draw(
+            model, base, &poses, skin, color, light, overlay, out,
+        );
         if let Some(mask) = mask {
             dissolve_mask(&mut out[first..], skin, mask);
         }
@@ -2985,7 +2991,9 @@ impl Game<'_> {
             .and_then(sprite);
         if let Some(glow) = glow.filter(|_| mask.is_none()) {
             let full = industrial_era_client::mobs::render::FULL_BRIGHT;
-            industrial_era_client::mobs::render::draw(model, base, &poses, glow, color, full, 0, out);
+            industrial_era_client::mobs::render::draw(
+                model, base, &poses, glow, color, full, 0, out,
+            );
         }
         // RenderTypes.eyes: the glowing eyes, added on top.
         let mut eye_quads = Vec::new();
@@ -3296,7 +3304,9 @@ impl Game<'_> {
     /// the synched data that differs from the defaults: its health, defined
     /// as 1, and `DATA_PHASE`, defined as hovering). Vanilla pairs it with no
     /// attribute instances.
-    pub(super) fn lan_dragon_state(&self) -> Option<industrial_era_client::lan::entity::EntityState> {
+    pub(super) fn lan_dragon_state(
+        &self,
+    ) -> Option<industrial_era_client::lan::entity::EntityState> {
         use industrial_era_protocol::entity_data::{Value, serializer};
         let d = self.dragon.as_ref().filter(|d| d.id != 0)?;
         let mut meta = Vec::new();
@@ -3599,7 +3609,8 @@ impl Game<'_> {
                 if !(start || end) {
                     return;
                 }
-                let spikes = industrial_era_world::worldgen::end_spike::spikes_for_seed(self.level.seed);
+                let spikes =
+                    industrial_era_world::worldgen::end_spike::spikes_for_seed(self.level.seed);
                 let index = (time / 40) as usize;
                 if let Some(spike) = spikes.get(index) {
                     if start {
@@ -4108,7 +4119,12 @@ fn dissolve_mask(quads: &mut [Vertex], skin: [f32; 4], mask: [f32; 4]) {
     }
 }
 /// `submitRays`: the death rays from a fixed seed, fading in white to magenta.
-fn dragon_rays(base: glam::Mat4, t: f32, white: industrial_era_client::hud::Rect, out: &mut Vec<Vertex>) {
+fn dragon_rays(
+    base: glam::Mat4,
+    t: f32,
+    white: industrial_era_client::hud::Rect,
+    out: &mut Vec<Vertex>,
+) {
     // Vanilla's dragonRays has no texture. Sample inside the white sprite:
     // its border can round into transparent neighbours during interpolation.
     let uv = [(white.u0 + white.u1) / 2.0, (white.v0 + white.v1) / 2.0];
@@ -4762,7 +4778,8 @@ mod tests {
             return;
         }
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
-        let resources = industrial_era_client::motion::MotionResources::load(&root, &assets).unwrap();
+        let resources =
+            industrial_era_client::motion::MotionResources::load(&root, &assets).unwrap();
         let (health, rules) = (&resources.health, Default::default());
         let id = health.damage.id("minecraft:mob_attack").unwrap();
         let push = Vec3::new(0.5, f64::from(0.2_f32), -0.25);
@@ -4774,7 +4791,8 @@ mod tests {
             });
         };
         // In flight: the first tick's hurt lands and carries the push.
-        let mut p = industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
+        let mut p =
+            industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
         wing(&mut p, false);
         assert_eq!(p.velocity, push);
         assert_eq!(p.health.health(), 15.0);
@@ -4791,7 +4809,8 @@ mod tests {
         assert_eq!(p.velocity, push.add_vector(push));
         assert_eq!(p.health.health(), 10.0);
         // Under a perched dragon's wing nothing reaches the player.
-        let mut p = industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
+        let mut p =
+            industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
         for _ in 0..20 {
             wing(&mut p, true);
         }

@@ -53,7 +53,7 @@ pub fn running() -> bool {
     )
 }
 
-/// The runtime, the kit and industrial-era-prepare's work files: the app's own folder.
+/// The runtime, the kit and industrial_era-prepare's work files: the app's own folder.
 fn home() -> PathBuf {
     crate::logging::private_home().join("preparer")
 }
@@ -237,9 +237,10 @@ fn add_sounds(resources: &Path) -> Result<(), String> {
     }
     std::os::unix::fs::symlink(resources, &target)
         .map_err(|e| format!("{}: {e}", target.display()))?;
-    let copied = industrial_era_prepare::sounds(&kit, Some(&crate::accounts::files_root()), &|line| {
-        log::info!("Industrial Era: adding the sounds: {line}")
-    });
+    let copied =
+        industrial_era_prepare::sounds(&kit, Some(&crate::accounts::files_root()), &|line| {
+            log::info!("Industrial Era: adding the sounds: {line}")
+        });
     let _ = std::fs::remove_file(&target);
     copied.map(drop)
 }

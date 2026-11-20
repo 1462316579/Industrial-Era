@@ -1,7 +1,7 @@
 //! `ComposterBlock`: compostable items go in by hand (`useItemOn`) or
 //! through its input container (hoppers, droppers, crafters above), and the
 //! fill feedback of level event 1500 (`handleFill`). Emptying a full
-//! composter by hand is `useWithoutItem` in industrial-era-world.
+//! composter by hand is `useWithoutItem` in industrial_era-world.
 use super::{Game, commands::compute::ComputeContext};
 use industrial_era_client::{
     items::ItemStack,

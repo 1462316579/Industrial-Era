@@ -1590,10 +1590,9 @@ impl Hub {
         };
         self.send_to(
             conn,
-            &C::PlaceGhostRecipe(industrial_era_protocol::packets::recipes::PlaceGhostRecipe {
-                container,
-                display,
-            }),
+            &C::PlaceGhostRecipe(
+                industrial_era_protocol::packets::recipes::PlaceGhostRecipe { container, display },
+            ),
         );
     }
     pub fn send_inventory(&mut self, i: usize) {
@@ -3807,7 +3806,10 @@ impl Hub {
     }
     /// A stack a client sent (`SetCreativeModeSlot`), read with this
     /// server's registries.
-    pub fn stack_from_network(&self, s: &industrial_era_protocol::item::Stack) -> crate::items::ItemStack {
+    pub fn stack_from_network(
+        &self,
+        s: &industrial_era_protocol::item::Stack,
+    ) -> crate::items::ItemStack {
         crate::item_sync::from_network(s, &self.sync.builtin, &self.sync.dynamic)
     }
 
@@ -4497,7 +4499,7 @@ mod tests {
         assert!(far.is_empty());
     }
 
-    /// cargo test --release -p industrial-era-client --lib lan::hub::tests::requeue_cost -- --ignored --nocapture
+    /// cargo test --release -p industrial_era-client --lib lan::hub::tests::requeue_cost -- --ignored --nocapture
     #[test]
     #[ignore]
     fn requeue_cost() {

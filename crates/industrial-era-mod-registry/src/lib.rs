@@ -1136,7 +1136,7 @@ pub fn list(config: &Config, login: &str, user_id: u64, form: &Form) -> Result<S
         key: form.key.clone().filter(|k| !k.trim().is_empty()),
         versions: Vec::new(),
     };
-    // The form asks for the page; the repository's industrial-era-registry.toml may change it later.
+    // The form asks for the page; the repository's industrial_era-registry.toml may change it later.
     let problems = entry.resolved(&registry::Page::default()).check_fields();
     if !problems.is_empty() {
         return Err(bad(problems.join("; ")));

@@ -175,9 +175,11 @@ impl Game<'_> {
     /// integer position.
     pub(super) fn campfire_drop(&mut self, pos: Pos, stack: ItemStack) {
         let at = BlockPos::new(pos.0, pos.1, pos.2);
-        for piece in
-            industrial_era_world::level::removal::drop_item_stack(&mut self.world.random, at, stack.count)
-        {
+        for piece in industrial_era_world::level::removal::drop_item_stack(
+            &mut self.world.random,
+            at,
+            stack.count,
+        ) {
             self.spawn_item(
                 ItemStack {
                     count: piece.count,

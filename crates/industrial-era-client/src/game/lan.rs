@@ -592,10 +592,12 @@ fn mob_meta(
                 meta.push((18, serializer::BYTE, Value::Byte(flags)));
             }
             let (index, registry, name) = if kind == "minecraft:cat" {
-                let v = industrial_era_client::mobs::tame::CAT_VARIANTS[(e.variant as usize).min(10)];
+                let v =
+                    industrial_era_client::mobs::tame::CAT_VARIANTS[(e.variant as usize).min(10)];
                 (20, "minecraft:cat_variant", v)
             } else {
-                let v = industrial_era_client::mobs::tame::WOLF_VARIANTS[(e.variant as usize).min(8)].0;
+                let v =
+                    industrial_era_client::mobs::tame::WOLF_VARIANTS[(e.variant as usize).min(8)].0;
                 (23, "minecraft:wolf_variant", v)
             };
             let serializer = if index == 20 {
@@ -1300,7 +1302,11 @@ impl Game<'_> {
         encoder.tables = Some(
             self.save
                 .tables
-                .get_or_init(|| Arc::new(industrial_era_client::save::SaveTables::new(&self.pack.assets)))
+                .get_or_init(|| {
+                    Arc::new(industrial_era_client::save::SaveTables::new(
+                        &self.pack.assets,
+                    ))
+                })
                 .clone(),
         );
         // Content mods' machines: their block entities go to the players too.
@@ -1310,8 +1316,9 @@ impl Game<'_> {
             Game::native_block_entity_update_tag(pos, entity, &mut tag);
             tag
         });
-        let far = (net.lod_distance > 0)
-            .then(|| industrial_era_client::lod_net::Service::new(net.lod_distance, biome_names.clone()));
+        let far = (net.lod_distance > 0).then(|| {
+            industrial_era_client::lod_net::Service::new(net.lod_distance, biome_names.clone())
+        });
         let lan = Lan::start_with(sync.clone(), net)?;
         let mut hub = Hub::new(lan, sync, encoder, config);
         hub.sync_attachments = !crate::mod_api::mods().is_empty();
@@ -1833,9 +1840,9 @@ impl Game<'_> {
                         self.native_player_login(uuid, &name, &mut cancel, &mut reason);
                         if cancel {
                             let reason = match reason {
-                                Some(text) => {
-                                    industrial_era_client::lan::data::component_nbt(&text.component())
-                                }
+                                Some(text) => industrial_era_client::lan::data::component_nbt(
+                                    &text.component(),
+                                ),
                                 None => industrial_era_protocol::text::translatable(
                                     "multiplayer.disconnect.generic",
                                     &[],
@@ -2937,7 +2944,9 @@ pub(super) fn living_flags(using: Option<(usize, u32)>) -> i8 {
 
 /// The name a mod hears for an equipment slot (the armor stand hook's names, plus
 /// the two slots a mount's gear uses).
-fn equipment_slot_name(slot: industrial_era_world::player_inventory::EquipmentSlot) -> &'static str {
+fn equipment_slot_name(
+    slot: industrial_era_world::player_inventory::EquipmentSlot,
+) -> &'static str {
     use industrial_era_world::player_inventory::EquipmentSlot;
     match slot {
         EquipmentSlot::MainHand => "mainhand",

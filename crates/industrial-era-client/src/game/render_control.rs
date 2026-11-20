@@ -127,7 +127,9 @@ impl Game<'_> {
                     .clone();
                 let entity = self
                     .new_block_entity(&name)
-                    .filter(|e| matches!(e, industrial_era_client::containers::BlockEntity::Sign(_)))
+                    .filter(|e| {
+                        matches!(e, industrial_era_client::containers::BlockEntity::Sign(_))
+                    })
                     .ok_or("no sign there")?;
                 self.world.block_entities.get_or_insert_with(key, || entity);
                 self.open_sign_editor(key, words.get(4) != Some(&"back"));

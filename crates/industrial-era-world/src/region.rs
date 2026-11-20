@@ -420,7 +420,7 @@ impl RegionWriter {
         fs::create_dir_all(parent)?;
         let (temporary, file) = loop {
             let path = parent.join(format!(
-                ".industrial-era-{}-{}.tmp",
+                ".industrial_era-{}-{}.tmp",
                 std::process::id(),
                 NEXT_TEMP.fetch_add(1, Ordering::Relaxed)
             ));

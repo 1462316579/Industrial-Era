@@ -367,8 +367,12 @@ impl Game<'_> {
                     "round" => (field(self, "input")? + 0.5).floor() as i32 as f32,
                     "truncate" => field(self, "input")?.trunc(),
                     "sqrt" => field(self, "input")?.sqrt(),
-                    "sin" => industrial_era_core::geometry::trig::sin(f64::from(field(self, "input")?)),
-                    "cos" => industrial_era_core::geometry::trig::cos(f64::from(field(self, "input")?)),
+                    "sin" => {
+                        industrial_era_core::geometry::trig::sin(f64::from(field(self, "input")?))
+                    }
+                    "cos" => {
+                        industrial_era_core::geometry::trig::cos(f64::from(field(self, "input")?))
+                    }
                     "from_int" => match o.get("input") {
                         Some(x) => self.provider_int(x, c, d)? as f32,
                         None => 0.0,

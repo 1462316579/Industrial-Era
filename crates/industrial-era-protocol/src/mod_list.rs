@@ -5,7 +5,7 @@
 //! In the configuration phase the server sends its list on [`CHANNEL`] and
 //! the client answers with its own on the same channel. The server then
 //! refuses a client whose mods differ, naming each one, which the registry
-//! hash of `industrial-era:block_registry` cannot do (it only sees ids): a mod
+//! hash of `industrial_era:block_registry` cannot do (it only sees ids): a mod
 //! whose loot, recipes or textures were edited keeps its ids, not its file's
 //! SHA-256. A vanilla client never hears the channel.
 use crate::{
@@ -15,7 +15,7 @@ use crate::{
 use std::sync::OnceLock;
 
 /// The custom payload channel, both ways.
-pub const CHANNEL: &str = "industrial-era:mod_list";
+pub const CHANNEL: &str = "industrial_era:mod_list";
 /// Mods in a list at most; a list with more is refused whole.
 pub const MAX_ENTRIES: usize = 128;
 /// Characters in a mod's id or version at most.

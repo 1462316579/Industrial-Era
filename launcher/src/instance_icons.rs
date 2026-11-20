@@ -57,7 +57,7 @@ impl Launcher {
                 std::fs::read(grass).ok()
             });
         }
-        let industrial-era = || Some(industrial_era_theme::ICON_PNG.to_vec());
+        let industrial_era = || Some(industrial_era_theme::ICON_PNG.to_vec());
         self.icon_image("mark:industrial-era".into(), size, false, industrial-era)
     }
 

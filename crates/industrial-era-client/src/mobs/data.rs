@@ -55,7 +55,8 @@ pub struct MobData {
     /// The packs' custom entity models (OptiFine CEM); replaced when the resource packs change.
     pub cem: std::sync::RwLock<std::sync::Arc<super::cem::CemModels>>,
     /// The packs' random entity textures, replaced with them too.
-    pub random_textures: std::sync::RwLock<industrial_era_optifine::random_textures::RandomTextures>,
+    pub random_textures:
+        std::sync::RwLock<industrial_era_optifine::random_textures::RandomTextures>,
     /// The packs' emissive overlays of entity textures, replaced with them too.
     pub emissive: std::sync::RwLock<std::sync::Arc<industrial_era_optifine::emissive::Emissive>>,
     /// ETF's blinking textures, replaced with the packs too.
@@ -92,9 +93,12 @@ impl MobData {
             &industrial_era_world::loot::PackOverlay::NONE,
         )
         .unwrap_or_default();
-        data.entity_tags =
-            crate::items::load_tags(root, "entity_type", &industrial_era_world::loot::PackOverlay::NONE)
-                .unwrap_or_default();
+        data.entity_tags = crate::items::load_tags(
+            root,
+            "entity_type",
+            &industrial_era_world::loot::PackOverlay::NONE,
+        )
+        .unwrap_or_default();
         data.villager_hats = std::sync::RwLock::new(super::villager_hats::VillagerHats::load(root));
         data.armor_atlases = std::sync::RwLock::new(crate::custom_armor::load(root));
         data.equipment = std::sync::RwLock::new(crate::equipment::load(root));

@@ -440,7 +440,10 @@ impl Game<'_> {
         let power = pow * (1.0 - resistance);
         // `source.doTeamsAllowDamage(entity)`.
         let hurtable = exploding.is_none_or(|id| {
-            industrial_era_client::scoreboard::teams_allow_damage(self.mob_team(id), self.player_team())
+            industrial_era_client::scoreboard::teams_allow_damage(
+                self.mob_team(id),
+                self.player_team(),
+            )
         });
         let blocking = self.player_blocking(Some(center), damage_type, false);
         let raised = blocking.is_some();

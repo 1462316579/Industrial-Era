@@ -1,4 +1,4 @@
-//! `cargo industrial-era-mod registry build|review|check|list`: the registry repository's CI
+//! `cargo industrial_era-mod registry build|review|check|list`: the registry repository's CI
 //! (`industrial-era-rust/industrial-era-mods`, docs/api/mod-index.md). Network-free: the
 //! workflow downloads the files and publishes what this writes.
 use industrial_era_mods::index::{
@@ -10,12 +10,12 @@ use std::path::Path;
 /// Where the registry's site is published (its icons).
 const SITE: &str = "https://industrial-era-rust.github.io/industrial-era-mods/";
 
-const USAGE: &str = "usage: cargo industrial-era-mod registry build <checkout> --files <dir> --out <index.json> [--release <url>] [--site <url>] [--generated <time>]
-       cargo industrial-era-mod registry review <base checkout> <head checkout> --author <login> [--json]
-       cargo industrial-era-mod registry check <base checkout> <head checkout> --files <dir>
-       cargo industrial-era-mod registry list <checkout>
-       cargo industrial-era-mod registry release <checkout> <id> <file> --tag <tag> --published <YYYY-MM-DD> [--notes <file>] [--signature <file>] [--game <version>]
-       cargo industrial-era-mod registry page <checkout> <id> <industrial-era-registry.toml>";
+const USAGE: &str = "usage: cargo industrial_era-mod registry build <checkout> --files <dir> --out <index.json> [--release <url>] [--site <url>] [--generated <time>]
+       cargo industrial_era-mod registry review <base checkout> <head checkout> --author <login> [--json]
+       cargo industrial_era-mod registry check <base checkout> <head checkout> --files <dir>
+       cargo industrial_era-mod registry list <checkout>
+       cargo industrial_era-mod registry release <checkout> <id> <file> --tag <tag> --published <YYYY-MM-DD> [--notes <file>] [--signature <file>] [--game <version>]
+       cargo industrial_era-mod registry page <checkout> <id> <industrial-era-registry.toml>";
 
 fn flag<'a>(args: &'a [String], name: &str) -> Option<&'a str> {
     super::flag(args, name)

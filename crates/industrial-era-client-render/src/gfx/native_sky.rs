@@ -269,7 +269,14 @@ mod tests {
                     label: None,
                     source: wgpu::ShaderSource::Naga(std::borrow::Cow::Owned(module)),
                 });
-                pipeline(&device, &layout, &module, "industrial_era_sky_fs_sky", &[], format)
+                pipeline(
+                    &device,
+                    &layout,
+                    &module,
+                    "industrial_era_sky_fs_sky",
+                    &[],
+                    format,
+                )
             } else {
                 sky.pipeline.clone()
             };

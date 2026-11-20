@@ -150,7 +150,8 @@ fn world(assets: &Assets, facts: &BlockFacts, floor: bool, water: bool) -> Resul
 
 pub fn main() -> Result<()> {
     let args: Vec<String> = crate::args().collect();
-    let root = &Path::new(".local/industrial-era-client").join(industrial_era_core::VANILLA_VERSION);
+    let root =
+        &Path::new(".local/industrial-era-client").join(industrial_era_core::VANILLA_VERSION);
     let assets = Assets::load(root)?;
     let facts = BlockFacts::load(root, assets.registry)?;
     let collision = collisions::load(root, assets.registry)?;

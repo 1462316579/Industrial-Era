@@ -848,7 +848,7 @@ enum Merge {
 }
 /// The key of a stacked blockstate file: its definitions, bottom first, each
 /// as the pack wrote it.
-pub const BLOCKSTATE_LAYERS: &str = "industrial-era:layers";
+pub const BLOCKSTATE_LAYERS: &str = "industrial_era:layers";
 fn merge_kind(name: &str) -> Option<Merge> {
     let (_, rest) = name.strip_prefix("assets/")?.split_once('/')?;
     if rest == "sounds.json" {
@@ -1471,7 +1471,8 @@ mod tests {
     #[test]
     fn overlay_layers_packs_over_vanilla() {
         // `&` would split an unquoted `cmd /C mklink` line.
-        let base = std::env::temp_dir().join(format!("industrial-era-packs-&{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-packs-&{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let vanilla = base.join("vanilla");
         fs::create_dir_all(vanilla.join("assets/minecraft/textures/block")).unwrap();
@@ -1552,7 +1553,8 @@ mod tests {
     #[test]
     fn every_file_of_a_big_stack_comes_from_its_top_pack() {
         use std::io::Write as _;
-        let base = std::env::temp_dir().join(format!("industrial-era-pack-stack-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-pack-stack-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let vanilla = base.join("vanilla");
         // Folders whose names start alike (`item`, `item_extra`, `item2`) and files beside
@@ -1618,7 +1620,8 @@ mod tests {
     #[test]
     fn zip_entries_never_leave_the_overlay() {
         use std::io::Write as _;
-        let base = std::env::temp_dir().join(format!("industrial-era-pack-escape-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-pack-escape-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let vanilla = base.join("vanilla");
         fs::create_dir_all(vanilla.join("assets/minecraft/textures/block")).unwrap();
@@ -1668,7 +1671,8 @@ mod tests {
     #[test]
     fn built_in_and_folder_packs_give_their_pack_png() {
         use std::io::Write as _;
-        let base = std::env::temp_dir().join(format!("industrial-era-pack-icons-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-pack-icons-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let meta = br#"{"pack":{"description":"d","pack_format":97}}"#;
         let built_in = base.join("vanilla/assets/minecraft/resourcepacks");
@@ -1722,7 +1726,8 @@ mod tests {
             {"formats":97,"directory":"C:"},
             {"formats":97,"directory":"ok_1.21-x"}]}}"#);
         assert_eq!(overlays_of(&meta), ["ok_1.21-x"]);
-        let base = std::env::temp_dir().join(format!("industrial-era-packs-ov-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-packs-ov-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let vanilla = base.join("vanilla");
         fs::create_dir_all(vanilla.join("assets/minecraft/textures/block")).unwrap();

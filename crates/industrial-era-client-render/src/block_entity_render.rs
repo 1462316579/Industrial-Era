@@ -3270,7 +3270,9 @@ mod tests {
                 "defaults",
                 Tag::compound(names.iter().enumerate().map(|(id, name)| {
                     (
-                        industrial_era_world::nbt::JavaString::from(format!("minecraft:{name}").as_str()),
+                        industrial_era_world::nbt::JavaString::from(
+                            format!("minecraft:{name}").as_str(),
+                        ),
                         Tag::Int(id as i32),
                     )
                 })),

@@ -317,10 +317,11 @@ impl ChunkGenerator for FlatTerrain {
     fn proto(&self, _: &mut (), cx: i32, cz: i32) -> crate::streaming::Proto {
         let mut chunk = Chunk::with_layout(cx, cz, self.shape.column());
         for s in &mut chunk.sections {
-            std::sync::Arc::make_mut(s).biomes = industrial_era_core::paletted::PalettedContainer::new(
-                crate::chunk::BIOME_STRATEGY,
-                u32::from(self.biome),
-            );
+            std::sync::Arc::make_mut(s).biomes =
+                industrial_era_core::paletted::PalettedContainer::new(
+                    crate::chunk::BIOME_STRATEGY,
+                    u32::from(self.biome),
+                );
         }
         let height = self.shape.height as usize;
         for (i, &block) in self.layers.iter().enumerate().take(height) {

@@ -116,10 +116,16 @@ pub struct World {
     pub pois: crate::poi_sections::PoiSections<crate::poi_sections::Poi>,
     /// Moving-piston states removed during the last tick; retained until the
     /// final block mesh is visible.
-    pub moving_piston_fallback: Vec<([i32; 3], industrial_era_world::piston_shape::MovingPistonState)>,
+    pub moving_piston_fallback: Vec<(
+        [i32; 3],
+        industrial_era_world::piston_shape::MovingPistonState,
+    )>,
     /// The moving-piston block entities of the level, by position, copied
     /// from the block ticks after each tick: collision and rendering read them.
-    pub moving_pistons: Vec<([i32; 3], industrial_era_world::piston_shape::MovingPistonState)>,
+    pub moving_pistons: Vec<(
+        [i32; 3],
+        industrial_era_world::piston_shape::MovingPistonState,
+    )>,
     /// The `ShulkerBoxBlockEntity` lid state of the level, by position, copied
     /// from the block entities after each tick: the collision queries read it
     /// (`ShulkerBoxBlockEntity.getBoundingBox`), as `moving_pistons` for pistons.

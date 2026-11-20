@@ -391,7 +391,7 @@ struct Globals {
     inverse_view: [[f32; 4]; 4],
     sunrise: [f32; 4],
     sun: [f32; 4],
-    /// x: sky fog end, y: cloud fog end, z: dark disc (camera below the industrial-era),
+    /// x: sky fog end, y: cloud fog end, z: dark disc (camera below the industrial_era),
     /// w: the glint strength (`GlintAlpha`).
     fog_ends: [f32; 4],
     /// Atlas rects (u0, v0, width, height) of end_sky.png and end_portal.png.
@@ -700,7 +700,7 @@ pub struct Frame<'a> {
     pub water_fog: [f32; 3],
     /// `FogRenderer.setupFog` result; replaces the underwater/environment fields when set.
     pub fog: Option<crate::fog::FogData>,
-    /// Camera eye below the industrial-era height and not under water (`shouldRenderDarkDisc`).
+    /// Camera eye below the industrial_era height and not under water (`shouldRenderDarkDisc`).
     pub dark_disc: bool,
     /// The hit block outline as line segments (from, to) in world space.
     pub outline: Vec<[f64; 6]>,
@@ -1831,7 +1831,10 @@ async fn open_device_with(
     for (attempt, backends) in order.iter().copied().enumerate() {
         let name = backends_name(backends);
         if attempt > 0 {
-            log::warn!("Industrial Era renderer: trying {name} ({})", failures.join("; "));
+            log::warn!(
+                "Industrial Era renderer: trying {name} ({})",
+                failures.join("; ")
+            );
         }
         match open_with_retry(backends, window, offscreen, layers, allow_cpu).await {
             Ok(opened) => return Ok(opened),

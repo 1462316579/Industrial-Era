@@ -29,7 +29,10 @@ impl std::fmt::Debug for AuthSession {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AuthSession")
             .field("name", &self.name)
-            .field("uuid", &industrial_era_protocol::crypto::uuid_string(self.uuid))
+            .field(
+                "uuid",
+                &industrial_era_protocol::crypto::uuid_string(self.uuid),
+            )
             .field("access_token", &"<hidden>")
             .finish()
     }
@@ -205,7 +208,10 @@ pub fn discovery_url() -> String {
 fn agent() -> ureq::Agent {
     ureq::AgentBuilder::new()
         .timeout(Duration::from_secs(15))
-        .user_agent(&format!("Industrial Era/{}", industrial_era_core::release::VERSION))
+        .user_agent(&format!(
+            "Industrial Era/{}",
+            industrial_era_core::release::VERSION
+        ))
         .build()
 }
 
@@ -704,7 +710,8 @@ mod tests {
 
     #[test]
     fn session_files_are_read_once_and_must_be_private() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-auth-test-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-auth-test-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let text = r#"{"name":"Notch","uuid":"069a79f4-44e9-4726-a5be-fca90e38aaf5","access_token":"mock-token","user_type":"msa"}"#;
         let path = write(&dir, text, 0o600);

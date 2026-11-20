@@ -340,7 +340,8 @@ impl Game<'_> {
         if is_axe && self.mobs[index].extra.variant > 0 {
             let m = &mut self.mobs[index];
             m.extra.vector[0] = -1.0;
-            m.extra.variant = industrial_era_client::mobs::copper_golem::weather_previous(m.extra.variant);
+            m.extra.variant =
+                industrial_era_client::mobs::copper_golem::weather_previous(m.extra.variant);
             self.audio
                 .play("minecraft:item.axe.scrape", Some(at), 1.0, 1.0);
             self.level_event_at(3005, block, 0);

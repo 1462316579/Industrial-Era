@@ -28,7 +28,7 @@ pub(super) fn show(looked_in: &std::path::Path, settings: &Settings) -> Result<(
         },
         screen: NoResources::new(looked_in),
         pointer: (0.0, 0.0),
-        api: settings.industrial-era.api,
+        api: settings.industrial_era.api,
         error: None,
     };
     industrial_era_client::hud::GUI_SCALE.store(settings.gui_scale, Ordering::Relaxed);

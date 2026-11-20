@@ -64,7 +64,7 @@ fn key(variant: &Variant) -> VariantKey {
     (variant.model.clone(), variant.rotations, variant.uv_lock)
 }
 /// The models the kinetic blocks of a content root turn or move besides their own (`half`,
-/// `extra`, `head`, `pole` and `models` in its kinetic.json, which industrial-era-client's mod_content
+/// `extra`, `head`, `pole` and `models` in its kinetic.json, which industrial_era-client's mod_content
 /// writes); none for vanilla's.
 fn partial_models(root: &Path) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
@@ -350,7 +350,9 @@ impl StateModels {
         let library = match models.block_library(root, names.clone()) {
             Ok(library) => library,
             Err(e) => {
-                log::warn!("Industrial Era: block models incomplete ({e}); using the missing model");
+                log::warn!(
+                    "Industrial Era: block models incomplete ({e}); using the missing model"
+                );
                 models.block_library_or_missing(root, names)?
             }
         };

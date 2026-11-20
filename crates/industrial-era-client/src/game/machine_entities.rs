@@ -159,7 +159,10 @@ impl MachineEntity {
             ("x", Tag::Int(pos[0])),
             ("y", Tag::Int(pos[1])),
             ("z", Tag::Int(pos[2])),
-            ("Items", industrial_era_client::save::encode_items(&self.items)),
+            (
+                "Items",
+                industrial_era_client::save::encode_items(&self.items),
+            ),
             ("Size", Tag::Int(self.items.len() as i32)),
             ("Timer", Tag::Int(self.timer)),
             ("Running", Tag::Int(self.running)),

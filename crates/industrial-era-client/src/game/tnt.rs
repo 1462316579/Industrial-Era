@@ -114,7 +114,8 @@ impl PrimedTnt {
                 self.position.z.floor() as i32,
             );
             if &*facts.get(under).name == "minecraft:slime_block"
-                && let Some(scale) = industrial_era_client::entities::slime_step_on_scale(self.velocity.y)
+                && let Some(scale) =
+                    industrial_era_client::entities::slime_step_on_scale(self.velocity.y)
             {
                 self.velocity.x *= scale;
                 self.velocity.z *= scale;
@@ -558,13 +559,17 @@ mod tests {
         }
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
         let render = assets.reload(&root).unwrap();
-        let facts = industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
+        let facts =
+            industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
         let fluids = industrial_era_client::motion::FluidResources::new(&assets, &facts).unwrap();
         let collision = industrial_era_client::collisions::load(&root, assets.registry).unwrap();
         let world = industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
-        let border =
-            industrial_era_core::geometry::border::BorderGeometry::new([20.0, 20.0], 10.0, 29_999_984)
-                .unwrap();
+        let border = industrial_era_core::geometry::border::BorderGeometry::new(
+            [20.0, 20.0],
+            10.0,
+            29_999_984,
+        )
+        .unwrap();
         for bordered in [false, true] {
             let at = Vec3::new(24.0, 4.0, 20.5);
             let mut tnt = PrimedTnt {
@@ -604,10 +609,12 @@ mod tests {
         }
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
         let render = assets.reload(&root).unwrap();
-        let facts = industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
+        let facts =
+            industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
         let fluids = industrial_era_client::motion::FluidResources::new(&assets, &facts).unwrap();
         let collision = industrial_era_client::collisions::load(&root, assets.registry).unwrap();
-        let mut world = industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
+        let mut world =
+            industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
         let stone = assets.registry.default_state("minecraft:stone").unwrap();
         let water = assets.registry.default_state("minecraft:water").unwrap();
         let mut state = assets.registry.state(water).unwrap().clone();
@@ -697,10 +704,12 @@ mod tests {
         }
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
         let render = assets.reload(&root).unwrap();
-        let facts = industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
+        let facts =
+            industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
         let fluids = industrial_era_client::motion::FluidResources::new(&assets, &facts).unwrap();
         let collision = industrial_era_client::collisions::load(&root, assets.registry).unwrap();
-        let mut world = industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
+        let mut world =
+            industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
         let water = assets.registry.default_state("minecraft:water").unwrap();
         let soul_sand = assets
             .registry
@@ -780,10 +789,12 @@ mod tests {
         }
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
         let render = assets.reload(&root).unwrap();
-        let facts = industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
+        let facts =
+            industrial_era_client::blocks::BlockFacts::load(&root, assets.registry).unwrap();
         let fluids = industrial_era_client::motion::FluidResources::new(&assets, &facts).unwrap();
         let collision = industrial_era_client::collisions::load(&root, assets.registry).unwrap();
-        let mut world = industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
+        let mut world =
+            industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
         let water = assets.registry.default_state("minecraft:water").unwrap();
         let soul_sand = assets
             .registry

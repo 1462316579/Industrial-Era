@@ -848,8 +848,9 @@ impl Game<'_> {
     /// The map's data, loaded from `data/minecraft/maps/<id>.dat` on first use.
     pub(super) fn map(&mut self, id: i32) -> Option<&mut MapData> {
         if !self.maps.data.contains_key(&id) && !self.maps.missing.contains(&id) {
-            let loaded = industrial_era_client::save::read_dat(&self.map_path(&format!("{id}.dat")))
-                .and_then(|t| MapData::from_nbt(&t));
+            let loaded =
+                industrial_era_client::save::read_dat(&self.map_path(&format!("{id}.dat")))
+                    .and_then(|t| MapData::from_nbt(&t));
             match loaded {
                 Some(m) => {
                     self.maps.data.insert(id, m);
@@ -918,12 +919,14 @@ impl Game<'_> {
     }
     fn next_map_id(&mut self) -> i32 {
         let last = *self.maps.last_id.get_or_insert_with(|| {
-            industrial_era_client::save::read_dat(&self.world_root.join("data/minecraft/maps/last_id.dat"))
-                .and_then(|t| match t.get("data")?.get("map")? {
-                    Tag::Int(v) => Some(*v),
-                    _ => None,
-                })
-                .unwrap_or(-1)
+            industrial_era_client::save::read_dat(
+                &self.world_root.join("data/minecraft/maps/last_id.dat"),
+            )
+            .and_then(|t| match t.get("data")?.get("map")? {
+                Tag::Int(v) => Some(*v),
+                _ => None,
+            })
+            .unwrap_or(-1)
         });
         self.maps.last_id = Some(last + 1);
         last + 1
@@ -1079,7 +1082,8 @@ impl Game<'_> {
                 if is_watery(mx, mz) {
                     color = ORANGE;
                     if water_count > 7 && mz % 2 == 0 {
-                        let sin = industrial_era_core::geometry::trig::sin(f64::from(mz as f32 + 0.0));
+                        let sin =
+                            industrial_era_core::geometry::trig::sin(f64::from(mz as f32 + 0.0));
                         match (mx + (sin * 7.0) as i32) / 8 % 5 {
                             0 | 4 => brightness = LOW,
                             1 | 3 => brightness = NORMAL,
@@ -1466,9 +1470,7 @@ impl Game<'_> {
                 .get_mut(&id)
                 .and_then(|m| m.update_packet(id, conn, kind))
             {
-                g.send(&industrial_era_protocol::packets::play::Clientbound::MapItemData(
-                    p,
-                ));
+                g.send(&industrial_era_protocol::packets::play::Clientbound::MapItemData(p));
             }
         }
     }
@@ -1838,7 +1840,11 @@ impl Game<'_> {
         use industrial_era_core::geometry::trig::Mth;
         let deg = |d: f32| d.to_radians();
         let base = to_world
-            * industrial_era_client::first_person::two_handed_map_base(self.pitch, inverse_height, attack);
+            * industrial_era_client::first_person::two_handed_map_base(
+                self.pitch,
+                inverse_height,
+                attack,
+            );
         let swing = (attack.sqrt() * std::f32::consts::PI).msin();
         let m = base
             * glam::Mat4::from_rotation_x(deg(swing * 20.0))

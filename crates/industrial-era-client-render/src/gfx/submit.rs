@@ -97,7 +97,9 @@ impl Queue {
                 });
                 *this.lock() = Some(Landing { done, landed: None });
             }
-            Err(e) => log::warn!("Industrial Era renderer: no submit thread ({e}); submitting in place"),
+            Err(e) => {
+                log::warn!("Industrial Era renderer: no submit thread ({e}); submitting in place")
+            }
         }
         this
     }

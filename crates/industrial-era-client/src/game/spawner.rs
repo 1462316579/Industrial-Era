@@ -523,13 +523,15 @@ impl Game<'_> {
                 Some(BlockEntity::Spawner(s)) => {
                     s.display_pose(alpha as f32, mob.width(), mob.height())
                 }
-                Some(BlockEntity::TrialSpawner(s)) => industrial_era_client::mobs::spawner::display_pose(
-                    s.o_spin,
-                    s.spin,
-                    alpha as f32,
-                    mob.width(),
-                    mob.height(),
-                ),
+                Some(BlockEntity::TrialSpawner(s)) => {
+                    industrial_era_client::mobs::spawner::display_pose(
+                        s.o_spin,
+                        s.spin,
+                        alpha as f32,
+                        mob.width(),
+                        mob.height(),
+                    )
+                }
                 _ => continue,
             };
             let origin = glam::Mat4::from_translation(
@@ -544,7 +546,11 @@ impl Game<'_> {
                 self.sulfur_cube_body_geometry(
                     mob,
                     alpha as f32,
-                    industrial_era_client::mobs::render::base_transform_at(mob, alpha as f32, origin),
+                    industrial_era_client::mobs::render::base_transform_at(
+                        mob,
+                        alpha as f32,
+                        origin,
+                    ),
                     packed,
                     out,
                 );

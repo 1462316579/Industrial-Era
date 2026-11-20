@@ -298,7 +298,7 @@ fn an_unpacked_hnmod_keeps_its_pins_and_hook_points_and_ships_only_sources() {
     let read = format::Bundle::read(&packed.file).unwrap();
     assert_eq!(
         (
-            read.manifest.industrial-era.as_str(),
+            read.manifest.industrial_era.as_str(),
             read.manifest.mixins.as_str()
         ),
         (SHA, SHA2)

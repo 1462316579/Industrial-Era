@@ -238,8 +238,10 @@ impl Game<'_> {
                 if own {
                     hook_calls.push((id.to_string(), kind_of, e.clone(), *level));
                 } else if kind_of == "minecraft:ignite" {
-                    ignite =
-                        ignite.max(industrial_era_client::enchant::level_value(&e["duration"], *level));
+                    ignite = ignite.max(industrial_era_client::enchant::level_value(
+                        &e["duration"],
+                        *level,
+                    ));
                 } else {
                     mob_effects.push((e.clone(), *level));
                 }
@@ -439,7 +441,8 @@ impl Game<'_> {
                 if !ok {
                     continue;
                 }
-                let radius = industrial_era_client::enchant::level_value(&e["radius"], *level).max(0.0);
+                let radius =
+                    industrial_era_client::enchant::level_value(&e["radius"], *level).max(0.0);
                 // ExplosionDamageCalculator.getKnockbackMultiplier: 1 unless given.
                 let knockback = if e["knockback_multiplier"].is_null() {
                     1.0
@@ -686,8 +689,10 @@ impl Game<'_> {
                     )
                 });
                 if ok {
-                    let seconds =
-                        industrial_era_client::enchant::level_value(&effect["effect"]["duration"], *level);
+                    let seconds = industrial_era_client::enchant::level_value(
+                        &effect["effect"]["duration"],
+                        *level,
+                    );
                     ignite = Some(ignite.map_or(seconds, |s: f32| s.max(seconds)));
                 }
             }

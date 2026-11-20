@@ -578,7 +578,8 @@ impl Game<'_> {
                     continue;
                 }
                 let progress = if m.extra.counter > 0 {
-                    1.0 - m.extra.counter as f32 / industrial_era_client::mobs::wither::INVULNERABLE as f32
+                    1.0 - m.extra.counter as f32
+                        / industrial_era_client::mobs::wither::INVULNERABLE as f32
                 } else {
                     (m.health / m.attrs.max_health).clamp(0.0, 1.0)
                 };

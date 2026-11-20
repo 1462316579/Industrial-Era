@@ -80,8 +80,10 @@ mod tests {
 
     #[test]
     fn reader_and_slice_preserve_values_and_error_categories() -> Result<()> {
-        let path =
-            std::env::temp_dir().join(format!("industrial-era-json-load-{}.json", std::process::id()));
+        let path = std::env::temp_dir().join(format!(
+            "industrial-era-json-load-{}.json",
+            std::process::id()
+        ));
         let check = || -> Result<()> {
             fs::write(
                 &path,

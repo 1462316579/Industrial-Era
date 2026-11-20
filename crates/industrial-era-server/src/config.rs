@@ -43,7 +43,7 @@ hardcore = false             # one life: a player who dies becomes a spectator
 [properties]
 
 [engine]
-path = ""                    # the game program; empty: the one installed beside industrial-era-server
+path = ""                    # the game program; empty: the one installed beside industrial_era-server
 resources = ""               # the prepared game files; empty: resources/ here, else the usual places
 restart_on_crash = true      # start the game again when it crashes
 low_memory = false           # true: no transparent huge pages, ~60 MB less idle for ~1 % more tick time
@@ -105,7 +105,11 @@ pub(crate) const TYPED: [(&str, &str, &str); 16] = [
     ("server", "enforce_whitelist", "enforce-whitelist"),
     ("server", "view_distance", "view-distance"),
     ("server", "simulation_distance", "simulation-distance"),
-    ("server", "max_view_distance", "industrial-era-max-view-distance"),
+    (
+        "server",
+        "max_view_distance",
+        "industrial-era-max-view-distance",
+    ),
     (
         "server",
         "admin_feedback_to_ops",
@@ -222,7 +226,7 @@ impl Panel {
 }
 
 /// The control API's fixed address and token (docs/api/server.md); by default neither: a free port on
-/// 127.0.0.1 and a random token, both written to `.industrial-era/api.json`.
+/// 127.0.0.1 and a random token, both written to `.industrial_era/api.json`.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Api {
@@ -378,8 +382,12 @@ impl Config {
 
     pub fn load(dir: &Path) -> Result<Self, String> {
         let path = dir.join(FILE);
-        let text = std::fs::read_to_string(&path)
-            .map_err(|e| format!("{}: {e} (run `industrial-era-server init` first)", path.display()))?;
+        let text = std::fs::read_to_string(&path).map_err(|e| {
+            format!(
+                "{}: {e} (run `industrial-era-server init` first)",
+                path.display()
+            )
+        })?;
         Self::parse(&text).map_err(|e| format!("{}: {e}", path.display()))
     }
 
@@ -807,8 +815,10 @@ mod tests {
 
     #[test]
     fn writes_properties_and_syncs_back() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-config-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-config-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         let mut c = Config::default();
         c.properties

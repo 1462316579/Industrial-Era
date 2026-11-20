@@ -4,7 +4,8 @@ use crate::nbt::NamedTag;
 struct TempWorld(PathBuf);
 impl TempWorld {
     fn new(name: &str) -> Self {
-        let dir = std::env::temp_dir().join(format!("industrial-era-wu-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-wu-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         Self(dir)

@@ -73,7 +73,7 @@ pub struct Install {
     pub version: Option<String>,
 }
 
-/// Which game to start: an explicit binary, the one beside industrial-era-ctl, or a
+/// Which game to start: an explicit binary, the one beside industrial_era-ctl, or a
 /// launcher install.
 pub fn find(
     game: Option<&Path>,
@@ -105,7 +105,7 @@ pub fn find(
         && let Some(dir) = beside
         && dir.join(CLIENT).is_file()
     {
-        return Ok(prepared(dir, "beside industrial-era-ctl", None));
+        return Ok(prepared(dir, "beside industrial_era-ctl", None));
     }
     let tags = installed(&versions);
     let tag = match version {
@@ -118,7 +118,7 @@ pub fn find(
         }
         None => tags.first().cloned().ok_or_else(|| {
             format!(
-                "no Industrial Era found: no industrial-era-client beside industrial-era-ctl and no version installed by the launcher in {}. Install one with the launcher (industrial-era-launcher install latest) or pass --game PATH.",
+                "no Industrial Era found: no industrial_era-client beside industrial_era-ctl and no version installed by the launcher in {}. Install one with the launcher (industrial-era-launcher install latest) or pass --game PATH.",
                 versions.display()
             )
         })?,
@@ -260,7 +260,8 @@ mod tests {
     use super::*;
 
     fn temp(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("industrial-era-ctl-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-ctl-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -316,7 +317,7 @@ mod tests {
         let build = temp("build");
         std::fs::write(build.join(CLIENT), "").unwrap();
         let install = find(None, None, Some(&build), &home).unwrap();
-        assert_eq!(install.source, "beside industrial-era-ctl");
+        assert_eq!(install.source, "beside industrial_era-ctl");
         assert_eq!((install.resources, install.cwd), (None, None));
         // --version always means a launcher install.
         assert_eq!(

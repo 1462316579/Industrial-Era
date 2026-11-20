@@ -101,7 +101,8 @@ impl Game<'_> {
         {
             self.border = industrial_era_client::worldborder::WorldBorder::unpack(data);
         }
-        self.score.stopwatches = industrial_era_client::stopwatches::Stopwatches::load(&self.world_root);
+        self.score.stopwatches =
+            industrial_era_client::stopwatches::Stopwatches::load(&self.world_root);
         self.sync_score_registries();
     }
     pub(super) fn save_scoreboard(&mut self) {
@@ -308,7 +309,9 @@ impl Game<'_> {
                 let data = self.entity_nbt(t);
                 for (pattern, negated) in &s.nbt {
                     let matches = match (&data, industrial_era_world::nbt::parse_snbt(pattern)) {
-                        (Some(d), Ok((p, _))) => industrial_era_client::nbt_path::compare_nbt(&p, Some(d)),
+                        (Some(d), Ok((p, _))) => {
+                            industrial_era_client::nbt_path::compare_nbt(&p, Some(d))
+                        }
                         _ => false,
                     };
                     if matches == *negated {

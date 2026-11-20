@@ -71,7 +71,7 @@ impl Game<'_> {
 
     /// The Stats overlay's panel, when it is the chosen overlay.
     pub(super) fn draw_stats_overlay(&mut self, batch: &mut HudBatch) {
-        if self.settings.industrial-era.overlay != Overlay::Stats {
+        if self.settings.industrial_era.overlay != Overlay::Stats {
             return;
         }
         let view = self.stats_view();
@@ -82,7 +82,7 @@ impl Game<'_> {
 
     /// The three-finger tap: the Stats overlay on, or the overlay off.
     pub(super) fn toggle_stats_overlay(&mut self) {
-        let overlay = &mut self.settings.industrial-era.overlay;
+        let overlay = &mut self.settings.industrial_era.overlay;
         *overlay = if *overlay == Overlay::Stats {
             Overlay::Off
         } else {
@@ -107,7 +107,7 @@ impl Game<'_> {
                         .into());
                     }
                 };
-                self.settings.industrial-era.overlay = overlay;
+                self.settings.industrial_era.overlay = overlay;
                 Ok(Some(json!({ "ok": true, "overlay": words[1] })))
             }
             _ => Ok(None),

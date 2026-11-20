@@ -1472,7 +1472,8 @@ impl Game<'_> {
                 .focus
                 .is_some_and(|f| f.center().1 > batch.height / 2.0)
                 || self.screen == Screen::Chat;
-            let mut ui = industrial_era_client::ui_theme::Ui::new(&self.gui.atlas, batch, self.cursor);
+            let mut ui =
+                industrial_era_client::ui_theme::Ui::new(&self.gui.atlas, batch, self.cursor);
             keyboard.draw(&mut ui, at_top, self.ui.options.pad_style);
             ui.finish();
             return;

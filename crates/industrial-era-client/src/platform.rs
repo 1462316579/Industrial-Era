@@ -37,7 +37,10 @@ static HOOKS: OnceLock<Hooks> = OnceLock::new();
 
 /// Registers the platform's hooks, once, before the game starts.
 pub fn set(hooks: Hooks) {
-    industrial_era_client_input::clipboard::set_platform((hooks.clipboard_get, hooks.clipboard_set));
+    industrial_era_client_input::clipboard::set_platform((
+        hooks.clipboard_get,
+        hooks.clipboard_set,
+    ));
     let _ = HOOKS.set(hooks);
 }
 

@@ -192,7 +192,9 @@ impl Brewing {
             mods
         };
         let conditions_hold = |v: &Value| {
-            industrial_era_world::conditions::conditions_hold(v, &|id: &str| mods.iter().any(|m| m == id))
+            industrial_era_world::conditions::conditions_hold(v, &|id: &str| {
+                mods.iter().any(|m| m == id)
+            })
         };
         let mut sources: Vec<(String, Value)> = brewing_sources(root);
         // The world's packs' brewing recipes over the game's own: the top

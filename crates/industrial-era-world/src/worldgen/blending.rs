@@ -446,7 +446,8 @@ pub struct Blender {
 }
 
 fn shift_noise() -> &'static dyn Noise {
-    static NOISE: std::sync::OnceLock<industrial_era_core::noise::NoiseStack> = std::sync::OnceLock::new();
+    static NOISE: std::sync::OnceLock<industrial_era_core::noise::NoiseStack> =
+        std::sync::OnceLock::new();
     NOISE.get_or_init(|| {
         NormalNoise::create_parity(-3, &[1.0, 1.0, 1.0, 0.0])
             .expect("the default shift noise")

@@ -131,9 +131,10 @@ pub fn check(jar_path: &Path, out: &Path) -> Result<Check, String> {
         Ok(check)
     };
     if old_layout(&names) {
-        check.summary = "Made for Minecraft 1.20 or older: Industrial Era ports mods made for 1.21 \
+        check.summary =
+            "Made for Minecraft 1.20 or older: Industrial Era ports mods made for 1.21 \
                          and later."
-            .into();
+                .into();
         return done(check);
     }
     let alone = |m: &str| m == info.mod_id || m == "minecraft";

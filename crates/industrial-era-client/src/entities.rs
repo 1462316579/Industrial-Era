@@ -1560,7 +1560,9 @@ impl ArmorStand {
             // Entity.setOnGroundWithMovement: the block under the feet.
             let context = industrial_era_world::collision_context::CollisionContext::for_entity(
                 industrial_era_world::collision_context::CollisionEntity {
-                    identity: industrial_era_world::entity_obstruction::EntityIdentity(u64::from(self.id)),
+                    identity: industrial_era_world::entity_obstruction::EntityIdentity(u64::from(
+                        self.id,
+                    )),
                     y: self.position.y,
                     descending: false,
                     main_hand: Some(industrial_era_world::collision_context::CollisionItem::EMPTY),
@@ -2728,7 +2730,10 @@ mod armor_stand_motion_tests {
         assert!(stand.custom_name.is_none());
         let name = industrial_era_world::nbt::Tag::compound([
             ("text", industrial_era_world::nbt::Tag::String("Bob".into())),
-            ("color", industrial_era_world::nbt::Tag::String("gold".into())),
+            (
+                "color",
+                industrial_era_world::nbt::Tag::String("gold".into()),
+            ),
         ]);
         tag.data_mut().custom_name = Some(name.clone());
         assert!(stand.name_with_tag(&tag));

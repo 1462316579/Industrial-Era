@@ -47,8 +47,10 @@ pub fn panels(
         .into_iter()
         .enumerate()
         .map(|(i, (effect, icon))| {
-            let mut name = translate(&industrial_era_client_core::potions::description_id(effect.id))
-                .unwrap_or_else(|| effect.id.to_owned());
+            let mut name = translate(&industrial_era_client_core::potions::description_id(
+                effect.id,
+            ))
+            .unwrap_or_else(|| effect.id.to_owned());
             if (1..=9).contains(&effect.amplifier) {
                 let level = effect.amplifier + 1;
                 let suffix = translate(&format!("enchantment.level.{level}"))

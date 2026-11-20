@@ -2435,7 +2435,7 @@ pub fn client_as(tag: &str, who: Option<&account::Player>) -> Result<Command, St
     .map_err(|refused| format!("{refused} Sign in with `industrial-era-launcher account sign-in`."))?;
     need_prepared(tag)?;
     complete_assets(tag);
-    crate::browser::industrial-era::before_play(&game_home());
+    crate::browser::industrial_era: :before_play(&game_home());
     let mut cmd = client_command(tag);
     if let Some(file) = session {
         cmd.arg("--session-file").arg(file);
@@ -2560,7 +2560,7 @@ impl Logged {
 /// What a check found: a Industrial Era build newer than every installed one, and a newer launcher.
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct Updates {
-    pub industrial-era: Option<Release>,
+    pub industrial_era: Option<Release>,
     pub launcher: Option<Release>,
 }
 
@@ -2613,7 +2613,7 @@ fn releases_and_updates_with(
         }
     };
     let releases = game_releases(&list);
-    let industrial-era = industrial_era_update(&installable_updates(&releases), &installed());
+    let industrial_era = industrial_era_update(&installable_updates(&releases), &installed());
     on_releases(Ok(releases));
     Ok(Updates {
         industrial-era,
@@ -4964,7 +4964,7 @@ pub fn {f}("
                 app.join("Contents/Info.plist"),
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<plist version=\"1.0\"><dict>\
                  <key>CFBundleExecutable</key><string>industrial-era-launcher</string>\
-                 <key>CFBundleIdentifier</key><string>dev.industrial-era.test</string>\
+                 <key>CFBundleIdentifier</key><string>dev.industrial_era.test</string>\
                  <key>CFBundlePackageType</key><string>APPL</string></dict></plist>\n",
             )
             .unwrap();

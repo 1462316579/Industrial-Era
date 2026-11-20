@@ -653,7 +653,9 @@ fn turned_shapes<'a>(
             (None, Some(axis)) if axis == "z" => Some([0, 0, 1]),
             _ => None,
         };
-        let turns = toward.map_or([0; 3], |f| industrial_era_mods::content::turns_from([0, 1, 0], f));
+        let turns = toward.map_or([0; 3], |f| {
+            industrial_era_mods::content::turns_from([0, 1, 0], f)
+        });
         let mut shape = VoxelShape::empty();
         for b in boxes {
             let b = turn_box(b, [turns[0], turns[1]]);
@@ -865,7 +867,10 @@ pub fn accept_mod(
     Ok(())
 }
 
-fn validate_components(content: &industrial_era_mods::Content, known: &BTreeSet<String>) -> Result<()> {
+fn validate_components(
+    content: &industrial_era_mods::Content,
+    known: &BTreeSet<String>,
+) -> Result<()> {
     for (id, components) in content.items.iter().map(|i| (&i.id, &i.components)).chain(
         content
             .blocks
@@ -1929,10 +1934,10 @@ fn worldgen_entry(file: &str) -> Option<(&'static str, String)> {
 /// The key of a mod's structure set, template pool or processor list file
 /// that adds its entries to other sets, pools or lists (vanilla's, another
 /// mod's) instead of being one of its own. Vanilla data never has it.
-const ADD_TO: &str = "industrial-era:add_to";
+const ADD_TO: &str = "industrial_era:add_to";
 /// An addition's place among the others (lower first; 1000 by default), as
 /// Lithostitched's modifiers' `priority`.
-const PRIORITY: &str = "industrial-era:priority";
+const PRIORITY: &str = "industrial_era:priority";
 /// The bundles a mod may add to, and the list each entry goes into.
 const ADDABLE: [(&str, &str); 3] = [
     ("worldgen/structure_sets.json", "structures"),
@@ -1940,7 +1945,7 @@ const ADDABLE: [(&str, &str); 3] = [
     ("worldgen/processor_lists.json", "processors"),
 ];
 
-/// A mod file's additions (`industrial-era:add_to`): its entries appended to the
+/// A mod file's additions (`industrial_era:add_to`): its entries appended to the
 /// list of each set, pool or processor list it names, as Lithostitched's
 /// `add_structure_set_entries`, `add_template_pool_elements` and
 /// `add_processor_list_processors` do for NeoForge and Fabric packs.
@@ -2701,7 +2706,9 @@ pub fn resource_root_with(
     if fs::read(out.join(STAMP)).is_ok_and(|s| s == stamp.as_bytes()) {
         // A reused root warns as the build did; rewriting the stamp marks it as used.
         let warnings = fs::read_to_string(out.join(WARNINGS)).unwrap_or_default();
-        warnings.lines().for_each(|w| log::warn!("Industrial Era: {w}"));
+        warnings
+            .lines()
+            .for_each(|w| log::warn!("Industrial Era: {w}"));
         let _ = fs::write(out.join(STAMP), &stamp);
         return Ok(out);
     }
@@ -2789,7 +2796,8 @@ fn stamp(base: &Path, mods: &[ContentMod]) -> Result<String> {
     }
     let base = std::path::absolute(base)?;
     parts.push(
-        String::from_utf8_lossy(&fs::read(base.join("industrial-era-resources.json"))?).into_owned(),
+        String::from_utf8_lossy(&fs::read(base.join("industrial-era-resources.json"))?)
+            .into_owned(),
     );
     for name in JSON_TABLES.iter().chain(&NBT_TABLES).chain(&TAG_BUNDLES) {
         if base.join(name).exists() {

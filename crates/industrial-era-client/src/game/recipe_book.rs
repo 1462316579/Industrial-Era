@@ -187,7 +187,10 @@ impl Game<'_> {
         }
     }
     /// Ctrl+A/C/V/X in the search box.
-    pub(super) fn recipe_shortcut(&mut self, shortcut: industrial_era_client::clipboard::EditShortcut) {
+    pub(super) fn recipe_shortcut(
+        &mut self,
+        shortcut: industrial_era_client::clipboard::EditShortcut,
+    ) {
         if let Some(search) = self.recipe_ui.search.as_mut() {
             search.shortcut(shortcut, &mut self.clipboard);
         }
@@ -1018,13 +1021,15 @@ impl Game<'_> {
         if self.remote.is_some() {
             // The server places it and answers with the slots, or a ghost.
             let container = self.remote_menu_id();
-            self.send(industrial_era_protocol::packets::play::Serverbound::PlaceRecipe(
-                industrial_era_protocol::packets::recipes::PlaceRecipe {
-                    container,
-                    recipe: entry.display_id,
-                    use_max,
-                },
-            ));
+            self.send(
+                industrial_era_protocol::packets::play::Serverbound::PlaceRecipe(
+                    industrial_era_protocol::packets::recipes::PlaceRecipe {
+                        container,
+                        recipe: entry.display_id,
+                        use_max,
+                    },
+                ),
+            );
             return;
         }
         let creative = self.creative;
@@ -1231,7 +1236,8 @@ impl Game<'_> {
                 });
             }
         }
-        let tr = |key: &str, args: &[&str]| industrial_era_client::screen_narrator::translate(key, args);
+        let tr =
+            |key: &str, args: &[&str]| industrial_era_client::screen_narrator::translate(key, args);
         if let Some(search) = &ui.search {
             widgets::narratable(|| {
                 Narratable::edit_box(

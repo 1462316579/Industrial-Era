@@ -185,7 +185,11 @@ impl Game<'_> {
         }
     }
 
-    fn answer(&mut self, request: industrial_era_client::control::Request, event_loop: &dyn EventLoopCtl) {
+    fn answer(
+        &mut self,
+        request: industrial_era_client::control::Request,
+        event_loop: &dyn EventLoopCtl,
+    ) {
         let reply = match self.control_command(&request.line, &request.reply, event_loop) {
             Ok(Some(value)) => value,
             // Deferred: the command keeps its own reply channel.
@@ -608,7 +612,10 @@ impl Game<'_> {
                         self.control_key_down(key)?;
                         self.keys.remove(&key);
                         self.physical_keys.remove(&physical);
-                        self.debug_key(physical, industrial_era_client::debug_keys::KeyAction::Release);
+                        self.debug_key(
+                            physical,
+                            industrial_era_client::debug_keys::KeyAction::Release,
+                        );
                     }
                     _ => unreachable!("checked above"),
                 }
@@ -766,7 +773,7 @@ impl Game<'_> {
                     )
                     .into());
                 }
-                self.settings.industrial-era.lod_distance = n;
+                self.settings.industrial_era.lod_distance = n;
                 self.apply_settings();
                 ok()
             }
@@ -911,7 +918,7 @@ impl Game<'_> {
                     "graphics-hdr" => Page::GraphicsHdr,
                     "extras" => Page::Extras,
                     "credits" => Page::Credits,
-                    "industrial-era" => Page::Industrial Era,
+                    "industrial-era" => Page::IndustrialEra,
                     "agent" => Page::Agent,
                     "skin" => Page::Skin,
                     other => return Err(format!("unknown options page {other}").into()),
@@ -1283,14 +1290,14 @@ impl Game<'_> {
             .collect();
         physical_keys.sort();
         let lod = json!({
-            "distance": self.settings.industrial-era.lod_distance,
+            "distance": self.settings.industrial_era.lod_distance,
             "effective_distance": self.lod_distance(),
             "terrain_distance": self.terrain_distance(),
             "source": if self.lod.is_none() { "none" } else if self.integrated.is_some() { "integrated" } else if self.server_far_terrain().is_some() { "server" } else if self.remote.is_some() { "server-terrain" } else { "local" },
             "source_attempted": self.lod_source_attempted,
             "active_tiles": self.lod.as_ref().map_or(0, |lod| lod.stats().0),
             "cached_tiles": self.lod.as_ref().map_or(0, |lod| lod.stats().1),
-            "far_detail": self.settings.industrial-era.far_detail.name(),
+            "far_detail": self.settings.industrial_era.far_detail.name(),
             "resident_quads": self.renderer.as_ref().map_or(0, |r| r.lod_quads()),
             "levels": self.renderer.as_ref().map_or_else(Vec::new, |r| r.lod_levels()),
             "pending_observations": self.lod_observe.len(),

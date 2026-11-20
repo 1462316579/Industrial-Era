@@ -1,4 +1,4 @@
-//! `cargo industrial-era-mod`: make Industrial Era content mods (`docs/modpacks.md`): blocks,
+//! `cargo industrial_era-mod`: make Industrial Era content mods (`docs/modpacks.md`): blocks,
 //! items, data and assets, no code. Code mods are native (docs/native-mods.md).
 //!
 //! - `new <path> [--name "Name"]`: a content mod from the template; with
@@ -20,7 +20,7 @@ use std::{
 };
 
 fn main() -> ExitCode {
-    // Cargo runs `cargo-industrial-era-mod industrial-era-mod <args>`.
+    // Cargo runs `cargo-industrial-era-mod industrial_era-mod <args>`.
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     if args.first().is_some_and(|a| a == "industrial-era-mod") {
         args.remove(0);
@@ -33,7 +33,7 @@ fn main() -> ExitCode {
         Some("run") => run(&args[1..]),
         Some("check") => check(&args[1..]),
         Some("registry") => registry::main(&args[1..]),
-        _ => Err("usage: cargo industrial-era-mod new <path> [--name \"Name\"] [--template content|native [--industrial-era <commit>]] | build | run [--game <industrial-era-client>] [-- <game args>] | check <file> [--kind <kind>] [--key <public key> --signature <file.minisig>] [--json] | registry build|review|check|list".into()),
+        _ => Err("usage: cargo industrial_era-mod new <path> [--name \"Name\"] [--template content|native [--industrial-era <commit>]] | build | run [--game <industrial-era-client>] [-- <game args>] | check <file> [--kind <kind>] [--key <public key> --signature <file.minisig>] [--json] | registry build|review|check|list".into()),
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,
@@ -54,7 +54,7 @@ fn new(args: &[String]) -> Result<(), String> {
     let path = args
         .first()
         .filter(|a| !a.starts_with("--"))
-        .ok_or("cargo industrial-era-mod new <path>")?;
+        .ok_or("cargo industrial_era-mod new <path>")?;
     let dir = Path::new(path);
     if dir.exists() {
         return Err(format!("{} already exists", dir.display()));
@@ -132,7 +132,7 @@ fn new(args: &[String]) -> Result<(), String> {
         Manifest::parse(&std::fs::read_to_string(dir.join(MANIFEST)).map_err(|e| e.to_string())?)?;
     Content::read(dir, &manifest)?;
     println!(
-        "Created {} (mod id {id}). Next: cd {path} && cargo industrial-era-mod run",
+        "Created {} (mod id {id}). Next: cd {path} && cargo industrial_era-mod run",
         dir.display()
     );
     Ok(())
@@ -145,14 +145,14 @@ fn new(args: &[String]) -> Result<(), String> {
 fn new_native(
     dir: &Path,
     id: &str,
-    industrial-era: Option<&str>,
+    industrial_era: Option<&str>,
     fill: impl Fn(&str) -> String,
 ) -> Result<(), String> {
     // `[mod] id`, as `industrial-era-native.json` needs it: the template keeps to its characters.
     if id.len() > 64 {
         return Err(format!("mod id {id}: 64 characters at most"));
     }
-    let (compatibility, rev) = match industrial-era {
+    let (compatibility, rev) = match industrial_era {
         Some(commit) if industrial_era_mods::index::native::revision(commit) => (
             format!("[compatibility]\nindustrial_era_revision = \"{commit}\"\n"),
             format!(", rev = \"{commit}\""),
@@ -242,7 +242,7 @@ fn check(args: &[String]) -> Result<(), String> {
     let file = args
         .first()
         .filter(|a| !a.starts_with("--"))
-        .ok_or("cargo industrial-era-mod check <file>")?;
+        .ok_or("cargo industrial_era-mod check <file>")?;
     let path = Path::new(file);
     let kind = match flag(args, "--kind") {
         Some(k) => industrial_era_mods::index::Kind::from(k.to_string()),
@@ -281,7 +281,9 @@ fn run(args: &[String]) -> Result<(), String> {
         .args(extra)
         .status()
         .map_err(|e| {
-            format!("{game}: {e} (pass --game <path to industrial-era-client> or set HORIZON_CLIENT)")
+            format!(
+                "{game}: {e} (pass --game <path to industrial_era-client> or set HORIZON_CLIENT)"
+            )
         })?;
     status
         .success()
@@ -295,7 +297,8 @@ mod tests {
 
     #[test]
     fn the_content_template_builds_and_checks_with_no_code() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-mod-content-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mod-content-{}", std::process::id()));
         let path = dir.join("gems");
         let new_args = [
             path.display().to_string(),
@@ -338,7 +341,8 @@ mod tests {
     #[test]
     fn the_native_template_packs_into_an_hnmod_the_registry_accepts() {
         use std::io::Write;
-        let dir = std::env::temp_dir().join(format!("industrial-era-mod-native-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-mod-native-{}", std::process::id()));
         let path = dir.join("machine-mod");
         let commit = "0123456789abcdef0123456789abcdef01234567";
         let args = [
@@ -360,7 +364,8 @@ mod tests {
         let hnmod = dir.join("machine_mod.hnmod");
         let mut zip = zip::ZipWriter::new(std::fs::File::create(&hnmod).unwrap());
         let options = zip::write::SimpleFileOptions::default();
-        zip.start_file("industrial-era-native.json", options).unwrap();
+        zip.start_file("industrial-era-native.json", options)
+            .unwrap();
         zip.write_all(manifest.to_string().as_bytes()).unwrap();
         for file in [
             "industrial-era-mixin.toml",

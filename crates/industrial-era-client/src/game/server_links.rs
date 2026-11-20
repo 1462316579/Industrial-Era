@@ -91,9 +91,9 @@ fn link_label(link: &ServerLink) -> Text {
             ),
             &[],
         ),
-        ServerLinkKind::Custom(tag) => {
-            industrial_era_client::scoreboard::comp_text(&industrial_era_client::scoreboard::tag_to_json(tag))
-        }
+        ServerLinkKind::Custom(tag) => industrial_era_client::scoreboard::comp_text(
+            &industrial_era_client::scoreboard::tag_to_json(tag),
+        ),
     }
 }
 
@@ -527,7 +527,10 @@ fn confirm_link_labels(trusted: bool) -> [&'static str; 3] {
         ["gui.yes", "gui.copy_link_to_clipboard", "gui.no"]
     }
 }
-fn dialog_warning_layout(atlas: &industrial_era_client::hud::HudAtlas, size: (f32, f32)) -> ConfirmLayout {
+fn dialog_warning_layout(
+    atlas: &industrial_era_client::hud::HudAtlas,
+    size: (f32, f32),
+) -> ConfirmLayout {
     confirm_layout(
         &atlas.font,
         size,

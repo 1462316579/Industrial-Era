@@ -1856,7 +1856,10 @@ mod tests {
     }
 
     fn atlas() -> HudAtlas {
-        HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets")).unwrap()
+        HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap()
     }
 
     /// `defaultScrollingHelper` draws an overflowing label from `left` less the

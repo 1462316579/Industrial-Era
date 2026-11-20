@@ -443,7 +443,8 @@ mod tests {
 
     #[test]
     fn a_benchmark_report_is_carried_as_it_is() {
-        let report = serde_json::json!({"schema": "industrial-era-benchmark-report/1", "scenes": []});
+        let report =
+            serde_json::json!({"schema": "industrial-era-benchmark-report/1", "scenes": []});
         let item = Item::new(
             Source::Launcher,
             "0.1.5",

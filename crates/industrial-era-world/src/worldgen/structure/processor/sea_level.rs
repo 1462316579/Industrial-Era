@@ -1,20 +1,20 @@
 //! Processors for structures built under the sea, carried as data from
 //! Better Ocean Monuments' Java processors (docs/modpacks.md):
-//! - `industrial-era:flood_air`: the template's air below sea level becomes water
+//! - `industrial_era:flood_air`: the template's air below sea level becomes water
 //!   (its AirProcessor; the monuments' templates are mostly air);
-//! - `industrial-era:waterlog`: below sea level, blocks that can be waterlogged
+//! - `industrial_era:waterlog`: below sea level, blocks that can be waterlogged
 //!   are, and the template's water and lava on the edge of the chunk being
 //!   generated are marked for postprocessing, so they flow across it (its
 //!   WaterlogProcessor);
-//! - `industrial-era:keep_world_block`: blocks of `blocks` take the block the world
+//! - `industrial_era:keep_world_block`: blocks of `blocks` take the block the world
 //!   holds there (its StructureVoidProcessor, which, unlike vanilla's
 //!   structure void, lets the next processors see that block).
 //!
 //! And from Repurposed Structures':
-//! - `industrial-era:waterlog_in_world_water`: a block that can be waterlogged is
+//! - `industrial_era:waterlog_in_world_water`: a block that can be waterlogged is
 //!   where the world holds water and is dry where it does not (its
 //!   WaterlogWhenReplacingWaterProcessor);
-//! - `industrial-era:mineshaft_sky_view`: its mineshafts are not built above the
+//! - `industrial_era:mineshaft_sky_view`: its mineshafts are not built above the
 //!   ocean floor, but keep their rails on solid ground (its
 //!   MineshaftSkyViewProcessor).
 use super::{PlaceSettings, ProcessResult, pillars::outside_chunk};
@@ -33,7 +33,7 @@ fn known(registry: &BlockRegistry, name: &str) -> Result<BlockStateId, DecodeErr
         .ok_or_else(|| DecodeError::Registry(format!("unknown block {name}")))
 }
 
-/// `industrial-era:flood_air`: plain air (not cave air) under the sea level
+/// `industrial_era:flood_air`: plain air (not cave air) under the sea level
 /// becomes water, without a block entity.
 #[derive(Clone, Debug)]
 pub struct FloodAir {
@@ -63,7 +63,7 @@ impl FloodAir {
     }
 }
 
-/// `industrial-era:waterlog`: WaterlogProcessor.
+/// `industrial_era:waterlog`: WaterlogProcessor.
 #[derive(Clone, Debug, Default)]
 pub struct Waterlog;
 impl Waterlog {
@@ -98,7 +98,7 @@ impl Waterlog {
     }
 }
 
-/// `industrial-era:keep_world_block`: StructureVoidProcessor. The block entity
+/// `industrial_era:keep_world_block`: StructureVoidProcessor. The block entity
 /// stays the template's, as the mod's does.
 #[derive(Clone, Debug)]
 pub struct KeepWorldBlock {
@@ -137,7 +137,7 @@ impl KeepWorldBlock {
     }
 }
 
-/// `industrial-era:waterlog_in_world_water`: WaterlogWhenReplacingWaterProcessor.
+/// `industrial_era:waterlog_in_world_water`: WaterlogWhenReplacingWaterProcessor.
 /// In the chunk being generated, a block that can be waterlogged takes
 /// `waterlogged` from the world's fluid there (water, still or flowing, or a
 /// waterlogged block), so a template's wet block placed on land is dry; a
@@ -186,7 +186,7 @@ fn world_water<W: PlacementContext>(
         .is_some_and(|f| f.kind().same_family(FluidKind::Water)))
 }
 
-/// `industrial-era:mineshaft_sky_view`: MineshaftSkyViewProcessor. A plain rail
+/// `industrial_era:mineshaft_sky_view`: MineshaftSkyViewProcessor. A plain rail
 /// whose world block below can occlude is placed, waterlogged where the
 /// world holds water; any other block at or above the world's
 /// `OCEAN_FLOOR_WG` height in its column is not placed, so a mineshaft cut

@@ -88,7 +88,8 @@ pub struct RenderAssets {
     pub texture_layers: u32,
     pub model_catalog: crate::models::StateModels,
     /// Shared parsed resources; item-only validation errors surface at item preparation.
-    pub model_library: std::result::Result<Arc<industrial_era_assets::resolve::ModelLibrary>, String>,
+    pub model_library:
+        std::result::Result<Arc<industrial_era_assets::resolve::ModelLibrary>, String>,
     pub model_placements: Vec<(industrial_era_core::position::BlockPos, BlockStateId)>,
     pub model_gallery: Vec<Value>,
     pub animations: Vec<crate::sprites::SpriteAnimation>,
@@ -117,7 +118,9 @@ impl Assets {
             root.join("industrial-era-resources.json"),
         )?))?;
         if manifest["data_version"].as_i64() != Some(i64::from(DATA_VERSION)) {
-            return Err(invalid("resources do not match Industrial Era's pinned data version").into());
+            return Err(
+                invalid("resources do not match Industrial Era's pinned data version").into(),
+            );
         }
         let (registry, flags) = industrial_era_world::level::data::load_registry_with_flags(root)?;
         let bundle: Value =

@@ -249,7 +249,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "copy" => {
                         let copied = w.refs[a].read().copy();
                         w.refs[b] = match copied {
-                            industrial_era_world::item_stack_storage::CopyResult::Empty => w.empty.clone(),
+                            industrial_era_world::item_stack_storage::CopyResult::Empty => {
+                                w.empty.clone()
+                            }
                             industrial_era_world::item_stack_storage::CopyResult::Stack(data) => {
                                 Stack::new(data)
                             }

@@ -24,7 +24,7 @@ pub fn start(dir: &Path) -> Result<(), String> {
     }
     crate::config::Config::load(dir)?;
     // Left by a supervisor that was killed: the new one writes its own.
-    let endpoint = dir.join(".industrial-era/api.json");
+    let endpoint = dir.join(".industrial_era/api.json");
     let _ = std::fs::remove_file(&endpoint);
     let logs = dir.join("logs");
     std::fs::create_dir_all(&logs).map_err(|e| e.to_string())?;
@@ -142,7 +142,9 @@ fn wait_running(client: &Client, replaced: Option<u64>) -> Result<(), String> {
 /// `cmd`: one console command, and what it printed.
 pub fn command(dir: &Path, words: &[String]) -> Result<(), String> {
     if words.is_empty() {
-        return Err("cmd needs a console command, for example: industrial-era-server cmd list".into());
+        return Err(
+            "cmd needs a console command, for example: industrial-era-server cmd list".into(),
+        );
     }
     let client = running(dir)?;
     // A game that is starting or restarting takes the command once it is up.

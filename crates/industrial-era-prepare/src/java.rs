@@ -539,7 +539,10 @@ mod tests {
 
     #[test]
     fn installed_jdks_prefer_the_pinned_major() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-prepare-jdks-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-jdks-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         let parent = dir.join("Eclipse Adoptium");
         for jdk in [
@@ -581,8 +584,10 @@ mod tests {
 
     #[test]
     fn minecraft_runtimes_are_found_in_the_launchers_layout() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-prepare-runtimes-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-prepare-runtimes-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         let make = |home: PathBuf, javac: bool| {
             fs::create_dir_all(home.join("bin")).unwrap();

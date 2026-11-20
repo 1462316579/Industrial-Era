@@ -296,12 +296,12 @@ pub fn prometheus(shared: &Shared) -> Response {
     );
     gauge(
         "supervisor_uptime_seconds",
-        "Seconds since industrial-era-server started",
+        "Seconds since industrial_era-server started",
         &[("", Some(shared.started.elapsed().as_secs() as f64))],
     );
     gauge(
         "crashes",
-        "Game crashes since industrial-era-server started",
+        "Game crashes since industrial_era-server started",
         &[("", Some(f64::from(crashes)))],
     );
     gauge(
@@ -406,7 +406,10 @@ mod tests {
 
     #[test]
     fn players_and_metrics_without_a_game() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-admin-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-admin-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
             dir.join("banned-players.json"),
@@ -426,7 +429,10 @@ mod tests {
             text.contains("# TYPE industrial_era_up gauge\nindustrial_era_up 0\n"),
             "{text}"
         );
-        assert!(!text.contains("industrial_era_tps "), "no game, no TPS: {text}");
+        assert!(
+            !text.contains("industrial_era_tps "),
+            "no game, no TPS: {text}"
+        );
         shared.state.lock().unwrap().sample = json!({
             "rss_bytes": 1000, "cpu_percent": 12.5,
             "game": { "tps": 20.0, "mspt": { "average": 3.5, "p50": 3.0, "p95": 6.0, "p99": 9.0 },

@@ -688,10 +688,12 @@ impl NativePost {
             texture_entry(11, wgpu::TextureSampleType::Float { filterable: false }),
         ];
         entries.extend(pack_texture_entries(frame.textures.len()));
-        entries
-            .extend((0..targets.len() as u32).map(|j| {
-                texture_entry(industrial_era_shader_api::stages::POST_TARGET_BINDING + j, float)
-            }));
+        entries.extend((0..targets.len() as u32).map(|j| {
+            texture_entry(
+                industrial_era_shader_api::stages::POST_TARGET_BINDING + j,
+                float,
+            )
+        }));
         let layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("Native shader pack post"),
             entries: &entries,
@@ -949,7 +951,8 @@ impl NativePost {
                             view
                         };
                         wgpu::BindGroupEntry {
-                            binding: industrial_era_shader_api::stages::POST_TARGET_BINDING + j as u32,
+                            binding: industrial_era_shader_api::stages::POST_TARGET_BINDING
+                                + j as u32,
                             resource: wgpu::BindingResource::TextureView(view),
                         }
                     }));

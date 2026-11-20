@@ -837,7 +837,8 @@ impl Gate {
         if self.shuffle {
             for k in &mut self.kids {
                 let r = self.random.next_float();
-                k.2 = -industrial_era_core::jmath::pow(f64::from(r), f64::from(1.0_f32 / k.1 as f32));
+                k.2 =
+                    -industrial_era_core::jmath::pow(f64::from(r), f64::from(1.0_f32 / k.1 as f32));
             }
             self.kids.sort_by(|a, b| a.2.total_cmp(&b.2));
         }

@@ -131,7 +131,9 @@ mod tests {
         let expected = registry
             .graph()
             .clone()
-            .insert(industrial_era_core::density::graph::GraphNode::Constant(123.0))
+            .insert(industrial_era_core::density::graph::GraphNode::Constant(
+                123.0,
+            ))
             .unwrap();
         let invalid = json
             .replace(

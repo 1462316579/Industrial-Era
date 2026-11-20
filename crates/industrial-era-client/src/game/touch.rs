@@ -187,7 +187,12 @@ fn arrow(
 }
 
 /// A pixel clipboard centred on (cx, cy), for Paste: a board 9 by 11, its clip and two lines.
-fn clipboard(batch: &mut HudBatch, atlas: &industrial_era_client::hud::HudAtlas, c: [f32; 2], ink: u32) {
+fn clipboard(
+    batch: &mut HudBatch,
+    atlas: &industrial_era_client::hud::HudAtlas,
+    c: [f32; 2],
+    ink: u32,
+) {
     let [cx, cy] = c;
     let (left, top) = (cx - 4.0, cy - 4.0);
     batch.fill(atlas, left, top, 1.0, 10.0, ink);
@@ -1667,7 +1672,16 @@ impl Game<'_> {
             } else {
                 "gui/sprites/widget/button"
             };
-            industrial_era_client::ui::nine_slice(batch, atlas, sprite, r[0], r[1], r[2], r[3], u32::MAX);
+            industrial_era_client::ui::nine_slice(
+                batch,
+                atlas,
+                sprite,
+                r[0],
+                r[1],
+                r[2],
+                r[3],
+                u32::MAX,
+            );
             let c = [(r[0] + r[2] / 2.0).floor(), (r[1] + r[3] / 2.0).floor()];
             match i {
                 2 => {
@@ -1856,7 +1870,11 @@ impl Game<'_> {
     }
 
     /// A custom button's key goes down or up.
-    fn custom_key(&mut self, action: &industrial_era_client::settings::CustomAction, pressed: bool) {
+    fn custom_key(
+        &mut self,
+        action: &industrial_era_client::settings::CustomAction,
+        pressed: bool,
+    ) {
         use industrial_era_client::settings::CustomAction;
         let key = match action {
             CustomAction::Send(_) => return,

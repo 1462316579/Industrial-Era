@@ -550,10 +550,12 @@ mod tests {
     }
 
     fn scratch(name: &str) -> std::path::PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-rcon-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-rcon-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
-        std::fs::create_dir_all(dir.join(".industrial-era")).unwrap();
+        std::fs::create_dir_all(dir.join(".industrial_era")).unwrap();
         dir
     }
 

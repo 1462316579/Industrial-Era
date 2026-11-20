@@ -2217,19 +2217,20 @@ impl Game<'_> {
                     // like any other orb spawn.
                     let at = self.unstuck_orb(pos);
                     self.next_entity += 1;
-                    self.orbs.push(industrial_era_client::entities::ExperienceOrb {
-                        no_gravity: false,
-                        id: self.next_entity,
-                        position: Vec3::new(at[0], at[1], at[2]),
-                        previous: Vec3::new(at[0], at[1], at[2]),
-                        velocity: Vec3::new(0.0, 0.0, 0.0),
-                        value: 0,
-                        age: 0,
-                        on_ground: false,
-                        count: 1,
-                        ticks: 0,
-                        health: 5,
-                    });
+                    self.orbs
+                        .push(industrial_era_client::entities::ExperienceOrb {
+                            no_gravity: false,
+                            id: self.next_entity,
+                            position: Vec3::new(at[0], at[1], at[2]),
+                            previous: Vec3::new(at[0], at[1], at[2]),
+                            velocity: Vec3::new(0.0, 0.0, 0.0),
+                            value: 0,
+                            age: 0,
+                            on_ground: false,
+                            count: 1,
+                            ticks: 0,
+                            health: 5,
+                        });
                     // tryAddFreshEntityWithPassengers refused: ERROR_DUPLICATE_UUID.
                     if !self.native_joins_flush(false, self.next_entity) {
                         return Err(err("commands.summon.failed.uuid", &[]));
@@ -2803,21 +2804,24 @@ impl Game<'_> {
     /// The caller reports the level change to the mods.
     fn give_points(&mut self, amount: i32) {
         let e = &mut self.experience;
-        e.progress += amount as f32 / industrial_era_client::entities::Experience::needed(e.level) as f32;
+        e.progress +=
+            amount as f32 / industrial_era_client::entities::Experience::needed(e.level) as f32;
         e.total = e.total.saturating_add(amount).clamp(0, i32::MAX);
         while e.progress < 0.0 {
-            let f = e.progress * industrial_era_client::entities::Experience::needed(e.level) as f32;
+            let f =
+                e.progress * industrial_era_client::entities::Experience::needed(e.level) as f32;
             if e.level > 0 {
                 e.level -= 1;
-                e.progress = 1.0 + f / industrial_era_client::entities::Experience::needed(e.level) as f32;
+                e.progress =
+                    1.0 + f / industrial_era_client::entities::Experience::needed(e.level) as f32;
             } else {
                 e.level = 0;
                 e.progress = 0.0;
             }
         }
         while e.progress >= 1.0 {
-            e.progress =
-                (e.progress - 1.0) * industrial_era_client::entities::Experience::needed(e.level) as f32;
+            e.progress = (e.progress - 1.0)
+                * industrial_era_client::entities::Experience::needed(e.level) as f32;
             e.level += 1;
             e.progress /= industrial_era_client::entities::Experience::needed(e.level) as f32;
         }
@@ -2947,7 +2951,8 @@ impl Game<'_> {
                     if levels {
                         e.level
                     } else {
-                        (e.progress * industrial_era_client::entities::Experience::needed(e.level) as f32)
+                        (e.progress
+                            * industrial_era_client::entities::Experience::needed(e.level) as f32)
                             as i32
                     }
                 })
@@ -3432,7 +3437,10 @@ impl Game<'_> {
         removed
     }
     /// `PoiTypes`: the point of interest type of a block state.
-    fn poi_type(&self, state: industrial_era_world::registry::BlockStateId) -> Option<&'static str> {
+    fn poi_type(
+        &self,
+        state: industrial_era_world::registry::BlockStateId,
+    ) -> Option<&'static str> {
         let s = self.pack.assets.registry.state(state)?;
         industrial_era_client::save::poi_type(s).map(|(kind, _)| kind)
     }

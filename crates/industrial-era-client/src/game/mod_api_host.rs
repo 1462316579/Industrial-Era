@@ -8,7 +8,10 @@ use industrial_era_world::{
 fn world_attachments(
     world: &mut industrial_era_client::world::World,
     holder: industrial_era_client::mod_api::Holder,
-) -> Result<&mut industrial_era_client::mod_api::Attachments, industrial_era_client::mod_api::AttachmentError> {
+) -> Result<
+    &mut industrial_era_client::mod_api::Attachments,
+    industrial_era_client::mod_api::AttachmentError,
+> {
     use industrial_era_client::mod_api::{AttachmentError, Holder};
     if holder == Holder::Level {
         return Ok(&mut world.attachments);
@@ -49,7 +52,10 @@ fn world_attachments(
 
 impl Game<'_> {
     /// A guest's attachments back in their record, for `playerdata` to save.
-    pub(super) fn guest_attachments_into(&self, guest: &mut industrial_era_client::lan::guest::Guest) {
+    pub(super) fn guest_attachments_into(
+        &self,
+        guest: &mut industrial_era_client::lan::guest::Guest,
+    ) {
         guest.attachments = self
             .guest_attachments
             .get(&guest.uuid)
@@ -103,8 +109,10 @@ impl Game<'_> {
     pub(super) fn attachment_map(
         &mut self,
         holder: industrial_era_client::mod_api::Holder,
-    ) -> Result<&mut industrial_era_client::mod_api::Attachments, industrial_era_client::mod_api::AttachmentError>
-    {
+    ) -> Result<
+        &mut industrial_era_client::mod_api::Attachments,
+        industrial_era_client::mod_api::AttachmentError,
+    > {
         if self.native_authoritative() {
             self.world.attachment_syncs.insert(holder);
             return self.attachment_map_quiet(holder);
@@ -119,8 +127,10 @@ impl Game<'_> {
     pub(super) fn attachment_map_quiet(
         &mut self,
         holder: industrial_era_client::mod_api::Holder,
-    ) -> Result<&mut industrial_era_client::mod_api::Attachments, industrial_era_client::mod_api::AttachmentError>
-    {
+    ) -> Result<
+        &mut industrial_era_client::mod_api::Attachments,
+        industrial_era_client::mod_api::AttachmentError,
+    > {
         use industrial_era_client::mod_api::AttachmentError;
         if !self.native_authoritative() {
             return Err(AttachmentError::MissingHolder);
@@ -156,7 +166,10 @@ mod generated;
 
 impl industrial_era_client::mod_api::LevelHost for super::GameLevel<'_> {
     fn block_state(&self, pos: [i32; 3]) -> BlockStateId {
-        industrial_era_world::level::LevelAccess::block_state(self, BlockPos::new(pos[0], pos[1], pos[2]))
+        industrial_era_world::level::LevelAccess::block_state(
+            self,
+            BlockPos::new(pos[0], pos[1], pos[2]),
+        )
     }
     fn is_client_side(&self) -> bool {
         industrial_era_world::level::LevelAccess::is_client_side(self)
@@ -175,8 +188,10 @@ impl industrial_era_client::mod_api::LevelRandomHost for super::GameLevel<'_> {
     fn attachments(
         &mut self,
         holder: industrial_era_client::mod_api::Holder,
-    ) -> Result<&mut industrial_era_client::mod_api::Attachments, industrial_era_client::mod_api::AttachmentError>
-    {
+    ) -> Result<
+        &mut industrial_era_client::mod_api::Attachments,
+        industrial_era_client::mod_api::AttachmentError,
+    > {
         if !self.native_authoritative {
             return Err(industrial_era_client::mod_api::AttachmentError::MissingHolder);
         }
@@ -193,8 +208,8 @@ pub(super) struct LevelTicks<'a, L> {
     pub ticks: &'a mut Ticks,
 }
 
-impl<'a, L: std::ops::Deref<Target = super::GameLevel<'a>>> industrial_era_client::mod_api::LevelHost
-    for LevelTicks<'_, L>
+impl<'a, L: std::ops::Deref<Target = super::GameLevel<'a>>>
+    industrial_era_client::mod_api::LevelHost for LevelTicks<'_, L>
 {
     fn block_state(&self, pos: [i32; 3]) -> BlockStateId {
         industrial_era_client::mod_api::LevelHost::block_state(&*self.level, pos)
@@ -208,7 +223,12 @@ impl<'a, L: std::ops::Deref<Target = super::GameLevel<'a>>> industrial_era_clien
         key: &str,
         value: &str,
     ) -> Option<BlockStateId> {
-        industrial_era_client::mod_api::LevelHost::state_with_property(&*self.level, state, key, value)
+        industrial_era_client::mod_api::LevelHost::state_with_property(
+            &*self.level,
+            state,
+            key,
+            value,
+        )
     }
 }
 
@@ -216,8 +236,10 @@ impl industrial_era_client::mod_api::LevelRandomHost for LevelTicks<'_, &mut sup
     fn attachments(
         &mut self,
         holder: industrial_era_client::mod_api::Holder,
-    ) -> Result<&mut industrial_era_client::mod_api::Attachments, industrial_era_client::mod_api::AttachmentError>
-    {
+    ) -> Result<
+        &mut industrial_era_client::mod_api::Attachments,
+        industrial_era_client::mod_api::AttachmentError,
+    > {
         industrial_era_client::mod_api::LevelRandomHost::attachments(&mut *self.level, holder)
     }
     fn random(&mut self) -> Option<&mut industrial_era_client::mod_api::LegacyRandom> {
@@ -225,8 +247,8 @@ impl industrial_era_client::mod_api::LevelRandomHost for LevelTicks<'_, &mut sup
     }
 }
 
-impl<'a, L: std::ops::Deref<Target = super::GameLevel<'a>>> industrial_era_client::mod_api::LevelTicksHost
-    for LevelTicks<'_, L>
+impl<'a, L: std::ops::Deref<Target = super::GameLevel<'a>>>
+    industrial_era_client::mod_api::LevelTicksHost for LevelTicks<'_, L>
 {
     fn schedule_block_tick(&mut self, pos: [i32; 3], block: &str, delay: i32) -> bool {
         self.level

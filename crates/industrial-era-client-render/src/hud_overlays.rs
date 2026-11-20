@@ -110,8 +110,9 @@ impl From<&crate::effects::EffectInstance> for EffectIcon {
         let def = industrial_era_client_core::potions::effect(effect.id);
         Self {
             id: effect.id.to_owned(),
-            beneficial: def
-                .is_some_and(|d| d.category == industrial_era_client_core::potions::Category::Beneficial),
+            beneficial: def.is_some_and(|d| {
+                d.category == industrial_era_client_core::potions::Category::Beneficial
+            }),
             color: def.map_or(0, |d| d.color as i32),
             ambient: effect.ambient,
             duration: effect.duration,

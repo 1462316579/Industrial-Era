@@ -21,7 +21,8 @@ pub const SCHEMA: u32 = 1;
 /// The biggest file the registry takes (a `.hmod` with content, a `.hpack`).
 pub const MAX_FILE: u64 = 64 << 20;
 /// Where files may be downloaded from: the registry's release assets.
-pub const FILE_HOST: &str = "https://github.com/industrial-era-rust/industrial-era-mods/releases/download/";
+pub const FILE_HOST: &str =
+    "https://github.com/industrial-era-rust/industrial-era-mods/releases/download/";
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Index {
@@ -532,7 +533,7 @@ impl Facts {
         }
         Err(match project.kind {
             Kind::Mod => format!(
-                "its industrial-era-mod.toml ({} {}, API {}, {:?}, {}) isn't what the index lists",
+                "its industrial_era-mod.toml ({} {}, API {}, {:?}, {}) isn't what the index lists",
                 self.id.as_deref().unwrap_or("?"),
                 self.version.as_deref().unwrap_or("?"),
                 self.api,

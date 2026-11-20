@@ -128,10 +128,11 @@ impl Game<'_> {
             for cz in -2..=2 {
                 let mut chunk = Chunk::empty(cx, cz);
                 for section in &mut chunk.sections {
-                    Arc::make_mut(section).biomes = industrial_era_core::paletted::PalettedContainer::new(
-                        industrial_era_client::chunk::BIOME_STRATEGY,
-                        plains,
-                    );
+                    Arc::make_mut(section).biomes =
+                        industrial_era_core::paletted::PalettedContainer::new(
+                            industrial_era_client::chunk::BIOME_STRATEGY,
+                            plains,
+                        );
                 }
                 self.world.chunks.insert((cx, cz), Arc::new(chunk));
             }
@@ -658,7 +659,9 @@ impl Game<'_> {
                 let hurt = self.hurt_by_player(index, base + bonus, source);
                 // The hurt sound the mob raised, where it stands.
                 for event in std::mem::take(&mut self.mobs[index].outbox) {
-                    if let industrial_era_client::mobs::MobEvent::Sound(s, at, volume, pitch) = event {
+                    if let industrial_era_client::mobs::MobEvent::Sound(s, at, volume, pitch) =
+                        event
+                    {
                         self.audio
                             .play(&format!("minecraft:{s}"), Some(at), volume, pitch);
                     }
@@ -814,7 +817,10 @@ impl Game<'_> {
         };
         let Some(stack) = stack else { return };
         if id == "minecraft:decorated_pot" {
-            map.insert("item".into(), industrial_era_client::save::item_to_nbt(&stack));
+            map.insert(
+                "item".into(),
+                industrial_era_client::save::item_to_nbt(&stack),
+            );
             return;
         }
         let mut item = industrial_era_client::save::item_to_nbt(&stack);

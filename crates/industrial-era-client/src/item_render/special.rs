@@ -737,8 +737,10 @@ mod tests {
     /// the glint goes over the patterns, and nothing covers them after.
     #[test]
     fn an_enchanted_banner_shield_keeps_its_patterns_under_the_glint() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-shield-glint-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-shield-glint-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&root).unwrap();
         std::fs::write(root.join("items.json"), "{}").unwrap();
         std::fs::write(

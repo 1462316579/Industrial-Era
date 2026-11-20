@@ -261,8 +261,9 @@ mod tests {
             crate::item_data::OMINOUS_LAYERS.len()
         );
         assert!(tooltip_layers(&banner).is_empty());
-        banner.data_mut().custom_name =
-            Some(industrial_era_world::nbt::Tag::String("Captain's Standard".into()));
+        banner.data_mut().custom_name = Some(industrial_era_world::nbt::Tag::String(
+            "Captain's Standard".into(),
+        ));
         assert!(tooltip_layers(&banner).is_empty());
         banner.data_mut().ominous_banner = false;
         assert_eq!(tooltip_layers(&banner), layers(&banner));

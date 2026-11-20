@@ -897,7 +897,7 @@ impl Opt {
                 "options.textureFiltering.rgss",
                 "options.textureFiltering.anisotropic",
             ][s.file.int("textureFiltering").clamp(0, 2) as usize]),
-            Opt::GraphicsBackend => tr(match s.industrial-era.api {
+            Opt::GraphicsBackend => tr(match s.industrial_era.api {
                 crate::graphics::GraphicsApi::OpenGl => "options.graphicsApi.opengl",
                 crate::graphics::GraphicsApi::Vulkan => "options.graphicsApi.vulkan",
                 _ => "options.graphicsApi.default",
@@ -1012,7 +1012,9 @@ impl Opt {
             }),
             Opt::PadKeyboard => tr(match s.controller.keyboard {
                 gamepad::TextKeyboard::Auto => "industrial-era.options.keyboard.auto",
-                gamepad::TextKeyboard::Industrial Era => "industrial-era.options.keyboard.industrial-era",
+                gamepad::TextKeyboard::IndustrialEra => {
+                    "industrial-era.options.keyboard.industrial_era"
+                }
                 gamepad::TextKeyboard::Steam => "industrial-era.options.keyboard.steam",
             }),
             _ => Text::empty(),
@@ -1240,7 +1242,7 @@ impl Opt {
                     .collect();
                 let at = offered
                     .iter()
-                    .position(|a| *a == s.industrial-era.api)
+                    .position(|a| *a == s.industrial_era.api)
                     .unwrap_or(0);
                 let count = offered.len();
                 let api = offered[if back {
@@ -1248,7 +1250,7 @@ impl Opt {
                 } else {
                     (at + 1) % count
                 }];
-                s.industrial-era.api = api;
+                s.industrial_era.api = api;
                 s.file.set_name(
                     "preferredGraphicsBackend",
                     match api {
@@ -1496,12 +1498,12 @@ fn catalog_shelf(page: Page) -> Option<CatalogShelf> {
 fn graphics_api_tooltip(s: &Settings) -> Text {
     let line = |key: &str| lang::get_or(key, key);
     let mut lines = Vec::new();
-    if s.industrial-era.api != s.startup_api {
+    if s.industrial_era.api != s.startup_api {
         lines.push(line("options.needsRestart"));
         lines.push(String::new());
     }
     lines.push(line("options.graphicsApi.tooltip"));
-    if s.industrial-era.api == crate::graphics::GraphicsApi::Vulkan {
+    if s.industrial_era.api == crate::graphics::GraphicsApi::Vulkan {
         lines.push(String::new());
         lines.push(line("options.graphicsApi.tooltip.vulkan"));
     }
@@ -1764,7 +1766,7 @@ pub enum Page {
     Credits,
     /// Industrial Era Settings: every page Industrial Era adds, as a mod's settings
     /// screen hangs off vanilla's Options.
-    Industrial Era,
+    IndustrialEra,
     /// AI Agent: agent control on or off, whether an agent is connected, the connection details.
     Agent,
     /// SkinCustomizationScreen: the skin layers and Main Hand, and in the game's own options
@@ -2418,7 +2420,7 @@ fn option_widget(s: &Settings, opt: Opt, x: f32, y: f32, w: f32) -> Widget {
 /// What a button opening one of Industrial Era's pages says on hover.
 fn industrial_era_page_tooltip(page: Page) -> Option<&'static str> {
     Some(match page {
-        Page::Industrial Era => "industrial-era.pages.settings.tooltip",
+        Page::IndustrialEra => "industrial-era.pages.settings.tooltip",
         Page::Graphics => "industrial-era.pages.graphics.tooltip",
         Page::GraphicsAdvanced => "industrial-era.pages.graphics_advanced.tooltip",
         Page::Controller => "industrial-era.pages.controller.tooltip",
@@ -3228,7 +3230,9 @@ impl OptionsUi {
             Page::Mods => "industrial-era.pages.mods",
             Page::NativeMod(_) => "Mod Settings",
             Page::ShaderPacks => "industrial-era.pages.shader_packs",
-            Page::ShaderOptions | Page::NativePackOptions(..) => "industrial-era.pages.shader_options",
+            Page::ShaderOptions | Page::NativePackOptions(..) => {
+                "industrial-era.pages.shader_options"
+            }
             Page::CustomButtons
             | Page::CustomButton(_)
             | Page::CustomPick(..)
@@ -3240,7 +3244,7 @@ impl OptionsUi {
             Page::PadBinds => "industrial-era.pages.controller_binds",
             Page::Extras => "industrial-era.pages.extras",
             Page::Credits => "credits_and_attribution.screen.title",
-            Page::Industrial Era => "industrial-era.pages.settings",
+            Page::IndustrialEra => "industrial-era.pages.settings",
             Page::Agent => "industrial-era.pages.agent",
             Page::SplitProfiles => "industrial-era.pages.split_profiles",
             Page::SplitSetup => "industrial-era.pages.split_setup",
@@ -3428,7 +3432,7 @@ impl OptionsUi {
                 flush(&mut rows, &mut section);
                 rows
             }
-            Page::Industrial Era => {
+            Page::IndustrialEra => {
                 // Two to a row, as vanilla's OptionsList.addSmall lays out
                 // buttons; each opens one of Industrial Era's settings pages.
                 let open =
@@ -3443,7 +3447,10 @@ impl OptionsUi {
                     ),
                     Row::Buttons(
                         open("industrial-era.pages.open.shader_packs", Page::ShaderPacks),
-                        Some(open("industrial-era.pages.open.controller", Page::Controller)),
+                        Some(open(
+                            "industrial-era.pages.open.controller",
+                            Page::Controller,
+                        )),
                     ),
                     Row::Buttons(
                         open("industrial-era.pages.open.extras", Page::Extras),
@@ -4068,7 +4075,7 @@ impl OptionsUi {
             Page::NativeMod(i) => self.native_rows(s, i),
             Page::ShaderPacks => {
                 use crate::shader_pack_list::Kind as PackKind;
-                let choice = s.industrial-era.shader_choice();
+                let choice = s.industrial_era.shader_choice();
                 let pick = |on: bool, name: &str, act: Act| {
                     let label = if on {
                         format!("> {name} <")
@@ -4080,7 +4087,7 @@ impl OptionsUi {
                 let mut rows = Vec::new();
                 // Packs cost per pixel: what matters most, above however many packs there are.
                 if let Some((pack, profile)) = &choice {
-                    let scale = s.industrial-era.resolution_scale;
+                    let scale = s.industrial_era.resolution_scale;
                     let limit = (crate::graphics::auto_shader_scale() * 100.0).round() as u32;
                     let limited = profile == crate::graphics::AUTO_PROFILE
                         && !crate::graphics::light_shader_pack(pack)
@@ -4112,16 +4119,18 @@ impl OptionsUi {
                         )),
                     ));
                     // Profiles are a `shaders/` pack's; a Industrial Era pack has its own options page.
-                    let industrial-era = s
+                    let industrial_era = s
                         .shader_packs
                         .iter()
-                        .position(|p| p.file == *pack && p.kind == PackKind::Industrial Era);
-                    if let Some(i) = industrial-era.filter(|&i| !s.shader_packs[i].options.is_empty()) {
+                        .position(|p| p.file == *pack && p.kind == PackKind::IndustrialEra);
+                    if let Some(i) =
+                        industrial - era.filter(|&i| !s.shader_packs[i].options.is_empty())
+                    {
                         let label = tr("industrial-era.shader_options.open");
                         let act = Act::NativePackOptions(i);
                         rows.push(Row::Buttons(button(0.0, 0.0, 310.0, label, act), None));
                     }
-                    if industrial-era.is_none() {
+                    if industrial_era.is_none() {
                         let shown = match profile.as_str() {
                             "" => "Pack Default",
                             crate::graphics::AUTO_PROFILE => "Auto",
@@ -4156,7 +4165,7 @@ impl OptionsUi {
                 for (i, pack) in s.shader_packs.iter().enumerate() {
                     let on = choice.as_ref().is_some_and(|(p, _)| *p == pack.file);
                     let name = match pack.kind {
-                        PackKind::Industrial Era => format!(
+                        PackKind::IndustrialEra => format!(
                             "{}{}",
                             pack.title,
                             lang::get("industrial-era.shader_packs.kind_horizon")
@@ -4371,7 +4380,7 @@ impl OptionsUi {
             self.shader_profiles
                 .insert(0, crate::graphics::AUTO_PROFILE.to_owned());
         }
-        if let Some((pack, _)) = s.industrial-era.shader_choice()
+        if let Some((pack, _)) = s.industrial_era.shader_choice()
             && let Ok(pack) = industrial_era_shaders::Pack::open(&dir.join(pack))
         {
             let text = pack.read_text("shaders.properties").unwrap_or_default();
@@ -4475,7 +4484,10 @@ impl OptionsUi {
                     // Vanilla's Telemetry Data and Credits slots: Industrial Era's
                     // settings and its mods, as a mod adds its button here.
                     // Credits & Attribution (WinScreen's credits) follows them.
-                    ("industrial-era.pages.open.industrial_era_settings", Some(Page::Industrial Era)),
+                    (
+                        "industrial-era.pages.open.industrial_era_settings",
+                        Some(Page::IndustrialEra),
+                    ),
                     ("industrial-era.pages.open.mods", Some(Page::Mods)),
                     ("options.credits_and_attribution", Some(Page::Credits)),
                 ];
@@ -4513,9 +4525,12 @@ impl OptionsUi {
                 let x = cx - 105.0;
                 if ON_A_PHONE {
                     // Starling's founders, then the game it is built on (THIRD_PARTY_NOTICES.md).
-                    for (i, key) in ["starling.credits.founders", "starling.credits.industrial-era"]
-                        .into_iter()
-                        .enumerate()
+                    for (i, key) in [
+                        "starling.credits.founders",
+                        "starling.credits.industrial_era",
+                    ]
+                    .into_iter()
+                    .enumerate()
                     {
                         out.push(Widget {
                             x: 0.0,
@@ -4610,7 +4625,7 @@ impl OptionsUi {
                 let row_left = cx - 170.0;
                 let scrollbar_x = row_left + 340.0 + 6.0 + 2.0;
                 // VideoSettingsScreen.addTitle: a changed graphics API needs a restart.
-                if page == Page::Video && s.industrial-era.api != s.startup_api {
+                if page == Page::Video && s.industrial_era.api != s.startup_api {
                     out.push(Widget {
                         x: 0.0,
                         y: 15.0,
@@ -5592,7 +5607,9 @@ impl OptionsUi {
             if search.value.is_empty() && !search.focused {
                 batch.text_styled(
                     atlas,
-                    &tr("industrial-era.options.search").with_color(text::GRAY).italic(),
+                    &tr("industrial-era.options.search")
+                        .with_color(text::GRAY)
+                        .italic(),
                     search.text_x(),
                     search.text_y(),
                     u32::MAX,
@@ -5963,24 +5980,29 @@ impl OptionsUi {
                                 None => Some(String::new()),
                             };
                             if let Some(pick) = pick {
-                                s.industrial-era.shader_pack = if s.industrial-era.shader_pack == pick {
-                                    String::new()
-                                } else {
-                                    pick
-                                };
-                                s.industrial-era.shader_profile.clear();
+                                s.industrial_era.shader_pack =
+                                    if s.industrial_era.shader_pack == pick {
+                                        String::new()
+                                    } else {
+                                        pick
+                                    };
+                                s.industrial_era.shader_profile.clear();
                                 self.refresh_shader_profiles(s);
                                 events.push(Event::ShaderPack);
                             }
                         }
                         Act::PackProfile => {
-                            let now = s.industrial-era.shader_choice().map(|c| c.1).unwrap_or_default();
+                            let now = s
+                                .industrial_era
+                                .shader_choice()
+                                .map(|c| c.1)
+                                .unwrap_or_default();
                             let list = &self.shader_profiles;
                             let at = list.iter().position(|p| *p == now).unwrap_or(0);
                             if let Some(next) = list.get((at + 1) % list.len().max(1)) {
                                 // Empty would fall back to the variable's: the pack's own
                                 // defaults are `default`, and empty is what means Auto.
-                                s.industrial-era.shader_profile = match next.as_str() {
+                                s.industrial_era.shader_profile = match next.as_str() {
                                     "" => "default".into(),
                                     crate::graphics::AUTO_PROFILE => String::new(),
                                     next => next.to_owned(),
@@ -6066,9 +6088,9 @@ impl OptionsUi {
                         Act::OpenShaderPackFolder => events.push(Event::OpenShaderPackFolder),
                         Act::ShaderResolution => {
                             const STEPS: [u32; 6] = [100, 75, 50, 40, 30, 25];
-                            let now = s.industrial-era.resolution_scale;
+                            let now = s.industrial_era.resolution_scale;
                             let next = STEPS.iter().position(|&v| v == now).map_or(2, |i| i + 1);
-                            s.industrial-era.resolution_scale = STEPS[next % STEPS.len()];
+                            s.industrial_era.resolution_scale = STEPS[next % STEPS.len()];
                             events.push(Event::ShaderPack);
                             events.push(Event::Changed);
                         }
@@ -6831,7 +6853,8 @@ impl OptionsUi {
             keys.insert(key.clone(), value);
             return vec![Event::Changed];
         }
-        if !s.extras.set_key(name, value.clone()) && !s.industrial-era.set_key(name, value.clone()) {
+        if !s.extras.set_key(name, value.clone()) && !s.industrial_era.set_key(name, value.clone())
+        {
             s.keys.set(name, &value);
         }
         vec![Event::Changed]
@@ -7283,12 +7306,13 @@ impl OptionsUi {
                                 None => Some(String::new()),
                             };
                             if let Some(pick) = pick {
-                                s.industrial-era.shader_pack = if s.industrial-era.shader_pack == pick {
-                                    String::new()
-                                } else {
-                                    pick
-                                };
-                                s.industrial-era.shader_profile.clear();
+                                s.industrial_era.shader_pack =
+                                    if s.industrial_era.shader_pack == pick {
+                                        String::new()
+                                    } else {
+                                        pick
+                                    };
+                                s.industrial_era.shader_profile.clear();
                                 self.refresh_shader_profiles(s);
                                 events.push(Event::ShaderPack);
                             }
@@ -7680,7 +7704,10 @@ mod tests {
         assert_eq!(file.int("renderDistance"), 128);
     }
     fn atlas() -> HudAtlas {
-        HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets")).unwrap()
+        HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap()
     }
 
     #[test]
@@ -7688,11 +7715,11 @@ mod tests {
         let atlas = atlas();
         let size = (960.0, 540.0);
         let mut s = Settings::default();
-        s.industrial-era.shader_pack = "p".into();
+        s.industrial_era.shader_pack = "p".into();
         s.shader_packs = vec![crate::shader_pack_list::Entry {
             file: "p".into(),
             title: "P".into(),
-            kind: crate::shader_pack_list::Kind::Industrial Era,
+            kind: crate::shader_pack_list::Kind::IndustrialEra,
             options: vec![industrial_era_shader_api::PackOption {
                 id: "a".into(),
                 name: "A".into(),
@@ -7833,7 +7860,10 @@ mod tests {
     /// "Hotbar: Previous Slot" in every language (#1927).
     #[test]
     fn industrial_era_option_pages_follow_the_language() {
-        let (texts, missed) = page_texts("de_de", &[Page::Industrial Era, Page::Extras, Page::PadBinds]);
+        let (texts, missed) = page_texts(
+            "de_de",
+            &[Page::IndustrialEra, Page::Extras, Page::PadBinds],
+        );
         for want in [
             "Splitscreen …",
             "Partikel",
@@ -8391,12 +8421,12 @@ mod tests {
     fn the_graphics_api_option_cycles_default_opengl_vulkan_and_asks_for_a_restart() {
         use crate::graphics::GraphicsApi;
         let mut s = Settings::default();
-        s.startup_api = s.industrial-era.api;
+        s.startup_api = s.industrial_era.api;
         let offered = GraphicsApi::choices();
-        let mut seen = vec![s.industrial-era.api];
+        let mut seen = vec![s.industrial_era.api];
         for _ in 1..offered.len() {
             Opt::GraphicsBackend.cycle(&mut s, false, [854, 480]);
-            seen.push(s.industrial-era.api);
+            seen.push(s.industrial_era.api);
         }
         // Dx12 is Industrial Era's own Graphics page's; this option has the three of vanilla.
         assert!(!seen.contains(&GraphicsApi::Dx12));
@@ -8405,7 +8435,7 @@ mod tests {
             assert_eq!(seen[1..], [GraphicsApi::OpenGl, GraphicsApi::Vulkan]);
             assert_eq!(s.file.name("preferredGraphicsBackend"), "vulkan");
             Opt::GraphicsBackend.cycle(&mut s, false, [854, 480]);
-            assert_eq!(s.industrial-era.api, GraphicsApi::Auto);
+            assert_eq!(s.industrial_era.api, GraphicsApi::Auto);
             assert_eq!(s.file.name("preferredGraphicsBackend"), "default");
         }
     }
@@ -8461,7 +8491,7 @@ mod tests {
             Opt::ExclusiveMode.label(&s).plain(),
             "Exclusive Fullscreen Mode: 2560x1440@59.94 (24bit)"
         );
-        s.industrial-era.api = GraphicsApi::Vulkan;
+        s.industrial_era.api = GraphicsApi::Vulkan;
         assert_eq!(
             Opt::GraphicsBackend.label(&s).plain(),
             "Graphics API: Prefer Vulkan (Experimental)"
@@ -8701,7 +8731,7 @@ mod tests {
                 false,
             )
         };
-        for page in [Page::Industrial Era, Page::Extras] {
+        for page in [Page::IndustrialEra, Page::Extras] {
             assert_eq!(
                 click(&mut ui, &mut s, Act::Push(page)),
                 vec![Event::ButtonClick]
@@ -8751,7 +8781,7 @@ mod tests {
             ui.key(&mut s, &atlas, winit::keyboard::KeyCode::Escape, None),
             vec![Event::Changed]
         );
-        assert_eq!(ui.page(), Page::Industrial Era);
+        assert_eq!(ui.page(), Page::IndustrialEra);
     }
 
     #[test]
@@ -9344,7 +9374,7 @@ mod tests {
                 let value = keybinds::mouse_name(button);
                 match name {
                     SORT_KEY => assert_eq!(s.extras.sort_key, value),
-                    crate::graphics::HDR_KEY => assert_eq!(s.industrial-era.hdr_key, value),
+                    crate::graphics::HDR_KEY => assert_eq!(s.industrial_era.hdr_key, value),
                     _ => assert_eq!(s.keys.get(name), value),
                 }
                 assert_eq!(Extras::parse(&s.extras.serialize()), s.extras);
@@ -9515,9 +9545,9 @@ mod tests {
         let main = pushes(&mut ui);
         assert_eq!(
             &main[main.len() - 3..],
-            [Page::Industrial Era, Page::Mods, Page::Credits]
+            [Page::IndustrialEra, Page::Mods, Page::Credits]
         );
-        ui.push(Page::Industrial Era);
+        ui.push(Page::IndustrialEra);
         assert_eq!(
             pushes(&mut ui),
             [
@@ -10100,12 +10130,12 @@ mod tests {
         let mut ui = OptionsUi::default();
         ui.show(Page::Graphics);
         let size = (640.0, 360.0);
-        s.industrial-era.chunk_updates = 16;
-        ui.graphics.focus = Some(Target::Item(Item::Industrial Era(H::ChunkUpdates)));
+        s.industrial_era.chunk_updates = 16;
+        ui.graphics.focus = Some(Target::Item(Item::IndustrialEra(H::ChunkUpdates)));
         ui.graphics.can_change_value = true;
         let before = ui.graphics.scroll_amount();
         ui.wheel(&mut s, size, (320.0, 150.0), [1920, 1080], -1.0);
-        assert_eq!(s.industrial-era.chunk_updates, 16);
+        assert_eq!(s.industrial_era.chunk_updates, 16);
         assert!(ui.graphics.scroll_amount() > before);
     }
 
@@ -10143,7 +10173,7 @@ mod tests {
         // Tab onto ChunkUpdates slider, ArrowRight adjusts value, Space toggles can_change_value
         ui.show(Page::Graphics);
         ui.graphics.open(crate::graphics_ui::Page::Performance);
-        s.industrial-era.chunk_updates = 10;
+        s.industrial_era.chunk_updates = 10;
         ui.size = size;
         ui.framebuffer = [854, 480];
 
@@ -10152,7 +10182,7 @@ mod tests {
             ui.key(&mut s, &atlas, K::Tab, None);
             if ui.graphics.focus
                 == Some(crate::graphics_ui::Target::Item(
-                    crate::graphics_ui::Item::Industrial Era(crate::graphics_ui::H::ChunkUpdates),
+                    crate::graphics_ui::Item::IndustrialEra(crate::graphics_ui::H::ChunkUpdates),
                 ))
             {
                 break;
@@ -10161,14 +10191,14 @@ mod tests {
         assert_eq!(
             ui.graphics.focus,
             Some(crate::graphics_ui::Target::Item(
-                crate::graphics_ui::Item::Industrial Era(crate::graphics_ui::H::ChunkUpdates)
+                crate::graphics_ui::Item::IndustrialEra(crate::graphics_ui::H::ChunkUpdates)
             ))
         );
         assert!(ui.graphics.can_change_value);
 
         // Right arrow steps ChunkUpdates to 11
         let events = ui.key(&mut s, &atlas, K::ArrowRight, None);
-        assert_eq!(s.industrial-era.chunk_updates, 11);
+        assert_eq!(s.industrial_era.chunk_updates, 11);
         assert!(events.contains(&Event::SliderDrag));
 
         // Space toggles can_change_value to false
@@ -10177,7 +10207,7 @@ mod tests {
 
         // ArrowRight does not change ChunkUpdates when can_change_value is false
         ui.key(&mut s, &atlas, K::ArrowRight, None);
-        assert_eq!(s.industrial-era.chunk_updates, 11);
+        assert_eq!(s.industrial_era.chunk_updates, 11);
     }
 
     /// Vanilla's wheel scrolls the list (`AbstractScrollArea.mouseScrolled`); only a
@@ -10640,7 +10670,8 @@ mod tests {
     fn create_worlds_data_packs_have_no_catalog_button() {
         let atlas = atlas();
         let mut s = Settings::default();
-        let dir = std::env::temp_dir().join(format!("industrial-era-catalog-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-catalog-{}", std::process::id()));
         let mut ui = OptionsUi {
             catalog_buttons: true,
             ..OptionsUi::default()
@@ -10702,7 +10733,8 @@ mod tests {
 
     #[test]
     fn a_resource_pack_installed_leaves_create_worlds_data_packs_alone() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-catalog-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-catalog-{}", std::process::id()));
         let mut ui = OptionsUi::default();
         ui.open_data_packs(dir.clone(), Vec::new(), dir);
         let listed = ui.pack_infos.len();

@@ -15,9 +15,9 @@ fn biome_key(id: &i32) -> Option<&str> {
         0 => Some("minecraft:lush_caves"),
         1 => Some("minecraft:dripstone_caves"),
         2 => Some("minecraft:deep_dark"),
-        3 => Some("industrial-era:lush_caves"),
+        3 => Some("industrial_era:lush_caves"),
         511 => None,
-        _ => Some("industrial-era:other"),
+        _ => Some("industrial_era:other"),
     }
 }
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -21,7 +21,7 @@ use std::collections::BTreeSet;
 
 /// Catalog-injected configured feature for the pale-moss ground patch, which
 /// vanilla looks up by registry key during decoration.
-pub(crate) const GROUND_FEATURE_KEY: &str = "industrial-era:pale_moss_patch";
+pub(crate) const GROUND_FEATURE_KEY: &str = "industrial_era:pale_moss_patch";
 
 /// Decorator context lists: set iteration order, stably sorted by Y.
 pub(crate) struct Lists {

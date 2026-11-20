@@ -16,7 +16,7 @@ const PROGRAMS: [&str; 2] = ["industrial-era-client", "industrial-era-ctl"];
 
 const ICON: &[u8] = include_bytes!("../../packaging/icons/industrial-era.icns");
 
-/// Its own identifier, so macOS keeps it apart from the launcher (dev.industrial-era.launcher); the
+/// Its own identifier, so macOS keeps it apart from the launcher (dev.industrial_era.launcher); the
 /// games category lets macOS turn Game Mode on when it plays full screen.
 const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -29,7 +29,7 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 	<key>CFBundleIconFile</key>
 	<string>industrial-era</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.industrial-era.game</string>
+	<string>dev.industrial_era.game</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

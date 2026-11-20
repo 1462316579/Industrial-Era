@@ -49,7 +49,10 @@ impl Cosmetics {
             .unwrap_or_default()
             .join("assets/cosmetics");
         let http = industrial_era_cosmetics::Http::new(&api, &agent);
-        (industrial_era_cosmetics::Cosmetics::new(http, Some(cache)), false)
+        (
+            industrial_era_cosmetics::Cosmetics::new(http, Some(cache)),
+            false,
+        )
     }
 }
 
@@ -226,7 +229,8 @@ impl Game<'_> {
             if gpu {
                 let mut models = self.skin_models.borrow_mut();
                 let mut frame = self.skin_frame.borrow_mut();
-                let mut skin = industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
+                let mut skin =
+                    industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
                 skin.bounds = bounds;
                 let paint = industrial_era_client::mobs::skin::Paint {
                     uv,

@@ -53,7 +53,8 @@ pub(super) fn update_status(status: Status, toast: &mut Option<SystemToast>) {
         .append(Text::translate(status.key(), &[]))
         .plain();
     industrial_era_narrator::update_status(status, &announcement);
-    let (title, message) = industrial_era_narrator::toast(status, industrial_era_narrator::is_active());
+    let (title, message) =
+        industrial_era_narrator::toast(status, industrial_era_narrator::is_active());
     let tr = |key: &str| Text::translate(key, &[]).plain();
     let (title, message) = (tr(title), message.map(tr));
     match toast {

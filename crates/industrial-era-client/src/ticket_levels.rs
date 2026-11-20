@@ -520,7 +520,7 @@ mod tests {
         }
     }
 
-    /// cargo test --release -p industrial-era-client --lib ticket_levels::tests::levels_cost -- --ignored --nocapture
+    /// cargo test --release -p industrial_era-client --lib ticket_levels::tests::levels_cost -- --ignored --nocapture
     #[test]
     #[ignore]
     fn levels_cost() {

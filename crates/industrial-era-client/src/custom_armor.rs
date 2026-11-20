@@ -181,7 +181,9 @@ pub fn load(root: &Path) -> HashMap<String, ArmorAtlas> {
             if let Ok((w, h, rgba)) = crate::hud::decode(&file)
                 && let Some(atlas) = ArmorAtlas::read(shape, w, h, &rgba)
             {
-                log::info!("Industrial Era: {texture} is a pack's custom armour, picked by dye colour");
+                log::info!(
+                    "Industrial Era: {texture} is a pack's custom armour, picked by dye colour"
+                );
                 atlases.insert(texture, atlas);
             }
         }

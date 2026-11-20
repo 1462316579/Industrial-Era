@@ -790,7 +790,9 @@ impl Game<'_> {
                         format_list(
                             sorted
                                 .into_iter()
-                                .map(|s| Text::literal(s).with_color(industrial_era_client::text::GREEN))
+                                .map(|s| {
+                                    Text::literal(s).with_color(industrial_era_client::text::GREEN)
+                                })
                                 .collect(),
                         )
                     };

@@ -131,7 +131,10 @@ impl CameraType {
 /// sets it (`shared_flag`), with the Invisibility effect or by a plugin's
 /// `setInvisible` alone, as pose plugins hide the real body under the pose
 /// (#3788); a world in the frame has only the effect.
-fn own_invisible(effects: &industrial_era_client::effects::PlayerEffects, shared_flag: bool) -> bool {
+fn own_invisible(
+    effects: &industrial_era_client::effects::PlayerEffects,
+    shared_flag: bool,
+) -> bool {
     shared_flag || effects.get("invisibility").is_some()
 }
 /// `LivingEntityRenderer.isBodyVisible` and `isInvisibleTo` for the player's
@@ -260,8 +263,12 @@ impl Game<'_> {
         let mut view = self.view;
         let kind = match self.camera_type {
             CameraType::FirstPerson => industrial_era_client::camera::CameraType::FirstPerson,
-            CameraType::ThirdPersonBack => industrial_era_client::camera::CameraType::ThirdPersonBack,
-            CameraType::ThirdPersonFront => industrial_era_client::camera::CameraType::ThirdPersonFront,
+            CameraType::ThirdPersonBack => {
+                industrial_era_client::camera::CameraType::ThirdPersonBack
+            }
+            CameraType::ThirdPersonFront => {
+                industrial_era_client::camera::CameraType::ThirdPersonFront
+            }
         };
         let context = CollisionContext::for_entity(
             CollisionEntity {
@@ -688,7 +695,8 @@ impl Game<'_> {
                 out,
             );
             if industrial_era_cosmetics::enabled() {
-                let base = industrial_era_client::mobs::render::base_transform(m, alpha as f32, camera);
+                let base =
+                    industrial_era_client::mobs::render::base_transform(m, alpha as f32, camera);
                 self.cosmetics_geometry(m, true, base, alpha as f32, packed, false, out);
             }
             self.player_elytra_geometry(m, chest, camera, alpha as f32, packed, out);
@@ -923,13 +931,18 @@ impl Game<'_> {
     }
     /// `WingsLayer` draws through `EquipmentLayerRenderer.renderLayers`: the
     /// armour glint when the worn elytra `hasFoil()`.
-    pub(super) fn wings_overlay(&self, stack: Option<&industrial_era_client::items::ItemStack>) -> u32 {
+    pub(super) fn wings_overlay(
+        &self,
+        stack: Option<&industrial_era_client::items::ItemStack>,
+    ) -> u32 {
         let item_glint = |item: &str| {
             let props = &self.res.items().enchantments.props;
             props.get(item).is_some_and(|p| p.glint)
         };
         match stack {
-            Some(s) if s.has_foil(item_glint(&s.item)) => industrial_era_client::mobs::render::ARMOR_GLINT,
+            Some(s) if s.has_foil(item_glint(&s.item)) => {
+                industrial_era_client::mobs::render::ARMOR_GLINT
+            }
             _ => 0,
         }
     }
@@ -973,7 +986,8 @@ impl Game<'_> {
             return;
         };
         let sprites = &self.gui.atlas.sprites;
-        let rule = stack.and_then(|s| self.cit_worn_rule(industrial_era_client::cit::Kind::Elytra, s));
+        let rule =
+            stack.and_then(|s| self.cit_worn_rule(industrial_era_client::cit::Kind::Elytra, s));
         let rect = industrial_era_client::cit_armor::wings(rule, cape, |s| sprites.get(s));
         let (Some(model), Some(rect)) = (
             assets
@@ -1525,8 +1539,11 @@ mod preview_tests {
         let mut m = Mob::new(1, player_type(&root).unwrap(), Vec3::ZERO, 0.0);
         for (id, expected) in [("minecraft:player", 0.9375), ("minecraft:zombie", 1.0)] {
             Arc::make_mut(&mut m.kind).id = id.into();
-            let transform =
-                industrial_era_client::mobs::render::base_transform_at(&m, 1.0, glam::Mat4::IDENTITY);
+            let transform = industrial_era_client::mobs::render::base_transform_at(
+                &m,
+                1.0,
+                glam::Mat4::IDENTITY,
+            );
             for axis in [glam::Vec3::X, glam::Vec3::Y, glam::Vec3::Z] {
                 assert!((transform.transform_vector3(axis).length() - expected).abs() < 1e-6);
             }

@@ -191,34 +191,35 @@ impl Enchantments {
                 }
             }
         }
-        let lang: HashMap<String, String> =
-            industrial_era_core::prepared_files::read(&root.join("assets/minecraft/lang/en_us.json"))
-                .ok()
-                .and_then(|b| serde_json::from_slice::<HashMap<String, String>>(&b).ok())
-                .unwrap_or_default()
-                .into_iter()
-                .filter(|(k, _)| {
-                    k.starts_with("enchantment.")
-                        || k.starts_with("attribute.")
-                        || k.starts_with("item.modifiers.")
-                        || k.starts_with("effect.")
-                        || k.starts_with("item.minecraft.potion")
-                        || k.starts_with("item.minecraft.splash_potion")
-                        || k.starts_with("item.minecraft.lingering_potion")
-                        || k.starts_with("item.minecraft.tipped_arrow")
-                        || k.starts_with("item.minecraft.firework_rocket.")
-                        || k.starts_with("item.minecraft.firework_star.")
-                        || k.starts_with("trim_")
-                        || k.starts_with("potion.")
-                        || k.starts_with("container.")
-                        || k.starts_with("merchant.")
-                        || k.starts_with("entity.minecraft.")
-                        || k.starts_with("gui.recipebook.")
-                        || k.starts_with("gui.togglable_slot")
-                        || k.starts_with("block.minecraft.banner.")
-                        || k.starts_with("recipe.toast.")
-                })
-                .collect();
+        let lang: HashMap<String, String> = industrial_era_core::prepared_files::read(
+            &root.join("assets/minecraft/lang/en_us.json"),
+        )
+        .ok()
+        .and_then(|b| serde_json::from_slice::<HashMap<String, String>>(&b).ok())
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|(k, _)| {
+            k.starts_with("enchantment.")
+                || k.starts_with("attribute.")
+                || k.starts_with("item.modifiers.")
+                || k.starts_with("effect.")
+                || k.starts_with("item.minecraft.potion")
+                || k.starts_with("item.minecraft.splash_potion")
+                || k.starts_with("item.minecraft.lingering_potion")
+                || k.starts_with("item.minecraft.tipped_arrow")
+                || k.starts_with("item.minecraft.firework_rocket.")
+                || k.starts_with("item.minecraft.firework_star.")
+                || k.starts_with("trim_")
+                || k.starts_with("potion.")
+                || k.starts_with("container.")
+                || k.starts_with("merchant.")
+                || k.starts_with("entity.minecraft.")
+                || k.starts_with("gui.recipebook.")
+                || k.starts_with("gui.togglable_slot")
+                || k.starts_with("block.minecraft.banner.")
+                || k.starts_with("recipe.toast.")
+        })
+        .collect();
         let mut list = Vec::new();
         for (id, v) in &files {
             let exclusive = match &v["exclusive_set"] {

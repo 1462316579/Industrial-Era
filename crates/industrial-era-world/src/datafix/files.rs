@@ -1081,7 +1081,8 @@ mod upgrade_tests {
     /// file fixing does not open the screen.
     #[test]
     fn upgrade_reports_one_operation_per_file() {
-        let base = std::env::temp_dir().join(format!("industrial-era-progress-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-progress-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let level = Tag::compound([("Data", Tag::compound([("DataVersion", Tag::Int(4899))]))]);
         write_dat(&base.join("level.dat"), &level).unwrap();
@@ -1103,7 +1104,8 @@ mod upgrade_tests {
     /// next file, and the DataVersion stays old so the next open retries.
     #[test]
     fn cancel_stops_the_data_upgrade_and_keeps_the_version() {
-        let base = std::env::temp_dir().join(format!("industrial-era-cancel-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-cancel-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let level = Tag::compound([("Data", Tag::compound([("DataVersion", Tag::Int(4899))]))]);
         write_dat(&base.join("level.dat"), &level).unwrap();
@@ -1126,7 +1128,8 @@ mod upgrade_tests {
     /// retries, and a later successful run stamps the current one.
     #[test]
     fn failed_upgrade_keeps_old_data_version() {
-        let base = std::env::temp_dir().join(format!("industrial-era-upgrade-{}", std::process::id()));
+        let base =
+            std::env::temp_dir().join(format!("industrial-era-upgrade-{}", std::process::id()));
         let _ = fs::remove_dir_all(&base);
         let old = 4899;
         let level = Tag::compound([("Data", Tag::compound([("DataVersion", Tag::Int(old))]))]);

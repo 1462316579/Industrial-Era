@@ -144,7 +144,10 @@ fn the_validation_error_still_fails_the_load_first() {
     let expected = serde_json::from_slice::<Value>(facts)
         .unwrap_err()
         .to_string();
-    let root = std::env::temp_dir().join(format!("industrial-era-facts-validate-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!(
+        "industrial-era-facts-validate-{}",
+        std::process::id()
+    ));
     std::fs::create_dir_all(&root).unwrap();
     std::fs::write(root.join("gameplay-facts.json"), facts).unwrap();
     let registry = industrial_era_world::registry::BlockRegistry::from_facts_json(

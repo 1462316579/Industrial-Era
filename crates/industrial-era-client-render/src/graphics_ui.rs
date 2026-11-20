@@ -108,7 +108,7 @@ pub enum H {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Item {
     Vanilla(Opt),
-    Industrial Era(H),
+    IndustrialEra(H),
 }
 
 #[derive(Clone, Copy)]
@@ -126,7 +126,7 @@ fn v(opt: Opt, cost: Cost, text: &'static str) -> Setting {
 }
 fn h(opt: H, cost: Cost, text: &'static str) -> Setting {
     Setting {
-        item: Item::Industrial Era(opt),
+        item: Item::IndustrialEra(opt),
         cost,
         text,
     }
@@ -541,7 +541,7 @@ pub fn rows() -> Vec<(Page, Vec<(&'static str, Vec<Setting>)>)> {
                 rows.retain(|r| {
                     !matches!(
                         r.item,
-                        Item::Industrial Era(H::GraphicsApi | H::TranslucentBatching)
+                        Item::IndustrialEra(H::GraphicsApi | H::TranslucentBatching)
                     )
                 });
             }
@@ -587,7 +587,7 @@ enum Setup {
     Changed,
 }
 fn setup(s: &Settings) -> Setup {
-    setup_of(&s.industrial-era, crate::graphics::reported().is_some())
+    setup_of(&s.industrial_era, crate::graphics::reported().is_some())
 }
 fn setup_of(g: &crate::graphics::Graphics, reported: bool) -> Setup {
     if !reported {
@@ -601,24 +601,24 @@ fn setup_of(g: &crate::graphics::Graphics, reported: bool) -> Setup {
 /// The description beside `item` where it depends on [`setup`]; `text` otherwise.
 fn description(item: Item, s: &Settings, text: &'static str) -> &'static str {
     match (item, setup(s)) {
-        (Item::Industrial Era(H::HdrCalibrate), Setup::Unknown) => {
+        (Item::IndustrialEra(H::HdrCalibrate), Setup::Unknown) => {
             "Your display didn't say how bright it gets: calibrate to set it up."
         }
-        (Item::Industrial Era(H::HdrCalibrate), Setup::Automatic) => {
+        (Item::IndustrialEra(H::HdrCalibrate), Setup::Automatic) => {
             "Already set up for your display. Only calibrate if HDR looks wrong."
         }
-        (Item::Industrial Era(H::HdrCalibrate), Setup::Changed) => {
+        (Item::IndustrialEra(H::HdrCalibrate), Setup::Changed) => {
             "Puts Peak Brightness and Paper White back to your display's setup."
         }
-        (Item::Industrial Era(H::HdrPeak | H::HdrPaperWhite), Setup::Automatic | Setup::Changed) => {
+        (Item::IndustrialEra(H::HdrPeak | H::HdrPaperWhite), Setup::Automatic | Setup::Changed) => {
             "Set up for your display. Leave on Auto unless it looks wrong."
         }
-        (Item::Industrial Era(H::EntityCulling), _) => match s.industrial-era.entity_culling {
+        (Item::IndustrialEra(H::EntityCulling), _) => match s.industrial_era.entity_culling {
             EntityCullingMode::Off => "No entity occlusion culling.",
             EntityCullingMode::Synchronous => "CPU occlusion test runs this frame.",
             EntityCullingMode::Asynchronous => "Occlusion checks run on a worker thread.",
         },
-        (Item::Industrial Era(H::LeafCulling), _) => match s.industrial-era.leaf_culling {
+        (Item::IndustrialEra(H::LeafCulling), _) => match s.industrial_era.leaf_culling {
             LeafCullingMode::Off => "Every leaf face. Vanilla's fancy leaves.",
             LeafCullingMode::Solid => {
                 "Leaves fully inside a canopy draw solid: fewer see-through layers."
@@ -643,7 +643,7 @@ fn labelled(caption: &str, value: impl std::fmt::Display) -> Text {
 
 impl H {
     fn slider(self, s: &Settings) -> Option<f32> {
-        let g = &s.industrial-era;
+        let g = &s.industrial_era;
         match self {
             H::ChunkUpdates => Some(g.chunk_updates as f32 / 64.0),
             H::UploadBudget => {
@@ -688,7 +688,7 @@ impl H {
         }
     }
     fn label(self, s: &Settings) -> Text {
-        let g = &s.industrial-era;
+        let g = &s.industrial_era;
         match self {
             H::Preset => labelled("Preset", g.preset.label()),
             H::LodDistance => match g.lod_distance {
@@ -807,7 +807,7 @@ impl H {
         }
     }
     fn set_slider(self, s: &mut Settings, v: f32) {
-        let g = &mut s.industrial-era;
+        let g = &mut s.industrial_era;
         match self {
             H::ChunkUpdates => g.chunk_updates = (v * 64.0).round() as u32,
             H::UploadBudget => {
@@ -838,12 +838,12 @@ impl H {
             all[if back { (i + n - 1) % n } else { (i + 1) % n }]
         }
         if self == H::Preset {
-            let preset = step(&Preset::ALL, s.industrial-era.preset, back);
+            let preset = step(&Preset::ALL, s.industrial_era.preset, back);
             crate::graphics::apply_preset(preset, s);
-            s.industrial-era.preset = preset;
+            s.industrial_era.preset = preset;
             return;
         }
-        let g = &mut s.industrial-era;
+        let g = &mut s.industrial_era;
         match self {
             H::FarDetail => {
                 g.far_detail = step(&[FarDetail::Full, FarDetail::Reduced], g.far_detail, back)
@@ -942,7 +942,7 @@ impl Item {
             return Some("This feature is not yet available in Industrial Era.");
         }
         match self {
-            Item::Industrial Era(
+            Item::IndustrialEra(
                 H::Hdr
                 | H::HdrCalibrate
                 | H::HdrBlackLevel
@@ -952,14 +952,14 @@ impl Item {
             ) if !crate::graphics::hdr_offered() => {
                 Some("Your display or system doesn't offer HDR output.")
             }
-            Item::Industrial Era(
+            Item::IndustrialEra(
                 H::HdrCalibrate
                 | H::HdrBlackLevel
                 | H::HdrPeak
                 | H::HdrPaperWhite
                 | H::HdrUiBrightness,
-            ) if !s.industrial-era.hdr => Some("Turn HDR on to use it."),
-            Item::Industrial Era(H::TranslucentBatching)
+            ) if !s.industrial_era.hdr => Some("Turn HDR on to use it."),
+            Item::IndustrialEra(H::TranslucentBatching)
                 if !crate::graphics::translucent_batching_offered() =>
             {
                 Some("Your GPU or graphics API doesn't support it.")
@@ -971,30 +971,30 @@ impl Item {
     fn steps(self, s: &Settings) -> bool {
         self.switch(s).is_none()
             && self.slider(s).is_none()
-            && !matches!(self, Item::Industrial Era(H::HdrKey | H::HdrCalibrate))
+            && !matches!(self, Item::IndustrialEra(H::HdrKey | H::HdrCalibrate))
     }
     /// On/off settings and their value.
     pub fn switch(self, s: &Settings) -> Option<bool> {
-        let g = &s.industrial-era;
+        let g = &s.industrial_era;
         Some(match self {
-            Item::Industrial Era(H::BlueMapAutoDetect) => g.blue_map.auto_detect,
-            Item::Industrial Era(H::CaveCulling) => g.cave_culling,
-            Item::Industrial Era(H::CacheShulkerBoxes) => g.cache_shulker_boxes,
-            Item::Industrial Era(H::CacheSigns) => g.cache_signs,
-            Item::Industrial Era(H::CacheDecoratedPots) => g.cache_decorated_pots,
-            Item::Industrial Era(H::CacheBells) => g.cache_bells,
-            Item::Industrial Era(H::CacheChests) => g.cache_chests,
-            Item::Industrial Era(H::CacheBanners) => g.cache_banners,
-            Item::Industrial Era(H::CacheCopperGolemStatues) => g.cache_copper_golem_statues,
-            Item::Industrial Era(H::Sky) => g.sky,
-            Item::Industrial Era(H::Fog) => g.fog,
-            Item::Industrial Era(H::Weather) => g.weather,
-            Item::Industrial Era(H::AnimatedTextures) => g.animated_textures,
-            Item::Industrial Era(H::DitherCutoutMips) => g.dither_cutout_mips,
-            Item::Industrial Era(H::Hdr) => g.hdr,
-            Item::Industrial Era(H::BatteryMode) => g.battery,
-            Item::Industrial Era(H::ShadowCache) => g.shadow_cache,
-            Item::Industrial Era(H::TranslucentBatching) => g.translucent_batching,
+            Item::IndustrialEra(H::BlueMapAutoDetect) => g.blue_map.auto_detect,
+            Item::IndustrialEra(H::CaveCulling) => g.cave_culling,
+            Item::IndustrialEra(H::CacheShulkerBoxes) => g.cache_shulker_boxes,
+            Item::IndustrialEra(H::CacheSigns) => g.cache_signs,
+            Item::IndustrialEra(H::CacheDecoratedPots) => g.cache_decorated_pots,
+            Item::IndustrialEra(H::CacheBells) => g.cache_bells,
+            Item::IndustrialEra(H::CacheChests) => g.cache_chests,
+            Item::IndustrialEra(H::CacheBanners) => g.cache_banners,
+            Item::IndustrialEra(H::CacheCopperGolemStatues) => g.cache_copper_golem_statues,
+            Item::IndustrialEra(H::Sky) => g.sky,
+            Item::IndustrialEra(H::Fog) => g.fog,
+            Item::IndustrialEra(H::Weather) => g.weather,
+            Item::IndustrialEra(H::AnimatedTextures) => g.animated_textures,
+            Item::IndustrialEra(H::DitherCutoutMips) => g.dither_cutout_mips,
+            Item::IndustrialEra(H::Hdr) => g.hdr,
+            Item::IndustrialEra(H::BatteryMode) => g.battery,
+            Item::IndustrialEra(H::ShadowCache) => g.shadow_cache,
+            Item::IndustrialEra(H::TranslucentBatching) => g.translucent_batching,
             Item::Vanilla(Opt::ViewBobbing) => s.view_bobbing,
             Item::Vanilla(Opt::Vsync) => s.vsync,
             Item::Vanilla(Opt::Fullscreen) => s.fullscreen,
@@ -1010,17 +1010,17 @@ impl Item {
     pub fn slider(self, s: &Settings) -> Option<f32> {
         match self {
             Item::Vanilla(o) => o.slider_position(s),
-            Item::Industrial Era(h) => h.slider(s),
+            Item::IndustrialEra(h) => h.slider(s),
         }
     }
     pub fn label(self, s: &Settings) -> Text {
         match self {
-            Item::Vanilla(Opt::RenderDistance) if s.industrial-era.lod_distance > 0 => labelled(
+            Item::Vanilla(Opt::RenderDistance) if s.industrial_era.lod_distance > 0 => labelled(
                 "Full Detail Distance",
                 lang::tr("%s chunks", &[&s.render_distance]),
             ),
             Item::Vanilla(o) => o.label(s),
-            Item::Industrial Era(h) => h.label(s),
+            Item::IndustrialEra(h) => h.label(s),
         }
     }
     pub fn set_slider(self, s: &mut Settings, v: f32) {
@@ -1029,7 +1029,7 @@ impl Item {
         }
         match self {
             Item::Vanilla(o) => o.set_slider(s, v),
-            Item::Industrial Era(h) => h.set_slider(s, v),
+            Item::IndustrialEra(h) => h.set_slider(s, v),
         }
         self.touched(s);
     }
@@ -1039,7 +1039,7 @@ impl Item {
         }
         match self {
             Item::Vanilla(o) => o.cycle(s, back, framebuffer),
-            Item::Industrial Era(h) => h.cycle(s, back),
+            Item::IndustrialEra(h) => h.cycle(s, back),
         }
         self.touched(s);
     }
@@ -1047,7 +1047,7 @@ impl Item {
     fn touched(self, s: &mut Settings) {
         let presetless = matches!(
             self,
-            Item::Industrial Era(
+            Item::IndustrialEra(
                 H::Preset
                     | H::BlueMapAutoDetect
                     | H::BlueMapRadius
@@ -1077,13 +1077,13 @@ impl Item {
             )
         );
         if !presetless {
-            s.industrial-era.preset = Preset::Custom;
+            s.industrial_era.preset = Preset::Custom;
         }
     }
     pub fn slider_steps(self) -> Option<u32> {
         match self {
             Item::Vanilla(o) => o.slider_steps(),
-            Item::Industrial Era(h) => h.slider_steps(),
+            Item::IndustrialEra(h) => h.slider_steps(),
         }
     }
     pub fn step_slider(self, s: &mut Settings, forward: bool, width: f32) {
@@ -1251,14 +1251,14 @@ impl Columns {
 
 /// Whether a setting is on the screen now: Upscaling only while TAA is, which does it.
 fn shown(item: Item, s: &Settings) -> bool {
-    item != Item::Industrial Era(H::Upscaling) || s.industrial-era.taa
+    item != Item::IndustrialEra(H::Upscaling) || s.industrial_era.taa
 }
 /// A control's label as its name and its value ("Render Distance" and "12 chunks").
 fn parts(item: Item, s: &Settings, binding: bool) -> (String, Option<String>) {
     // The shortcut's label is one translated "Shortcut: %s"; the row shows its key apart,
     // as KeyBindsScreen does, "> key <" while it waits.
-    if item == Item::Industrial Era(H::HdrKey) {
-        let key = crate::keybinds::display_name(&s.industrial-era.hdr_key).plain();
+    if item == Item::IndustrialEra(H::HdrKey) {
+        let key = crate::keybinds::display_name(&s.industrial_era.hdr_key).plain();
         let key = if binding { format!("> {key} <") } else { key };
         return (lang::get("Shortcut"), Some(key));
     }
@@ -1463,7 +1463,7 @@ impl GraphicsUi {
         let Some(b) = self.before.as_deref() else {
             return;
         };
-        s.industrial-era = b.industrial-era.clone();
+        s.industrial_era = b.industrial_era.clone();
         s.render_distance = b.render_distance;
         s.simulation_distance = b.simulation_distance;
         s.gamma = b.gamma;
@@ -1632,8 +1632,8 @@ impl GraphicsUi {
     ) {
         let (x, y) = (cols.side_x, cols.side_y);
         style::fill(batch, atlas, [x, y + 2.0, 6.0, 6.0], style::ACCENT);
-        let industrial-era = Text::literal("Industrial Era");
-        batch.text_styled(atlas, &industrial-era, x + 10.0, y, style::WHITE, true);
+        let industrial_era = Text::literal("Industrial Era");
+        batch.text_styled(atlas, &industrial - era, x + 10.0, y, style::WHITE, true);
         let title = Text::literal(lang::get("Graphics"));
         batch.text_styled(atlas, &title, x, y + 10.0, style::MUTED, true);
         for (i, page) in Page::ALL.into_iter().enumerate() {
@@ -1979,13 +1979,13 @@ impl GraphicsUi {
         at: Option<(f32, &Columns)>,
     ) -> Vec<Action> {
         match item {
-            Item::Industrial Era(H::HdrCalibrate) if setup(s) == Setup::Changed => {
-                s.industrial-era.hdr_peak = 0;
-                s.industrial-era.hdr_paper_white = 0;
+            Item::IndustrialEra(H::HdrCalibrate) if setup(s) == Setup::Changed => {
+                s.industrial_era.hdr_peak = 0;
+                s.industrial_era.hdr_paper_white = 0;
                 vec![Action::ButtonClick, Action::Changed]
             }
-            Item::Industrial Era(H::HdrCalibrate) => vec![Action::ButtonClick, Action::Calibrate],
-            Item::Industrial Era(H::HdrKey) => {
+            Item::IndustrialEra(H::HdrCalibrate) => vec![Action::ButtonClick, Action::Calibrate],
+            Item::IndustrialEra(H::HdrKey) => {
                 vec![
                     Action::ButtonClick,
                     Action::BindKey(crate::graphics::HDR_KEY),
@@ -2412,7 +2412,7 @@ mod tests {
         let on = |page| -> Vec<(Page, Item)> {
             items()
                 .into_iter()
-                .filter(|(p, i)| *p == page && *i != Item::Industrial Era(H::Upscaling))
+                .filter(|(p, i)| *p == page && *i != Item::IndustrialEra(H::Upscaling))
                 .collect()
         };
         assert_eq!(settings(&mut ui, &s), on(Page::General));
@@ -2466,7 +2466,7 @@ mod tests {
         let mut ui = GraphicsUi::default();
         let [x, y, w, h] = row(&mut ui, &s, Item::Vanilla(Opt::Clouds));
         assert!(ui.row_button_at(&s, SIZE, (x + w - 10.0, y + h / 2.0)));
-        let [x, y, w, h] = row(&mut ui, &s, Item::Industrial Era(H::ChunkUpdates));
+        let [x, y, w, h] = row(&mut ui, &s, Item::IndustrialEra(H::ChunkUpdates));
         assert!(!ui.row_button_at(&s, SIZE, (x + w - 10.0, y + h / 2.0)));
         // Off the list: nothing to scroll past.
         assert!(!ui.row_button_at(&s, SIZE, (1.0, 1.0)));
@@ -2537,14 +2537,14 @@ mod tests {
         let at = |[x, y, ..]: [f32; 4]| (x + 2.0, y + 2.0);
         // Nothing changed: Undo does nothing.
         assert!(press(&mut ui, &mut s, at(undo)).is_empty());
-        let fog = row(&mut ui, &s, Item::Industrial Era(H::Fog));
+        let fog = row(&mut ui, &s, Item::IndustrialEra(H::Fog));
         assert_eq!(
             press(&mut ui, &mut s, at(fog)),
             [Action::ButtonClick, Action::Changed]
         );
-        let sky = row(&mut ui, &s, Item::Industrial Era(H::Sky));
+        let sky = row(&mut ui, &s, Item::IndustrialEra(H::Sky));
         press(&mut ui, &mut s, at(sky));
-        assert!(!s.industrial-era.fog && !s.industrial-era.sky && ui.changed);
+        assert!(!s.industrial_era.fog && !s.industrial_era.sky && ui.changed);
         // F11 and another option meanwhile: Undo leaves them as they are.
         s.fullscreen = true;
         s.chat_opacity = 0.25;
@@ -2552,16 +2552,16 @@ mod tests {
             press(&mut ui, &mut s, at(undo)),
             [Action::ButtonClick, Action::Changed]
         );
-        assert!(s.industrial-era.fog && s.industrial-era.sky && !ui.changed);
+        assert!(s.industrial_era.fog && s.industrial_era.sky && !ui.changed);
         assert!(s.fullscreen);
         assert_eq!(s.chat_opacity, 0.25);
         // From the keyboard: Undo puts it back and goes away.
-        let fog = row(&mut ui, &s, Item::Industrial Era(H::Fog));
+        let fog = row(&mut ui, &s, Item::IndustrialEra(H::Fog));
         press(&mut ui, &mut s, at(fog));
         ui.focus = Some(Target::Undo);
         let (actions, _) = ui.key_modifiers(&mut s, K::Enter, None, false, SIZE, FB);
         assert_eq!(actions, [Action::ButtonClick, Action::Changed]);
-        assert!(s.industrial-era.fog && !ui.changed);
+        assert!(s.industrial_era.fog && !ui.changed);
         assert_eq!(ui.focus, Some(Target::Done));
     }
 
@@ -2569,12 +2569,12 @@ mod tests {
     fn a_slider_takes_a_press_on_its_track_and_its_click_plays_on_release() {
         let mut s = Settings::default();
         let mut ui = GraphicsUi::default();
-        s.industrial-era.chunk_updates = 16;
-        let r = row(&mut ui, &s, Item::Industrial Era(H::ChunkUpdates));
+        s.industrial_era.chunk_updates = 16;
+        let r = row(&mut ui, &s, Item::IndustrialEra(H::ChunkUpdates));
         let (tx, tw) = Columns::of(SIZE.0, SIZE.1).track();
         // On its name: focused, unchanged.
         assert!(press(&mut ui, &mut s, (r[0] + 4.0, r[1] + 4.0)).is_empty());
-        assert_eq!(s.industrial-era.chunk_updates, 16);
+        assert_eq!(s.industrial_era.chunk_updates, 16);
         assert!(ui.can_change_value);
         assert!(!ui.release());
         // At the track's end: the most, then dragged to its start.
@@ -2604,39 +2604,42 @@ mod tests {
         let mut at_hdr = GraphicsUi::default();
         at_hdr.open(Page::Hdr);
         at_hdr.key_modifiers(&mut s, K::ArrowDown, None, false, short, FB);
-        assert_eq!(at_hdr.focus, Some(Target::Item(Item::Industrial Era(H::HdrKey))));
-        let hdr = row(&mut ui, &s, Item::Industrial Era(H::Hdr));
+        assert_eq!(
+            at_hdr.focus,
+            Some(Target::Item(Item::IndustrialEra(H::HdrKey)))
+        );
+        let hdr = row(&mut ui, &s, Item::IndustrialEra(H::Hdr));
         assert!(press(&mut ui, &mut s, at(hdr)).is_empty());
         // Not even with HDR saved on, from another computer: nor its sliders and calibration.
-        s.industrial-era.hdr = true;
+        s.industrial_era.hdr = true;
         for h in [H::Hdr, H::HdrCalibrate, H::HdrPeak, H::HdrPaperWhite] {
-            assert!(Item::Industrial Era(h).blocked(&s).is_some(), "{h:?}");
+            assert!(Item::IndustrialEra(h).blocked(&s).is_some(), "{h:?}");
         }
-        s.industrial-era.hdr = false;
+        s.industrial_era.hdr = false;
         crate::graphics::offer_hdr(true);
         let (tx, _) = Columns::of(SIZE.0, SIZE.1).track();
-        let peak = row(&mut ui, &s, Item::Industrial Era(H::HdrPeak));
+        let peak = row(&mut ui, &s, Item::IndustrialEra(H::HdrPeak));
         assert!(press(&mut ui, &mut s, (tx + 2.0, peak[1] + 4.0)).is_empty());
         // The switch turns it on, and the sliders below it work.
-        let hdr = row(&mut ui, &s, Item::Industrial Era(H::Hdr));
+        let hdr = row(&mut ui, &s, Item::IndustrialEra(H::Hdr));
         assert_eq!(
             press(&mut ui, &mut s, at(hdr)),
             [Action::ButtonClick, Action::Changed]
         );
-        assert!(s.industrial-era.hdr);
-        let peak = row(&mut ui, &s, Item::Industrial Era(H::HdrPeak));
+        assert!(s.industrial_era.hdr);
+        let peak = row(&mut ui, &s, Item::IndustrialEra(H::HdrPeak));
         assert_eq!(
             press(&mut ui, &mut s, (tx + 2.0, peak[1] + 4.0)),
             [Action::SliderDrag]
         );
         ui.release();
         // Calibrate starts the calibration; the shortcut row waits for a key.
-        let calibrate = row(&mut ui, &s, Item::Industrial Era(H::HdrCalibrate));
+        let calibrate = row(&mut ui, &s, Item::IndustrialEra(H::HdrCalibrate));
         assert_eq!(
             press(&mut ui, &mut s, at(calibrate)),
             [Action::ButtonClick, Action::Calibrate]
         );
-        let key = row(&mut ui, &s, Item::Industrial Era(H::HdrKey));
+        let key = row(&mut ui, &s, Item::IndustrialEra(H::HdrKey));
         assert_eq!(
             press(&mut ui, &mut s, at(key)),
             [
@@ -2737,7 +2740,7 @@ mod tests {
         ui.key_modifiers(&mut s, K::ArrowUp, None, false, SIZE, FB);
         assert_eq!(ui.focus, Some(Target::Page(Page::Hdr)));
         // Its row wheeled far out of view: Down takes the first row in view, as it is.
-        ui.focus = Some(Target::Item(Item::Industrial Era(H::Preset)));
+        ui.focus = Some(Target::Item(Item::IndustrialEra(H::Preset)));
         ui.scroll(&s, SIZE, -1000.0);
         let before = ui.scroll.amount;
         assert!(before > 0.0);
@@ -2753,7 +2756,7 @@ mod tests {
     fn the_keyboard_tabs_through_settings_and_steps_sliders() {
         let mut s = Settings::default();
         let mut ui = GraphicsUi::default();
-        s.industrial-era.chunk_updates = 10;
+        s.industrial_era.chunk_updates = 10;
         let tab_to = |ui: &mut GraphicsUi, s: &mut Settings, target| {
             (0..40).any(|_| {
                 ui.key_modifiers(s, K::Tab, None, false, SIZE, FB);
@@ -2764,7 +2767,7 @@ mod tests {
         assert!(tab_to(&mut ui, &mut s, Target::Page(Page::Performance)));
         let (actions, _) = ui.key_modifiers(&mut s, K::Enter, None, false, SIZE, FB);
         assert_eq!(actions, [Action::ButtonClick]);
-        let chunk_updates = Target::Item(Item::Industrial Era(H::ChunkUpdates));
+        let chunk_updates = Target::Item(Item::IndustrialEra(H::ChunkUpdates));
         assert!(tab_to(&mut ui, &mut s, chunk_updates) && ui.can_change_value);
         // Tab scrolled its row into view.
         let r = {
@@ -2773,7 +2776,7 @@ mod tests {
                 .iter()
                 .find(|l| {
                     l.setting
-                        .is_some_and(|r| r.item == Item::Industrial Era(H::ChunkUpdates))
+                        .is_some_and(|r| r.item == Item::IndustrialEra(H::ChunkUpdates))
                 })
                 .copied()
                 .unwrap();
@@ -2783,19 +2786,22 @@ mod tests {
         assert!(r >= cols.top && r + style::ROW <= cols.bottom);
         let (actions, handled) = ui.key_modifiers(&mut s, K::ArrowRight, None, false, SIZE, FB);
         assert!(handled && actions == [Action::SliderDrag]);
-        assert_eq!(s.industrial-era.chunk_updates, 11);
+        assert_eq!(s.industrial_era.chunk_updates, 11);
         ui.key_modifiers(&mut s, K::ArrowLeft, None, false, SIZE, FB);
-        assert_eq!(s.industrial-era.chunk_updates, 10);
+        assert_eq!(s.industrial_era.chunk_updates, 10);
         // Space lets go of the value: the arrows move the focus again.
         ui.key_modifiers(&mut s, K::Space, None, false, SIZE, FB);
         assert!(!ui.can_change_value);
         ui.key_modifiers(&mut s, K::ArrowDown, None, false, SIZE, FB);
-        assert_eq!(ui.focus, Some(Target::Item(Item::Industrial Era(H::UploadBudget))));
+        assert_eq!(
+            ui.focus,
+            Some(Target::Item(Item::IndustrialEra(H::UploadBudget)))
+        );
         // Enter presses a switch; Escape is left to the screen, which closes.
-        ui.focus = Some(Target::Item(Item::Industrial Era(H::Fog)));
+        ui.focus = Some(Target::Item(Item::IndustrialEra(H::Fog)));
         let (actions, _) = ui.key_modifiers(&mut s, K::Enter, None, false, SIZE, FB);
         assert_eq!(actions, [Action::ButtonClick, Action::Changed]);
-        assert!(!s.industrial-era.fog);
+        assert!(!s.industrial_era.fog);
         assert_eq!(
             ui.key_modifiers(&mut s, K::Escape, None, false, SIZE, FB),
             (Vec::new(), false)
@@ -2805,12 +2811,12 @@ mod tests {
     #[test]
     fn rows_split_vanilla_labels_into_name_and_value() {
         let s = Settings::default();
-        let (name, value) = parts(Item::Industrial Era(H::LodDistance), &s, false);
+        let (name, value) = parts(Item::IndustrialEra(H::LodDistance), &s, false);
         assert_eq!(
             (name.as_str(), value.as_deref()),
             ("LOD Distance", Some("Off"))
         );
-        let (name, value) = parts(Item::Industrial Era(H::HdrCalibrate), &s, false);
+        let (name, value) = parts(Item::IndustrialEra(H::HdrCalibrate), &s, false);
         assert!(!name.is_empty() && value.is_none());
     }
 
@@ -2827,7 +2833,7 @@ mod tests {
     #[test]
     fn lod_distance_slides_after_render_distance_without_changing_it() {
         let mut s = Settings::default();
-        let item = Item::Industrial Era(H::LodDistance);
+        let item = Item::IndustrialEra(H::LodDistance);
         let near = s.render_distance;
         assert_eq!(item.label(&s).plain(), "LOD Distance: Off");
         assert_eq!(item.slider(&s), Some(0.0));
@@ -2841,24 +2847,24 @@ mod tests {
         for (i, &distance) in LOD_STEPS.iter().enumerate() {
             let at = i as f32 / (LOD_STEPS.len() - 1) as f32;
             item.set_slider(&mut s, at);
-            assert_eq!(s.industrial-era.lod_distance, distance);
+            assert_eq!(s.industrial_era.lod_distance, distance);
             assert_eq!(item.slider(&s), Some(at));
             assert_eq!(s.render_distance, near);
         }
         // The ends are off and the whole world, which the far terrain plans.
         item.set_slider(&mut s, 0.0);
-        assert_eq!(s.industrial-era.lod_distance, 0);
+        assert_eq!(s.industrial_era.lod_distance, 0);
         item.set_slider(&mut s, 1.0);
-        assert_eq!(s.industrial-era.lod_distance, crate::lod::MAX_CHUNKS);
+        assert_eq!(s.industrial_era.lod_distance, crate::lod::MAX_CHUNKS);
         assert_eq!(
             item.label(&s).plain(),
             format!("LOD Distance: {} chunks", crate::lod::MAX_CHUNKS)
         );
         item.set_slider(&mut s, 5.0 / 17.0);
-        assert_eq!(s.industrial-era.lod_distance, 1024);
+        assert_eq!(s.industrial_era.lod_distance, 1024);
         assert_eq!(item.label(&s).plain(), "LOD Distance: 1024 chunks");
         // A distance between stops (from the file) sits on the next one.
-        s.industrial-era.lod_distance = 3000;
+        s.industrial_era.lod_distance = 3000;
         assert_eq!(item.slider(&s), Some(7.0 / 17.0));
         assert_eq!(
             Item::Vanilla(Opt::RenderDistance).label(&s).plain(),
@@ -2869,8 +2875,8 @@ mod tests {
     #[test]
     fn blue_map_settings_sit_with_far_terrain() {
         let mut s = Settings::default();
-        let find = Item::Industrial Era(H::BlueMapAutoDetect);
-        let radius = Item::Industrial Era(H::BlueMapRadius);
+        let find = Item::IndustrialEra(H::BlueMapAutoDetect);
+        let radius = Item::IndustrialEra(H::BlueMapRadius);
         let distance: Vec<Item> = rows()
             .into_iter()
             .flat_map(|(_, groups)| groups)
@@ -2881,113 +2887,113 @@ mod tests {
             .map(|r| r.item)
             .collect();
         assert!(distance.contains(&find) && distance.contains(&radius));
-        assert!(distance.contains(&Item::Industrial Era(H::FarDetail)));
+        assert!(distance.contains(&Item::IndustrialEra(H::FarDetail)));
         assert_eq!(find.switch(&s), Some(false), "off by default");
         assert_eq!(radius.label(&s).plain(), "BlueMap Radius: 64 chunks");
         find.cycle(&mut s, false, FB);
-        assert!(s.industrial-era.blue_map.auto_detect);
+        assert!(s.industrial_era.blue_map.auto_detect);
         radius.cycle(&mut s, false, FB);
-        assert_eq!(s.industrial-era.blue_map.radius, 128);
+        assert_eq!(s.industrial_era.blue_map.radius, 128);
         radius.cycle(&mut s, true, FB);
         radius.cycle(&mut s, true, FB);
         assert_eq!(radius.label(&s).plain(), "BlueMap Radius: 32 chunks");
-        assert_eq!(s.industrial-era.preset, Preset::Custom);
+        assert_eq!(s.industrial_era.preset, Preset::Custom);
     }
 
     #[test]
     fn presets_set_vanilla_and_industrial_era_options() {
         let mut s = Settings::default();
-        Item::Industrial Era(H::Preset).cycle(&mut s, false, [854, 480]);
-        assert_eq!(s.industrial-era.preset, Preset::Performance);
+        Item::IndustrialEra(H::Preset).cycle(&mut s, false, [854, 480]);
+        assert_eq!(s.industrial_era.preset, Preset::Performance);
         assert_eq!(s.render_distance, 8);
         assert_eq!(s.clouds, "false");
         // Any quality change leaves the preset.
         Item::Vanilla(Opt::Clouds).cycle(&mut s, false, [854, 480]);
-        assert_eq!(s.industrial-era.preset, Preset::Custom);
+        assert_eq!(s.industrial_era.preset, Preset::Custom);
         // Display preferences keep it.
-        Item::Industrial Era(H::Preset).cycle(&mut s, true, [854, 480]);
+        Item::IndustrialEra(H::Preset).cycle(&mut s, true, [854, 480]);
         Item::Vanilla(Opt::Vsync).cycle(&mut s, false, [854, 480]);
-        assert_eq!(s.industrial-era.preset, Preset::Ultra);
+        assert_eq!(s.industrial_era.preset, Preset::Ultra);
     }
 
     #[test]
     fn screenshot_quality_cycles_1_2_4_8_and_keeps_the_preset() {
         let mut s = Settings::default();
-        Item::Industrial Era(H::Preset).cycle(&mut s, false, [854, 480]);
+        Item::IndustrialEra(H::Preset).cycle(&mut s, false, [854, 480]);
         let mut seen = Vec::new();
         for _ in 0..4 {
-            Item::Industrial Era(H::ScreenshotQuality).cycle(&mut s, false, [854, 480]);
-            seen.push(s.industrial-era.screenshot_quality);
+            Item::IndustrialEra(H::ScreenshotQuality).cycle(&mut s, false, [854, 480]);
+            seen.push(s.industrial_era.screenshot_quality);
         }
         assert_eq!(seen, [2, 4, 8, 1]);
-        Item::Industrial Era(H::ScreenshotQuality).cycle(&mut s, true, [854, 480]);
-        assert_eq!(s.industrial-era.screenshot_quality, 8);
-        assert_eq!(s.industrial-era.preset, Preset::Performance);
+        Item::IndustrialEra(H::ScreenshotQuality).cycle(&mut s, true, [854, 480]);
+        assert_eq!(s.industrial_era.screenshot_quality, 8);
+        assert_eq!(s.industrial_era.preset, Preset::Performance);
     }
 
     #[test]
     fn upload_budget_slider_steps() {
         let mut s = Settings::default();
         H::UploadBudget.set_slider(&mut s, 1.0);
-        assert_eq!(s.industrial-era.upload_budget_kib, 16384);
+        assert_eq!(s.industrial_era.upload_budget_kib, 16384);
         assert_eq!(H::UploadBudget.slider(&s), Some(1.0));
         H::UploadBudget.set_slider(&mut s, 0.0);
-        assert_eq!(s.industrial-era.upload_budget_kib, 0);
+        assert_eq!(s.industrial_era.upload_budget_kib, 0);
     }
 
     #[test]
     fn antialiasing_cycles_off_fxaa_taa() {
         let mut s = Settings::default();
-        let item = Item::Industrial Era(H::Antialiasing);
+        let item = Item::IndustrialEra(H::Antialiasing);
         for label in ["FXAA", "TAA", "Off"] {
             item.cycle(&mut s, false, [854, 480]);
             assert_eq!(item.label(&s).plain(), format!("Anti-aliasing: {label}"));
         }
         item.cycle(&mut s, true, [854, 480]);
-        assert_eq!((s.industrial-era.fxaa, s.industrial-era.taa), (false, true));
+        assert_eq!((s.industrial_era.fxaa, s.industrial_era.taa), (false, true));
 
         // Upscaling needs TAA: a ratio turns it on, leaving TAA goes back to Native.
-        s.industrial-era.taa = false;
-        let upscaling = Item::Industrial Era(H::Upscaling);
+        s.industrial_era.taa = false;
+        let upscaling = Item::IndustrialEra(H::Upscaling);
         upscaling.cycle(&mut s, false, [854, 480]);
         assert_eq!(upscaling.label(&s).plain(), "Upscaling: Quality");
-        assert!(s.industrial-era.taa);
+        assert!(s.industrial_era.taa);
         item.cycle(&mut s, false, [854, 480]);
-        assert_eq!(s.industrial-era.upscaling, Upscaling::Native);
+        assert_eq!(s.industrial_era.upscaling, Upscaling::Native);
 
         // The Upscaling row is only on the screen while TAA is on.
         assert!(!shown(upscaling, &s));
-        s.industrial-era.taa = true;
+        s.industrial_era.taa = true;
         assert!(shown(upscaling, &s));
     }
 
     #[test]
     fn entity_culling_modes_are_opt_in_and_cycle_from_its_row() {
         let mut s = Settings::default();
-        let item = Item::Industrial Era(H::EntityCulling);
-        assert_eq!(s.industrial-era.entity_culling, EntityCullingMode::Off);
+        let item = Item::IndustrialEra(H::EntityCulling);
+        assert_eq!(s.industrial_era.entity_culling, EntityCullingMode::Off);
         assert_eq!(item.label(&s).plain(), "Entity Culling: Off");
         for mode in EntityCullingMode::ALL {
-            s.industrial-era.entity_culling = mode;
+            s.industrial_era.entity_culling = mode;
             for preset in Preset::ALL {
                 crate::graphics::apply_preset(preset, &mut s);
-                assert_eq!(s.industrial-era.entity_culling, mode);
+                assert_eq!(s.industrial_era.entity_culling, mode);
             }
         }
-        s.industrial-era.entity_culling = EntityCullingMode::Off;
+        s.industrial_era.entity_culling = EntityCullingMode::Off;
         let mut ui = GraphicsUi::default();
         let r = row(&mut ui, &s, item);
         for mode in [
             EntityCullingMode::Synchronous,
             EntityCullingMode::Asynchronous,
         ] {
-            s.industrial-era.preset = Preset::Balanced;
+            s.industrial_era.preset = Preset::Balanced;
             assert_eq!(
                 press(&mut ui, &mut s, (r[0] + 4.0, r[1] + 4.0)),
                 [Action::ButtonClick, Action::Changed]
             );
-            assert_eq!(s.industrial-era.entity_culling, mode);
-            assert_eq!(s.industrial-era.preset, Preset::Custom);
+            assert_eq!(s.industrial_era.entity_culling, mode);
+            assert_eq!(s.industrial_era.preset, Preset::Custom);
         }
         assert_eq!(item.label(&s).plain(), "Entity Culling: Asynchronous");
     }
@@ -2996,7 +3002,7 @@ mod tests {
     /// preset, and greyed out, reading Off, where the device can't batch.
     #[test]
     fn translucent_batching_is_an_advanced_switch_where_the_device_can() {
-        let item = Item::Industrial Era(H::TranslucentBatching);
+        let item = Item::IndustrialEra(H::TranslucentBatching);
         let page = items()
             .into_iter()
             .find(|(_, i)| *i == item)
@@ -3008,7 +3014,7 @@ mod tests {
         }
         assert_eq!(page, Some(Page::Advanced));
         let mut s = Settings::default();
-        s.industrial-era.preset = Preset::Balanced;
+        s.industrial_era.preset = Preset::Balanced;
         assert_eq!(item.switch(&s), Some(true));
         let mut ui = GraphicsUi::default();
         // Where the device can't, the saved On reads Off, and neither a click nor Enter
@@ -3022,7 +3028,7 @@ mod tests {
         ui.focus = Some(Target::Item(item));
         let enter = ui.key_modifiers(&mut s, K::Enter, None, false, SIZE, FB);
         assert!(enter.0.is_empty());
-        assert!(s.industrial-era.translucent_batching);
+        assert!(s.industrial_era.translucent_batching);
         // Where it can, a click switches it and keeps the preset.
         crate::graphics::offer_translucent_batching(true);
         assert_eq!(item.label(&s).plain(), "Translucent Batching: On");
@@ -3030,15 +3036,15 @@ mod tests {
             press(&mut ui, &mut s, point),
             [Action::ButtonClick, Action::Changed]
         );
-        assert!(!s.industrial-era.translucent_batching);
+        assert!(!s.industrial_era.translucent_batching);
         assert_eq!(item.label(&s).plain(), "Translucent Batching: Off");
-        assert_eq!(s.industrial-era.preset, Preset::Balanced);
+        assert_eq!(s.industrial_era.preset, Preset::Balanced);
         // No preset sets it.
         for on in [false, true] {
-            s.industrial-era.translucent_batching = on;
+            s.industrial_era.translucent_batching = on;
             for preset in Preset::ALL {
                 crate::graphics::apply_preset(preset, &mut s);
-                assert_eq!(s.industrial-era.translucent_batching, on, "{preset:?}");
+                assert_eq!(s.industrial_era.translucent_batching, on, "{preset:?}");
             }
         }
     }
@@ -3046,19 +3052,19 @@ mod tests {
     #[test]
     fn leaf_culling_cycles_modes_beside_the_other_culling() {
         let mut s = Settings::default();
-        let item = Item::Industrial Era(H::LeafCulling);
+        let item = Item::IndustrialEra(H::LeafCulling);
         assert_eq!(item.switch(&s), None);
         assert_eq!(item.label(&s).plain(), "Leaf Culling: Off");
         for label in ["Solid", "Solid Aggressive", "Hollow", "Off"] {
             item.cycle(&mut s, false, FB);
             assert_eq!(item.label(&s).plain(), format!("Leaf Culling: {label}"));
             assert_eq!(
-                crate::graphics::Graphics::parse(&s.industrial-era.serialize()).leaf_culling,
-                s.industrial-era.leaf_culling
+                crate::graphics::Graphics::parse(&s.industrial_era.serialize()).leaf_culling,
+                s.industrial_era.leaf_culling
             );
         }
         item.cycle(&mut s, true, FB);
-        assert_eq!(s.industrial-era.leaf_culling, LeafCullingMode::Hollow);
+        assert_eq!(s.industrial_era.leaf_culling, LeafCullingMode::Hollow);
 
         // The three culling settings share one group of the Performance page.
         let culling = rows()
@@ -3069,7 +3075,7 @@ mod tests {
         assert_eq!(culling.0, Page::Performance);
         let block: Vec<Item> = culling.1.iter().map(|r| r.item).collect();
         for h in [H::CaveCulling, H::EntityCulling, H::LeafCulling] {
-            assert!(block.contains(&Item::Industrial Era(h)), "{h:?}");
+            assert!(block.contains(&Item::IndustrialEra(h)), "{h:?}");
         }
         // The block-entity caches are the group after it, in this order.
         let groups: Vec<(&str, Vec<Item>)> = rows()
@@ -3097,14 +3103,14 @@ mod tests {
                     H::CacheBanners,
                     H::CacheCopperGolemStatues,
                 ]
-                .map(Item::Industrial Era)
+                .map(Item::IndustrialEra)
                 .to_vec()
             )
         );
 
         // The description names what the picked mode does.
         for mode in LeafCullingMode::ALL {
-            s.industrial-era.leaf_culling = mode;
+            s.industrial_era.leaf_culling = mode;
             let text = description(item, &s, "fallback");
             assert_ne!(text, "fallback", "{mode:?}");
             assert!(text.len() < 80, "{mode:?}: {text}");
@@ -3112,15 +3118,15 @@ mod tests {
 
         // A click cycles it and leaves the preset, as the other quality settings do.
         let mut ui = GraphicsUi::default();
-        s.industrial-era.preset = Preset::Balanced;
-        s.industrial-era.leaf_culling = LeafCullingMode::Off;
+        s.industrial_era.preset = Preset::Balanced;
+        s.industrial_era.leaf_culling = LeafCullingMode::Off;
         let r = row(&mut ui, &s, item);
         assert_eq!(
             press(&mut ui, &mut s, (r[0] + 4.0, r[1] + 4.0)),
             [Action::ButtonClick, Action::Changed]
         );
-        assert_eq!(s.industrial-era.leaf_culling, LeafCullingMode::Solid);
-        assert_eq!(s.industrial-era.preset, Preset::Custom);
+        assert_eq!(s.industrial_era.leaf_culling, LeafCullingMode::Solid);
+        assert_eq!(s.industrial_era.preset, Preset::Custom);
     }
 
     #[test]
@@ -3139,14 +3145,14 @@ mod tests {
             H::HdrUiBrightness,
         ];
         for h in options {
-            let item = Item::Industrial Era(h);
+            let item = Item::IndustrialEra(h);
             let steps = h.slider_steps().expect("steps defined");
             for i in 0..steps {
                 let pos = i as f32 / steps as f32;
                 let mut s1 = Settings::default();
                 let mut s2 = Settings::default();
-                s1.industrial-era.hdr = true;
-                s2.industrial-era.hdr = true;
+                s1.industrial_era.hdr = true;
+                s2.industrial_era.hdr = true;
                 h.set_slider(&mut s1, pos);
 
                 item.step_slider(&mut s1, true, 200.0);
@@ -3162,8 +3168,8 @@ mod tests {
                 let pos = i as f32 / steps as f32;
                 let mut s1 = Settings::default();
                 let mut s2 = Settings::default();
-                s1.industrial-era.hdr = true;
-                s2.industrial-era.hdr = true;
+                s1.industrial_era.hdr = true;
+                s2.industrial_era.hdr = true;
                 h.set_slider(&mut s1, pos);
 
                 item.step_slider(&mut s1, false, 200.0);
@@ -3186,8 +3192,8 @@ mod tests {
         let (_, missed) = lang::scoped(lang::Language::load(&[], "de_de"), || {
             for hdr in [false, true] {
                 let mut s = Settings::default();
-                s.industrial-era.hdr = hdr;
-                s.industrial-era.taa = true;
+                s.industrial_era.hdr = hdr;
+                s.industrial_era.taa = true;
                 for _ in 0..8 {
                     for (page, groups) in rows() {
                         lang::get(page.name());
@@ -3196,7 +3202,7 @@ mod tests {
                             lang::get(group);
                             for row in rows {
                                 // Vanilla's captions are vanilla's keys, not loaded here.
-                                if let Item::Industrial Era(_) = row.item {
+                                if let Item::IndustrialEra(_) = row.item {
                                     row.item.label(&s);
                                 }
                                 let text = description(row.item, &s, row.text);
@@ -3205,7 +3211,7 @@ mod tests {
                                 if let Some(why) = row.item.blocked(&s) {
                                     lang::get(why);
                                 }
-                                if let Item::Industrial Era(h) = row.item {
+                                if let Item::IndustrialEra(h) = row.item {
                                     h.cycle(&mut s, false);
                                 }
                             }
@@ -3237,8 +3243,8 @@ mod tests {
     #[test]
     fn newer_graphics_settings_are_translated() {
         let mut s = Settings::default();
-        s.industrial-era.leaf_culling = LeafCullingMode::Hollow;
-        s.industrial-era.entity_culling = EntityCullingMode::Asynchronous;
+        s.industrial_era.leaf_culling = LeafCullingMode::Hollow;
+        s.industrial_era.entity_culling = EntityCullingMode::Asynchronous;
         for (code, leaf, entity, leaf_text) in [
             (
                 "de_de",
@@ -3272,7 +3278,7 @@ mod tests {
             ),
         ] {
             let (shown, _) = lang::scoped(lang::Language::load(&[], code), || {
-                let item = |h| Item::Industrial Era(h);
+                let item = |h| Item::IndustrialEra(h);
                 (
                     item(H::LeafCulling).label(&s).plain(),
                     item(H::EntityCulling).label(&s).plain(),

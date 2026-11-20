@@ -590,17 +590,16 @@ pub fn game_dispatcher_with_features(features: &[String]) -> &'static Dispatcher
     }
     static TREES: [std::sync::OnceLock<Dispatcher>; 8] = [const { std::sync::OnceLock::new() }; 8];
     let dev = std::env::var_os("HORIZON_DEV_COMMANDS").is_some();
-    let industrial-era = HORIZON_COMMANDS.load(std::sync::atomic::Ordering::Relaxed);
+    let industrial_era = HORIZON_COMMANDS.load(std::sync::atomic::Ordering::Relaxed);
     let dedicated = DEDICATED_COMMANDS.load(std::sync::atomic::Ordering::Relaxed);
-    TREES[usize::from(dev) | usize::from(industrial-era) << 1 | usize::from(dedicated) << 2].get_or_init(
-        || {
+    TREES[usize::from(dev) | usize::from(industrial - era) << 1 | usize::from(dedicated) << 2]
+        .get_or_init(|| {
             let mut d = build_for_features(dev, dedicated, true);
-            if industrial-era {
+            if industrial_era {
                 industrial_era_commands(&mut d, 0);
             }
             d
-        },
-    )
+        })
 }
 /// Whether this process is a dedicated server, whose tree has the dedicated
 /// commands (`/op`, `/ban`, `/whitelist`...). Single player's server thread
@@ -625,15 +624,16 @@ pub fn set_industrial_era_commands(on: bool) {
 /// The server.properties key that turns `/pregen` on (Industrial Era's own; vanilla
 /// ignores keys it doesn't know).
 pub const PREGEN_PROPERTY: &str = "industrial-era-pregen";
-pub(crate) fn game_tree(dev: bool, industrial-era: bool, dedicated: bool) -> &'static Dispatcher {
+pub(crate) fn game_tree(dev: bool, industrial_era: bool, dedicated: bool) -> &'static Dispatcher {
     static TREES: [std::sync::OnceLock<Dispatcher>; 8] = [const { std::sync::OnceLock::new() }; 8];
-    match (dev, industrial-era, dedicated) {
+    match (dev, industrial - era, dedicated) {
         (true, false, false) => dispatcher(),
         (false, false, false) => release_dispatcher(),
-        _ => TREES[usize::from(dev) | usize::from(industrial-era) << 1 | usize::from(dedicated) << 2]
+        _ => TREES
+            [usize::from(dev) | usize::from(industrial - era) << 1 | usize::from(dedicated) << 2]
             .get_or_init(|| {
                 let mut d = build_for(dev, dedicated);
-                if industrial-era {
+                if industrial_era {
                     industrial_era_commands(&mut d, 0);
                 }
                 d

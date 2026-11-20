@@ -12,7 +12,7 @@ use std::{
     sync::{Mutex, OnceLock},
 };
 
-pub const CHANNEL: &str = "industrial-era:block_registry";
+pub const CHANNEL: &str = "industrial_era:block_registry";
 pub const MARKER: &str = "industrial-era-content-blocks";
 pub const MISMATCH: &str =
     "Content registry mismatch: install the same content mods as the server.";
@@ -76,7 +76,7 @@ pub fn identity(root: &Path) -> Result<[u8; 32], IdentityError> {
         .map(|(id, name)| (id as u64, name.to_owned()))
         .collect();
     if !components.is_empty() {
-        hash = hash_entries(hash, "industrial-era:nbt_components/v1", &components);
+        hash = hash_entries(hash, "industrial_era:nbt_components/v1", &components);
         // Defaults are not sent in a stack patch. Both peers must therefore
         // agree on their values as well as the registered wire IDs, native
         // mods' changes included.
@@ -90,7 +90,7 @@ pub fn identity(root: &Path) -> Result<[u8; 32], IdentityError> {
             }
         }
         if !defaults.is_empty() {
-            hash = hash_entries(hash, "industrial-era:nbt_component_defaults/v1", &defaults);
+            hash = hash_entries(hash, "industrial_era:nbt_component_defaults/v1", &defaults);
         }
     }
     identities.insert(root.to_owned(), hash);

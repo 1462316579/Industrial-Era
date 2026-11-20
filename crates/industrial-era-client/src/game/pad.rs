@@ -114,7 +114,10 @@ mod no_router {
         pub(in crate::game) fn name(&self, _: PadId) -> String {
             String::new()
         }
-        pub(in crate::game) fn style(&self, _: PadId) -> industrial_era_client::gamepad::GlyphStyle {
+        pub(in crate::game) fn style(
+            &self,
+            _: PadId,
+        ) -> industrial_era_client::gamepad::GlyphStyle {
             industrial_era_client::gamepad::GlyphStyle::Auto
         }
     }

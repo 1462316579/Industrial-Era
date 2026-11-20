@@ -78,8 +78,8 @@ impl Game<'_> {
     }
     /// ChunkGenerator.getOrigin and getSpawnHeight of the overworld.
     fn spawn_origin(&self) -> Result<((i32, i32), i32)> {
-        if let Some(flat) =
-            industrial_era_client::save::world_gen_settings(&self.world_root).and_then(|s| {
+        if let Some(flat) = industrial_era_client::save::world_gen_settings(&self.world_root)
+            .and_then(|s| {
                 industrial_era_client::flatgen::FlatTerrain::from_settings(
                     &s,
                     self.pack.assets.registry,

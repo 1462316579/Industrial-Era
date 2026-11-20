@@ -251,7 +251,10 @@ impl Split<'_> {
     /// Guest `i`'s pick can't play: its profile page says why (opened again if it had left the
     /// world for it).
     fn refuse(&mut self, i: usize, why: String) {
-        log::warn!("Industrial Era: splitscreen: P{}: {why}", self.guests[i].seat);
+        log::warn!(
+            "Industrial Era: splitscreen: P{}: {why}",
+            self.guests[i].seat
+        );
         let game = &mut self.guests[i].game;
         if !on_profiles(game) {
             game.open_options_at(true, Page::SplitProfiles);
@@ -322,8 +325,8 @@ impl Split<'_> {
             &guest.gui,
             host.renderer.as_ref(),
             None,
-            host.settings.industrial-era.api,
-            host.settings.industrial-era.translucent_batching,
+            host.settings.industrial_era.api,
+            host.settings.industrial_era.translucent_batching,
             // The pack its own game loads, from its profile.
             crate::game::shader_packs::picked_pack_draws_flat(&guest.settings),
         )?);

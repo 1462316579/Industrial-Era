@@ -661,7 +661,9 @@ impl Occlusion {
                 self.changed_late.clear();
                 return;
             }
-            log::warn!("Industrial Era: the occlusion worker stopped; culling on the render thread");
+            log::warn!(
+                "Industrial Era: the occlusion worker stopped; culling on the render thread"
+            );
             self.worker = None;
         }
         self.edits.clear();
@@ -1282,7 +1284,7 @@ mod tests {
         assert!(o.contains((9, 1, 9)), "a section off to the side is seen");
     }
 
-    /// `cargo test --profile fast -p industrial-era-client --lib occlusion::tests::search_cost -- --ignored --nocapture`:
+    /// `cargo test --profile fast -p industrial_era-client --lib occlusion::tests::search_cost -- --ignored --nocapture`:
     /// full searches at render distance 32 over a world with open sky above
     /// y 64 and caves below it.
     #[test]

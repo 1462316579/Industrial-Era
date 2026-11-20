@@ -90,7 +90,10 @@ impl Game<'_> {
     /// `WitherSkullBlock.checkSpawn`, after a wither skeleton skull is
     /// placed: the T of three skulls on four soul sand or soul soil, built in
     /// any orientation, becomes a wither.
-    pub(super) fn check_wither_spawn(&mut self, placed: [i32; 3]) -> industrial_era_client::Result<()> {
+    pub(super) fn check_wither_spawn(
+        &mut self,
+        placed: [i32; 3],
+    ) -> industrial_era_client::Result<()> {
         // Nothing is built in Peaceful (`level.getDifficulty() != PEACEFUL`).
         if self.ui.difficulty == 0 || !self.is_wither_skull(placed) {
             return Ok(());

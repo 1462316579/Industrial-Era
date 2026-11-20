@@ -38,7 +38,7 @@ pub struct Manifest {
     pub version: String,
     pub game: String,
     /// Exact source revisions tested together, never mutable tags.
-    pub industrial-era: String,
+    pub industrial_era: String,
     pub mixins: String,
     /// The version of Industrial Era's native hook points (`game/native_hooks.rs`,
     /// `NATIVE_HOOKS_API`) a mod that hooks nothing else needs: the launcher
@@ -61,7 +61,7 @@ impl Manifest {
             || !valid_id(&self.id)
             || self.version.is_empty()
             || self.game.is_empty()
-            || !revision(&self.industrial-era)
+            || !revision(&self.industrial_era)
             || !revision(&self.mixins)
             || self.hooks == Some(0)
         {
@@ -75,7 +75,7 @@ impl Manifest {
 
     /// Carries the exact native compatibility contract in the index's API field.
     pub fn api(&self) -> String {
-        format!("native-1/{}/{}", self.industrial-era, self.mixins)
+        format!("native-1/{}/{}", self.industrial_era, self.mixins)
     }
 
     pub fn facts(&self) -> Facts {
@@ -178,9 +178,12 @@ impl Bundle {
                 return Err("duplicate native bundle path".into());
             }
         }
-        let manifest: Manifest =
-            serde_json::from_slice(files.get(MANIFEST).ok_or("missing industrial-era-native.json")?)
-                .map_err(|e| e.to_string())?;
+        let manifest: Manifest = serde_json::from_slice(
+            files
+                .get(MANIFEST)
+                .ok_or("missing industrial_era-native.json")?,
+        )
+        .map_err(|e| e.to_string())?;
         manifest.check()?;
         if let Some(id) = content_id.filter(|id| *id != manifest.id) {
             return Err(format!(
@@ -200,7 +203,7 @@ impl Bundle {
         }
         let source = files
             .get(&format!("{prefix}industrial-era-mixin.toml"))
-            .ok_or("missing industrial-era-mixin.toml")?;
+            .ok_or("missing industrial_era-mixin.toml")?;
         let source: toml::Value =
             toml::from_str(std::str::from_utf8(source).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
@@ -218,7 +221,7 @@ impl Bundle {
                 .get("compatibility")
                 .and_then(|v| v.get("industrial_era_revision"))
                 .and_then(|v| v.as_str())
-                != Some(&manifest.industrial-era)
+                != Some(&manifest.industrial_era)
         {
             return Err("native manifest and mixin identity/revision differ".into());
         }
@@ -254,7 +257,7 @@ mod tests {
             id: "veinminer".into(),
             version: "0.3.0".into(),
             game: "26.3".into(),
-            industrial-era: "a".repeat(40),
+            industrial_era: "a".repeat(40),
             mixins: "b".repeat(40),
             hooks: None,
         }
@@ -435,7 +438,7 @@ capabilities = ["registries"]
         assert!(read("wrong-version", &[], &mixin().replace("0.3.0", "0.2.0")).is_err());
         assert!(
             Manifest {
-                industrial-era: "nightly".into(),
+                industrial_era: "nightly".into(),
                 ..manifest()
             }
             .check()

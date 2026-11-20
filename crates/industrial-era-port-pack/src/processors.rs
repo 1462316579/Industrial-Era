@@ -3,12 +3,12 @@
 //!
 //! - Moog's Structure Lib's and Repurposed Structures' spawner randomizing
 //!   processors pick a mob from a weighted list for each spawner. They become
-//!   `industrial-era:spawner_mobs` (`industrial_era_world::worldgen::structure::processor`),
+//!   `industrial_era:spawner_mobs` (`industrial_era_world::worldgen::structure::processor`),
 //!   with Repurposed's `rs_spawners` list written in.
 //! - Moog's vanilla loot swap only acts when its mod's "replace vanilla"
 //!   preset is on; one that ships off is a no-op and is taken out.
 //! - Repurposed Structures' mineshaft sky view becomes the game's
-//!   `industrial-era:mineshaft_sky_view`.
+//!   `industrial_era:mineshaft_sky_view`.
 //!
 //! Lithostitched's processors and Choice Theorem's Overhauled Village's
 //! compat hook are carried by `crate::lithostitched`, called from [`carry`].
@@ -203,12 +203,16 @@ fn carry_at(
 fn pillar_type(kind: &str) -> Option<&'static str> {
     Some(match kind {
         "repurposed_structures:pillar_processor" | "moogs_structures:pillar_processor" => {
-            "industrial-era:pillar"
+            "industrial_era:pillar"
         }
-        "repurposed_structures:bottom_pillar_processor" => "industrial-era:bottom_pillar",
+        "repurposed_structures:bottom_pillar_processor" => "industrial_era:bottom_pillar",
         "repurposed_structures:close_off_fluid_sources_processor"
-        | "moogs_structures:close_off_fluid_sources_processor" => "industrial-era:close_off_fluid_sources",
-        "repurposed_structures:close_off_air_sources_processor" => "industrial-era:close_off_air_sources",
+        | "moogs_structures:close_off_fluid_sources_processor" => {
+            "industrial_era:close_off_fluid_sources"
+        }
+        "repurposed_structures:close_off_air_sources_processor" => {
+            "industrial_era:close_off_air_sources"
+        }
         _ => return None,
     })
 }
@@ -249,15 +253,15 @@ fn pillar(
 const RULE_TESTS: [(&str, &str); 3] = [
     (
         "repurposed_structures:matter_phase_rule_test",
-        "industrial-era:matter_phase",
+        "industrial_era:matter_phase",
     ),
     (
         "repurposed_structures:piece_origin_axis_aligned_linear_pos_rule_test",
-        "industrial-era:piece_origin_axis_aligned_linear_pos",
+        "industrial_era:piece_origin_axis_aligned_linear_pos",
     ),
     (
         "repurposed_structures:y_value_pos_rule_test",
-        "industrial-era:y_value",
+        "industrial_era:y_value",
     ),
 ];
 
@@ -353,11 +357,11 @@ fn as_data(kind: &str, p: &Value, data: &ProcessorData) -> Option<Vec<Value>> {
         }
         // Wet where the world holds water, dry where it does not.
         "repurposed_structures:waterlogging_when_replacing_water_processor" => {
-            vec![json!({"processor_type": "industrial-era:waterlog_in_world_water"})]
+            vec![json!({"processor_type": "industrial_era:waterlog_in_world_water"})]
         }
         // Its mineshafts: nothing above the ocean floor but grounded rails.
         "repurposed_structures:mineshaft_sky_view_processor" => {
-            vec![json!({"processor_type": "industrial-era:mineshaft_sky_view"})]
+            vec![json!({"processor_type": "industrial_era:mineshaft_sky_view"})]
         }
         "moogs_structures:vanilla_loot_swap_processor" => {
             let key = (
@@ -453,7 +457,7 @@ const VAULT_STATES: States = (
 /// Moog's trial spawner and vault processors keep the block, take keys out
 /// of its block entity and set others. As vanilla's `rule`: one rule per
 /// state of the block, matching it and writing it back, with the game's
-/// `industrial-era:edit` modifier taking out `remove` and merging `nbt(state)` in.
+/// `industrial_era:edit` modifier taking out `remove` and merging `nbt(state)` in.
 fn same_state_rule(
     states: &States,
     remove: &[&str],
@@ -481,7 +485,7 @@ fn same_state_rule(
                 "input_predicate": {"predicate_type": "minecraft:blockstate_match", "block_state": state},
                 "location_predicate": {"predicate_type": "minecraft:always_true"},
                 "output_state": state,
-                "block_entity_modifier": {"type": "industrial-era:edit", "remove": remove, "data": nbt(s)},
+                "block_entity_modifier": {"type": "industrial_era:edit", "remove": remove, "data": nbt(s)},
             })
         })
         .collect();
@@ -539,10 +543,10 @@ pub fn upgrade_trial_spawner(config: &mut Value) -> bool {
     changed
 }
 
-/// [`as_data`]'s `industrial-era:spawner_mobs` for the mods' spawner randomizing
+/// [`as_data`]'s `industrial_era:spawner_mobs` for the mods' spawner randomizing
 /// processors, whose fields have the same names and defaults.
 fn spawner_mobs(p: &Value, mobs: Vec<Value>, rules: Option<Value>) -> Value {
-    let mut out = json!({"processor_type": "industrial-era:spawner_mobs", "mobs": mobs});
+    let mut out = json!({"processor_type": "industrial_era:spawner_mobs", "mobs": mobs});
     for key in [
         "delay",
         "min_spawn_delay",
@@ -635,13 +639,13 @@ mod tests {
         assert_eq!(p.len(), 5, "{p:#?}");
         assert_eq!(
             p[0],
-            json!({"processor_type": "industrial-era:spawner_mobs",
+            json!({"processor_type": "industrial_era:spawner_mobs",
                    "mobs": [{"entity": {"Health": 5, "id": "minecraft:blaze"}, "weight": 2.0}],
                    "spawn_count": 2, "replacement": {"Name": "minecraft:stone"}})
         );
         assert_eq!(
             p[1],
-            json!({"processor_type": "industrial-era:spawner_mobs",
+            json!({"processor_type": "industrial_era:spawner_mobs",
                    "mobs": [{"entity": {"id": "minecraft:husk"}, "weight": 10.0},
                             {"entity": {"id": "minecraft:cave_spider"}, "weight": 3.0}],
                    "custom_spawn_rules": {"block_light_limit": {"min_inclusive": 0, "max_inclusive": 7}}})
@@ -687,7 +691,7 @@ mod tests {
         );
         assert_eq!(
             spawner["block_entity_modifier"],
-            json!({"type": "industrial-era:edit",
+            json!({"type": "industrial_era:edit",
                    "remove": ["server_data", "shared_data", "spawn_data",
                               "cooldown_end_at_tick", "next_mob_spawns_at"],
                    "data": {"normal_config": "mns:arena/normal",
@@ -701,7 +705,7 @@ mod tests {
             };
             assert_eq!(
                 rule["block_entity_modifier"],
-                json!({"type": "industrial-era:edit", "remove": ["server_data", "shared_data"],
+                json!({"type": "industrial_era:edit", "remove": ["server_data", "shared_data"],
                        "data": {"config": {"loot_table": table,
                                            "key_item": {"id": key, "count": 1}}}})
             );
@@ -742,8 +746,8 @@ mod tests {
         ));
         assert_eq!(
             list["processors"],
-            json!([{"processor_type": "industrial-era:waterlog_in_world_water"},
-                {"processor_type": "industrial-era:mineshaft_sky_view"}])
+            json!([{"processor_type": "industrial_era:waterlog_in_world_water"},
+                {"processor_type": "industrial_era:mineshaft_sky_view"}])
         );
     }
 
@@ -772,18 +776,18 @@ mod tests {
         let first = &list[0]["rules"][0];
         assert_eq!(
             first["location_predicate"]["predicate_type"],
-            "industrial-era:matter_phase"
+            "industrial_era:matter_phase"
         );
         assert_eq!(first["location_predicate"]["phase_to_test_for"], "AIR");
         assert_eq!(
             first["position_predicate"]["predicate_type"],
-            "industrial-era:y_value"
+            "industrial_era:y_value"
         );
         assert_eq!(first["position_predicate"]["max_y_value"], 31);
         let delegated = &list[1]["delegate"]["rules"][0];
         assert_eq!(
             delegated["position_predicate"]["predicate_type"],
-            "industrial-era:piece_origin_axis_aligned_linear_pos"
+            "industrial_era:piece_origin_axis_aligned_linear_pos"
         );
         assert_eq!(
             delegated["input_predicate"]["predicate_type"],
@@ -856,11 +860,11 @@ mod tests {
         assert_eq!(
             types,
             [
-                "industrial-era:pillar",
+                "industrial_era:pillar",
                 "minecraft:block_rot",
-                "industrial-era:bottom_pillar",
-                "industrial-era:close_off_fluid_sources",
-                "industrial-era:close_off_air_sources",
+                "industrial_era:bottom_pillar",
+                "industrial_era:close_off_fluid_sources",
+                "industrial_era:close_off_air_sources",
                 // YUNG's processors stay Java (dropped later) until the
                 // specification covers them.
                 "betterfortresses:pillar_processor",
@@ -869,7 +873,7 @@ mod tests {
         );
         // The named list is written in once; its own pillar loses its list.
         let inner = &p[0]["pillar_processor_list"]["processors"];
-        assert_eq!(inner[0]["processor_type"], "industrial-era:pillar");
+        assert_eq!(inner[0]["processor_type"], "industrial_era:pillar");
         assert!(inner[0].get("pillar_processor_list").is_none());
         assert_eq!(
             inner[0]["pillar_trigger_and_replacements"],

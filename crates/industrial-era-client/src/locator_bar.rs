@@ -387,7 +387,7 @@ impl View<'_> {
         }
     }
     /// `GameRenderer.projectHorizonToScreen`.
-    fn industrial-era(&self) -> f64 {
+    fn industrial_era(&self) -> f64 {
         if self.pitch <= -90.0 {
             return f64::NEG_INFINITY;
         }
@@ -410,7 +410,7 @@ impl View<'_> {
         };
         match w.target {
             WaypointTarget::Empty => Pitch::None,
-            WaypointTarget::Chunk(_) | WaypointTarget::Azimuth(_) => by(self.industrial-era()),
+            WaypointTarget::Chunk(_) | WaypointTarget::Azimuth(_) => by(self.industrial_era()),
             WaypointTarget::Block(v) => {
                 let p = self.block_position(w, v);
                 let c = self.camera_pos;

@@ -100,7 +100,7 @@ uniform! {
         camera_position: [f32; 3],
         /// Seconds since the pack was loaded, wrapping to 0 every hour.
         time: f32,
-        /// Unit vector toward the sun (below the industrial-era at night).
+        /// Unit vector toward the sun (below the industrial_era at night).
         sun_direction: [f32; 3],
         /// The time of day, 0..1: 0 sunrise, 0.25 noon, 0.5 sunset, 0.75 midnight.
         day_time: f32,

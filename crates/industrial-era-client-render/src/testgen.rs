@@ -73,7 +73,8 @@ impl ChunkGenerator for TestTerrain {
             } else {
                 self.grass
             }),
-            water: (h < 62).then_some((63, industrial_era_world::registry::BlockStateId(self.water))),
+            water: (h < 62)
+                .then_some((63, industrial_era_world::registry::BlockStateId(self.water))),
             biome: self.plains,
         })
     }
@@ -90,10 +91,11 @@ impl TestTerrain {
     fn generate(&self, _: &mut (), cx: i32, cz: i32) -> Chunk {
         let mut chunk = Chunk::empty(cx, cz);
         for s in &mut chunk.sections {
-            std::sync::Arc::make_mut(s).biomes = industrial_era_core::paletted::PalettedContainer::new(
-                crate::chunk::BIOME_STRATEGY,
-                u32::from(self.plains),
-            );
+            std::sync::Arc::make_mut(s).biomes =
+                industrial_era_core::paletted::PalettedContainer::new(
+                    crate::chunk::BIOME_STRATEGY,
+                    u32::from(self.plains),
+                );
         }
         for z in 0..16 {
             for x in 0..16 {

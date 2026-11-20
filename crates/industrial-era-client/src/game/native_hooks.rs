@@ -1,5 +1,5 @@
 //! Hook points for native mods (docs/native-mods.md, "Mods on the hook points"): empty
-//! functions the game calls at fixed places, for industrial-era-mixins bundles to
+//! functions the game calls at fixed places, for industrial_era-mixins bundles to
 //! hook with HEAD. Hooks that answer take an out parameter (`claimed`,
 //! `zoom`…) so several mods can hook the same point. A native mod keeps its
 //! own state in a module of its bundle; the helpers below read and draw what
@@ -3880,7 +3880,7 @@ impl Game<'_> {
     /// with this one, so `native_tell` and the other helpers that take a UUID
     /// reach nobody here: answer through `replies`. Once for each command a
     /// player sends, on a server, and for each line of a quiet command batch
-    /// (`industrial-era:quiet_commands`, whose replies are dropped). A command the
+    /// (`industrial_era:quiet_commands`, whose replies are dropped). A command the
     /// server refuses before reading it (unsigned chat arguments, the chat
     /// rate limit) never reaches it. 95.
     pub(super) fn native_player_command(
@@ -6483,7 +6483,7 @@ impl Game<'_> {
     /// `minecraft:crafting`, `minecraft:lectern`, a mod's own), `pos` the
     /// block it is of in `dimension` (none for a trade, a vehicle's, a mod's
     /// native menu or a mount's inventory, which has no menu type in vanilla
-    /// and is told as `industrial-era:mount_inventory`). The player's own inventory
+    /// and is told as `industrial_era:mount_inventory`). The player's own inventory
     /// is not one. Heard once a tick, so a menu opened and closed again
     /// inside one tick is not; one that replaces another comes after that
     /// one's close. The player's state is swapped in. `native_player_container_close`
@@ -8457,12 +8457,12 @@ impl Game<'_> {
     pub(super) fn native_instance_dir(&self) -> PathBuf {
         Self::game_dir()
     }
-    /// A native mod's own folder: `industrial-era-mods/.industrial-era-mod-data/<id>/`,
+    /// A native mod's own folder: `industrial-era-mods/.industrial_era-mod-data/<id>/`,
     /// where the WebAssembly mod of the same id kept its storage, so a
     /// player's settings carry over. Not created here.
     pub(super) fn native_data_dir(&self, mod_id: &str) -> PathBuf {
         let mods = Self::game_dir().join(mod_list::DIR);
-        mods.join(".industrial-era-mod-data").join(mod_id)
+        mods.join(".industrial_era-mod-data").join(mod_id)
     }
     /// The folder mod `mod_id`'s post-build step wrote into when the launcher built the game
     /// (`native-data/<id>/` in the build's version folder); None when the game's own path is
@@ -8833,7 +8833,8 @@ impl Game<'_> {
         let mut by_block: FxHashMap<String, Option<Arc<ModContainer>>> = FxHashMap::default();
         let mut out = FxHashMap::default();
         for i in 0..registry.len() as u32 {
-            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i)) else {
+            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i))
+            else {
                 continue;
             };
             if state.name.starts_with("minecraft:") {
@@ -8867,7 +8868,8 @@ impl Game<'_> {
         let mut by_block: FxHashMap<String, Option<Arc<ModFluidTanks>>> = FxHashMap::default();
         let mut out = FxHashMap::default();
         for i in 0..registry.len() as u32 {
-            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i)) else {
+            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i))
+            else {
                 continue;
             };
             if state.name.starts_with("minecraft:") {
@@ -8903,7 +8905,8 @@ impl Game<'_> {
         let mut by_block: FxHashMap<String, Option<Arc<ModEnergyBuffer>>> = FxHashMap::default();
         let mut out = FxHashMap::default();
         for i in 0..registry.len() as u32 {
-            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i)) else {
+            let Some(state) = registry.state(industrial_era_world::registry::BlockStateId(i))
+            else {
                 continue;
             };
             if state.name.starts_with("minecraft:") {
@@ -9199,7 +9202,8 @@ impl Game<'_> {
         }
         // Without a container, an `Items` item list is the mod's own field.
         if slots == 0 && !taken.items.is_empty() {
-            let items = industrial_era_client::save::encode_items(&std::mem::take(&mut taken.items));
+            let items =
+                industrial_era_client::save::encode_items(&std::mem::take(&mut taken.items));
             taken.nbt.insert("Items".into(), items);
         }
         self.native_block_entity_tick([pos.0, pos.1, pos.2], &mut taken);
@@ -9287,7 +9291,10 @@ impl Game<'_> {
         if let Some(container) = window {
             self.send(
                 industrial_era_protocol::packets::play::Serverbound::ContainerButtonClick(
-                    industrial_era_protocol::packets::play::ContainerButtonClick { container, button },
+                    industrial_era_protocol::packets::play::ContainerButtonClick {
+                        container,
+                        button,
+                    },
                 ),
             );
         }
@@ -9913,7 +9920,8 @@ mod tests {
             ["crop0",false,false,"",{"id":"test:crop","properties":{"age":"0"}}],
             ["crop1",false,false,"",{"id":"test:crop","properties":{"age":"1"}}]
         ]}"#;
-        let registry = industrial_era_world::registry::BlockRegistry::from_facts_json(&facts[..]).unwrap();
+        let registry =
+            industrial_era_world::registry::BlockRegistry::from_facts_json(&facts[..]).unwrap();
         use industrial_era_world::registry::BlockStateId;
         let (age0, age1) = (BlockStateId(1), BlockStateId(2));
         assert_eq!(
@@ -9949,7 +9957,8 @@ mod tests {
             ["north_items",false,false,"",{"id":"test:pipe","properties":{"carries":"items","facing":"north"}}],
             ["east_items",false,false,"",{"id":"test:pipe","properties":{"carries":"items","facing":"east"}}]
         ]}"#;
-        let registry = industrial_era_world::registry::BlockRegistry::from_facts_json(&facts[..]).unwrap();
+        let registry =
+            industrial_era_world::registry::BlockRegistry::from_facts_json(&facts[..]).unwrap();
         use industrial_era_world::registry::BlockStateId;
         let (north_gas, east_gas, east_items) = (BlockStateId(1), BlockStateId(2), BlockStateId(4));
         // The declared property changes, and `carries` stays as it was.
@@ -10034,7 +10043,8 @@ mod tests {
 
     #[test]
     fn native_loot_kinds_stay_hookable() {
-        let source = include_str!("../../../industrial-era-world/src/loot.rs").replace("\r\n", "\n");
+        let source =
+            include_str!("../../../industrial-era-world/src/loot.rs").replace("\r\n", "\n");
         for hook in [
             "pub fn native_loot_function(",
             "pub fn native_loot_condition(",
@@ -10072,7 +10082,8 @@ mod tests {
 
     #[test]
     fn loot_table_load_stays_hookable() {
-        let source = include_str!("../../../industrial-era-world/src/loot.rs").replace("\r\n", "\n");
+        let source =
+            include_str!("../../../industrial-era-world/src/loot.rs").replace("\r\n", "\n");
         // From its doc comment's last line, so an attribute above it counts.
         let hook = source.find("pub fn native_loot_table_load(").unwrap();
         let start = source[..hook].rfind("///").unwrap();
@@ -10165,7 +10176,9 @@ mod tests {
             "../../../industrial-era-client-render/src/gfx/native_render.rs"
         ));
         // Items' default components (`industrial_era_world::item_defaults`).
-        let item_hooks = free_hooks(include_str!("../../../industrial-era-world/src/item_defaults.rs"));
+        let item_hooks = free_hooks(include_str!(
+            "../../../industrial-era-world/src/item_defaults.rs"
+        ));
         // The loot tables' hook point (`industrial_era_world::loot`).
         let loot_hooks = free_hooks(include_str!("../../../industrial-era-world/src/loot.rs"));
         // The menu engine's (`industrial_era_client::menu`).
@@ -10213,7 +10226,7 @@ mod tests {
             } else if loot_hooks.contains(name) {
                 format!("industrial_era_world::loot::native_{name}")
             } else if crafting_hooks.contains(name) {
-                // crafting.rs compiles into industrial-era-client-lib (#5446's
+                // crafting.rs compiles into industrial_era-client-lib (#5446's
                 // split): industrial-era-mixins resolves the crate by its package.
                 format!("industrial_era_client_lib::crafting::native_{name}")
             } else if hunger_hooks.contains(name) {
@@ -10223,11 +10236,11 @@ mod tests {
             } else if motion_hooks.contains(name) {
                 format!("industrial_era_client_lib::motion::native_{name}")
             } else if menu_hooks.contains(name) {
-                // menu.rs compiles into industrial-era-client-lib (#5446's
+                // menu.rs compiles into industrial_era-client-lib (#5446's
                 // split): industrial-era-mixins resolves the crate by its package.
                 format!("industrial_era_client_lib::menu::native_{name}")
             } else if breath_hooks.contains(name) {
-                // breathing.rs compiles into industrial-era-client-lib too.
+                // breathing.rs compiles into industrial_era-client-lib too.
                 format!("industrial_era_client_lib::breathing::native_{name}")
             } else if level_hooks.contains(name) {
                 format!("industrial_era_client::game::native_hooks::GameLevel<'_>::native_{name}")
@@ -10238,7 +10251,7 @@ mod tests {
         }
         assert_eq!(names, declared);
         // Every target's crate really compiles its module: #5446 moved
-        // files between industrial-era-client and industrial-era-client-lib, and a
+        // files between industrial_era-client and industrial_era-client-lib, and a
         // target left on the old crate applies to no bundle — the string
         // comparison above shares its expectation with the catalog, so it
         // alone cannot catch a move. The first path segment after the
@@ -10319,7 +10332,8 @@ mod tests {
         // Callable without a game, from any hook.
         let _: fn() -> Result<std::path::PathBuf, String> = super::Game::native_config_dir;
         use super::config_dir;
-        let root = std::env::temp_dir().join(format!("industrial-era-config-dir-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-config-dir-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         assert!(!root.join("config").exists());
         let dir = config_dir(&root).unwrap();

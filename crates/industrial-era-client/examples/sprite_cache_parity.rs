@@ -1,7 +1,7 @@
 //! M-11 gate: block assets loaded through the sprite disk cache are byte-identical
 //! to the ones decoded from the PNGs. Deletes the cache file in ROOT, loads (decodes
 //! and writes it), loads again (reads it) and compares the sprite arrays.
-//! cargo run --profile fast -p industrial-era-client --example sprite_cache_parity -- ROOT
+//! cargo run --profile fast -p industrial_era-client --example sprite_cache_parity -- ROOT
 extern crate industrial_era_client_lib as industrial_era_client;
 use industrial_era_client::assets::{Assets, RenderAssets};
 use std::{

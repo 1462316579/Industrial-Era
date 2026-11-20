@@ -86,7 +86,10 @@ impl ArmorStandAssets {
         let mut equipment_layers = HashMap::new();
         let mut trim_overrides = HashMap::new();
         for (id, v) in industrial_era_client::equipment::assets(root) {
-            equipment.insert(id.clone(), industrial_era_client::equipment::layers(&id, &v));
+            equipment.insert(
+                id.clone(),
+                industrial_era_client::equipment::layers(&id, &v),
+            );
             let mut kinds = HashMap::new();
             for kind in ["humanoid", "humanoid_leggings", "wings"] {
                 // Every layer of the kind: leather's overlay is layer 1.
@@ -99,7 +102,10 @@ impl ArmorStandAssets {
                         let undyed = layer["dyeable"]["color_when_undyed"]
                             .as_i64()
                             .map(|c| c as u32 & 0xFF_FFFF);
-                        (industrial_era_client::equipment::sprite(texture, kind), undyed)
+                        (
+                            industrial_era_client::equipment::sprite(texture, kind),
+                            undyed,
+                        )
                     })
                     .collect();
                 if !layers.is_empty() {
@@ -999,7 +1005,8 @@ impl Game<'_> {
                 let mut models = self.skin_models.borrow_mut();
                 let mut frame = self.skin_frame.borrow_mut();
                 let mark = frame.mark();
-                let mut skin = industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
+                let mut skin =
+                    industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
                 self.armor_stand_vertices(a, base, packed, Some(&mut skin), out);
                 Some((mark, skin.bounds))
             } else {
@@ -1420,8 +1427,9 @@ impl Game<'_> {
         mut skin: Option<&mut industrial_era_client::mobs::skin::Skin>,
         out: &mut Vec<Vertex>,
     ) {
-        let lights =
-            industrial_era_client::block_entity_render::diffuse_lights(self.dim == super::Dim::Nether);
+        let lights = industrial_era_client::block_entity_render::diffuse_lights(
+            self.dim == super::Dim::Nether,
+        );
         let mut submit = |state: &industrial_era_client::item_render::ItemRenderState,
                           pose: glam::Mat4,
                           out: &mut Vec<Vertex>| {

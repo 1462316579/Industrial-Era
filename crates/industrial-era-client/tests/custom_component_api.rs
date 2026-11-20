@@ -42,8 +42,10 @@ fn registration_limits_and_defaults_are_bound_to_the_connection() {
     assert!(custom::validate(&deep).is_err());
     assert!(custom::validate(&Tag::List(vec![Tag::Int(1), Tag::String("x".into())])).is_ok());
 
-    let dir =
-        std::env::temp_dir().join(format!("industrial-era-component-identity-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!(
+        "industrial-era-component-identity-{}",
+        std::process::id()
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     for (name, value) in [("a", 1), ("b", 2), ("c", 1)] {
         let root = dir.join(name);
@@ -139,9 +141,11 @@ fn registration_limits_and_defaults_are_bound_to_the_connection() {
     );
     assert!(items["good:thing"].get("minecraft:repairable").is_none());
     assert!(items.get("bad:thing").is_none());
-    let catalog =
-        industrial_era_client::items::Items::catalog(&out, &industrial_era_world::loot::PackOverlay::NONE)
-            .unwrap();
+    let catalog = industrial_era_client::items::Items::catalog(
+        &out,
+        &industrial_era_world::loot::PackOverlay::NONE,
+    )
+    .unwrap();
     assert_eq!(
         catalog.get("good:thing").unwrap().custom_components["sample:a"],
         Tag::compound([("value", Tag::Int(5))])

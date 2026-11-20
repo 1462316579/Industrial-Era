@@ -1,5 +1,7 @@
 //! Binary transport for exhaustive comparison of the compiled float log sampler.
-use industrial_era_core::density::{DensitySampler, SampleError, SamplerContext, UnaryOp, UnarySampler};
+use industrial_era_core::density::{
+    DensitySampler, SampleError, SamplerContext, UnaryOp, UnarySampler,
+};
 use std::{
     io::{self, Write},
     sync::Arc,

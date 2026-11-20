@@ -165,7 +165,9 @@ fn snapshot(out: &mut impl Write, player: &PlayerMotion) -> Result<()> {
         .filter_map(|e| match e {
             MotionEvent::Fall(e) => Some(e.trace()),
             // The oracle's player wears no armor; the game applies this one.
-            MotionEvent::Health(industrial_era_client::health::HealthEvent::ArmorHurt { .. }) => None,
+            MotionEvent::Health(industrial_era_client::health::HealthEvent::ArmorHurt {
+                ..
+            }) => None,
             MotionEvent::Health(e) => Some(e.trace()),
             MotionEvent::Snowflake { position, velocity } => Some(format!(
                 "snowflake {:016x},{:016x},{:016x} {:016x},{:016x},{:016x}",
@@ -397,7 +399,9 @@ pub fn main() -> Result<()> {
                         .id(op["name"].as_str().unwrap())
                         .ok_or("missing fixture damage source")?;
                     let kind = match op["name"].as_str().unwrap() {
-                        "minecraft:fall" => industrial_era_world::block_landing::LandingDamage::Fall,
+                        "minecraft:fall" => {
+                            industrial_era_world::block_landing::LandingDamage::Fall
+                        }
                         "minecraft:stalagmite" => {
                             industrial_era_world::block_landing::LandingDamage::Stalagmite
                         }

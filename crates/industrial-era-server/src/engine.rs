@@ -58,7 +58,7 @@ pub fn program_in(
         })
         .find(|p| p.is_file())
         .ok_or_else(|| {
-            "the game program (industrial-era-client) is neither beside industrial-era-server nor on the PATH: \
+            "the game program (industrial-era-client) is neither beside industrial_era-server nor on the PATH: \
              install it there, or set engine.path in server.toml"
                 .into()
         })
@@ -247,7 +247,7 @@ fn command(
     low_memory: bool,
 ) -> std::io::Result<Command> {
     // The game runs in the server folder, so a folder given relative to ours (`--dir srv`) would put its
-    // control endpoint in `srv/srv/.industrial-era`, which doesn't exist.
+    // control endpoint in `srv/srv/.industrial_era`, which doesn't exist.
     let dir = std::path::absolute(dir)?;
     let resources = std::path::absolute(resources)?;
     let mut command = Command::new(program);
@@ -281,7 +281,7 @@ fn command(
 
 /// The game's control endpoint in a server folder (`--control-socket`): TCP on 127.0.0.1 with a token, on every OS.
 pub fn control_path(dir: &Path) -> PathBuf {
-    dir.join(".industrial-era/engine.json")
+    dir.join(".industrial_era/engine.json")
 }
 
 /// A connection to the game's control endpoint: one JSON line asked, one answered.
@@ -336,7 +336,8 @@ mod tests {
     fn low_memory_turns_huge_pages_off_for_the_game() {
         let thp = |low_memory| {
             let dir = std::env::temp_dir();
-            let command = command(Path::new("industrial-era-client"), &dir, &dir, low_memory).unwrap();
+            let command =
+                command(Path::new("industrial-era-client"), &dir, &dir, low_memory).unwrap();
             command
                 .get_envs()
                 .find(|(k, _)| *k == "MIMALLOC_ALLOW_THP")
@@ -353,7 +354,9 @@ mod tests {
         let program = Path::new("/opt/industrial-era/target/release/industrial-era-client");
         let found = resource_candidates(&config, dir, Some(program));
         assert_eq!(found[0], Path::new("/srv/mc/resources"));
-        assert!(found.contains(&PathBuf::from("/opt/industrial-era/.local/industrial-era-client/26.3")));
+        assert!(found.contains(&PathBuf::from(
+            "/opt/industrial-era/.local/industrial-era-client/26.3"
+        )));
         config.engine.resources = "/data/res".into();
         assert_eq!(
             resource_candidates(&config, dir, Some(program)),
@@ -363,7 +366,8 @@ mod tests {
 
     #[test]
     fn resources_prepared_without_sounds_are_found() {
-        let root = std::env::temp_dir().join(format!("industrial-era-server-res-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-server-res-{}", std::process::id()));
         let prepared = root.join(".local/industrial-era-client/26.3");
         std::fs::create_dir_all(&prepared).unwrap();
         let program = root.join("industrial-era-client");
@@ -378,8 +382,10 @@ mod tests {
 
     /// A folder as `industrial-era-prepare` leaves it, as far as `check_prepared` looks.
     fn prepared_folder(name: &str) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-server-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-server-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         for dir in PREPARED_DIRS {
             std::fs::create_dir_all(root.join(dir)).unwrap();
@@ -392,7 +398,11 @@ mod tests {
             "facts_sha256": sha256_file(&root.join("facts.json")).unwrap(),
             "block_tags_sha256": sha256_file(&root.join("block-tags.json")).unwrap(),
         });
-        std::fs::write(root.join("industrial-era-resources.json"), manifest.to_string()).unwrap();
+        std::fs::write(
+            root.join("industrial-era-resources.json"),
+            manifest.to_string(),
+        )
+        .unwrap();
         root
     }
 
@@ -491,7 +501,7 @@ mod tests {
         // Relative to this process's folder (the crate's, under cargo test), as `--dir srv` gives it.
         let root = PathBuf::from(format!("reldir-test-{}", std::process::id()));
         let server = root.join("srv");
-        std::fs::create_dir_all(server.join(".industrial-era")).unwrap();
+        std::fs::create_dir_all(server.join(".industrial_era")).unwrap();
         std::fs::create_dir_all(root.join("res")).unwrap();
         // A game that checks, from its own folder, the folders it was given.
         let game = root.join("game");
@@ -545,8 +555,10 @@ mod tests {
     #[test]
     fn the_check_runs_the_program() {
         use std::os::unix::fs::PermissionsExt;
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-server-check-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-server-check-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&root).unwrap();
         let script = |name: &str, body: &str| {
             let path = root.join(name);

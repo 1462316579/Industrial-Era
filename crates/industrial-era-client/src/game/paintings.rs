@@ -31,7 +31,8 @@ impl PaintingVariants {
     pub fn load(root: &std::path::Path) -> Self {
         let data = root.join("data/minecraft");
         let mut all = Vec::new();
-        if let Ok(folder) = industrial_era_world::json_folder::read(&data.join("painting_variant")) {
+        if let Ok(folder) = industrial_era_world::json_folder::read(&data.join("painting_variant"))
+        {
             for file in &folder.files {
                 let name = file.name.as_str();
                 let Ok(v) =
@@ -53,15 +54,16 @@ impl PaintingVariants {
                 });
             }
         }
-        let placeable =
-            industrial_era_core::prepared_files::read(&data.join("tags/painting_variant/placeable.json"))
-                .ok()
-                .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
-                .and_then(|v| v["values"].as_array().cloned())
-                .unwrap_or_default()
-                .iter()
-                .filter_map(|v| v.as_str().map(Arc::from))
-                .collect();
+        let placeable = industrial_era_core::prepared_files::read(
+            &data.join("tags/painting_variant/placeable.json"),
+        )
+        .ok()
+        .and_then(|b| serde_json::from_slice::<serde_json::Value>(&b).ok())
+        .and_then(|v| v["values"].as_array().cloned())
+        .unwrap_or_default()
+        .iter()
+        .filter_map(|v| v.as_str().map(Arc::from))
+        .collect();
         Self { all, placeable }
     }
     pub fn get(&self, id: &str) -> Option<&Variant> {
@@ -69,7 +71,8 @@ impl PaintingVariants {
     }
     /// The variant a stack's `painting/variant` component names.
     pub fn of_stack(&self, stack: &ItemStack) -> Option<&Variant> {
-        let id = industrial_era_client::save::text(stack.data()?.other("minecraft:painting/variant"))?;
+        let id =
+            industrial_era_client::save::text(stack.data()?.other("minecraft:painting/variant"))?;
         self.get(&industrial_era_world::datafix::dynamic::namespaced(&id))
     }
 }

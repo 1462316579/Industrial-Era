@@ -1,6 +1,6 @@
 //! Full block/assets + item startup. Compile with HORIZON_BENCH_COUNT_ALLOCATIONS=1
 //! for live requested heap bytes; leave it unset for latency measurements.
-//! cargo run --profile fast -p industrial-era-client --example model_library_bench -- ROOT [--parity]
+//! cargo run --profile fast -p industrial_era-client --example model_library_bench -- ROOT [--parity]
 //! Run fresh processes, warm up twice, then compare multiple alternating baseline/candidate runs.
 extern crate industrial_era_client_lib as industrial_era_client;
 use industrial_era_client::{assets::Assets, item_render::ItemRenderer};

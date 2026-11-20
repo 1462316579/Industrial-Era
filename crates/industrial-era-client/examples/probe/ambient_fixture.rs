@@ -3,7 +3,9 @@
 //! `ambient_fixture ROOT INPUT OUTPUT`.
 use crate::audio_common as common;
 use common::{Fake, d, f, flush};
-use industrial_era_client::ambience::{Ambience, AmbientContext, AmbientSounds, Mood, bubble_column_in};
+use industrial_era_client::ambience::{
+    Ambience, AmbientContext, AmbientSounds, Mood, bubble_column_in,
+};
 use industrial_era_client::sound_engine::{Bound, SoundEngine, TickContext, Ticking};
 use industrial_era_client::sound_events::{SoundRegistry, normalize};
 use industrial_era_core::random::RandomSource;

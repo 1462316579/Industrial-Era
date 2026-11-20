@@ -512,10 +512,11 @@ impl PlayerMotion {
             .map(|(i, _)| i as i32)
             .collect();
         let mut identity = 0i32;
-        let next: Box<dyn industrial_era_world::attributes::live::Identities> = Box::new(move || {
-            identity = identity.wrapping_add(1);
-            identity
-        });
+        let next: Box<dyn industrial_era_world::attributes::live::Identities> =
+            Box::new(move || {
+                identity = identity.wrapping_add(1);
+                identity
+            });
         Self::with_attribute_identities(resources, position, &hashes, next)
     }
     /// Explicit identity allocation for deterministic reference replay.
@@ -1373,8 +1374,11 @@ impl MotionWorld<'_, '_, '_> {
     /// then gliding, then air), keeping 0.6 of the vertical speed while flying.
     fn player_travel(&mut self, input: Vec3) -> Result<()> {
         if self.player.swimming {
-            let look_y =
-                industrial_era_world::view_direction::view_vector(self.player.pitch, self.player.yaw).y;
+            let look_y = industrial_era_world::view_direction::view_vector(
+                self.player.pitch,
+                self.player.yaw,
+            )
+            .y;
             let near_surface = BlockPos::containing(Vec3::new(
                 self.player.position.x,
                 self.player.position.y + 1.0 - 0.1,
@@ -1382,7 +1386,8 @@ impl MotionWorld<'_, '_, '_> {
             ));
             if look_y <= 0.0
                 || self.player.jumping
-                || self.fluid_at(near_surface).kind() != industrial_era_world::fluid::FluidKind::Empty
+                || self.fluid_at(near_surface).kind()
+                    != industrial_era_world::fluid::FluidKind::Empty
             {
                 let blend = if look_y < -0.2 { 0.085 } else { 0.06 };
                 self.player.velocity.y += (look_y - self.player.velocity.y) * blend;
@@ -2024,7 +2029,8 @@ impl MotionWorld<'_, '_, '_> {
         let v = self.player.velocity;
         // getLookAngle and the lean use Mth's sine table and float degrees,
         // the lift Math.cos of the widened lean.
-        let look = industrial_era_world::view_direction::view_vector(self.player.pitch, self.player.yaw);
+        let look =
+            industrial_era_world::view_direction::view_vector(self.player.pitch, self.player.yaw);
         let lean = self.player.pitch * trig::DEG_TO_RAD;
         let look_h = (look.x * look.x + look.z * look.z).sqrt();
         let move_h = (v.x * v.x + v.z * v.z).sqrt();
@@ -2180,7 +2186,10 @@ impl ClimbingWorld for MotionWorld<'_, '_, '_> {
 }
 impl crate::auto_jump::AutoJumpWorld for MotionWorld<'_, '_, '_> {
     type Error = Box<dyn std::error::Error>;
-    fn collision_shape(&mut self, p: BlockPos) -> Result<industrial_era_core::geometry::VoxelShape> {
+    fn collision_shape(
+        &mut self,
+        p: BlockPos,
+    ) -> Result<industrial_era_core::geometry::VoxelShape> {
         let context = self.context();
         let state = self.block(p);
         let binding = self.collision_binding;
@@ -2441,7 +2450,9 @@ impl EntityMoveWorld for MotionWorld<'_, '_, '_> {
             state,
             position,
         });
-        industrial_era_world::living_landing::check_living_fall_damage(self, dy, grounded, state, position)
+        industrial_era_world::living_landing::check_living_fall_damage(
+            self, dy, grounded, state, position,
+        )
     }
     fn removed(&mut self) -> Result<bool> {
         Ok(false)
@@ -3856,7 +3867,9 @@ mod tests {
         );
         // A shield that takes the whole arrow: onBlocked's sound, no damage
         // event, so the player hears no hurt sound.
-        use industrial_era_world::blocking_rules::{BlockingRules, DamageReduction, ItemDamageFunction};
+        use industrial_era_world::blocking_rules::{
+            BlockingRules, DamageReduction, ItemDamageFunction,
+        };
         let mut player = PlayerMotion::new(&resources, Vec3::new(20.5, 4.0, 20.5)).unwrap();
         let source = resources.health.damage.id("minecraft:arrow").unwrap();
         let shield = crate::health::Blocking {
@@ -4120,7 +4133,8 @@ mod tests {
                 collision_binding: &binding,
                 resources: &resources,
             };
-            industrial_era_world::entity_fluid_tick::EntityFluidTickWorld::water_splash(&mut w).unwrap();
+            industrial_era_world::entity_fluid_tick::EntityFluidTickWorld::water_splash(&mut w)
+                .unwrap();
             assert_eq!(w.player.events.is_empty(), spectator);
         }
     }

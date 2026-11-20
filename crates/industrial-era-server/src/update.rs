@@ -63,7 +63,7 @@ impl Install {
     /// The install, or why there is none to update.
     pub fn required() -> Result<Self, String> {
         Self::find().ok_or_else(|| {
-            "this industrial-era-server wasn't installed by install.sh or install.ps1 (no releases/ and current \
+            "this industrial_era-server wasn't installed by install.sh or install.ps1 (no releases/ and current \
              around it): update it the way you installed it"
                 .into()
         })
@@ -95,7 +95,10 @@ impl Install {
     pub fn switch(&self, tag: &str) -> Result<(), String> {
         let target = self.release(tag);
         if !target.join(exe("industrial-era-server")).is_file() {
-            return Err(format!("{} holds no industrial-era-server", target.display()));
+            return Err(format!(
+                "{} holds no industrial_era-server",
+                target.display()
+            ));
         }
         if let Some(old) = self.current().filter(|old| old != tag) {
             std::fs::write(self.root.join("previous"), format!("{old}\n"))
@@ -534,7 +537,7 @@ pub fn unpack(install: &Install, archive: &Path, tag: &str) -> Result<PathBuf, S
         }
         let source = find_program(&scratch, &exe("industrial-era-server"))
             .and_then(|p| p.parent().map(Path::to_path_buf))
-            .ok_or_else(|| format!("{} holds no industrial-era-server", archive.display()))?;
+            .ok_or_else(|| format!("{} holds no industrial_era-server", archive.display()))?;
         #[cfg(unix)]
         for name in [
             "industrial-era-server",
@@ -662,7 +665,10 @@ pub fn command(dir: &Path, args: &[String]) -> Result<(), String> {
                 println!("Already on the newest release ({current}).");
                 return Ok(());
             }
-            println!("Downloading Industrial Era {} ({})...", release.tag, release.asset);
+            println!(
+                "Downloading Industrial Era {} ({})...",
+                release.tag, release.asset
+            );
             let archive = download(&install, &release)?;
             (release.tag, archive, true)
         }
@@ -1081,7 +1087,7 @@ mod tests {
             install
                 .switch("v3")
                 .unwrap_err()
-                .contains("no industrial-era-server")
+                .contains("no industrial_era-server")
         );
         assert_eq!(install.current().as_deref(), Some("v1"));
         std::fs::remove_dir_all(&install.root).unwrap();
@@ -1193,7 +1199,7 @@ mod tests {
         assert!(
             unpack(&install, &empty, "v3")
                 .unwrap_err()
-                .contains("holds no industrial-era-server")
+                .contains("holds no industrial_era-server")
         );
         assert!(!install.release("v3").exists());
         std::fs::remove_dir_all(&install.root).unwrap();

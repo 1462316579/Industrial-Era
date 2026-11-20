@@ -868,9 +868,10 @@ fn network_stack(
                     if removed {
                         stack.removed.push(id);
                     } else {
-                        stack
-                            .added
-                            .push((id, industrial_era_protocol::item::Component::Nbt(value.clone())));
+                        stack.added.push((
+                            id,
+                            industrial_era_protocol::item::Component::Nbt(value.clone()),
+                        ));
                     }
                 } else {
                     log::warn!("Cannot send custom component {kind} to this peer");
@@ -1136,9 +1137,8 @@ fn network_stack(
         let lines = match lore_tag {
             industrial_era_world::nbt::Tag::List(lines) => Some(lines.clone()),
             // A string is one literal line, as ComponentSerialization decodes a string tag.
-            industrial_era_world::nbt::Tag::Compound(_) | industrial_era_world::nbt::Tag::String(_) => {
-                Some(vec![lore_tag.clone()])
-            }
+            industrial_era_world::nbt::Tag::Compound(_)
+            | industrial_era_world::nbt::Tag::String(_) => Some(vec![lore_tag.clone()]),
             _ => None,
         };
         if let Some(lines) = lines {
@@ -1151,7 +1151,9 @@ fn network_stack(
     if s.data()
         .is_some_and(|d| d.other("!minecraft:lore").is_some())
     {
-        stack.removed.push(industrial_era_protocol::item::component::LORE);
+        stack
+            .removed
+            .push(industrial_era_protocol::item::component::LORE);
     }
     // The stack's custom rarity ("common", "uncommon", "rare", "epic" or 0..=3).
     if let Some(r) = s.data().and_then(|d| d.other("minecraft:rarity")) {
@@ -1222,7 +1224,9 @@ fn network_stack(
 }
 
 /// `CustomModelData.CODEC` read from its saved form, for its stream codec.
-fn custom_model_data(t: &industrial_era_world::nbt::Tag) -> industrial_era_protocol::item::Component {
+fn custom_model_data(
+    t: &industrial_era_world::nbt::Tag,
+) -> industrial_era_protocol::item::Component {
     use industrial_era_world::nbt::Tag;
     // NbtOps writes a list of ints or bytes as an int or byte array.
     let entries = |key: &str| -> Vec<Tag> {

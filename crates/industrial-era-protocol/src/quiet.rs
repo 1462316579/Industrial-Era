@@ -13,7 +13,7 @@ use crate::{
 };
 
 /// The custom payload channel, both ways.
-pub const CHANNEL: &str = "industrial-era:quiet_commands";
+pub const CHANNEL: &str = "industrial_era:quiet_commands";
 /// Lines in one payload at most; a payload with more is refused whole.
 pub const MAX_LINES: usize = 256;
 /// Characters in a line at most (a chat command's limit).

@@ -336,7 +336,8 @@ fn saved_proto_chunks_restore_exactly() {
         "minecraft:the_nether",
     )
     .unwrap();
-    let dir = std::env::temp_dir().join(format!("industrial-era-proto-saves-{}", std::process::id()));
+    let dir =
+        std::env::temp_dir().join(format!("industrial-era-proto-saves-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     let save = Arc::new(SaveDir::new(
         dir.clone(),

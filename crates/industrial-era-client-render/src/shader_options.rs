@@ -178,7 +178,11 @@ impl ShaderOptions {
             Some(name) => self.named(&format!("profile.{name}"), name),
             None => Text::literal(lang::get("generator.custom")),
         };
-        Text::literal(format!("{}: ", lang::get("industrial-era.shader_options.profile"))).append(value)
+        Text::literal(format!(
+            "{}: ",
+            lang::get("industrial-era.shader_options.profile")
+        ))
+        .append(value)
     }
 
     /// What the pack says of an option, a screen or the profiles (`option.NAME.comment`...).

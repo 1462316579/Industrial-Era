@@ -17,7 +17,11 @@ const MIN_SECONDS: f32 = 60.0;
 
 /// The details of a crash report that say what the game was doing, and only those: not the
 /// world, the server or the resource packs.
-const CRASH_DETAILS: [&str; 3] = ["Industrial Era Version", "Graphics Adapter", "Render Settings"];
+const CRASH_DETAILS: [&str; 3] = [
+    "Industrial Era Version",
+    "Graphics Adapter",
+    "Render Settings",
+];
 
 static STARTED: OnceLock<Instant> = OnceLock::new();
 static CORE_READY_MS: AtomicU32 = AtomicU32::new(u32::MAX);
@@ -302,7 +306,8 @@ impl Session {
     /// Keeps the session's summary for the launcher to send, if the player allows performance
     /// statistics, and starts the next session (the time to the title goes with the first).
     pub fn finish(&mut self, home: &Path, settings: Settings) {
-        if industrial_era_telemetry::Consent::load(home).allows(industrial_era_telemetry::Kind::Perf)
+        if industrial_era_telemetry::Consent::load(home)
+            .allows(industrial_era_telemetry::Kind::Perf)
             && let Some(perf) = self.summary(settings)
         {
             let item = Item::new(Source::Game, version(), Payload::Perf(perf));
@@ -429,7 +434,8 @@ mod tests {
     fn a_huge_stack_is_cut_to_fit() {
         let mut report = report();
         report.stack =
-            "industrial_era_client::game::deep (crates/industrial-era-client/src/game.rs:1:1)\n".repeat(2000);
+            "industrial_era_client::game::deep (crates/industrial-era-client/src/game.rs:1:1)\n"
+                .repeat(2000);
         let item = crash_item(&report);
         assert!(item.validate().is_ok());
         let Payload::Crash(crash) = item.payload else {
@@ -441,7 +447,8 @@ mod tests {
     #[test]
     fn benchmark_reports_need_their_own_consent_and_go_dated_to_the_day() {
         let home = home("benchmark");
-        let mut report = industrial_era_bench::Report::new(industrial_era_bench::Kind::Game, Default::default());
+        let mut report =
+            industrial_era_bench::Report::new(industrial_era_bench::Kind::Game, Default::default());
         report.created = "2026-10-15T14:03:27Z".into();
         report.label = Some("my machine".into());
         keep_benchmark(&home, &report);

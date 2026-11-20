@@ -1,4 +1,4 @@
-//! Far terrain from a server (`industrial-era:lod`): a Industrial Era client playing on
+//! Far terrain from a server (`industrial_era:lod`): a Industrial Era client playing on
 //! another machine's world has neither the seed nor the generator its far
 //! terrain samples, so the server samples the tiles for it, up to the distance
 //! its owner allows (`industrial-era-lod-distance`). Only a dedicated server can offer
@@ -31,7 +31,7 @@ pub use client::{Inbox, RemoteSource};
 pub use server::{Delivery, Job, Service, Verdict};
 
 /// The custom payload channel, both ways.
-pub const CHANNEL: &str = "industrial-era:lod";
+pub const CHANNEL: &str = "industrial_era:lod";
 /// The server.properties key (Industrial Era's own): the farthest a player's far
 /// terrain may reach, in chunks; 0 turns serving it off.
 pub const PROPERTY: &str = "industrial-era-lod-distance";

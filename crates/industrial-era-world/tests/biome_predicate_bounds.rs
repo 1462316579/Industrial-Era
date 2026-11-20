@@ -7,21 +7,27 @@ fn biome_registry_identity_and_holder_set_bounds() {
         ("minecraft:desert".into(), BiomeId(1)),
     ]);
     let tags = BTreeMap::from([
-        ("industrial-era:empty".into(), vec![]),
+        ("industrial_era:empty".into(), vec![]),
         (
-            "industrial-era:both".into(),
+            "industrial_era:both".into(),
             vec!["plains".into(), "desert".into(), "plains".into()],
         ),
     ]);
     let bindings = BiomePredicateBindings::new(&names, &tags).unwrap();
     assert!(
         bindings
-            .resolve(r##""#industrial-era:empty""##)
+            .resolve(r##""#industrial_era:empty""##)
             .unwrap()
             .is_empty()
     );
-    assert_eq!(bindings.resolve(r##""#industrial-era:both""##).unwrap().len(), 2);
-    assert!(bindings.resolve(r##"["#industrial-era:both"]"##).is_err());
+    assert_eq!(
+        bindings
+            .resolve(r##""#industrial_era:both""##)
+            .unwrap()
+            .len(),
+        2
+    );
+    assert!(bindings.resolve(r##"["#industrial_era:both"]"##).is_err());
     assert!(
         bindings
             .resolve(&serde_json::to_string(&vec!["plains"; 8193]).unwrap())

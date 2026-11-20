@@ -76,7 +76,7 @@ impl Build {
     }
 
     /// The Industrial Era it was built on, as a player reads it (`industrial_era_label`).
-    pub fn industrial-era(&self) -> String {
+    pub fn industrial_era(&self) -> String {
         industrial_era_label(&self.base)
     }
 
@@ -269,7 +269,7 @@ mod tests {
         .unwrap();
         installed::Installed {
             entries: vec![installed::Entry {
-                source: SourceId::Industrial Era,
+                source: SourceId::IndustrialEra,
                 project: "registry".into(),
                 slug: "registry".into(),
                 title: "Registry mod".into(),
@@ -394,7 +394,7 @@ mod tests {
         let build = Build {
             base: "nightly-2026-10-28-0c02067".into(),
         };
-        assert_eq!(build.industrial-era(), "Nightly 2026-10-28");
+        assert_eq!(build.industrial_era(), "Nightly 2026-10-28");
         assert_eq!(build.industrial_era_short(), "Nightly 10-28");
         let release = Build {
             base: "v0.2.93".into(),

@@ -256,7 +256,11 @@ impl BlockEntities {
             .collect()
     }
     /// Restore a loaded block entity's attachment map.
-    pub fn restore_attachments(&mut self, pos: Pos, data: industrial_era_world::attachments::Attachments) {
+    pub fn restore_attachments(
+        &mut self,
+        pos: Pos,
+        data: industrial_era_world::attachments::Attachments,
+    ) {
         if self.map.contains_key(&pos) {
             self.attachments.insert(pos, data);
         }

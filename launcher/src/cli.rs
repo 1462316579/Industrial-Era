@@ -689,7 +689,7 @@ impl SourceArg {
         let id = match self {
             SourceArg::Modrinth => SourceId::Modrinth,
             SourceArg::Curseforge => SourceId::CurseForge,
-            SourceArg::Industrial Era => SourceId::Industrial Era,
+            SourceArg::Industrial Era => SourceId::IndustrialEra,
         };
         browser::source(id).ok_or_else(|| browser::CURSEFORGE_SOON.into())
     }
@@ -1805,13 +1805,13 @@ fn update(check: bool, as_json: bool) -> Result<(), String> {
     let updates = backend::check_updates()?;
     if as_json && check {
         json(serde_json::json!({
-            "industrial-era": updates.industrial-era.as_ref().map(|r| &r.tag),
+            "industrial-era": updates.industrial_era.as_ref().map(|r| &r.tag),
             "launcher": updates.launcher.as_ref().and_then(|r| backend::launcher_version(&r.tag)),
             "launcher_current": backend::VERSION,
         }));
         return Ok(());
     }
-    match &updates.industrial-era {
+    match &updates.industrial_era {
         None => println!("Industrial Era: up to date."),
         Some(r) if check => println!("Industrial Era: {} is available.", r.tag),
         Some(r) => {
@@ -2331,10 +2331,10 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
     let from_registry = installed::Installed::load(&home)
         .entries
         .iter()
-        .any(|e| e.source == SourceId::Industrial Era);
+        .any(|e| e.source == SourceId::IndustrialEra);
     if from_registry {
-        if let Ok(index) = industrial-era::index() {
-            for said in industrial-era::turn_off_revoked(&index, &home) {
+        if let Ok(index) = industrial_era: :index() {
+            for said in industrial_era: :turn_off_revoked(&index, &home) {
                 eprintln!("{said}");
             }
         }
@@ -2420,7 +2420,7 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                         "id": p.id, "slug": p.slug, "title": p.title, "summary": p.summary,
                         "author": p.author, "downloads": p.downloads, "page": p.page,
                         "license": p.license, "support": support.label(), "reason": support.reason(),
-                        "about": if p.source == SourceId::Industrial Era { industrial-era::trust_and_capabilities(&p.id) } else { Vec::new() },
+                        "about": if p.source == SourceId::IndustrialEra { industrial_era: :trust_and_capabilities(&p.id) } else { Vec::new() },
                     })
                 }).collect());
             } else {
@@ -2429,9 +2429,9 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                 }
                 for p in &found {
                     let support = p.support();
-                    if p.source == SourceId::Industrial Era {
+                    if p.source == SourceId::IndustrialEra {
                         println!("{}  ({})  {}\n  {}", p.title, p.slug, p.author, p.summary);
-                        for line in industrial-era::trust_and_capabilities(&p.id) {
+                        for line in industrial_era: :trust_and_capabilities(&p.id) {
                             println!("  {line}");
                         }
                         continue;
@@ -2541,11 +2541,11 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                     p.title
                 ));
             }
-            if p.kind == Kind::Modpack && p.source == SourceId::Industrial Era {
-                let pack = industrial-era::pack::install(&p.id, &line)?;
+            if p.kind == Kind::Modpack && p.source == SourceId::IndustrialEra {
+                let pack = industrial_era: :pack::install(&p.id, &line)?;
                 if as_json {
                     json(
-                        serde_json::json!({"pack": pack.id, "version": pack.version, "mods": pack.mods, "home": industrial-era::pack::home(&pack.work)}),
+                        serde_json::json!({"pack": pack.id, "version": pack.version, "mods": pack.mods, "home": industrial_era: :pack::home(&pack.work)}),
                     );
                 } else {
                     println!(
@@ -2717,13 +2717,13 @@ fn mods(action: ModsCmd, as_json: bool) -> Result<(), String> {
                 .lookup(&project)
                 .cloned()
                 .ok_or_else(|| format!("{project} wasn't installed by the browser."))?;
-            let id = industrial-era::mod_id(&e)
+            let id = industrial_era: :mod_id(&e)
                 .filter(|_| e.kind == Kind::Mod)
                 .ok_or_else(|| format!("{} isn't a mod: only mods turn on and off.", e.title))?;
             if on {
-                if let Some(r) = industrial-era::index()
+                if let Some(r) = industrial_era: :index()
                     .ok()
-                    .filter(|_| e.source == SourceId::Industrial Era)
+                    .filter(|_| e.source == SourceId::IndustrialEra)
                     .and_then(|i| {
                         i.revoked(&e.project, e.checksum.trim_start_matches("SHA-256:"))
                             .cloned()
@@ -3539,8 +3539,8 @@ fn modpack(action: ModpackCmd, as_json: bool) -> Result<(), String> {
     use industrial_era_port_pack::report::Status;
     let log = &|line: String| eprintln!("{line}");
     let work = |pack: &str| {
-        let registry = industrial-era::pack::packs_dir().join(pack);
-        if industrial-era::pack::is_pack(&registry) {
+        let registry = industrial_era: :pack::packs_dir().join(pack);
+        if industrial_era: :pack::is_pack(&registry) {
             return Ok(registry);
         }
         let work = modpacks::ports_dir().join(pack);
@@ -3576,7 +3576,7 @@ fn modpack(action: ModpackCmd, as_json: bool) -> Result<(), String> {
     match action {
         ModpackCmd::List => {
             let packs = modpacks::list();
-            let registry = industrial-era::pack::list();
+            let registry = industrial_era: :pack::list();
             if packs.is_empty() && registry.is_empty() && !as_json {
                 println!("No modpack imported yet: industrial-era-launcher modpack import <pack>");
             }

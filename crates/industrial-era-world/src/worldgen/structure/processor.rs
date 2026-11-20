@@ -53,7 +53,7 @@ enum PosRule {
         max_dist: i32,
         axis: Option<usize>,
     },
-    /// `industrial-era:piece_origin_axis_aligned_linear_pos`: Repurposed Structures'
+    /// `industrial_era:piece_origin_axis_aligned_linear_pos`: Repurposed Structures'
     /// PieceOriginAxisAlignedLinearPosRuleTest, vanilla's axis-aligned chance
     /// over the block's distance from the template's origin along one axis.
     PieceOrigin {
@@ -63,7 +63,7 @@ enum PosRule {
         max_dist: i32,
         axis: usize,
     },
-    /// `industrial-era:y_value`: Repurposed Structures' YValuePosRuleTest, the
+    /// `industrial_era:y_value`: Repurposed Structures' YValuePosRuleTest, the
     /// block's world height in `min_y_value..=max_y_value`.
     YValue {
         min: i32,
@@ -76,7 +76,7 @@ enum Modifier {
     Clear,
     AppendLoot(String),
     AppendStatic(Compound),
-    /// `industrial-era:edit`: `remove`'s keys taken out of the block entity, then
+    /// `industrial_era:edit`: `remove`'s keys taken out of the block entity, then
     /// `data` merged in as append_static does. The data form of the mods'
     /// processors that copy a block entity and change parts of it (Moog's
     /// trial spawners and vaults drop their saved state).
@@ -111,7 +111,7 @@ impl PosRule {
                     }
                 }),
             },
-            "industrial-era:piece_origin_axis_aligned_linear_pos" => {
+            "industrial_era:piece_origin_axis_aligned_linear_pos" => {
                 let int = |key| p.get(key).and_then(Value::as_i64).unwrap_or(0) as i32;
                 let (min_dist, max_dist) = (int("min_dist"), int("max_dist"));
                 if min_dist >= max_dist {
@@ -130,7 +130,7 @@ impl PosRule {
                     },
                 }
             }
-            "industrial-era:y_value" => {
+            "industrial_era:y_value" => {
                 let int = |key| {
                     p.get(key)
                         .and_then(Value::as_i64)
@@ -220,7 +220,7 @@ impl Modifier {
                     Tag::Compound(c) => Self::AppendStatic(c),
                     _ => Self::AppendStatic(Compound::new()),
                 },
-                "industrial-era:edit" => Self::Edit {
+                "industrial_era:edit" => Self::Edit {
                     remove: m["remove"]
                         .as_array()
                         .into_iter()
@@ -324,42 +324,42 @@ pub enum Processor {
     Condition(Box<litho::Conditional>),
     /// `lithostitched:set_block`: the block from a state provider.
     SetBlock(Box<litho::SetBlock>),
-    /// `industrial-era:pillar` (Repurposed Structures' and Moog's pillars): a
+    /// `industrial_era:pillar` (Repurposed Structures' and Moog's pillars): a
     /// trigger block starts a column down to the ground.
     Pillar(Box<pillars::Pillar>),
-    /// `industrial-era:bottom_pillar` (Repurposed Structures'): the bottom layer
+    /// `industrial_era:bottom_pillar` (Repurposed Structures'): the bottom layer
     /// continues down to the ground.
     BottomPillar(Box<pillars::BottomPillar>),
-    /// `industrial-era:close_off_fluid_sources` (Repurposed Structures' and Moog's):
+    /// `industrial_era:close_off_fluid_sources` (Repurposed Structures' and Moog's):
     /// fluid sources beside open blocks are walled off.
     CloseOffFluidSources(Box<pillars::CloseOffFluidSources>),
-    /// `industrial-era:close_off_air_sources` (Repurposed Structures'): air and
+    /// `industrial_era:close_off_air_sources` (Repurposed Structures'): air and
     /// other liquids beside the template's fluids are walled off.
     CloseOffAirSources(Box<pillars::CloseOffAirSources>),
-    /// `industrial-era:yung_pillar` (YUNG's pillars: Better Fortresses, Better
+    /// `industrial_era:yung_pillar` (YUNG's pillars: Better Fortresses, Better
     /// Jungle Temples).
     YungPillar(Box<pillars::YungPillar>),
-    /// `industrial-era:stair_pillar` (Better Fortresses' stair supports).
+    /// `industrial_era:stair_pillar` (Better Fortresses' stair supports).
     StairPillar(Box<pillars::StairPillar>),
-    /// `industrial-era:flood_air` (Better Ocean Monuments'): air below sea level
+    /// `industrial_era:flood_air` (Better Ocean Monuments'): air below sea level
     /// becomes water.
     FloodAir(Box<sea_level::FloodAir>),
-    /// `industrial-era:waterlog` (Better Ocean Monuments'): blocks below sea level
+    /// `industrial_era:waterlog` (Better Ocean Monuments'): blocks below sea level
     /// are waterlogged.
     Waterlog,
-    /// `industrial-era:keep_world_block` (Better Ocean Monuments' structure void).
+    /// `industrial_era:keep_world_block` (Better Ocean Monuments' structure void).
     KeepWorldBlock(Box<sea_level::KeepWorldBlock>),
-    /// `industrial-era:waterlog_in_world_water` (Repurposed Structures'): blocks
+    /// `industrial_era:waterlog_in_world_water` (Repurposed Structures'): blocks
     /// are waterlogged where the world holds water, dry where it does not.
     WaterlogInWorldWater,
-    /// `industrial-era:mineshaft_sky_view` (Repurposed Structures' mineshafts):
+    /// `industrial_era:mineshaft_sky_view` (Repurposed Structures' mineshafts):
     /// nothing above the ocean floor but rails on solid ground.
     MineshaftSkyView,
 }
 #[derive(Clone, Debug, Default)]
 pub struct ProcessorList(pub Vec<Processor>);
 
-/// The spawner fields `industrial-era:spawner_mobs` writes: its JSON key, the NBT
+/// The spawner fields `industrial_era:spawner_mobs` writes: its JSON key, the NBT
 /// key and the default (BaseSpawner's).
 const SPAWNER_FIELDS: [(&str, &str, i16); 7] = [
     ("delay", "Delay", 20),
@@ -371,7 +371,7 @@ const SPAWNER_FIELDS: [(&str, &str, i16); 7] = [
     ("spawn_range", "SpawnRange", 4),
 ];
 
-/// `industrial-era:pick`, which `industrial-era-port-pack` writes for the mods' processors
+/// `industrial_era:pick`, which `industrial-era-port-pack` writes for the mods' processors
 /// that turn a placeholder block into one of several (YUNG's, written in
 /// Java): a block of `block` takes the first of `picks` whose `below` is past
 /// one `settings.getRandom(pos).nextFloat()`, else `default` (no float is
@@ -525,7 +525,7 @@ impl Pick {
     }
 }
 
-/// `industrial-era:count_cap`, which `industrial-era-port-pack` writes for Better
+/// `industrial_era:count_cap`, which `industrial-era-port-pack` writes for Better
 /// Dungeons' chest processor (Java in the mod): of the `blocks` one
 /// placement meets, the first `min` stay, the rest each stay when
 /// `settings.getRandom(pos).nextFloat() <= chance` until `max` have, and the
@@ -575,7 +575,7 @@ impl CountCap {
     }
 }
 
-/// `industrial-era:spawner_mobs`, which `industrial-era-port-pack` writes for the spawner
+/// `industrial_era:spawner_mobs`, which `industrial-era-port-pack` writes for the spawner
 /// randomizing processors of Moog's Structure Lib and Repurposed Structures
 /// (Java code in the mods): a spawner gets one mob of a weighted list,
 /// picked with `settings.getRandom(pos).nextFloat()` as theirs do, and the
@@ -800,13 +800,13 @@ impl Processor {
                     })
                     .collect::<Result<_, DecodeError>>()?,
             ),
-            "industrial-era:spawner_mobs" => {
+            "industrial_era:spawner_mobs" => {
                 Self::SpawnerMobs(Box::new(SpawnerMobs::decode(value, |v| match v {
                     Some(v) => state(v),
                     None => Ok(resources.registry.default_state("minecraft:air").unwrap()),
                 })?))
             }
-            "industrial-era:pick" => Self::Pick(Box::new(Pick::decode(value, state)?)),
+            "industrial_era:pick" => Self::Pick(Box::new(Pick::decode(value, state)?)),
             "lithostitched:block_swap" => Self::BlockSwap(
                 value["blocks"]
                     .as_object()
@@ -821,7 +821,7 @@ impl Processor {
                     })
                     .collect::<Result<_, DecodeError>>()?,
             ),
-            "industrial-era:count_cap" => Self::CountCap(Box::new(CountCap::decode(value, state)?)),
+            "industrial_era:count_cap" => Self::CountCap(Box::new(CountCap::decode(value, state)?)),
             "lithostitched:apply_random" => Self::ApplyRandom(Box::new(
                 litho::ApplyRandom::decode(value, resources, bindings)?,
             )),
@@ -832,31 +832,31 @@ impl Processor {
                 Self::Reference(litho::reference(value, resources, bindings)?)
             }
             "lithostitched:discard_input" => Self::DiscardInput,
-            "industrial-era:pillar" => Self::Pillar(Box::new(pillars::Pillar::decode(
+            "industrial_era:pillar" => Self::Pillar(Box::new(pillars::Pillar::decode(
                 value, resources, bindings, state,
             )?)),
-            "industrial-era:bottom_pillar" => Self::BottomPillar(Box::new(pillars::BottomPillar::decode(
-                value, resources, bindings,
-            )?)),
-            "industrial-era:close_off_fluid_sources" => Self::CloseOffFluidSources(Box::new(
+            "industrial_era:bottom_pillar" => Self::BottomPillar(Box::new(
+                pillars::BottomPillar::decode(value, resources, bindings)?,
+            )),
+            "industrial_era:close_off_fluid_sources" => Self::CloseOffFluidSources(Box::new(
                 pillars::CloseOffFluidSources::decode(value, resources, bindings)?,
             )),
-            "industrial-era:close_off_air_sources" => Self::CloseOffAirSources(Box::new(
+            "industrial_era:close_off_air_sources" => Self::CloseOffAirSources(Box::new(
                 pillars::CloseOffAirSources::decode(value, resources, bindings)?,
             )),
-            "industrial-era:yung_pillar" => Self::YungPillar(Box::new(pillars::YungPillar::decode(
-                value, bindings, state,
-            )?)),
-            "industrial-era:stair_pillar" => Self::StairPillar(Box::new(pillars::StairPillar::decode(
-                value, resources, bindings,
-            )?)),
-            "industrial-era:flood_air" => {
+            "industrial_era:yung_pillar" => Self::YungPillar(Box::new(
+                pillars::YungPillar::decode(value, bindings, state)?,
+            )),
+            "industrial_era:stair_pillar" => Self::StairPillar(Box::new(
+                pillars::StairPillar::decode(value, resources, bindings)?,
+            )),
+            "industrial_era:flood_air" => {
                 Self::FloodAir(Box::new(sea_level::FloodAir::decode(resources.registry)?))
             }
-            "industrial-era:waterlog" => Self::Waterlog,
-            "industrial-era:waterlog_in_world_water" => Self::WaterlogInWorldWater,
-            "industrial-era:mineshaft_sky_view" => Self::MineshaftSkyView,
-            "industrial-era:keep_world_block" => {
+            "industrial_era:waterlog" => Self::Waterlog,
+            "industrial_era:waterlog_in_world_water" => Self::WaterlogInWorldWater,
+            "industrial_era:mineshaft_sky_view" => Self::MineshaftSkyView,
+            "industrial_era:keep_world_block" => {
                 Self::KeepWorldBlock(Box::new(sea_level::KeepWorldBlock::decode(value)?))
             }
             "lithostitched:condition" => Self::Condition(Box::new(litho::Conditional::decode(
@@ -932,7 +932,7 @@ pub struct PlaceSettings<'a> {
     /// StructurePlaceSettings.ignoreEntities / finalizeEntities.
     pub ignore_entities: bool,
     pub finalize_entities: bool,
-    /// The blocks `industrial-era:count_cap` kept in this placement.
+    /// The blocks `industrial_era:count_cap` kept in this placement.
     counted: u32,
 }
 impl<'a> PlaceSettings<'a> {
@@ -1670,7 +1670,7 @@ fn place_entities<W: PlacementContext>(
             nbt.insert("Facing".into(), Tag::Byte(turn_facing(f, mirror, rotation)));
         }
         if settings.finalize_entities {
-            nbt.insert("industrial-era:finalize".into(), Tag::Byte(1));
+            nbt.insert("industrial_era:finalize".into(), Tag::Byte(1));
         }
         world.add_entity(nbt)?;
     }
@@ -1871,7 +1871,7 @@ mod tests {
         let decode = |v: Value| PosRule::decode(Some(&v));
         // Over 3..4 blocks from the template's origin along y, 0 to 1.
         let rule = decode(
-            json!({"predicate_type": "industrial-era:piece_origin_axis_aligned_linear_pos",
+            json!({"predicate_type": "industrial_era:piece_origin_axis_aligned_linear_pos",
             "axis": "y", "min_chance": 0, "max_chance": 1, "min_dist": 3, "max_dist": 4}),
         )
         .unwrap();
@@ -1884,16 +1884,16 @@ mod tests {
         assert!(rule.test([0, 4, 0], [0, 0, 0], [50, 50, 50], &mut random));
         // Repurposed refuses an empty distance range and an unknown axis.
         for bad in [
-            json!({"predicate_type": "industrial-era:piece_origin_axis_aligned_linear_pos"}),
-            json!({"predicate_type": "industrial-era:piece_origin_axis_aligned_linear_pos",
+            json!({"predicate_type": "industrial_era:piece_origin_axis_aligned_linear_pos"}),
+            json!({"predicate_type": "industrial_era:piece_origin_axis_aligned_linear_pos",
                 "min_dist": 0, "max_dist": 1, "axis": "w"}),
-            json!({"predicate_type": "industrial-era:y_value", "min_y_value": 5, "max_y_value": 4}),
-            json!({"predicate_type": "industrial-era:y_value", "min_y_value": 5}),
+            json!({"predicate_type": "industrial_era:y_value", "min_y_value": 5, "max_y_value": 4}),
+            json!({"predicate_type": "industrial_era:y_value", "min_y_value": 5}),
         ] {
             assert!(decode(bad.clone()).is_err(), "{bad}");
         }
         let y = decode(
-            json!({"predicate_type": "industrial-era:y_value", "min_y_value": 0, "max_y_value": 31}),
+            json!({"predicate_type": "industrial_era:y_value", "min_y_value": 0, "max_y_value": 31}),
         )
         .unwrap();
         assert!(y.test([0; 3], [7, 31, 7], [0; 3], &mut random));
@@ -1958,10 +1958,10 @@ mod tests {
             "server_data": {"state_updating_resumes_at": 533162741}}))
         );
         let Ok(Modifier::Edit { remove, data }) = Modifier::decode(Some(&json!({
-            "type": "industrial-era:edit", "remove": ["server_data"],
+            "type": "industrial_era:edit", "remove": ["server_data"],
             "data": {"config": {"loot_table": "x:new"}}})))
         else {
-            panic!("industrial-era:edit")
+            panic!("industrial_era:edit")
         };
         assert_eq!(
             edited(Some(&vault), &remove, &data),
@@ -1972,7 +1972,7 @@ mod tests {
             edited(None, &remove, &data),
             nbt(json!({"config": {"loot_table": "x:new"}}))
         );
-        let bad = json!({"type": "industrial-era:edit", "remove": [1], "data": {}});
+        let bad = json!({"type": "industrial_era:edit", "remove": [1], "data": {}});
         assert!(Modifier::decode(Some(&bad)).is_err());
     }
 

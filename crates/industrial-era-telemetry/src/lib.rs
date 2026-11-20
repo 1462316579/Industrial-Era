@@ -102,8 +102,10 @@ pub(crate) mod test_home {
 
     /// An empty folder of its own under the system's temporary folder.
     pub fn new(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-telemetry-{name}-{}", super::random_hex(6)));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-telemetry-{name}-{}",
+            super::random_hex(6)
+        ));
         std::fs::create_dir_all(&dir).unwrap();
         dir
     }

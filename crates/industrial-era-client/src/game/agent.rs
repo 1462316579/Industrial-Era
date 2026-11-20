@@ -663,7 +663,8 @@ impl Game<'_> {
                 json!({ "mode": "world-operation-error", "message": message })
             }
             Mode::Multiplayer(industrial_era_client::multiplayer::Screen::Disconnected {
-                reason, ..
+                reason,
+                ..
             }) => {
                 json!({ "mode": "multiplayer", "disconnected": reason })
             }
@@ -928,7 +929,9 @@ impl Game<'_> {
         let scale = self
             .renderer
             .as_ref()
-            .map(|r| industrial_era_client::hud::HudBatch::new([r.config.width, r.config.height]).scale)
+            .map(|r| {
+                industrial_era_client::hud::HudBatch::new([r.config.width, r.config.height]).scale
+            })
             .ok_or("no renderer yet")?;
         let device_id = DeviceId::dummy();
         for (i, &(x, y)) in points.iter().enumerate() {
@@ -1226,8 +1229,11 @@ impl Game<'_> {
             "turn" if a.has("over") => {
                 self.turning()?;
                 let (dyaw, dpitch) = (a.f64(0, "DYAW")?, a.f64(1, "DPITCH")?);
-                let motion =
-                    industrial_era_client::mouse::motion_for_turn(dyaw, dpitch, self.look_options());
+                let motion = industrial_era_client::mouse::motion_for_turn(
+                    dyaw,
+                    dpitch,
+                    self.look_options(),
+                );
                 self.start_glide(motion, a.num("over", 0.0)?, None, reply)
             }
             "look-at" => {
@@ -1278,8 +1284,11 @@ impl Game<'_> {
                 (self.yaw, self.pitch) = before;
                 let dyaw = f64::from(target.0 - before.0 + 180.0).rem_euclid(360.0) - 180.0;
                 let dpitch = f64::from(target.1 - before.1);
-                let motion =
-                    industrial_era_client::mouse::motion_for_turn(dyaw, dpitch, self.look_options());
+                let motion = industrial_era_client::mouse::motion_for_turn(
+                    dyaw,
+                    dpitch,
+                    self.look_options(),
+                );
                 self.start_glide(motion, over, Some(aim), reply)
             }
             "attack" => {
@@ -1524,7 +1533,8 @@ impl Game<'_> {
                     .renderer
                     .as_ref()
                     .map(|r| {
-                        industrial_era_client::hud::HudBatch::new([r.config.width, r.config.height]).scale
+                        industrial_era_client::hud::HudBatch::new([r.config.width, r.config.height])
+                            .scale
                     })
                     .ok_or("no renderer yet")?;
                 let device_id = DeviceId::dummy();
@@ -1623,7 +1633,9 @@ impl Game<'_> {
                                 }
                             }
                         }
-                        industrial_era_client::title::Mode::Edit { focused, .. } if field == "name" => {
+                        industrial_era_client::title::Mode::Edit { focused, .. }
+                            if field == "name" =>
+                        {
                             *focused = true
                         }
                         _ => {

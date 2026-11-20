@@ -1,4 +1,4 @@
-//! Every command industrial-era-ctl knows: its usage, help, examples and arguments.
+//! Every command industrial_era-ctl knows: its usage, help, examples and arguments.
 //! The same table prints `help`, checks `COMMAND --help` and describes the
 //! MCP tools, so the CLI and the MCP server always offer the same commands.
 use serde_json::{Map, Value, json};
@@ -73,7 +73,7 @@ pub struct Cmd {
     pub params: &'static [Param],
     /// Offered as an MCP tool.
     pub mcp: bool,
-    /// Runs in industrial-era-ctl itself, not in the game.
+    /// Runs in industrial_era-ctl itself, not in the game.
     pub local: bool,
 }
 
@@ -189,10 +189,10 @@ pub const COMMANDS: &[Cmd] = &[
     // Session
     cmd!("launch", Session, "launch [--world NAME] [--seed N] [--creative] [--version TAG] [--game PATH] [--wait] [GAME ARGS...]",
         "start Industrial Era with the control socket and wait until it answers",
-        "Finds the game in this order: --game PATH; a industrial-era-client next to industrial-era-ctl (a build folder, a release folder or a launcher install); the newest version installed by the Industrial Era launcher (--version TAG picks one). Launcher installs run with their prepared resources and keep saves in the game home ($HORIZON_HOME, else ~/.local/share/industrial-era). --wait also waits until the player has spawned and chunks are loaded. Other arguments go to the game (industrial-era-client --help lists them). The game's output goes to a .log file beside the socket.",
+        "Finds the game in this order: --game PATH; a industrial_era-client next to industrial_era-ctl (a build folder, a release folder or a launcher install); the newest version installed by the Industrial Era launcher (--version TAG picks one). Launcher installs run with their prepared resources and keep saves in the game home ($HORIZON_HOME, else ~/.local/share/industrial-era). --wait also waits until the player has spawned and chunks are loaded. Other arguments go to the game (industrial-era-client --help lists them). The game's output goes to a .log file beside the socket.",
         ["industrial-era-ctl launch --world Survival --seed 42 --wait", "industrial-era-ctl launch --world Flat --creative --render-distance 8"],
         &[flag("world", Ty::Str, "world folder to open or create"), flag("seed", Ty::Str, "seed for a new world"), flag("creative", Ty::Bool, "creative mode for a new world"),
-          flag("version", Ty::Str, "an installed launcher version tag such as v2026.10.13"), flag("game", Ty::Str, "path to a industrial-era-client binary"),
+          flag("version", Ty::Str, "an installed launcher version tag such as v2026.10.13"), flag("game", Ty::Str, "path to a industrial_era-client binary"),
           flag("wait", Ty::Bool, "also wait until the world is ready (default in MCP)"),
           flag("offscreen", Ty::Bool, "render without showing a window (screenshots still work): locked or headless sessions"),
           flag("headless", Ty::Bool, "no display, window or GPU: a player that plays through these commands only (no screenshots)")],
@@ -241,7 +241,7 @@ pub const COMMANDS: &[Cmd] = &[
     cmd!("save", Session, "save", "save the world", "", ["industrial-era-ctl save"], &[], mcp: true, local: false),
     cmd!("quit", Session, "quit", "save and exit the game", "", ["industrial-era-ctl quit"], &[], mcp: true, local: false),
     cmd!("screenshot", Session, "screenshot PATH", "write the next rendered frame as a PNG",
-        "Relative paths are taken from industrial-era-ctl's directory. Over MCP the image is returned directly.",
+        "Relative paths are taken from industrial_era-ctl's directory. Over MCP the image is returned directly.",
         ["industrial-era-ctl screenshot view.png"], &[], mcp: true, local: false),
     // Observe
     cmd!("state", Observe, "state", "player, world, screen and crosshair target in one reply",
@@ -405,7 +405,7 @@ pub const COMMANDS: &[Cmd] = &[
     cmd!("resume", Screens, "resume", "leave the pause menu", "", ["industrial-era-ctl resume"], &[], mcp: true, local: false),
     cmd!("options", Screens, "options [PAGE]", "open the options screen, or one of its pages (Industrial Era's too)",
         "Then ui lists its widgets and click, set and type change them, as with the mouse. options-set changes an options.txt value without the screen.",
-        ["industrial-era-ctl options video", "industrial-era-ctl options industrial-era"], &[opt("page", PAGES, "the page (default: the main options)")], mcp: true, local: false),
+        ["industrial-era-ctl options video", "industrial-era-ctl options industrial_era"], &[opt("page", PAGES, "the page (default: the main options)")], mcp: true, local: false),
     cmd!("book", Screens, "book [next|back|take|done]", "the open book or lectern: its page text, or press one of its buttons",
         "", ["industrial-era-ctl book", "industrial-era-ctl book next"], &[opt("action", Ty::Enum(&["next", "back", "take", "done"]), "a button to press")], mcp: true, local: false),
     cmd!("signedit", Screens, "signedit X Y Z [front|back]", "open the sign editor of the sign at X Y Z (then type and close)",
@@ -464,7 +464,7 @@ pub const COMMANDS: &[Cmd] = &[
         ["industrial-era-ctl script play.txt", "printf 'state\\ngoto 0 64 0\\n' | industrial-era-ctl script"], &[], mcp: false, local: true),
     cmd!("sleep", Scripting, "sleep SECONDS", "wait (in scripts)", "", ["sleep 0.5"], &[], mcp: false, local: true),
     cmd!("mcp", Scripting, "mcp", "serve the Model Context Protocol on stdin/stdout, one tool per command",
-        "Add it to an MCP client as a stdio server: command industrial-era-ctl, args [\"mcp\"] (with --socket PATH first if needed). The screenshot tool returns the image.",
+        "Add it to an MCP client as a stdio server: command industrial_era-ctl, args [\"mcp\"] (with --socket PATH first if needed). The screenshot tool returns the image.",
         ["industrial-era-ctl mcp"], &[], mcp: false, local: true),
     cmd!("bench", Scripting, "bench SECONDS", "reset frame stats, wait, reply with the summary", "", ["industrial-era-ctl bench 10"], &[p("seconds", Ty::Num, "how long to measure")], mcp: true, local: false),
     cmd!("stats", Scripting, "stats [reset] [raw]", "frame-time summary since the last reset", "", ["industrial-era-ctl stats"], &[opt("reset", Ty::Bool, "start counting again"), opt("raw", Ty::Bool, "every frame time too (frame_ms, cpu_ms, gpu_ms)")], mcp: true, local: false),
@@ -526,11 +526,11 @@ pub fn overview() -> String {
          %TEMP%\\industrial-era-control.json, a localhost TCP port with a token; any path ending in .json\n\
          uses that transport).\n\n\
          First steps:\n\
-         \x20 industrial-era-ctl launch --world Test --seed 1 --wait\n\
-         \x20 industrial-era-ctl state\n\
-         \x20 industrial-era-ctl find-block oak_log\n\
-         \x20 industrial-era-ctl goto X Y Z --near 2 && industrial-era-ctl break X Y Z\n\
-         \x20 industrial-era-ctl inventory\n",
+         \x20 industrial_era-ctl launch --world Test --seed 1 --wait\n\
+         \x20 industrial_era-ctl state\n\
+         \x20 industrial_era-ctl find-block oak_log\n\
+         \x20 industrial_era-ctl goto X Y Z --near 2 && industrial-era-ctl break X Y Z\n\
+         \x20 industrial_era-ctl inventory\n",
     );
     out
 }

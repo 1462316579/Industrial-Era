@@ -1,7 +1,9 @@
 //! Shared by the audio fixtures: a backend recording what an OpenAL source
 //! would hold, and the per-step dump the Java oracles print.
 #![allow(dead_code)]
-use industrial_era_client::sound_engine::{Backend, ChannelId, InstanceId, PlayResult, SoundEngine};
+use industrial_era_client::sound_engine::{
+    Backend, ChannelId, InstanceId, PlayResult, SoundEngine,
+};
 use industrial_era_client::sound_events::Sound;
 use std::collections::HashMap;
 use std::io::Write;

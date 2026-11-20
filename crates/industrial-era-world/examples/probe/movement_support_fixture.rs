@@ -1,6 +1,8 @@
 use crate::support::common::position;
 use industrial_era_core::{geometry::Vec3, position::BlockPos};
-use industrial_era_world::movement_support::{self as support, MovementBlockWorld, MovementLocation};
+use industrial_era_world::movement_support::{
+    self as support, MovementBlockWorld, MovementLocation,
+};
 use serde_json::Value;
 use std::{
     fs,

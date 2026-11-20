@@ -155,8 +155,11 @@ pub const MAP_SLOTS: usize = 256;
 /// The atlas sprite of map slot `slot` (`industrial-era/map{slot}`), named once:
 /// every map shown asks for its slot's each frame.
 pub fn map_slot_sprite(slot: usize) -> Option<&'static str> {
-    static NAMES: std::sync::LazyLock<Vec<String>> =
-        std::sync::LazyLock::new(|| (0..MAP_SLOTS).map(|i| format!("industrial-era/map{i}")).collect());
+    static NAMES: std::sync::LazyLock<Vec<String>> = std::sync::LazyLock::new(|| {
+        (0..MAP_SLOTS)
+            .map(|i| format!("industrial-era/map{i}"))
+            .collect()
+    });
     NAMES.get(slot).map(String::as_str)
 }
 /// The atlas slot the minimap extra draws into.
@@ -495,7 +498,8 @@ fn cit_sprite(root: &Path, id: &str) -> Option<(PackedImage, Option<TextureFlags
         }
     };
     let mcmeta =
-        industrial_era_core::prepared_files::read_to_string(&path.with_extension("png.mcmeta")).ok();
+        industrial_era_core::prepared_files::read_to_string(&path.with_extension("png.mcmeta"))
+            .ok();
     let animation = animation_of(mcmeta.as_deref());
     // Only an animation is cut to its first frame: a still CIT texture is drawn whole, and
     // armour layers are twice as wide as they are tall.
@@ -1163,7 +1167,12 @@ impl HudAtlas {
         }
         // Downloaded skins (game/scoreboard.rs).
         for i in 0..SKIN_SLOTS {
-            images.push((format!("industrial-era/skin{i}"), 64, 64, vec![0; 64 * 64 * 4]));
+            images.push((
+                format!("industrial-era/skin{i}"),
+                64,
+                64,
+                vec![0; 64 * 64 * 4],
+            ));
         }
         for i in 0..TRIM_SLOTS {
             images.push((
@@ -1694,9 +1703,10 @@ impl HudAtlas {
             let image = decode(path)
                 .map_err(|e| log::warn!("skipped GUI texture {}: {e}", path.display()))
                 .ok()?;
-            let mcmeta =
-                industrial_era_core::prepared_files::read_to_string(&path.with_extension("png.mcmeta"))
-                    .ok();
+            let mcmeta = industrial_era_core::prepared_files::read_to_string(
+                &path.with_extension("png.mcmeta"),
+            )
+            .ok();
             let animation = animation_of(mcmeta.as_deref());
             // An animated strip keeps its first frame.
             let frames = name.starts_with("block/") || name.starts_with("item/");
@@ -1770,7 +1780,7 @@ impl HudAtlas {
                 images.push(image);
             }
         }
-        // Downloaded Android controls can arrive after industrial-era-data.bin was built.
+        // Downloaded Android controls can arrive after industrial_era-data.bin was built.
         // Read this small overlay from disk too, without walking every prepared asset.
         if full {
             let mut existing: HashSet<String> = images.iter().map(|i| i.0.clone()).collect();
@@ -3583,7 +3593,8 @@ mod tests {
     /// A resource root holding one animated block texture: a strip of two
     /// 16x16 frames, red then blue, whose mcmeta starts on the blue one.
     fn animated_root() -> PathBuf {
-        let root = std::env::temp_dir().join(format!("industrial-era-atlas-anim-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-atlas-anim-{}", std::process::id()));
         let block = root.join("assets/minecraft/textures/block");
         fs::create_dir_all(&block).unwrap();
         write_strip(
@@ -3603,7 +3614,8 @@ mod tests {
     }
     #[test]
     fn content_mod_entity_textures_pack_under_their_namespace() {
-        let root = std::env::temp_dir().join(format!("industrial-era-atlas-equip-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-atlas-equip-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let equipment = root.join("assets/gems/textures/entity/equipment/humanoid");
         fs::create_dir_all(&equipment).unwrap();
@@ -3640,8 +3652,10 @@ mod tests {
     /// `RandomTextures` gives them; one beside its texture packs once, under its own.
     #[test]
     fn random_entity_variants_pack_under_their_scan_names() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-random-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-random-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let random = root.join("assets/minecraft/optifine/random/entity/pig");
         fs::create_dir_all(&random).unwrap();
@@ -3662,8 +3676,10 @@ mod tests {
     /// A random variant's emissive overlay packs beside the variant, under its name.
     #[test]
     fn variant_overlays_pack_under_their_names() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-overlay-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-overlay-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let random = root.join("assets/minecraft/optifine/random/entity/zombie");
         fs::create_dir_all(&random).unwrap();
@@ -3712,7 +3728,10 @@ mod tests {
     /// Variants past the budget, in name order, stay out of the atlas.
     #[test]
     fn random_variants_stop_at_their_budget() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-atlas-budget-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-budget-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let files: Vec<PathBuf> = ["a2.png", "a3.png", "a4.png"]
@@ -3738,8 +3757,10 @@ mod tests {
     }
     #[test]
     fn content_mod_effect_icons_pack_under_their_namespace() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-effect-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-effect-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let icons = root.join("assets/gems/textures/mob_effect");
         fs::create_dir_all(&icons).unwrap();
@@ -3834,8 +3855,10 @@ mod tests {
     }
     #[test]
     fn a_pack_directory_outside_the_walked_folders_still_packs() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-custom-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-custom-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let atlases = root.join("assets/minecraft/atlases");
         let custom = root.join("assets/minecraft/textures/custom");
@@ -3861,8 +3884,10 @@ mod tests {
     }
     #[test]
     fn another_namespaces_animated_item_texture_packs_its_first_frame_and_animates() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-ns-anim-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-ns-anim-{}",
+            std::process::id()
+        ));
         let atlases = root.join("assets/minecraft/atlases");
         let item = root.join("assets/lobby/textures/item/npc");
         fs::create_dir_all(&atlases).unwrap();
@@ -3894,8 +3919,10 @@ mod tests {
     }
     /// A resource root with one plain item texture and these CIT files (relative path, contents).
     fn cit_root(name: &str, files: &[(&str, &str)]) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-atlas-cit-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-atlas-cit-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&root);
         let item = root.join("assets/minecraft/textures/item");
         fs::create_dir_all(&item).unwrap();
@@ -4083,7 +4110,10 @@ texture=wide",
             let pixels = vec![0; (side * side * 4) as usize];
             (name.to_owned(), side, side, pixels)
         };
-        let mut images = vec![image("item/stick", 16), image("industrial_era_cit:big", 1100)];
+        let mut images = vec![
+            image("item/stick", 16),
+            image("industrial_era_cit:big", 1100),
+        ];
         let mut animated = vec!["industrial_era_cit:big".to_owned()];
         let extras = HashSet::from(["industrial_era_cit:big".to_owned()]);
         assert!(HudAtlas::layout(&images, 1024).is_err());
@@ -4234,8 +4264,10 @@ texture=wide",
     }
     #[test]
     fn downloaded_controls_load_even_after_prepared_archive_was_written() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-control-overlay-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-control-overlay-{}",
+            std::process::id()
+        ));
         fs::create_dir_all(&root).unwrap();
         fs::write(root.join("industrial-era-resources.json"), b"{}").unwrap();
         write_png(&root, "gui/sprites/widget/button", 200, 20);
@@ -4258,7 +4290,8 @@ texture=wide",
     }
     #[test]
     fn a_pack_texture_keeps_the_default_textures_gui_size() {
-        let temp = std::env::temp_dir().join(format!("industrial-era-gui-size-{}", std::process::id()));
+        let temp =
+            std::env::temp_dir().join(format!("industrial-era-gui-size-{}", std::process::id()));
         let (defaults, pack) = (temp.join("defaults"), temp.join("pack"));
         write_png(&defaults, "gui/container/inventory", 256, 256);
         write_png(&defaults, "gui/sprites/widget/button", 200, 20);
@@ -4289,7 +4322,8 @@ texture=wide",
     /// its other textures and vanilla's names stay as they were.
     #[test]
     fn a_content_mods_gui_textures_are_sprites_under_its_namespace() {
-        let root = std::env::temp_dir().join(format!("industrial-era-mod-gui-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-mod-gui-{}", std::process::id()));
         write_png(&root, "gui/container/furnace", 256, 256);
         let png = |rel: &str, w: u32, h: u32| {
             let path = root.join(rel);
@@ -4376,8 +4410,10 @@ texture=wide",
 
     /// A synthetic default font: two 8x8 glyphs, 3 and 5 pixels wide.
     fn two_glyph_font(name: &str) -> std::path::PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-fonts-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-fonts-{name}-{}",
+            std::process::id()
+        ));
         let font = root.join("assets/minecraft/font");
         let textures = root.join("assets/minecraft/textures/font");
         fs::create_dir_all(&font).unwrap();
@@ -4538,7 +4574,8 @@ texture=wide",
     fn name_tags_draw_bold_text_and_tall_glyphs_like_any_text() {
         // `ascii.png`'s 8x8 'a' (4 pixels wide) and `accented.png`'s 9x12
         // 'й' (height 12, ascent 10: the breve above the line), 7 wide.
-        let root = std::env::temp_dir().join(format!("industrial-era-name-tag-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-name-tag-{}", std::process::id()));
         let textures = root.join("assets/minecraft/textures/font");
         fs::create_dir_all(root.join("assets/minecraft/font")).unwrap();
         fs::create_dir_all(&textures).unwrap();
@@ -4598,8 +4635,10 @@ texture=wide",
         use crate::{effects::EffectInstance, hud_layout, hud_overlays, inventory_effects};
         // A synthetic resource tree exercises loading and painting together.
         // No Minecraft installation or GPU is needed for this regression test.
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-effect-icons-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-effect-icons-{}",
+            std::process::id()
+        ));
         for (name, size) in [
             ("mob_effect/levitation", 18),
             ("gui/sprites/hud/effect_background", 24),

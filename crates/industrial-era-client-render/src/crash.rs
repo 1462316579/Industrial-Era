@@ -712,7 +712,10 @@ mod tests {
         // release.yml builds with HORIZON_VERSION (docs/versioning.md): `v0.2.3`, wherever it is installed.
         if let Some(label) = industrial_era_core::release::nightly_label() {
             assert_eq!(super::version(), label);
-            assert_eq!(release_tag(), industrial_era_core::release::nightly_version());
+            assert_eq!(
+                release_tag(),
+                industrial_era_core::release::nightly_version()
+            );
             return;
         }
         match industrial_era_core::release::RELEASE {
@@ -898,7 +901,8 @@ mod tests {
         )));
         assert!(text.contains("\tOperating System: "));
         assert!(text.contains("\tCPU: "));
-        let home = std::env::temp_dir().join(format!("industrial-era-crash-save-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial-era-crash-save-{}", std::process::id()));
         let path = report.save(&home).unwrap();
         assert_eq!(std::fs::read_to_string(&path).unwrap(), text);
         assert!(

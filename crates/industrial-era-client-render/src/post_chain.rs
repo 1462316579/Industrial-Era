@@ -1767,8 +1767,10 @@ mod tests {
     }
 
     fn scratch(name: &str, json: &str) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-post-chain-{}-{name}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-post-chain-{}-{name}",
+            std::process::id()
+        ));
         let dir = root.join("assets/minecraft/post_effect");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join(format!("{name}.json")), json).unwrap();
@@ -2146,7 +2148,8 @@ mod tests {
         let Some((device, queue)) = device() else {
             return;
         };
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
+        let root =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
         if !root
             .join("assets/minecraft/post_effect/invert.json")
             .exists()
@@ -2179,7 +2182,8 @@ mod tests {
         let Some((device, queue)) = device() else {
             return;
         };
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
+        let root =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3");
         if !root
             .join("assets/minecraft/post_effect/invert.json")
             .exists()

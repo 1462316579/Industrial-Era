@@ -93,7 +93,8 @@ pub fn float(m: &mut Mob, w: &MobWorld) {
         m.on_ground = true;
     } else {
         let v = m.velocity;
-        m.velocity = industrial_era_core::geometry::Vec3::new(v.x * 0.5, v.y * 0.5 + 0.05, v.z * 0.5);
+        m.velocity =
+            industrial_era_core::geometry::Vec3::new(v.x * 0.5, v.y * 0.5 + 0.05, v.z * 0.5);
     }
 }
 /// `Strider.getWalkTargetValue`.

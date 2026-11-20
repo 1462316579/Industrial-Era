@@ -114,10 +114,15 @@ pub(super) fn install_live_features(
     match features {
         Ok(Some(features)) => {
             res.behaviours().set_live_features(Arc::new(features));
-            log::info!("Industrial Era: live features ready in {:?}", started.elapsed());
+            log::info!(
+                "Industrial Era: live features ready in {:?}",
+                started.elapsed()
+            );
         }
         Ok(None) => {
-            log::warn!("Industrial Era: the worldgen bundle has no features; saplings will not grow")
+            log::warn!(
+                "Industrial Era: the worldgen bundle has no features; saplings will not grow"
+            )
         }
         Err(e) => log::warn!("Industrial Era: live features unavailable: {e}"),
     }

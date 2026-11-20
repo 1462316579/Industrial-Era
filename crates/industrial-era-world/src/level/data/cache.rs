@@ -32,7 +32,7 @@ const MAX_DECODED_BYTES: usize = 256 * 1024 * 1024;
 static NEXT_TEMP: AtomicU32 = AtomicU32::new(0);
 static DIR: OnceLock<PathBuf> = OnceLock::new();
 
-/// Keep snapshots in `dir` (the client passes `<game folder>/.industrial-era-cache`).
+/// Keep snapshots in `dir` (the client passes `<game folder>/.industrial_era-cache`).
 /// Without it (tests, tools, servers), `Behaviours::load` and `load_registry`
 /// always use the source loaders.
 pub(in crate::level) fn set_dir(dir: PathBuf) {
@@ -931,7 +931,8 @@ mod tests {
         let source = std::env::var_os("HORIZON_RESOURCES")
             .map(PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !source.join("block-behaviours.json").exists() {
             eprintln!("skipping behaviour cache tests: no client resources");
@@ -1014,7 +1015,7 @@ mod tests {
             return;
         };
         // The game's cache folder, apart from the resources.
-        let dir = root.0.join("game/.industrial-era-cache");
+        let dir = root.0.join("game/.industrial_era-cache");
         let registry = super::super::load_registry(&root.0).unwrap();
         // What `data::load` does once `set_dir` gave it a folder.
         let load_or_build = || {
@@ -1089,7 +1090,8 @@ mod tests {
         let source = std::env::var_os("HORIZON_RESOURCES")
             .map(PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !source.join("facts.json").exists() {
             eprintln!("skipping registry cache test: no client resources");
@@ -1115,7 +1117,7 @@ mod tests {
         )
         .unwrap();
         // The game's cache folder, apart from the resources.
-        let dir = root.0.join("game/.industrial-era-cache");
+        let dir = root.0.join("game/.industrial_era-cache");
         assert!(load_registry_from(&dir, &root.0).is_none());
         write_registry(&dir, &root.0, &registry, &flags).unwrap();
         assert!(

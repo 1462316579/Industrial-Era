@@ -1769,7 +1769,8 @@ fn decode_column(
     }
     if let Tag::Compound(map) = tag {
         if let Ok(Some(data)) = attachment_compound(map.get(&ATTACHMENTS_KEY.into())) {
-            extras.attachments = industrial_era_world::attachments::Attachments::from_nbt(data.clone());
+            extras.attachments =
+                industrial_era_world::attachments::Attachments::from_nbt(data.clone());
         }
         extras.root = map
             .iter()
@@ -3191,8 +3192,11 @@ pub mod later {
                         name: "".into(),
                         tag: tag.clone(),
                     };
-                    industrial_era_world::nbt::write_named(&named, industrial_era_world::nbt::Limits::default())
-                        .ok()
+                    industrial_era_world::nbt::write_named(
+                        &named,
+                        industrial_era_world::nbt::Limits::default(),
+                    )
+                    .ok()
                 }
             }
         }
@@ -3316,7 +3320,9 @@ fn read_saved_data(world: &Path, name: &str) -> Option<Tag> {
 pub fn world_gen_settings(world: &Path) -> Option<Tag> {
     // A world still to be file-fixed has them in level.dat in an older shape: they are read as
     // the fixes would leave them, so the questions on opening it are the same ones.
-    if let Ok(Some(settings)) = industrial_era_world::datafix::files::current_world_gen_settings(world) {
+    if let Ok(Some(settings)) =
+        industrial_era_world::datafix::files::current_world_gen_settings(world)
+    {
         return Some(settings);
     }
     read_saved_data(world, "world_gen_settings").or_else(|| {
@@ -5226,7 +5232,11 @@ impl<G: ChunkGenerator> ChunkGenerator for Persistent<G> {
             .save_later(&[Arc::new(chunk)], self.registry.registry, &self.biomes)
             .and_then(|_| self.save.save_entities_later(vec![(key, entities)]));
         if let Err(e) = saved {
-            log::warn!("Industrial Era: failed to save chunk {} {}: {e}", key.0, key.1);
+            log::warn!(
+                "Industrial Era: failed to save chunk {} {}: {e}",
+                key.0,
+                key.1
+            );
         }
     }
     fn decorates(&self) -> bool {
@@ -5295,7 +5305,8 @@ mod tests {
 
     #[test]
     fn a_server_falls_back_to_level_dat_old_and_restores_it() {
-        let world = std::env::temp_dir().join(format!("industrial-era-dat-old-{}", std::process::id()));
+        let world =
+            std::env::temp_dir().join(format!("industrial-era-dat-old-{}", std::process::id()));
         let _ = fs::remove_dir_all(&world);
         fs::create_dir_all(&world).unwrap();
         let level = |name: &str| {
@@ -5399,7 +5410,8 @@ mod tests {
         let assets = crate::assets::Assets::load(&root).expect("assets");
         let biomes = Arc::new(Biomes::load(&root).expect("biomes"));
         let bell = assets.registry.default_state("minecraft:bell").unwrap().0;
-        let dir = std::env::temp_dir().join(format!("industrial-era-poi-save-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-poi-save-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let save = SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         let _ = save.tables.set(Arc::new(SaveTables::new(&assets)));
@@ -5464,8 +5476,10 @@ mod tests {
         use industrial_era_world::attachments::{
             AttachmentCodec, AttachmentError, AttachmentType, Attachments,
         };
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-level-attachments-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-level-attachments-{}",
+            std::process::id()
+        ));
         let save = SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         let key = AttachmentType {
             namespace: "test",
@@ -5743,7 +5757,8 @@ mod tests {
         let mut dark = lit.clone();
         dark.x = 5;
         lit.lit = true;
-        let dir = std::env::temp_dir().join(format!("industrial-era-far-save-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-far-save-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let save = SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         let records =
@@ -5825,7 +5840,8 @@ mod tests {
             "block_entities",
             Tag::String("not decoded by far sampling".into()),
         );
-        let dir = std::env::temp_dir().join(format!("industrial-era-lod-save-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-lod-save-{}", std::process::id()));
         fs::create_dir_all(&dir).unwrap();
         let save = SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         save.write_records("region", vec![((-2, 3), Some(saved))], true)
@@ -6173,7 +6189,10 @@ mod tests {
     /// only `level.dat_old`: the world still opens from it, as vanilla's does.
     #[test]
     fn a_world_without_level_dat_opens_from_level_dat_old() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-dat-old-open-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-dat-old-open-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let level = Tag::compound([("Data", Tag::compound([("DataVersion", Tag::Int(7))]))]);
@@ -6188,7 +6207,8 @@ mod tests {
     #[test]
     fn region_files_kept_open_stay_under_vanillas_cache_size() {
         let open_fds = || std::fs::read_dir("/dev/fd").map_or(0, |d| d.count());
-        let dir = std::env::temp_dir().join(format!("industrial-era-save-fds-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-save-fds-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let save = super::SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         let before = open_fds();
@@ -6242,7 +6262,8 @@ mod tests {
     }
     #[test]
     fn write_completion_polls_without_waiting_and_keeps_latest_snapshot() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-save-poll-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-save-poll-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let save = super::SaveDir::new(dir.clone(), LevelShape::OVERWORLD);
         let lock = super::SessionLock::acquire(&dir).unwrap();
@@ -6278,7 +6299,10 @@ mod tests {
 
     #[test]
     fn failed_async_writes_are_readable_and_never_reported_durable() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-save-failure-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-save-failure-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         // A file where a directory is needed causes a real writer I/O error.
@@ -6316,7 +6340,8 @@ mod tests {
     /// world locked.
     #[test]
     fn session_lock_releases_while_a_descriptor_copy_lives() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-lock-copy-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-lock-copy-{}", std::process::id()));
         let lock = super::SessionLock::acquire(&dir).expect("first lock");
         let copy = lock.0.try_clone().unwrap();
         drop(lock);
@@ -6463,9 +6488,10 @@ mod tests {
             );
         }
         // Vanilla's types are never a mod's, modelled or not.
-        let ender = industrial_era_world::nbt::parse_snbt(r#"{id:"minecraft:ender_chest",x:0,y:0,z:0}"#)
-            .unwrap()
-            .0;
+        let ender =
+            industrial_era_world::nbt::parse_snbt(r#"{id:"minecraft:ender_chest",x:0,y:0,z:0}"#)
+                .unwrap()
+                .0;
         assert!(!matches!(
             decode_block_entity(&ender),
             Some((_, crate::containers::BlockEntity::Mod(_)))
@@ -6870,7 +6896,8 @@ mod tests {
     /// made with.
     #[test]
     fn the_level_data_holds_the_difficulty() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-difficulty-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-difficulty-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         let mut level = Level {
             name: "Test".into(),
@@ -7143,8 +7170,10 @@ mod tests {
     #[test]
     fn level_save_keeps_changed_rules() {
         use crate::gamerules::{GameRules, Value};
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-gamerules-level-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-gamerules-level-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         let mut level = super::Level::default();
         level.write(&dir).unwrap();
@@ -7230,7 +7259,8 @@ mod tests {
     }
 
     fn gen_world(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("industrial-era-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         dir
@@ -7427,7 +7457,8 @@ mod tests {
     #[test]
     fn mod_attachments_save_in_horizons_namespace_only_when_some() {
         use industrial_era_world::attachments::Attachments;
-        let root = std::env::temp_dir().join(format!("industrial-era-attach-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-attach-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let save = SaveDir::new(root.clone(), LevelShape::OVERWORLD);
         let file = root.join("data/industrial-era/attachments.dat");
@@ -7453,7 +7484,8 @@ mod tests {
 
     #[test]
     fn forced_chunks_survive_dimension_restarts_and_removals() {
-        let root = std::env::temp_dir().join(format!("industrial-era-forced-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-forced-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let dimensions = [
             "minecraft:overworld",
@@ -7574,7 +7606,8 @@ mod tests {
 
     #[test]
     fn older_records_of_a_current_world_upgrade_as_they_are_read() {
-        let world = std::env::temp_dir().join(format!("industrial-era-lazy-dv-{}", std::process::id()));
+        let world =
+            std::env::temp_dir().join(format!("industrial-era-lazy-dv-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&world);
         let save = SaveDir::new(
             super::dimension_dir(&world, "minecraft:overworld"),
@@ -7671,7 +7704,8 @@ mod tests {
 
     #[test]
     fn old_chunks_are_found_in_the_saved_records_and_old_poi_upgrade() {
-        let world = std::env::temp_dir().join(format!("industrial-era-lazy-old-{}", std::process::id()));
+        let world =
+            std::env::temp_dir().join(format!("industrial-era-lazy-old-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&world);
         let nether = SaveDir::new(
             super::dimension_dir(&world, "minecraft:the_nether"),
@@ -7720,7 +7754,8 @@ mod tests {
 
     #[test]
     fn a_chunk_from_before_1_18_is_brought_to_the_current_layout() {
-        let world = std::env::temp_dir().join(format!("industrial-era-lazy-117-{}", std::process::id()));
+        let world =
+            std::env::temp_dir().join(format!("industrial-era-lazy-117-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&world);
         let save = SaveDir::new(
             super::dimension_dir(&world, "minecraft:overworld"),
@@ -7918,8 +7953,10 @@ mod tests {
                 "{address} {seed}: {} chunks",
                 chunks.len()
             );
-            let own = std::env::temp_dir()
-                .join(format!("industrial-era-real-bobby-{seed}-{}", std::process::id()));
+            let own = std::env::temp_dir().join(format!(
+                "industrial-era-real-bobby-{seed}-{}",
+                std::process::id()
+            ));
             let _ = fs::remove_dir_all(&own);
             let biomes = biomes.clone();
             let decode: DecodeChunk = Box::new(move |root| {

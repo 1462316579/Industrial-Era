@@ -310,7 +310,8 @@ mod tests {
 
     #[test]
     fn chunks_survive_reopening_and_a_torn_last_record() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-lod-cache-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-lod-cache-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let cache = DiskCache::new(dir.clone(), 7);
         assert!(cache.get(3, -40).is_none(), "nothing cached yet");

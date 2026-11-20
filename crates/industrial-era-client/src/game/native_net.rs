@@ -41,7 +41,7 @@ fn payload(channel: &str, data: &[u8]) -> Result<Vec<u8>, String> {
 }
 
 impl Game<'_> {
-    /// A `industrial-era:mod_net` payload from `conn`: queued for
+    /// A `industrial_era:mod_net` payload from `conn`: queued for
     /// `run_native_net`. Past the caps it is dropped in silence.
     pub(super) fn guest_native_net(&mut self, host: &LanHost, conn: u32, data: &[u8]) {
         let Some(player) = host.hub.guest(conn).map(|g| g.uuid) else {
@@ -95,7 +95,7 @@ impl Game<'_> {
         }
     }
 
-    /// A `industrial-era:mod_net` payload the server sent the window.
+    /// A `industrial_era:mod_net` payload the server sent the window.
     pub(super) fn remote_native_net(&mut self, data: &[u8]) {
         match mod_net::decode(data) {
             Ok(m) => self.native_net_from_server(&m.channel, &m.data),

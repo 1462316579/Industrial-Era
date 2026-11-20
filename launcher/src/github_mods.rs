@@ -471,7 +471,7 @@ fn walk_files(root: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>) -> Resu
 /// (`[compatibility] industrial_era_revision`). An unpacked `.hnmod` (`industrial-era-native.json`) keeps the
 /// pins and hook points its manifest names. The zip is the same for the same files.
 pub fn pack(bundle: &Bundle) -> Result<Vec<u8>, String> {
-    let industrial-era = bundle.industrial-era.clone().filter(|h| format::revision(h)).ok_or_else(|| {
+    let industrial_era = bundle.industrial_era.clone().filter(|h| format::revision(h)).ok_or_else(|| {
         format!(
             "{} has no [compatibility] industrial_era_revision (40 hex digits): add the Industrial Era commit it was made for.",
             bundle.id

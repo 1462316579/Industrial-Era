@@ -136,7 +136,7 @@ pub struct NativeScreenView<'a> {
     pub id: &'static str,
     /// The type id of the menu the server opened for this screen
     /// (`minecraft:generic_9x3`, `minecraft:furnace`, a mod's own id; a mount's
-    /// inventory is `industrial-era:mount<n>`). None on a screen without one (the
+    /// inventory is `industrial_era:mount<n>`). None on a screen without one (the
     /// client's own inventory, creative, the pause menu, stats…) and for a
     /// menu type the client does not know.
     pub menu: Option<&'a str>,

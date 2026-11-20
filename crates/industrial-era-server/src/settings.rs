@@ -320,8 +320,10 @@ mod tests {
 
     #[test]
     fn a_stopped_server_saves_and_keeps_comments() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-settings-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-settings-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join(config::FILE), config::TEMPLATE).unwrap();

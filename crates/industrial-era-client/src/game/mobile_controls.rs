@@ -37,7 +37,8 @@ impl Game<'_> {
         if !self.settings.keypad.enabled {
             return false;
         }
-        let Some(key) = industrial_era_client::keypad::resolve_key(event.physical_key, &event.logical_key)
+        let Some(key) =
+            industrial_era_client::keypad::resolve_key(event.physical_key, &event.logical_key)
         else {
             return false;
         };
@@ -301,7 +302,8 @@ impl Game<'_> {
                 .touch_tap(industrial_era_client::gamepad::Button::DPadRight);
         }
         if perspective {
-            self.pad.touch_tap(industrial_era_client::gamepad::Button::DPadUp);
+            self.pad
+                .touch_tap(industrial_era_client::gamepad::Button::DPadUp);
         }
         if debug {
             self.debug_key(KeyCode::F3, KeyAction::Press);
@@ -480,7 +482,8 @@ impl Game<'_> {
         }
         if t.phase == TouchPhase::Started
             && !self.mobile.controls.control_at_point(n)
-            && let Some(slot) = industrial_era_client::android_controls::hotbar_slot(b.width, b.height, p)
+            && let Some(slot) =
+                industrial_era_client::android_controls::hotbar_slot(b.width, b.height, p)
         {
             self.selected = slot;
             self.mobile.controls.ignore(t.id);
@@ -730,7 +733,8 @@ impl Game<'_> {
                 let default = industrial_era_client::keybinds::KeyBinds::default_of(mapping);
                 if let Some(key) = industrial_era_client::keybinds::key_code(default) {
                     let _ = self.options_key(key, None);
-                } else if let Some(button) = industrial_era_client::keybinds::mouse_button(default) {
+                } else if let Some(button) = industrial_era_client::keybinds::mouse_button(default)
+                {
                     let _ = self.options_bind_mouse(button);
                 }
                 return;
@@ -1510,15 +1514,15 @@ impl Game<'_> {
                 InGameMenuAction::SetResolutionScale(pct) => {
                     let clamped = pct.clamp(25, 100);
                     let changed = self.mobile.controls.settings.resolution_scale_percent != clamped
-                        || self.settings.industrial-era.resolution_scale != clamped;
+                        || self.settings.industrial_era.resolution_scale != clamped;
                     self.mobile.controls.settings.resolution_scale_percent = clamped;
-                    self.settings.industrial-era.resolution_scale = clamped;
+                    self.settings.industrial_era.resolution_scale = clamped;
                     if let Some(r) = self.renderer.as_mut() {
                         r.set_world_post(
                             clamped as f32 / 100.0,
-                            self.settings.industrial-era.fxaa,
-                            self.settings.industrial-era.taa,
-                            self.settings.industrial-era.upscaling.ratio(),
+                            self.settings.industrial_era.fxaa,
+                            self.settings.industrial_era.taa,
+                            self.settings.industrial_era.upscaling.ratio(),
                         );
                     }
                     if changed {
@@ -1534,7 +1538,8 @@ impl Game<'_> {
                     );
                     let _ = self.mobile.controls.settings.save();
                     if let Some(r) = self.renderer.as_mut() {
-                        r.animated_textures = self.settings.industrial-era.animated_textures && !next;
+                        r.animated_textures =
+                            self.settings.industrial_era.animated_textures && !next;
                     }
                 }
                 InGameMenuAction::SendCustomInput(token) => {

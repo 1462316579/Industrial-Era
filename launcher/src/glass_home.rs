@@ -221,7 +221,7 @@ impl Launcher {
             .is_some_and(|i| i.version.is_none());
         let update = self
             .updates
-            .industrial-era
+            .industrial_era
             .as_ref()
             .filter(|_| follows && !tag.is_empty())
             .map(|r| r.tag.clone());
@@ -580,7 +580,7 @@ impl Launcher {
 
     /// The folder button and its ⋯ (`FolderGroup`), which shows under the pointer or while its
     /// menu is open: the instance's folder, its screenshots, and (Industrial Era) the Minecraft folder.
-    fn folder_group(&self, industrial-era: bool, cx: &mut Context<Self>) -> Option<Div> {
+    fn folder_group(&self, industrial_era: bool, cx: &mut Context<Self>) -> Option<Div> {
         let t = self.theme;
         let instance = self.selected_instance()?;
         let home = instance.home.clone();

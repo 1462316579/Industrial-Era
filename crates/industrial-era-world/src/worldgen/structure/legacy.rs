@@ -839,7 +839,7 @@ pub fn spawn_nbt(id: &str, pos: [i32; 3], finalize: bool, persistent: bool) -> C
         nbt.insert("PersistenceRequired".into(), Tag::Byte(1));
     }
     if finalize {
-        nbt.insert("industrial-era:finalize".into(), Tag::Byte(1));
+        nbt.insert("industrial_era:finalize".into(), Tag::Byte(1));
     }
     nbt
 }

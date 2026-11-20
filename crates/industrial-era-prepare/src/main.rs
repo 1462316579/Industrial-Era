@@ -61,7 +61,7 @@ research-lock.json pins. Releases use a runtime; development or changed exporter
 compile-exporters builds and validates a release bundle from the imported pinned jars;
 --prepare first imports the explicit game files, as for resource preparation.
 The resources go to <root>/.local/industrial-era-client/<version>, or --output; pass that to
-industrial-era-client --resources. Exit codes: 0 done, 1 failed (or --check found gaps), 2 a refused
+industrial_era-client --resources. Exit codes: 0 done, 1 failed (or --check found gaps), 2 a refused
 command line (docs/api/launch.md).
 
 industrial-era-prepare panorama repairs the classic menu background in existing resources without Java.
@@ -199,7 +199,10 @@ fn main() -> ExitCode {
     if launch_api {
         return match industrial_era_prepare::artifacts::Lock::read(&options.root) {
             Ok(lock) => {
-                println!("{}", industrial_era_prepare::launch_api::reply(VERSION, &lock));
+                println!(
+                    "{}",
+                    industrial_era_prepare::launch_api::reply(VERSION, &lock)
+                );
                 ExitCode::SUCCESS
             }
             Err(e) => {
@@ -316,7 +319,11 @@ fn fraction_line(fraction: f32) -> String {
 /// `--check`: each gap on its own line on stdout, exit 1 when there is one.
 fn check_resources(options: &industrial_era_prepare::Options) -> ExitCode {
     let resources = industrial_era_prepare::artifacts::Lock::read(&options.root).map(|lock| {
-        industrial_era_prepare::resources_dir(&options.root, &lock.version, options.output.as_deref())
+        industrial_era_prepare::resources_dir(
+            &options.root,
+            &lock.version,
+            options.output.as_deref(),
+        )
     });
     match resources.and_then(|resources| industrial_era_prepare::check(&options.root, &resources)) {
         Ok(lacking) if lacking.is_empty() => ExitCode::SUCCESS,
@@ -352,7 +359,10 @@ mod tests {
         assert_eq!(fraction_line(0.05), r#"{"fraction": 0.050}"#);
         assert_eq!(fraction_line(1.0), r#"{"fraction": 1.000}"#);
         for line in [json_line("message", "tab\there, é"), fraction_line(0.9)] {
-            assert!(industrial_era_prepare::pyjson::loads(&line).is_ok(), "{line}");
+            assert!(
+                industrial_era_prepare::pyjson::loads(&line).is_ok(),
+                "{line}"
+            );
         }
     }
 

@@ -1,6 +1,6 @@
 //! The game's side of the Launch API (docs/api/launch.md): the options another launcher may pass,
 //! `--launch-api`'s reply, the exit codes, and docs/api/launch-reference.md, generated from them.
-//! Update it with: `HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-client --lib launch_api`.
+//! Update it with: `HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-client --lib launch_api`.
 
 /// The Launch API's version (docs/api/stability.md): an addition makes the next patch.
 pub const VERSION: &str = "0.1.0";
@@ -131,14 +131,14 @@ impl std::fmt::Display for UsageError {
 impl std::error::Error for UsageError {}
 
 /// `--launch-api`'s reply for a build of this `industrial-era` version.
-pub fn reply(industrial-era: &str) -> String {
+pub fn reply(industrial_era: &str) -> String {
     let options: Vec<_> = OPTIONS
         .iter()
         .map(|o| serde_json::json!({ "name": o.name, "value": o.value }))
         .collect();
     serde_json::to_string_pretty(&serde_json::json!({
         "launch_api": VERSION,
-        "industrial-era": industrial-era,
+        "industrial-era": industrial_era,
         "minecraft": industrial_era_core::VANILLA_VERSION,
         "options": options,
         "exit_codes": EXIT_CODES.iter().map(|(code, _)| code).collect::<Vec<_>>(),
@@ -155,7 +155,7 @@ pub fn markdown() -> String {
     let w = &mut out;
     let _ = writeln!(
         w,
-        "<!-- Generated from crates/industrial-era-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-client --lib launch_api -->"
+        "<!-- Generated from crates/industrial-era-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-client --lib launch_api -->"
     );
     let _ = writeln!(w, "# Launch API reference\n");
     let _ = writeln!(
@@ -265,7 +265,7 @@ mod tests {
             .replace("\r\n", "\n");
         assert!(
             have == want,
-            "docs/api/launch-reference.md is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-client --lib launch_api"
+            "docs/api/launch-reference.md is out of date: HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-client --lib launch_api"
         );
     }
 }

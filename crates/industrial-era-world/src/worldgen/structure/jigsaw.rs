@@ -53,10 +53,10 @@ pub enum PoolElement {
         projection: Projection,
         waterlogging: Option<bool>,
         /// The piece's own terrain kernel in a structure that has one
-        /// (`"industrial-era:enhanced_terrain_adaptation"`).
+        /// (`"industrial_era:enhanced_terrain_adaptation"`).
         enhanced_terrain: Option<Arc<super::enhanced_terrain::Adaptation>>,
         /// getGroundLevelDelta: 1, or Formations' `ground_level`
-        /// (`"industrial-era:ground_level"`).
+        /// (`"industrial_era:ground_level"`).
         ground_level: i32,
     },
     Feature {
@@ -166,15 +166,15 @@ impl PoolElement {
                         _ => None,
                     },
                     enhanced_terrain: value
-                        .get("industrial-era:enhanced_terrain_adaptation")
+                        .get("industrial_era:enhanced_terrain_adaptation")
                         .map(|a| super::enhanced_terrain::Adaptation::decode(a).map(Arc::new))
                         .transpose()?,
-                    ground_level: match value.get("industrial-era:ground_level") {
+                    ground_level: match value.get("industrial_era:ground_level") {
                         None => 1,
                         Some(v) => v
                             .as_u64()
                             .and_then(|g| i32::try_from(g).ok())
-                            .ok_or(DecodeError::Field("industrial-era:ground_level"))?,
+                            .ok_or(DecodeError::Field("industrial_era:ground_level"))?,
                     },
                 }
             }

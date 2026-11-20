@@ -547,9 +547,10 @@ pub(super) fn browser_stack(
     let (damage, extra) = if s.components.is_empty() {
         (0, None)
     } else {
-        industrial_era_client::item_data::command_components(&s.components).map_or((0, None), |tag| {
-            industrial_era_client::item_data::decode_components(Some(&tag))
-        })
+        industrial_era_client::item_data::command_components(&s.components)
+            .map_or((0, None), |tag| {
+                industrial_era_client::item_data::decode_components(Some(&tag))
+            })
     };
     Some(ItemStack {
         item: s.item.as_str().into(),

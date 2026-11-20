@@ -100,7 +100,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert!(
         FluidRegistry::new(
             &registry,
-            &BTreeSet::from(["industrial-era:absent".to_owned()]),
+            &BTreeSet::from(["industrial_era:absent".to_owned()]),
             &ice
         )
         .is_err()
@@ -118,11 +118,15 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut bound = RegistryFluidWorld::new(&bindings[0], &support, &mut probe)?;
     assert!(matches!(
         industrial_era_world::fluid_flow::FluidFlowWorld::fluid(&mut bound, BlockPos::new(0, 0, 0)),
-        Err(industrial_era_world::registry_fluid::FluidQueryError::Data(_))
+        Err(industrial_era_world::registry_fluid::FluidQueryError::Data(
+            _
+        ))
     ));
     assert!(matches!(
         industrial_era_world::fluid_flow::FluidFlowWorld::block(&mut bound, BlockPos::new(0, 0, 0)),
-        Err(industrial_era_world::registry_fluid::FluidQueryError::Data(_))
+        Err(industrial_era_world::registry_fluid::FluidQueryError::Data(
+            _
+        ))
     ));
     assert_eq!(probe.calls, 2);
     for line in fs::read_to_string(dir.join("inputs.txt"))?.lines() {

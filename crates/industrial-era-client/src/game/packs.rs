@@ -157,15 +157,19 @@ impl Game<'_> {
     /// Whether all active packs preserve vanilla's block models. The server
     /// overlay sits above the local selection and must be included too.
     pub(super) fn model_packs_are_vanilla(&self) -> bool {
-        self.settings.industrial-era.vanilla_models_with_server_packs(
-            self.settings.resource_packs.iter().map(String::as_str),
-            self.server_packs.active.iter().map(|pack| pack.id.as_str()),
-        )
+        self.settings
+            .industrial_era
+            .vanilla_models_with_server_packs(
+                self.settings.resource_packs.iter().map(String::as_str),
+                self.server_packs.active.iter().map(|pack| pack.id.as_str()),
+            )
     }
     /// The leaf mode that is safe for the current local and server packs.
-    pub(super) fn effective_leaf_culling(&self) -> industrial_era_client::graphics::LeafCullingMode {
+    pub(super) fn effective_leaf_culling(
+        &self,
+    ) -> industrial_era_client::graphics::LeafCullingMode {
         self.settings
-            .industrial-era
+            .industrial_era
             .leaf_culling_effective_with_server_packs(
                 self.settings.resource_packs.iter().map(String::as_str),
                 self.server_packs.active.iter().map(|pack| pack.id.as_str()),
@@ -295,7 +299,10 @@ impl Game<'_> {
     }
     /// The render-thread half: the renderer on the new pack's textures, then
     /// the swap (`ReloadInstance`'s application listeners).
-    pub(super) fn apply_staged_pack(&mut self, staged: StagedPack) -> industrial_era_client::Result<()> {
+    pub(super) fn apply_staged_pack(
+        &mut self,
+        staged: StagedPack,
+    ) -> industrial_era_client::Result<()> {
         let StagedPack {
             root,
             gui,
@@ -325,8 +332,8 @@ impl Game<'_> {
                     &gui,
                     self.renderer.as_ref(),
                     Some(textures),
-                    self.settings.industrial-era.api,
-                    self.settings.industrial-era.translucent_batching,
+                    self.settings.industrial_era.api,
+                    self.settings.industrial_era.translucent_batching,
                     super::shader_packs::picked_pack_draws_flat(&self.settings),
                 )
             })
@@ -492,7 +499,8 @@ pub(super) fn stage_pack(
             HudAtlas::build_over_with_image(&root, vanilla_root, mod_image)
                 .map_err(|e| e.to_string())
         });
-        let panorama = s.spawn(|| industrial_era_client::gfx::panorama::Faces::load(&root, vanilla_root));
+        let panorama =
+            s.spawn(|| industrial_era_client::gfx::panorama::Faces::load(&root, vanilla_root));
         let small = s.spawn(|| {
             (
                 industrial_era_client::sound_events::SoundRegistry::load(&root),

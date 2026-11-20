@@ -70,7 +70,9 @@ fn nested_inline_decoding_rejects_excessive_depth() {
 
 #[test]
 fn modifier_expansion_without_leaf_calls_uses_the_shared_graph_budget() {
-    use industrial_era_world::worldgen::{placement::PlacementModifier, value_provider::IntProvider};
+    use industrial_era_world::worldgen::{
+        placement::PlacementModifier, value_provider::IntProvider,
+    };
     let feature = PlacedFeatureDefinition {
         feature: Box::new(FeatureDefinition::NoOp),
         placement: vec![

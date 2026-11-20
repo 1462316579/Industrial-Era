@@ -167,7 +167,7 @@ pub(super) fn player_joined(id: u128, name: &str) {
     }
 }
 
-/// `server.toml`'s `[anticheat]`, beside server.properties when industrial-era-server runs the game; the
+/// `server.toml`'s `[anticheat]`, beside server.properties when industrial_era-server runs the game; the
 /// default (on) without the file or the section, off (with an error logged) when the section is wrong.
 fn load_anticheat() -> industrial_era_anticheat::Config {
     let Ok(text) = std::fs::read_to_string("server.toml") else {
@@ -213,7 +213,8 @@ fn load_chat_filter() -> Option<industrial_era_chat_filter::Guard> {
     if !config.enabled {
         return None;
     }
-    let (guard, problem) = industrial_era_chat_filter::Guard::load(config, std::path::Path::new("."));
+    let (guard, problem) =
+        industrial_era_chat_filter::Guard::load(config, std::path::Path::new("."));
     if let Some(problem) = problem {
         log("WARN", &problem);
     }
@@ -658,7 +659,7 @@ struct ServerState {
     stop: bool,
     autosave: bool,
     empty_ticks: i32,
-    /// When the last passes of the loop ended, for the tick rate industrial-era-server shows.
+    /// When the last passes of the loop ended, for the tick rate industrial_era-server shows.
     ticks: std::collections::VecDeque<Instant>,
     paused: bool,
     /// `broadcast-console-to-ops`.
@@ -903,7 +904,9 @@ impl Game<'_> {
         // DedicatedServer's constructor: `enable-code-of-conduct` reads the
         // `codeofconduct` folder, and a folder it can't read stops the start.
         let code_of_conducts = if props.code_of_conduct {
-            industrial_era_client::lan::code_of_conduct::read(std::path::Path::new("codeofconduct"))?
+            industrial_era_client::lan::code_of_conduct::read(std::path::Path::new(
+                "codeofconduct",
+            ))?
         } else {
             Vec::new()
         };
@@ -912,67 +915,70 @@ impl Game<'_> {
             .filter(|b| png_size(b) == Some((64, 64)));
         // Behind a Velocity proxy: `forwarding.secret` in the server folder, like the proxy's own file.
         let forwarding_secret = forwarding_secret(online.is_some())?;
-        let net = NetConfig {
-            bind: (!props.server_ip.is_empty())
-                .then(|| props.server_ip.parse().ok())
-                .flatten(),
-            port,
-            motd: props.motd.clone(),
-            max_players: props.max_players.max(0) as usize,
-            compression_threshold: props.network_compression_threshold,
-            rate_limit: props.rate_limit,
-            enable_status: props.enable_status,
-            hide_online_players: props.hide_online_players,
-            favicon,
-            secure_chat: Some(secure_chat),
-            accepts_transfers: props.accepts_transfers,
-            announce: false,
-            listen: true,
-            bypasses_limit: Some(Arc::new(move |uuid| {
-                bypass_lists
-                    .lock()
-                    .unwrap()
-                    .ops
-                    .entries()
-                    .iter()
-                    .any(|e| e.user.id == uuid && e.bypasses_player_limit)
-            })),
-            gate: Some(gate),
-            online,
-            forwarding_secret,
-            log: Some(NetLog {
-                write: Arc::new(log_from),
-                lang: Arc::new(industrial_era_client::net::load_language(&self.options.resources)),
-                log_ips: props.log_ips,
-            }),
-            resource_pack: props.resource_pack.clone(),
-            code_of_conducts,
-            // DedicatedServer.serverLinks: `bug-report-link` as the only link
-            // (ServerLinks.KnownLinkType.BUG_REPORT is id 0).
-            levels: self.level_shapes,
-            industrial_era_clients_only: props
-                .raw
-                .get(industrial_era_client::lan::HORIZON_CLIENTS_ONLY)
-                .is_some_and(|v| v.trim().eq_ignore_ascii_case("true")),
-            lod_distance: industrial_era_client::lod_net::distance_property(
-                props.raw.get(industrial_era_client::lod_net::PROPERTY),
-            ),
-            server_links: if props.bug_report_link.is_empty() {
-                Vec::new()
-            } else if super::server_links::valid_untrusted_uri(&props.bug_report_link) {
-                vec![industrial_era_protocol::packets::configuration::ServerLink {
+        let net =
+            NetConfig {
+                bind: (!props.server_ip.is_empty())
+                    .then(|| props.server_ip.parse().ok())
+                    .flatten(),
+                port,
+                motd: props.motd.clone(),
+                max_players: props.max_players.max(0) as usize,
+                compression_threshold: props.network_compression_threshold,
+                rate_limit: props.rate_limit,
+                enable_status: props.enable_status,
+                hide_online_players: props.hide_online_players,
+                favicon,
+                secure_chat: Some(secure_chat),
+                accepts_transfers: props.accepts_transfers,
+                announce: false,
+                listen: true,
+                bypasses_limit: Some(Arc::new(move |uuid| {
+                    bypass_lists
+                        .lock()
+                        .unwrap()
+                        .ops
+                        .entries()
+                        .iter()
+                        .any(|e| e.user.id == uuid && e.bypasses_player_limit)
+                })),
+                gate: Some(gate),
+                online,
+                forwarding_secret,
+                log: Some(NetLog {
+                    write: Arc::new(log_from),
+                    lang: Arc::new(industrial_era_client::net::load_language(
+                        &self.options.resources,
+                    )),
+                    log_ips: props.log_ips,
+                }),
+                resource_pack: props.resource_pack.clone(),
+                code_of_conducts,
+                // DedicatedServer.serverLinks: `bug-report-link` as the only link
+                // (ServerLinks.KnownLinkType.BUG_REPORT is id 0).
+                levels: self.level_shapes,
+                industrial_era_clients_only: props
+                    .raw
+                    .get(industrial_era_client::lan::HORIZON_CLIENTS_ONLY)
+                    .is_some_and(|v| v.trim().eq_ignore_ascii_case("true")),
+                lod_distance: industrial_era_client::lod_net::distance_property(
+                    props.raw.get(industrial_era_client::lod_net::PROPERTY),
+                ),
+                server_links: if props.bug_report_link.is_empty() {
+                    Vec::new()
+                } else if super::server_links::valid_untrusted_uri(&props.bug_report_link) {
+                    vec![industrial_era_protocol::packets::configuration::ServerLink {
                     kind: industrial_era_protocol::packets::configuration::ServerLinkKind::Known(0),
                     link: props.bug_report_link.clone(),
                 }]
-            } else {
-                log(
-                    "WARN",
-                    &format!("Failed to parse bug link {}", props.bug_report_link),
-                );
-                Vec::new()
-            },
-            owner_profile: None,
-        };
+                } else {
+                    log(
+                        "WARN",
+                        &format!("Failed to parse bug link {}", props.bug_report_link),
+                    );
+                    Vec::new()
+                },
+                owner_profile: None,
+            };
         let config = HubConfig {
             allow_flight: props.allow_flight,
             default_game_mode: game_mode,
@@ -1014,7 +1020,9 @@ impl Game<'_> {
         let (registry, biomes) = (self.pack.assets.registry, self.res.biomes().clone());
         if let Some(host) = self.lan.as_mut() {
             if far > host.hub.config.view_distance {
-                host.hub.far = Some(industrial_era_client::lan::far::Far::new(far, registry, biomes));
+                host.hub.far = Some(industrial_era_client::lan::far::Far::new(
+                    far, registry, biomes,
+                ));
                 log(
                     "INFO",
                     &format!("Sending saved chunks up to {far} chunks away (max_view_distance)"),

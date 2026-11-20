@@ -45,7 +45,10 @@ pub fn resolve(name: &str, online: bool) -> Option<NameAndId> {
 pub fn find_by_name(discovery: &str, name: &str) -> Option<NameAndId> {
     let agent = ureq::AgentBuilder::new()
         .timeout(Duration::from_secs(15))
-        .user_agent(&format!("Industrial Era/{}", industrial_era_core::release::VERSION))
+        .user_agent(&format!(
+            "Industrial Era/{}",
+            industrial_era_core::release::VERSION
+        ))
         .build();
     let doc = json::parse(&agent.get(discovery).call().ok()?.into_string().ok()?, true).ok()?;
     let url = endpoint(&doc, "profiles", "getByName")?.replace("{name}", &name.to_lowercase());
@@ -57,7 +60,10 @@ pub fn find_by_name(discovery: &str, name: &str) -> Option<NameAndId> {
 pub fn find_by_id(discovery: &str, id: u128) -> Option<NameAndId> {
     let agent = ureq::AgentBuilder::new()
         .timeout(Duration::from_secs(15))
-        .user_agent(&format!("Industrial Era/{}", industrial_era_core::release::VERSION))
+        .user_agent(&format!(
+            "Industrial Era/{}",
+            industrial_era_core::release::VERSION
+        ))
         .build();
     let doc = json::parse(&agent.get(discovery).call().ok()?.into_string().ok()?, true).ok()?;
     let url =
@@ -82,7 +88,10 @@ pub fn fetch_profile_key_keys(discovery: &str) -> Result<Vec<RsaPublicKey>, &'st
     const FAILED: &str = "Failed to request Minecraft Services public key";
     let agent = ureq::AgentBuilder::new()
         .timeout(Duration::from_secs(15))
-        .user_agent(&format!("Industrial Era/{}", industrial_era_core::release::VERSION))
+        .user_agent(&format!(
+            "Industrial Era/{}",
+            industrial_era_core::release::VERSION
+        ))
         .build();
     let get = |url: &str| agent.get(url).call().ok()?.into_string().ok();
     let doc = get(discovery)
@@ -173,7 +182,7 @@ mod tests {
 
     #[test]
     fn services_key_sets() {
-        // The 1024-bit test key of industrial-era-protocol's RSA tests, base64.
+        // The 1024-bit test key of industrial_era-protocol's RSA tests, base64.
         let key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrAmB0+SRQqPcm84lbsRF2yo8GXzEAzUFDusT302dO3P+VtBoFJdI2WlScEG7GaFiBs5IXdCD9Mf9cFE/xG6JDEedRzSxrXRgXtq9mhqQ8ldYSQ2EwBeaUW2CTzZUiPOxeiFaCbanS7hsyM2KsHOvqs2WcvEUxmptUDdqBakeY/wIDAQAB";
         let answer = format!(
             r#"{{"profilePropertyKeys":[{{"publicKey":"{key}"}}],"playerCertificateKeys":[{{"publicKey":"{key}"}},{{"publicKey":"{key}"}}]}}"#

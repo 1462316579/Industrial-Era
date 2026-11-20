@@ -273,7 +273,8 @@ mod tests {
 
     #[test]
     fn unattended_init_writes_everything() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-init-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-server-init-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let answers = Answers {
             eula: true,
@@ -316,7 +317,8 @@ mod tests {
 
     #[test]
     fn no_eula_no_server() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-eula-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-server-eula-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let answers = Answers {
             yes: true,

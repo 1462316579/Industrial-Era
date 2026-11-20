@@ -6,7 +6,7 @@
 //! The libraries' types add rules on top of vanilla's. The start and
 //! placement rules of Repurposed Structures' and Moog's jigsaws (no start in
 //! liquid, biomes and terrain height in a radius, a minimum distance from
-//! the world origin, sets to keep away from) are written under `industrial-era:`
+//! the world origin, sets to keep away from) are written under `industrial_era: `
 //! keys the game reads (`industrial_era_world::worldgen::structure::start_checks`),
 //! so those structures start where the mod would. Rules that change how the
 //! pieces are laid out (piece caps, burying, clipping) are lost and counted
@@ -38,7 +38,7 @@ const NETHER_JIGSAWS: [&str; 2] = [
     "repurposed_structures:generic_nether_jigsaw_structure",
 ];
 /// Repurposed Structures' generic jigsaws with a start check of their own: the
-/// `repurposed` key of `industrial-era:start_checks` names it.
+/// `repurposed` key of `industrial_era:start_checks` names it.
 const REPURPOSED_CHECKED: [(&str, &str); 3] = [
     ("repurposed_structures:city_nether_structure", "city_nether"),
     (
@@ -48,9 +48,9 @@ const REPURPOSED_CHECKED: [(&str, &str); 3] = [
     ("repurposed_structures:stronghold_end", "stronghold_end"),
 ];
 /// Repurposed Structures' mineshaft: its generic jigsaw laid out under the
-/// terrain (`"layout": "mineshaft"` in `industrial-era:piece_limited`).
+/// terrain (`"layout": "mineshaft"` in `industrial_era:piece_limited`).
 const REPURPOSED_MINESHAFT: &str = "repurposed_structures:generic_mineshaft";
-/// Layout rules the piece-limited assembler keeps (`industrial-era:piece_limited`).
+/// Layout rules the piece-limited assembler keeps (`industrial_era:piece_limited`).
 const PIECE_LIMITED_RULES: [&str; 4] = [
     "y_allowance",
     "burying_type",
@@ -90,7 +90,7 @@ const MO_AVOID_CHUNKS: i64 = 3;
 /// Moog's Structure Lib spreads its structures 1.65 times as far apart as
 /// its files say (AdvancedRandomSpread's constructor).
 const MOOGS_SPACING: f64 = 1.65;
-/// The jigsaws' start rules and the `industrial-era:start_checks` key each maps to.
+/// The jigsaws' start rules and the `industrial_era:start_checks` key each maps to.
 const START_RULES: [(&str, &str); 3] = [
     ("valid_biome_radius_check", "biome_radius"),
     ("terrain_height_radius_check", "terrain_radius"),
@@ -105,9 +105,9 @@ const LAYOUT_RULES: [&str; 4] = [
     "pools_that_ignore_boundaries",
 ];
 /// The libraries' terrain kernel field, the game's
-/// `industrial-era:enhanced_terrain_adaptation` (docs/mods.md).
+/// `industrial_era:enhanced_terrain_adaptation` (docs/mods.md).
 pub(crate) const ENHANCED_TERRAIN: &str = "enhanced_terrain_adaptation";
-pub(crate) const HORIZON_ENHANCED_TERRAIN: &str = "industrial-era:enhanced_terrain_adaptation";
+pub(crate) const HORIZON_ENHANCED_TERRAIN: &str = "industrial_era:enhanced_terrain_adaptation";
 /// Fields of older versions the mods' codecs no longer read: their own
 /// structures ignore them, and so does carry. Repurposed's jungle fortress
 /// and End stronghold still write `vertical_distance_from_start_piece`.
@@ -145,7 +145,7 @@ pub struct Upgrade {
     /// ([`crate::processors::rule_tests`]), by type.
     pub rule_tests_carried: BTreeMap<String, usize>,
     /// Entries added to other structure sets and template pools
-    /// (`industrial-era:add_to`), by the set or pool they join.
+    /// (`industrial_era:add_to`), by the set or pool they join.
     pub added_to: BTreeMap<String, usize>,
     /// Lithostitched worldgen modifiers not carried: by type, `conditions`
     /// when they need a mod that is not ported along, `target` when they
@@ -177,7 +177,7 @@ pub fn upgrade(
 }
 
 /// Takes the processors written in Java (any type outside `minecraft:` and
-/// the game's own `industrial-era:`) out of a processor list: `{"processors":
+/// the game's own `industrial_era: `) out of a processor list: `{"processors":
 /// [...]}`, a bare list, or an id (left as it is). The ones with a data form
 /// were rewritten before ([`crate::processors::carry`]). The game, like vanilla, refuses a list holding a type it
 /// does not know, and with it every pool that names the list, so without
@@ -192,7 +192,7 @@ fn drop_java_processors(list: &mut Value, dropped: &mut BTreeMap<String, usize>)
     processors.retain(|p| {
         let t = p["processor_type"].as_str().unwrap_or_default();
         let java = !t.starts_with("minecraft:")
-            && !t.starts_with("industrial-era:")
+            && !t.starts_with("industrial_era: ")
             && !lithostitched::game_reads(p);
         if java {
             *dropped.entry(t.to_owned()).or_default() += 1;
@@ -204,7 +204,7 @@ fn drop_java_processors(list: &mut Value, dropped: &mut BTreeMap<String, usize>)
     for p in processors.iter_mut() {
         let inner: Vec<&mut Value> = match p["processor_type"].as_str() {
             Some(t) if t.starts_with("lithostitched:") => lithostitched::inner_lists(p),
-            Some("industrial-era:pillar" | "industrial-era:bottom_pillar") => {
+            Some("industrial_era:pillar" | "industrial_era:bottom_pillar") => {
                 p.get_mut("pillar_processor_list").into_iter().collect()
             }
             _ => Vec::new(),
@@ -303,13 +303,13 @@ fn upgrade_types(
                     *lost.entry(ENHANCED_TERRAIN.into()).or_default() += 1;
                 }
                 if let Some(check) = check {
-                    if !v["industrial-era:start_checks"].is_object() {
-                        v["industrial-era:start_checks"] = Value::Object(Default::default());
+                    if !v["industrial_era:start_checks"].is_object() {
+                        v["industrial_era:start_checks"] = Value::Object(Default::default());
                     }
-                    v["industrial-era:start_checks"]["repurposed"] = check.into();
+                    v["industrial_era:start_checks"]["repurposed"] = check.into();
                 }
                 if let Some(limited) = limited {
-                    v["industrial-era:piece_limited"] = limited;
+                    v["industrial_era:piece_limited"] = limited;
                 }
                 v["type"] = "minecraft:jigsaw".into();
                 true
@@ -324,7 +324,7 @@ fn upgrade_types(
                     .and_then(|r| r.as_i64())
                     .unwrap_or(-1);
                 if range >= 0 {
-                    v["industrial-era:start_checks"] =
+                    v["industrial_era:start_checks"] =
                         serde_json::json!({"terrain_radius": 2, "terrain_range": range});
                 }
                 v["type"] = "minecraft:jigsaw".into();
@@ -333,11 +333,11 @@ fn upgrade_types(
             // Formations' SimpleStructure: its pool and placement, laid out
             // by the game (`industrial_era_world::worldgen::structure::formations`).
             Some("formations:simple") => {
-                v["type"] = "industrial-era:formations".into();
+                v["type"] = "industrial_era:formations".into();
                 true
             }
             // Its PiecedStructure: the same start, then vanilla's jigsaw
-            // (`industrial-era:pieced`).
+            // (`industrial_era:pieced`).
             Some("formations:pieced") => {
                 let Some(o) = v.as_object_mut() else {
                     return false;
@@ -348,8 +348,8 @@ fn upgrade_types(
                     pieced.insert(k.into(), o.remove(k).unwrap_or_default());
                 }
                 o.insert("template".into(), pool);
-                o.insert("industrial-era:pieced".into(), pieced.into());
-                o.insert("type".into(), "industrial-era:formations".into());
+                o.insert("industrial_era:pieced".into(), pieced.into());
+                o.insert("type".into(), "industrial_era:formations".into());
                 true
             }
             Some(t) if !t.starts_with("minecraft:") => {
@@ -415,7 +415,7 @@ fn upgrade_types(
                     element["element_type"] = "minecraft:single_pool_element".into();
                     if let Some(o) = element.as_object_mut() {
                         let ground = o.remove("ground_level").unwrap_or(1.into());
-                        o.insert("industrial-era:ground_level".into(), ground);
+                        o.insert("industrial_era:ground_level".into(), ground);
                     }
                     changed = true;
                 } else if !t.starts_with("minecraft:") {
@@ -445,7 +445,7 @@ pub(crate) fn moogs_terrain(a: &Value, lost: &mut BTreeMap<String, usize>) -> Op
 }
 
 /// Moves a Repurposed Structures or Moog's jigsaw's start rules under
-/// `industrial-era:start_checks`, and counts the layout rules it loses. `liquid` is
+/// `industrial_era:start_checks`, and counts the layout rules it loses. `liquid` is
 /// the block its no-start-in-liquid rule reads.
 pub(crate) fn start_checks(
     v: &mut Value,
@@ -482,7 +482,7 @@ pub(crate) fn start_checks(
         }
     }
     if !checks.is_empty() {
-        o.insert("industrial-era:start_checks".into(), checks.into());
+        o.insert("industrial_era:start_checks".into(), checks.into());
     }
 }
 
@@ -529,7 +529,7 @@ fn piece_limited(v: &mut Value, library: &str) -> Value {
 /// The pieces' spawn counts of the structures a mod ships, by structure id:
 /// Repurposed Structures' `rs_pieces_spawn_counts` (each file names its
 /// `target_structure`) and Moog's `msl_pieces_spawn_counts` (the file's id),
-/// in the game's `industrial-era:piece_limited` shape.
+/// in the game's `industrial_era:piece_limited` shape.
 pub fn piece_counts<R: Read + std::io::Seek>(
     zip: &mut zip::ZipArchive<R>,
 ) -> BTreeMap<String, Value> {
@@ -592,9 +592,9 @@ pub fn piece_counts<R: Read + std::io::Seek>(
     out
 }
 
-/// Adds a structure's piece counts to its `industrial-era:piece_limited` key.
+/// Adds a structure's piece counts to its `industrial_era:piece_limited` key.
 pub fn add_piece_counts(id: &str, v: &mut Value, counts: &BTreeMap<String, Value>) -> bool {
-    match (counts.get(id), v.get_mut("industrial-era:piece_limited")) {
+    match (counts.get(id), v.get_mut("industrial_era:piece_limited")) {
         (Some(pieces), Some(limited)) => {
             limited["pieces"] = pieces.clone();
             true
@@ -621,7 +621,7 @@ fn moogs_spacing(p: &mut Value, lost: &mut BTreeMap<String, usize>) {
 }
 
 /// An advanced random spread's minimum distance from the world origin and
-/// its super exclusion zone (sets named by a tag) under `industrial-era:` keys.
+/// its super exclusion zone (sets named by a tag) under `industrial_era: ` keys.
 pub(crate) fn placement_rules(
     p: &mut Value,
     set_tags: &BTreeMap<String, Vec<String>>,
@@ -631,7 +631,7 @@ pub(crate) fn placement_rules(
         return;
     };
     if let Some(d) = o.remove("min_distance_from_world_origin") {
-        o.insert("industrial-era:min_distance_from_world_origin".into(), d);
+        o.insert("industrial_era:min_distance_from_world_origin".into(), d);
     }
     let zone = ["super_exclusion_zone", "enhanced_exclusion_zone"]
         .into_iter()
@@ -652,7 +652,7 @@ pub(crate) fn placement_rules(
             *lost.entry(key.into()).or_default() += 1;
         } else {
             o.insert(
-                "industrial-era:exclusion_zone".into(),
+                "industrial_era:exclusion_zone".into(),
                 serde_json::json!({"other_sets": sets, "chunk_count": zone["chunk_count"]}),
             );
         }
@@ -661,7 +661,7 @@ pub(crate) fn placement_rules(
 
 /// Mo' Structures' placement as vanilla's random spread: the spacing and
 /// separation of its config key, and its sets to avoid as
-/// `industrial-era:exclusion_zone` tested by their spread alone
+/// `industrial_era:exclusion_zone` tested by their spread alone
 /// (ModStructurePlacement.exclusionZoneCheck). A key the config does not
 /// have fails the mod's codec, and the set stays as it is.
 fn mo_placement(p: &mut Value, lost: &mut BTreeMap<String, usize>) -> bool {
@@ -685,7 +685,7 @@ fn mo_placement(p: &mut Value, lost: &mut BTreeMap<String, usize>) -> bool {
         .collect();
     if !sets.is_empty() {
         o.insert(
-            "industrial-era:exclusion_zone".into(),
+            "industrial_era:exclusion_zone".into(),
             serde_json::json!({"other_sets": sets, "chunk_count": MO_AVOID_CHUNKS,
                 "their_zones": false}),
         );
@@ -847,9 +847,9 @@ mod tests {
         assert!(upgrade("structure", &mut v, &mut report, &BTreeMap::new()));
         assert_eq!(
             v,
-            json!({"type": "industrial-era:formations", "template": "fo:fountain/fountains",
+            json!({"type": "industrial_era:formations", "template": "fo:fountain/fountains",
                 "placement": "surface",
-                "industrial-era:pieced": {"max_depth": 2, "max_distance_from_center": 116}})
+                "industrial_era:pieced": {"max_depth": 2, "max_distance_from_center": 116}})
         );
         assert!(report.unsupported.is_empty());
     }
@@ -861,7 +861,7 @@ mod tests {
             "placement": "surface", "biomes": "#f:x", "step": "surface_structures",
             "terrain_adaptation": "beard_thin", "spawn_overrides": {}});
         assert!(upgrade("structure", &mut s, &mut report, &NO_TAGS));
-        assert_eq!(s["type"], "industrial-era:formations");
+        assert_eq!(s["type"], "industrial_era:formations");
         assert_eq!(s["placement"], "surface");
         let mut pool = json!({"elements": [
             {"weight": 1, "element": {"element_type": "formations:single_pool_element",
@@ -873,8 +873,8 @@ mod tests {
         assert_eq!(e(0)["element_type"], "minecraft:single_pool_element");
         assert_eq!(
             (
-                e(0)["industrial-era:ground_level"].clone(),
-                e(1)["industrial-era:ground_level"].clone()
+                e(0)["industrial_era:ground_level"].clone(),
+                e(1)["industrial_era:ground_level"].clone()
             ),
             (json!(6), json!(1))
         );
@@ -898,7 +898,7 @@ mod tests {
         assert_eq!(set["placement"]["spacing"], 17);
         assert_eq!(set["placement"]["separation"], 8);
         assert_eq!(
-            set["placement"]["industrial-era:min_distance_from_world_origin"],
+            set["placement"]["industrial_era:min_distance_from_world_origin"],
             250
         );
         assert!(
@@ -921,7 +921,7 @@ mod tests {
         );
         // Its own terrain kernel, band and all, under the game's key.
         assert_eq!(
-            pool["elements"][0]["element"]["industrial-era:enhanced_terrain_adaptation"]["band"],
+            pool["elements"][0]["element"]["industrial_era:enhanced_terrain_adaptation"]["band"],
             json!({"bottom": 17, "top": 23})
         );
         assert_eq!(
@@ -949,7 +949,7 @@ mod tests {
             "use_bounding_box_hack": false, "size": 7});
         assert!(upgrade("structure", &mut moogs, &mut report, &NO_TAGS));
         assert_eq!(
-            moogs["industrial-era:start_checks"],
+            moogs["industrial_era:start_checks"],
             json!({"liquid": "top", "terrain_radius": 2, "terrain_range": 12,
                 "biome_radius": 1, "min_y": 60})
         );
@@ -964,7 +964,7 @@ mod tests {
         assert_eq!(moogs["size"], 7);
         // GenericJigsawStructure's terrain kernel, NONE when it has none.
         assert_eq!(
-            moogs["industrial-era:enhanced_terrain_adaptation"],
+            moogs["industrial_era:enhanced_terrain_adaptation"],
             json!({"kernel_size": 0, "kernel_distance": 0, "top": "none", "bottom": "none",
                 "rigid_junctions": false})
         );
@@ -974,7 +974,7 @@ mod tests {
                 "piece_heights": [24, 25, 27]}}});
         assert!(upgrade("structure", &mut fortress, &mut report, &NO_TAGS));
         assert_eq!(
-            fortress["industrial-era:enhanced_terrain_adaptation"]["band"]["piece_heights"],
+            fortress["industrial_era:enhanced_terrain_adaptation"]["band"]["piece_heights"],
             json!([24, 25, 27])
         );
         assert!(fortress.get("enhanced_terrain_adaptation").is_none());
@@ -983,7 +983,10 @@ mod tests {
         let mut rs = json!({"type": "repurposed_structures:generic_jigsaw_structure",
             "cannot_spawn_in_liquid": true, "vertical_distance_from_start_piece": 35});
         assert!(upgrade("structure", &mut rs, &mut report, &NO_TAGS));
-        assert_eq!(rs["industrial-era:start_checks"], json!({"liquid": "lowest"}));
+        assert_eq!(
+            rs["industrial_era:start_checks"],
+            json!({"liquid": "lowest"})
+        );
         assert!(rs.get("vertical_distance_from_start_piece").is_none());
         // Repurposed's own checks: the Nether city, Nether shipwrecks, the End stronghold.
         for (t, check) in [
@@ -995,18 +998,21 @@ mod tests {
                 "cannot_spawn_in_liquid": false, "size": 7});
             assert!(upgrade("structure", &mut rs, &mut report, &NO_TAGS));
             assert_eq!(rs["type"], "minecraft:jigsaw");
-            assert_eq!(rs["industrial-era:start_checks"], json!({"repurposed": check}));
-            assert_eq!(rs["industrial-era:piece_limited"]["library"], "repurposed");
+            assert_eq!(
+                rs["industrial_era:start_checks"],
+                json!({"repurposed": check})
+            );
+            assert_eq!(rs["industrial_era:piece_limited"]["library"], "repurposed");
         }
         assert!(report.unsupported.is_empty());
         // Nothing to check: no key.
         let mut plain = json!({"type": "lithostitched:jigsaw", "cannot_spawn_in_liquid": false});
         assert!(upgrade("structure", &mut plain, &mut report, &NO_TAGS));
-        assert!(plain.get("industrial-era:start_checks").is_none());
+        assert!(plain.get("industrial_era:start_checks").is_none());
         // The layout rules go to the piece-limited assembler.
         assert!(report.rules_lost.is_empty());
         assert_eq!(
-            moogs["industrial-era:piece_limited"],
+            moogs["industrial_era:piece_limited"],
             json!({"library": "moogs", "min_y": 60, "burying": "lowest_corner",
                 "no_liquid": true})
         );
@@ -1022,7 +1028,7 @@ mod tests {
         assert_eq!(s["type"], "minecraft:jigsaw");
         assert!(s.get("heightRange").is_none());
         assert_eq!(
-            s["industrial-era:start_checks"],
+            s["industrial_era:start_checks"],
             json!({"terrain_radius": 2, "terrain_range": 25})
         );
         let mut anywhere = json!({"type": "mostructures:generic", "heightRange": -1});
@@ -1032,7 +1038,7 @@ mod tests {
             &mut report,
             &BTreeMap::new()
         ));
-        assert!(anywhere.get("industrial-era:start_checks").is_none());
+        assert!(anywhere.get("industrial_era:start_checks").is_none());
 
         // The config's spacing and separation, not the file's.
         let mut set = json!({"placement": {"type": "mostructures:type", "config_key": "moai",
@@ -1047,7 +1053,7 @@ mod tests {
         assert_eq!(
             set["placement"],
             json!({"type": "minecraft:random_spread", "salt": 12994829, "spacing": 17,
-                "separation": 15, "industrial-era:exclusion_zone": {"chunk_count": 3,
+                "separation": 15, "industrial_era:exclusion_zone": {"chunk_count": 3,
                 "other_sets": ["minecraft:villages", "mostructures:lighthouse"],
                 "their_zones": false}})
         );
@@ -1066,7 +1072,11 @@ mod tests {
             ),
             (&json!(25), &json!(22))
         );
-        assert!(set["placement"].get("industrial-era:exclusion_zone").is_none());
+        assert!(
+            set["placement"]
+                .get("industrial_era:exclusion_zone")
+                .is_none()
+        );
         let mut unknown = json!({"placement": {"type": "mostructures:type", "config_key": "x"}});
         assert!(!upgrade(
             "structure_set",
@@ -1104,7 +1114,7 @@ mod tests {
         assert!(upgrade("structure_set", &mut set, &mut report, &tags));
         assert_eq!(set["placement"]["spacing"], 30);
         assert_eq!(
-            set["placement"]["industrial-era:exclusion_zone"],
+            set["placement"]["industrial_era:exclusion_zone"],
             json!({"other_sets": ["minecraft:villages", "x:y", "rs:cities"], "chunk_count": 4})
         );
         let mut unknown = json!({"placement": {"type": "repurposed_structures:advanced_random_spread",
@@ -1169,7 +1179,7 @@ mod tests {
         assert!(upgrade("structure", &mut nether, &mut report, &NO_TAGS));
         assert_eq!(nether["type"], "minecraft:jigsaw");
         assert_eq!(
-            nether["industrial-era:piece_limited"],
+            nether["industrial_era:piece_limited"],
             json!({"library": "repurposed", "min_y": 40, "max_y": 90, "no_liquid": true,
                 "ignore_bounds_pools": ["rs:roof"], "land_search": "highest_land",
                 "ledge_offset_y": 2})
@@ -1187,7 +1197,7 @@ mod tests {
             "burying_type": "AVERAGE_LAND"});
         assert!(upgrade("structure", &mut moogs, &mut report, &NO_TAGS));
         assert_eq!(
-            moogs["industrial-era:piece_limited"],
+            moogs["industrial_era:piece_limited"],
             json!({"library": "moogs", "burying": "average_land"})
         );
         // Repurposed's mineshaft is laid out under the terrain.
@@ -1197,14 +1207,14 @@ mod tests {
         assert!(upgrade("structure", &mut mineshaft, &mut report, &NO_TAGS));
         assert_eq!(mineshaft["type"], "minecraft:jigsaw");
         assert_eq!(
-            mineshaft["industrial-era:piece_limited"],
+            mineshaft["industrial_era:piece_limited"],
             json!({"library": "repurposed", "layout": "mineshaft"})
         );
         assert_eq!(mineshaft["liquid_settings"], "ignore_waterlogging");
         // Lithostitched's jigsaw is vanilla's: no key.
         let mut litho = json!({"type": "lithostitched:jigsaw"});
         assert!(upgrade("structure", &mut litho, &mut report, &NO_TAGS));
-        assert!(litho.get("industrial-era:piece_limited").is_none());
+        assert!(litho.get("industrial_era:piece_limited").is_none());
         assert!(report.rules_lost.is_empty(), "{:?}", report.rules_lost);
         assert!(report.unsupported.is_empty());
 
@@ -1233,7 +1243,10 @@ mod tests {
         );
         assert_eq!(counts["mvs:tower"], json!([{"name": "mvs:top", "max": 2}]));
         assert!(add_piece_counts("rs:city_nether", &mut nether, &counts));
-        assert_eq!(nether["industrial-era:piece_limited"]["pieces"][0]["required"], 1);
+        assert_eq!(
+            nether["industrial_era:piece_limited"]["pieces"][0]["required"],
+            1
+        );
         assert!(!add_piece_counts("rs:other", &mut nether, &counts));
     }
 

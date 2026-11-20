@@ -166,8 +166,8 @@ impl Game<'_> {
             render::draw(pole, m, &still, r, white, light, 0, out);
             render::draw(flag, m, &flag_poses, r, white, light, 0, out);
         }
-        let layers =
-            std::iter::once(("base", "white")).chain(industrial_era_client::item_data::OMINOUS_LAYERS);
+        let layers = std::iter::once(("base", "white"))
+            .chain(industrial_era_client::item_data::OMINOUS_LAYERS);
         for (pattern, dye) in layers {
             let Some(r) = uv(&format!("entity/banner/{pattern}")) else {
                 continue;
@@ -226,7 +226,8 @@ impl Game<'_> {
         light: u32,
         out: &mut Vec<Vertex>,
     ) {
-        if mob.species() != Species::CopperGolem || industrial_era_client::mobs::trader::is_invisible(mob)
+        if mob.species() != Species::CopperGolem
+            || industrial_era_client::mobs::trader::is_invisible(mob)
         {
             return;
         }
@@ -365,7 +366,8 @@ impl Game<'_> {
             ]
         };
         // The hurt tint reaches these blocks as it does the body.
-        let overlay = industrial_era_client::overlay::living(0.0, mob.hurt_time > 0 || mob.death_time > 0);
+        let overlay =
+            industrial_era_client::overlay::living(0.0, mob.hurt_time > 0 || mob.death_time > 0);
         for t in transforms {
             let start = out.len();
             self.block_model_vertices(state, 0, t, light, true, out);
@@ -545,7 +547,10 @@ impl Game<'_> {
             return;
         }
         if !local_player
-            && industrial_era_client::mobs::gear::enchanted(mob, industrial_era_client::mobs::gear::HEAD)
+            && industrial_era_client::mobs::gear::enchanted(
+                mob,
+                industrial_era_client::mobs::gear::HEAD,
+            )
         {
             stack.enchant("minecraft:unbreaking", 1);
         }

@@ -2,7 +2,7 @@
 //! under their name, which offline launchers and servers show. Asked by name without signing in,
 //! each name once a session on a thread of its own, the answers kept on disk so the next start
 //! shows them at once while it asks again; Skin Customization's Ely.by Skins turns it off
-//! (`elyby:off` in industrial-era-player.txt).
+//! (`elyby:off` in industrial_era-player.txt).
 use crate::{offline_name, skins::Textures};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -17,7 +17,7 @@ pub fn enabled(dir: &Path) -> bool {
     offline_name::value(dir, KEY).as_deref() != Some("off")
 }
 
-/// Keep Skin Customization's Ely.by Skins in `dir`'s industrial-era-player.txt.
+/// Keep Skin Customization's Ely.by Skins in `dir`'s industrial_era-player.txt.
 pub fn set_enabled(dir: &Path, on: bool) -> std::io::Result<()> {
     offline_name::set_values(dir, &[(KEY, Some(if on { "on" } else { "off" }))])
 }
@@ -254,7 +254,8 @@ mod tests {
 
     #[test]
     fn answers_kept_on_disk_show_at_the_next_start() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-elyby-kept-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-elyby-kept-{}", std::process::id()));
         let file = dir.join("elyby.json");
         let _ = std::fs::remove_dir_all(&dir);
         let skin = Textures {

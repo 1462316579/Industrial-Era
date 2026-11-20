@@ -164,7 +164,10 @@ mod tests {
 
     #[test]
     fn edits_the_lists_while_stopped() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-lists-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-lists-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join(config::FILE), config::TEMPLATE).unwrap();

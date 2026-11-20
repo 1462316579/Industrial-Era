@@ -132,7 +132,7 @@ mod tests {
     struct Tags;
     impl ItemEnv for Tags {
         fn enchantment_in_tag(&self, enchantment: &str, tag: &str) -> bool {
-            enchantment == "minecraft:density" && tag == "industrial-era:mace"
+            enchantment == "minecraft:density" && tag == "industrial_era:mace"
         }
     }
 
@@ -159,7 +159,7 @@ mod tests {
     #[test]
     fn enchantment_selectors_use_the_hosts_registry_tags() {
         let condition = json!({"predicate":"enchantments", "value":[
-            {"enchantments":"#industrial-era:mace", "levels":{"min":3}}
+            {"enchantments":"#industrial_era:mace", "levels":{"min":3}}
         ]});
         let predicate = decode(condition.as_object().unwrap()).unwrap();
         let mut components = Components::from_iter([(

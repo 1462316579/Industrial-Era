@@ -17,7 +17,7 @@ use crate::{
 };
 
 /// The custom payload channel, clientbound only: a client sends nothing back.
-pub const CHANNEL: &str = "industrial-era:attachment_sync";
+pub const CHANNEL: &str = "industrial_era:attachment_sync";
 /// Characters in a namespace or a name at most.
 pub const MAX_NAME: usize = 256;
 /// Bytes of a payload at most

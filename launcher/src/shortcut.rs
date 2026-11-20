@@ -129,7 +129,7 @@ pub fn mac_app(exe: &Path, id: &str, name: &str) -> Vec<(&'static str, Vec<u8>, 
 	<key>CFBundleExecutable</key>
 	<string>play</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.industrial-era.instance.{}</string>
+	<string>dev.industrial_era.instance.{}</string>
 	<key>CFBundleName</key>
 	<string>{}</string>
 	<key>CFBundleIconFile</key>

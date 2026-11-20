@@ -120,7 +120,9 @@ pub(super) fn overlay_files(
         // One bad file would fail its whole table and drop the world's pack
         // content with it, so it is skipped alone: every kind is JSON.
         if let Err(e) = serde_json::from_slice::<serde_json::Value>(&bytes) {
-            log::warn!("Industrial Era: a native mod's data pack file {path} is not JSON, skipped: {e}");
+            log::warn!(
+                "Industrial Era: a native mod's data pack file {path} is not JSON, skipped: {e}"
+            );
             continue;
         }
         mods.entry(path).or_default().push(bytes);
@@ -245,7 +247,8 @@ impl Game<'_> {
             .iter()
             .filter_map(|id| packs.iter().find(|p| &p.id == id))
             .collect();
-        let (overrides, _) = industrial_era_client::datapack::worldgen_overrides(&enabled, |_| true);
+        let (overrides, _) =
+            industrial_era_client::datapack::worldgen_overrides(&enabled, |_| true);
         for (bundle, registry) in [
             ("biomes", "minecraft:worldgen/biome"),
             ("structures", "minecraft:worldgen/structure"),
@@ -417,7 +420,10 @@ impl Game<'_> {
                 a.iter().map(|s| s as &dyn std::fmt::Display).collect();
             err(
                 "commands.function.instantiationFailure",
-                &[&f.id, &industrial_era_client::text::Text::tr(&key, &args).plain()],
+                &[
+                    &f.id,
+                    &industrial_era_client::text::Text::tr(&key, &args).plain(),
+                ],
             )
         })?;
         if self.exec.function_depth >= 128 {
@@ -1001,7 +1007,8 @@ mod tests {
     /// counts.
     #[test]
     fn contributed_files_join_the_load_below_the_worlds_packs() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-contributed-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-contributed-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let pack = dir.join("datapacks").join("pack");
         std::fs::create_dir_all(pack.join("data/pkg/tags/item")).unwrap();
@@ -1030,7 +1037,9 @@ mod tests {
             .iter()
             .find(|(id, _)| id == "tags/pkg:item/both")
             .unwrap();
-        assert!(industrial_era_world::loot::PackOverlay::top(versions).starts_with(b"{\"replace\""));
+        assert!(
+            industrial_era_world::loot::PackOverlay::top(versions).starts_with(b"{\"replace\"")
+        );
         let overlay = industrial_era_world::loot::PackOverlay { files: &files };
         let tags = industrial_era_items::items::load_tags(&dir, "item", &overlay).unwrap();
         assert!(tags["pkg:both"].contains("pkg:from_pack"));

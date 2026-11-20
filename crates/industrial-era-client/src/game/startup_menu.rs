@@ -531,7 +531,8 @@ impl Loading {
             return;
         };
         let (w, h) = (size[0].max(1) as f32, size[1].max(1) as f32);
-        let mut layout = industrial_era_client::touch::Layout::from_config(config, w, h, batch.scale);
+        let mut layout =
+            industrial_era_client::touch::Layout::from_config(config, w, h, batch.scale);
         layout.dpad = config.dpad.unwrap_or(false);
         let face = |target: industrial_era_client::touch::Target| match target {
             industrial_era_client::touch::Target::Button(b) => (b.label().to_owned(), None),
@@ -628,7 +629,10 @@ impl Loading {
     pub(super) fn apply_menu_settings(&mut self) {
         if let Some(renderer) = &mut self.renderer {
             renderer.gamma = self.settings.gamma;
-            renderer.set_present_mode(self.settings.vsync, self.settings.industrial-era.present_mode);
+            renderer.set_present_mode(
+                self.settings.vsync,
+                self.settings.industrial_era.present_mode,
+            );
         }
         industrial_era_client::hud::GUI_SCALE.store(self.settings.gui_scale, Ordering::Relaxed);
         super::narrator::sync(&self.settings);
@@ -803,7 +807,7 @@ impl Loading {
                     industrial_era_client::platform::pick_file();
                 }
                 Event::OpenShaderOptions => {
-                    if let Some((name, profile)) = self.settings.industrial-era.shader_choice() {
+                    if let Some((name, profile)) = self.settings.industrial_era.shader_choice() {
                         self.settings.shader_options = super::shader_packs::read_shader_options(
                             &name,
                             &profile,
@@ -906,9 +910,10 @@ impl Loading {
         let was_disabled = super::narrator::cycle_status(&mut self.settings);
         super::narrator::update_status(self.settings.narrator(), &mut self.menu.narrator_toast);
         self.save_menu_settings();
-        self.menu
-            .narration
-            .status_changed(was_disabled, industrial_era_narrator::screen::Trigger::Keyboard);
+        self.menu.narration.status_changed(
+            was_disabled,
+            industrial_era_narrator::screen::Trigger::Keyboard,
+        );
     }
 
     fn menu_options_click(&mut self, drag: bool, right: bool) {
@@ -1259,7 +1264,8 @@ impl Loading {
                     let pressed = event.state == ElementState::Pressed;
                     if code == KeyCode::Escape && pressed {
                         self.menu.win = None;
-                    } else if let Some(key) = industrial_era_client::win_screen::Key::from_code(code)
+                    } else if let Some(key) =
+                        industrial_era_client::win_screen::Key::from_code(code)
                         && let Some((win, _)) = &mut self.menu.win
                     {
                         win.key(key, pressed);

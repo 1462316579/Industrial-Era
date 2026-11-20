@@ -197,7 +197,7 @@ fn run(control: &Control, setup: Setup) -> Result<PathBuf, String> {
     std::fs::create_dir_all(setup.game_dir.join("saves").join(WORLD)).map_err(|e| e.to_string())?;
     std::fs::write(
         setup.game_dir.join("saves").join(WORLD).join(MARKER),
-        "Created by industrial-era-client --benchmark; replaced by the next run.\n",
+        "Created by industrial_era-client --benchmark; replaced by the next run.\n",
     )
     .map_err(|e| e.to_string())?;
     let loaded = wait_loaded(control, |_| true)?;
@@ -598,8 +598,10 @@ mod tests {
 
     #[test]
     fn only_replaces_its_own_world() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-benchmark-test-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-benchmark-test-{}",
+            std::process::id()
+        ));
         let world = dir.join("saves").join(WORLD);
         std::fs::create_dir_all(&world).unwrap();
         assert!(

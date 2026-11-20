@@ -298,7 +298,7 @@ mod tests {
             entry_target(&without_try).as_deref(),
             Some("/opt/a b/industrial-era \"x\"/industrial-era-launcher")
         );
-        let wrapper = "[Desktop Entry]\nExec=flatpak run dev.industrial-era.Launcher %U\n";
+        let wrapper = "[Desktop Entry]\nExec=flatpak run dev.industrial_era.Launcher %U\n";
         assert_eq!(entry_target(wrapper).as_deref(), Some("flatpak"));
         // Only the main group counts: an action's Exec is not the launcher.
         let action = "[Desktop Action play]\nExec=/a\n[Desktop Entry]\nExec=/b --x\n";

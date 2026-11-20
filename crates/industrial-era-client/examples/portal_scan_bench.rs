@@ -1,7 +1,7 @@
 //! The `entity_portals` section scan only: `may_hold_portal` over synthetic
 //! entity reaches, with the per-tick palette map against the resident cache.
 //! Run with prepared client resources:
-//! cargo run --profile fast -p industrial-era-client --example portal_scan_bench -- RESOURCES
+//! cargo run --profile fast -p industrial_era-client --example portal_scan_bench -- RESOURCES
 extern crate industrial_era_client_lib as industrial_era_client;
 use industrial_era_client::{
     blocks::BlockFacts,

@@ -460,7 +460,7 @@ impl Game<'_> {
     fn hdr_input(&mut self, name: &str) -> bool {
         if self.screen != Screen::Playing
             || self.title.is_some()
-            || self.settings.industrial-era.hdr_key != name
+            || self.settings.industrial_era.hdr_key != name
             || !industrial_era_client::graphics::hdr_offered()
         {
             return false;

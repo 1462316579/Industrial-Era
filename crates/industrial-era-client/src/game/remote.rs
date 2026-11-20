@@ -775,7 +775,7 @@ const TRAIL: usize = 12;
 const STEER_REST: Duration = Duration::from_secs(1);
 /// The open menu name of a server's horse inventory, then its chest's
 /// columns (the packet names no `MenuType`).
-const MOUNT_MENU: &str = "industrial-era:mount";
+const MOUNT_MENU: &str = "industrial_era:mount";
 
 impl Remote {
     /// Count movement packets and ticks ended; a second with more than 20 of either is logged.
@@ -999,7 +999,7 @@ impl Game<'_> {
             self.world_biomes_base = None;
         }
         let root = self.options.resources.clone();
-        let builtin = builtin_registries(&root).ok_or("Resources are incomplete: registries.json is missing or invalid. Click \"Prepare again\" in the launcher (or run industrial-era-prepare), then try again.")?;
+        let builtin = builtin_registries(&root).ok_or("Resources are incomplete: registries.json is missing or invalid. Click \"Prepare again\" in the launcher (or run industrial_era-prepare), then try again.")?;
         let lang = Arc::new(industrial_era_client::net::load_language(&root));
         // Options.createInformation: what the server learns about this player,
         // sent again when one of those options changes.
@@ -1352,8 +1352,9 @@ impl Game<'_> {
         self.clock = Default::default();
         self.clear_remote_world();
         let saves = std::env::current_dir()?.join("saves");
-        let mut title = industrial_era_client::title::Title::new(saves.clone(), &self.options.resources)
-            .with_user(|| self.options.player_name());
+        let mut title =
+            industrial_era_client::title::Title::new(saves.clone(), &self.options.resources)
+                .with_user(|| self.options.player_name());
         title.last_server = self.settings.file.string("lastServer");
         title.skip_multiplayer_warning = self.settings.file.bool("skipMultiplayerWarning");
         if single_player && reason.is_none() {
@@ -1466,9 +1467,9 @@ impl Game<'_> {
             r.stick_mode = ServerStick::Analog;
             return r.stick_mode;
         }
-        let mut remembered = *r
-            .stick_remembered
-            .get_or_insert_with(|| industrial_era_client::stick_memory::get(&dir, &r.session.address));
+        let mut remembered = *r.stick_remembered.get_or_insert_with(|| {
+            industrial_era_client::stick_memory::get(&dir, &r.session.address)
+        });
         // The setting changed while playing here: it is this server's mode now, the one
         // remembered for it included.
         if r.stick_setting
@@ -1521,12 +1522,20 @@ impl Game<'_> {
             return;
         }
         r.stick_asked = true;
-        log::info!("Industrial Era: the server keeps pulling the stick's moves back; asking the player");
+        log::info!(
+            "Industrial Era: the server keeps pulling the stick's moves back; asking the player"
+        );
         self.ask_stick_mode();
     }
     /// The question: which mode, remembered for this server or not, asked again or not.
     fn ask_stick_mode(&mut self) {
-        let t = |key: &str| Tag::String(industrial_era_client::lang::get_or(key, key).as_str().into());
+        let t = |key: &str| {
+            Tag::String(
+                industrial_era_client::lang::get_or(key, key)
+                    .as_str()
+                    .into(),
+            )
+        };
         let choice = |key: &str, mode: ServerStick| {
             Tag::compound([
                 ("label", t(key)),
@@ -1683,7 +1692,8 @@ impl Game<'_> {
         let Some(id) = self.remote_effect_id(p.effect) else {
             return;
         };
-        let mut e = industrial_era_client::effects::EffectInstance::new(id, p.duration, p.amplifier);
+        let mut e =
+            industrial_era_client::effects::EffectInstance::new(id, p.duration, p.amplifier);
         e.ambient = p.flags & 1 != 0;
         e.visible = p.flags & 2 != 0;
         let list = &mut self.potions.effects.list;
@@ -1738,7 +1748,9 @@ impl Game<'_> {
         if let Some((stack, patch)) = s.as_ref().and_then(|s| Some((s, s.wire_patch()?))) {
             let mut out = Stack::new(self.item_id(&stack.item), stack.count as i32);
             let safe = r.registries.custom_components
-                || industrial_era_protocol::item::custom::entries().next().is_none()
+                || industrial_era_protocol::item::custom::entries()
+                    .next()
+                    .is_none()
                 || industrial_era_protocol::item::WirePatch::decode(&patch)
                     .and_then(|(added, removed)| {
                         let decoded = Stack {
@@ -1947,8 +1959,10 @@ impl Game<'_> {
             return Ok(());
         };
         let Some(signature) = r.signatures.unpack(packed) else {
-            let reason =
-                industrial_era_client::text::Text::translate("multiplayer.disconnect.invalid_packet", &[]);
+            let reason = industrial_era_client::text::Text::translate(
+                "multiplayer.disconnect.invalid_packet",
+                &[],
+            );
             return self.leave_server(Some(reason.plain()));
         };
         r.secure_chat.ignore_pending(&signature);
@@ -2211,7 +2225,9 @@ impl Game<'_> {
                             break;
                         }
                         Next::Lost => {
-                            log::warn!("Industrial Era: the chunk decoder stopped; a column is missing");
+                            log::warn!(
+                                "Industrial Era: the chunk decoder stopped; a column is missing"
+                            );
                             continue;
                         }
                     };
@@ -3520,11 +3536,15 @@ impl Game<'_> {
                 self.remote_native_net(&p.data);
             }
             // The synced attachments of a holder the server shows the window.
-            C::CustomPayload(p) if p.channel == industrial_era_protocol::attachment_sync::CHANNEL => {
+            C::CustomPayload(p)
+                if p.channel == industrial_era_protocol::attachment_sync::CHANNEL =>
+            {
                 self.remote_attachment_sync(&p.data);
             }
             // The server's recipes its native mods asked to send.
-            C::CustomPayload(p) if p.channel == industrial_era_client::lan::recipes::CONTENT_CHANNEL => {
+            C::CustomPayload(p)
+                if p.channel == industrial_era_client::lan::recipes::CONTENT_CHANNEL =>
+            {
                 self.remote_recipe_content(&p.data);
             }
             // PingDebugMonitor.onPongReceived.
@@ -3693,7 +3713,8 @@ impl Game<'_> {
             // block plays); what it doesn't handle reaches the client copy of
             // the block entity (chest lids, shulker boxes).
             C::BlockEvent(p) => {
-                let pos = industrial_era_core::position::BlockPos::new(p.pos[0], p.pos[1], p.pos[2]);
+                let pos =
+                    industrial_era_core::position::BlockPos::new(p.pos[0], p.pos[1], p.pos[2]);
                 let triggered = self.with_level(|b, level, ticks| {
                     b.client_block_event(level, ticks, pos, i32::from(p.b0), i32::from(p.b1))
                 });
@@ -3972,7 +3993,9 @@ impl Game<'_> {
                                 m.glowing = flags & 0x40 != 0;
                             }
                             (2, Value::OptText(name)) => {
-                                let text = name.as_ref().map(industrial_era_client::entity_nbt::name_text);
+                                let text = name
+                                    .as_ref()
+                                    .map(industrial_era_client::entity_nbt::name_text);
                                 m.custom_name =
                                     text.as_ref().map(industrial_era_client::text::Text::plain);
                                 m.custom_name_text = text;
@@ -4491,7 +4514,8 @@ impl Game<'_> {
                 }
                 // LivingEntity.handleEntityEvent 47 to 52, 65 and 68: an
                 // equipped item broke (onEquippedItemBroken).
-                if let Some(slot) = industrial_era_client::mobs::item_break::equipment_break_slot(p.event)
+                if let Some(slot) =
+                    industrial_era_client::mobs::item_break::equipment_break_slot(p.event)
                 {
                     self.remote_equipment_break(p.id, slot);
                 }
@@ -4556,8 +4580,12 @@ impl Game<'_> {
                                 industrial_era_client::projectiles::ProjectileKind::Snowball => {
                                     "minecraft:snowball"
                                 }
-                                industrial_era_client::projectiles::ProjectileKind::Egg => "minecraft:egg",
-                                industrial_era_client::projectiles::ProjectileKind::Thrown(t) => t.item,
+                                industrial_era_client::projectiles::ProjectileKind::Egg => {
+                                    "minecraft:egg"
+                                }
+                                industrial_era_client::projectiles::ProjectileKind::Thrown(t) => {
+                                    t.item
+                                }
                                 _ => return None,
                             };
                             Some(([pr.position.x, pr.position.y, pr.position.z], item))
@@ -5008,7 +5036,10 @@ impl Game<'_> {
                 if p.overlay {
                     self.say_system_queued(&text);
                     self.titles.set_overlay(text, false);
-                } else if self.chat_line(text.clone(), industrial_era_client::chat::ChatSource::Server) {
+                } else if self.chat_line(
+                    text.clone(),
+                    industrial_era_client::chat::ChatSource::Server,
+                ) {
                     // handleSystemMessage: said once the chat takes it.
                     self.say_system_chat_queued(&text);
                 }
@@ -5147,7 +5178,10 @@ impl Game<'_> {
                         for e in &p.entries {
                             if let Some(name) = &e.name {
                                 r.tab_players.entry(e.uuid).or_insert_with(|| {
-                                    industrial_era_client::tab_list::TabPlayer::new(e.uuid, name.clone())
+                                    industrial_era_client::tab_list::TabPlayer::new(
+                                        e.uuid,
+                                        name.clone(),
+                                    )
                                 });
                                 if let Some(t) = e.properties.iter().find(|p| p.name == "textures")
                                 {
@@ -5176,8 +5210,9 @@ impl Game<'_> {
                                 t.latency = latency;
                             }
                             if let Some(name) = &e.display_name {
-                                t.display_name =
-                                    name.as_ref().map(industrial_era_client::scoreboard::tag_to_json);
+                                t.display_name = name
+                                    .as_ref()
+                                    .map(industrial_era_client::scoreboard::tag_to_json);
                             }
                             if let Some(order) = e.list_order {
                                 t.list_order = order;
@@ -5464,7 +5499,11 @@ impl Game<'_> {
     /// are in the level with an upside-down name.
     pub(super) fn remote_tab_players(
         &mut self,
-    ) -> Option<(Vec<industrial_era_client::tab_list::TabPlayer>, bool, Vec<u128>)> {
+    ) -> Option<(
+        Vec<industrial_era_client::tab_list::TabPlayer>,
+        bool,
+        Vec<u128>,
+    )> {
         self.update_remote_skins();
         let mut players: Vec<_> = {
             let r = self.remote.as_ref()?;
@@ -5478,7 +5517,9 @@ impl Game<'_> {
                 .remote
                 .as_ref()
                 .and_then(|r| r.skins.get(&p.uuid).cloned())
-                .unwrap_or_else(|| industrial_era_client::tab_list::default_skin(p.uuid).to_owned());
+                .unwrap_or_else(|| {
+                    industrial_era_client::tab_list::default_skin(p.uuid).to_owned()
+                });
             self.gui
                 .atlas
                 .set_object_skin(format!("id:{:032x}", p.uuid), p.skin.clone());
@@ -5879,7 +5920,8 @@ impl Game<'_> {
         uuid: u128,
         (skin, slim): (String, bool),
     ) -> (String, bool) {
-        if (skin.starts_with("skins/") || skin == "industrial-era/offline_skin") && !self.again_skin(&skin)
+        if (skin.starts_with("skins/") || skin == "industrial-era/offline_skin")
+            && !self.again_skin(&skin)
         {
             let skin = industrial_era_client::tab_list::default_skin(uuid);
             return (skin.to_owned(), skin.contains("/slim/"));
@@ -6047,11 +6089,9 @@ impl Game<'_> {
     /// would rise into the rider's feet, which lets the rider fall through.
     /// Put the copy under the landing spot.
     fn place_ghast_under(&mut self, id: u32, spot: Vec3) {
-        let Some(m) = self
-            .mobs
-            .iter_mut()
-            .find(|m| m.id == id && m.species() == industrial_era_client::mobs::Species::HappyGhast)
-        else {
+        let Some(m) = self.mobs.iter_mut().find(|m| {
+            m.id == id && m.species() == industrial_era_client::mobs::Species::HappyGhast
+        }) else {
             return;
         };
         let at = Vec3::new(spot.x, spot.y - f64::from(m.height()), spot.z);
@@ -6177,7 +6217,10 @@ impl Game<'_> {
                                     )
                                 })
                                 .collect();
-                            log::info!("Industrial Era: the moves before it: {}", trail.join(" | "));
+                            log::info!(
+                                "Industrial Era: the moves before it: {}",
+                                trail.join(" | ")
+                            );
                         }
                     }
                 }
@@ -7014,7 +7057,11 @@ impl Game<'_> {
                         let p = m.position;
                         industrial_era_core::geometry::Aabb::new(
                             industrial_era_core::geometry::Vec3::new(p.x - 0.1, p.y, p.z - 0.1),
-                            industrial_era_core::geometry::Vec3::new(p.x + 0.1, p.y + 0.2, p.z + 0.1),
+                            industrial_era_core::geometry::Vec3::new(
+                                p.x + 0.1,
+                                p.y + 0.2,
+                                p.z + 0.1,
+                            ),
                         )
                     })
                     .chain(self.sleeping.map(|bed| {
@@ -7025,7 +7072,11 @@ impl Game<'_> {
                         );
                         industrial_era_core::geometry::Aabb::new(
                             industrial_era_core::geometry::Vec3::new(p.x - 0.1, p.y, p.z - 0.1),
-                            industrial_era_core::geometry::Vec3::new(p.x + 0.1, p.y + 0.2, p.z + 0.1),
+                            industrial_era_core::geometry::Vec3::new(
+                                p.x + 0.1,
+                                p.y + 0.2,
+                                p.z + 0.1,
+                            ),
                         )
                     }))
                     .collect()
@@ -7217,7 +7268,10 @@ impl Game<'_> {
             let (dx, dz) = (m.position.x - m.previous.x, m.position.z - m.previous.z);
             let (target, factor) = if industrial_era_client::mobs::camel::is_camel(m.species()) {
                 // Camel.updateWalkAnimation.
-                industrial_era_client::mobs::camel::walk_target(m, (dx * dx + dz * dz).sqrt() as f32)
+                industrial_era_client::mobs::camel::walk_target(
+                    m,
+                    (dx * dx + dz * dz).sqrt() as f32,
+                )
             } else {
                 ((((dx * dx + dz * dz).sqrt() * 4.0) as f32).min(1.0), 0.4)
             };
@@ -8323,7 +8377,8 @@ impl Game<'_> {
         // (ItemStack.useOn).
         if &*stack.item == "minecraft:firework_rocket" {
             let cooling = self.items().get(&stack.item).is_some_and(|info| {
-                let group = industrial_era_client::cooldowns::group(stack, info.use_cooldown.as_ref());
+                let group =
+                    industrial_era_client::cooldowns::group(stack, info.use_cooldown.as_ref());
                 self.cooldowns.is_on_cooldown(&group)
             });
             let gliding = self.player.as_ref().is_some_and(|p| p.fall_flying);
@@ -8617,7 +8672,9 @@ impl Game<'_> {
             return None;
         }
         let ctx = industrial_era_world::level::PlaceContext {
-            clicked_pos: industrial_era_core::position::BlockPos::new(hit.pos[0], hit.pos[1], hit.pos[2]),
+            clicked_pos: industrial_era_core::position::BlockPos::new(
+                hit.pos[0], hit.pos[1], hit.pos[2],
+            ),
             face: industrial_era_core::geometry::Direction::ALL[face_direction(hit.face) as usize],
             hit: Vec3::new(hit.point[0], hit.point[1], hit.point[2]),
             inside: hit.face == [0; 3],
@@ -8661,7 +8718,8 @@ impl Game<'_> {
             let Some(hit) = self.bucket_hit() else {
                 return (false, None, Vec::new());
             };
-            let pos = industrial_era_core::position::BlockPos::new(hit.pos[0], hit.pos[1], hit.pos[2]);
+            let pos =
+                industrial_era_core::position::BlockPos::new(hit.pos[0], hit.pos[1], hit.pos[2]);
             let creative = self.creative;
             return self.with_level(|b, level, ticks| {
                 let mut level = DryLevel::new(level);
@@ -8673,7 +8731,8 @@ impl Game<'_> {
                 )
             });
         }
-        let Some((content, sound, _)) = industrial_era_client::items::bucket_contents(&stack.item) else {
+        let Some((content, sound, _)) = industrial_era_client::items::bucket_contents(&stack.item)
+        else {
             return (false, None, Vec::new());
         };
         let Some(hit) = self.pick() else {
@@ -9459,7 +9518,10 @@ impl Game<'_> {
         let key = p.attributes.key(id)?;
         p.attributes.lookup(Some(&key))?;
         p.attributes
-            .value(Some(key), industrial_era_world::attribute_map::ValueKind::Computed)
+            .value(
+                Some(key),
+                industrial_era_world::attribute_map::ValueKind::Computed,
+            )
             .ok()
     }
 
@@ -9656,8 +9718,11 @@ impl Game<'_> {
     /// MultiPlayerGameMode.dropItem (key.drop): predict the removal, then send
     /// the action; swing only if a nonempty stack was removed.
     pub(super) fn remote_drop(&mut self, all: bool) {
-        let dropped =
-            industrial_era_client::items::take_held_drop(&mut self.inventory[self.selected], all, false);
+        let dropped = industrial_era_client::items::take_held_drop(
+            &mut self.inventory[self.selected],
+            all,
+            false,
+        );
         self.send(S::PlayerAction(play::PlayerAction {
             action: if all { 4 } else { 5 },
             pos: [0; 3],
@@ -10275,7 +10340,12 @@ impl Game<'_> {
                 Some(view) => {
                     let status = |x: i32, z: i32| view.status(x, z);
                     let progress = view.has_progress().then_some(self.loading_progress);
-                    industrial_era_client::level_loading::draw(batch, atlas, Some(&status), progress);
+                    industrial_era_client::level_loading::draw(
+                        batch,
+                        atlas,
+                        Some(&status),
+                        progress,
+                    );
                 }
                 None => industrial_era_client::level_loading::draw(batch, atlas, None, None),
             }
@@ -10308,7 +10378,13 @@ impl Game<'_> {
         });
         let atlas = &self.gui.atlas;
         let status = industrial_era_client::text::Text::literal(r.status.as_str());
-        industrial_era_client::level_loading::draw_connecting(batch, atlas, &status, self.cursor, cancel);
+        industrial_era_client::level_loading::draw_connecting(
+            batch,
+            atlas,
+            &status,
+            self.cursor,
+            cancel,
+        );
         true
     }
     /// Connected or connecting with no player yet: `ConnectScreen`, then
@@ -10778,7 +10854,11 @@ impl industrial_era_world::level::LevelAccess for DryLevel<'_> {
     fn sky_darken(&self) -> i32 {
         self.base.sky_darken()
     }
-    fn is_unobstructed(&self, pos: industrial_era_core::position::BlockPos, state: BlockStateId) -> bool {
+    fn is_unobstructed(
+        &self,
+        pos: industrial_era_core::position::BlockPos,
+        state: BlockStateId,
+    ) -> bool {
         self.base.is_unobstructed(pos, state)
     }
     fn random(&mut self) -> &mut industrial_era_core::random::LegacyRandom {
@@ -11574,18 +11654,20 @@ mod tests {
         ];
         // The types the server synchronized, in registry order.
         let mut registries = Dynamic::default();
-        registries.add(industrial_era_protocol::packets::configuration::RegistryData {
-            registry: "minecraft:damage_type".into(),
-            entries: types
-                .iter()
-                .map(
-                    |(id, _)| industrial_era_protocol::packets::configuration::RegistryEntry {
-                        id: (*id).into(),
-                        data: None,
-                    },
-                )
-                .collect(),
-        });
+        registries.add(
+            industrial_era_protocol::packets::configuration::RegistryData {
+                registry: "minecraft:damage_type".into(),
+                entries: types
+                    .iter()
+                    .map(
+                        |(id, _)| industrial_era_protocol::packets::configuration::RegistryEntry {
+                            id: (*id).into(),
+                            data: None,
+                        },
+                    )
+                    .collect(),
+            },
+        );
         // The damage catalog: one entry per type above, each with its effects.
         let bits = |f: f32| format!("{:08x}", f.to_bits());
         let catalog = Catalog::from_json(
@@ -11622,13 +11704,17 @@ mod tests {
             "effects".into(),
             industrial_era_world::nbt::Tag::String("burning".into()),
         );
-        registries.add(industrial_era_protocol::packets::configuration::RegistryData {
-            registry: "minecraft:damage_type".into(),
-            entries: vec![industrial_era_protocol::packets::configuration::RegistryEntry {
-                id: "custom:lava_splash".into(),
-                data: Some(industrial_era_world::nbt::Tag::Compound(custom)),
-            }],
-        });
+        registries.add(
+            industrial_era_protocol::packets::configuration::RegistryData {
+                registry: "minecraft:damage_type".into(),
+                entries: vec![
+                    industrial_era_protocol::packets::configuration::RegistryEntry {
+                        id: "custom:lava_splash".into(),
+                        data: Some(industrial_era_world::nbt::Tag::Compound(custom)),
+                    },
+                ],
+            },
+        );
         assert_eq!(
             hurt_sound_for(&registries, &catalog, 0),
             "minecraft:entity.player.hurt_on_fire"

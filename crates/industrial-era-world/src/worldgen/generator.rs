@@ -2333,7 +2333,7 @@ pub trait StructureMobs: Send + Sync {
     /// Finalizes the entity in `nbt` if it is a mob, drawing from the
     /// region's random. `biome` is the biome at its block, `structures` the
     /// structures with a piece there. False when it could not: the entity
-    /// keeps its `industrial-era:finalize` for the game to finish on load.
+    /// keeps its `industrial_era:finalize` for the game to finish on load.
     fn finalize(
         &self,
         nbt: &mut crate::nbt::Compound,
@@ -3758,7 +3758,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_TEST_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -3773,9 +3774,9 @@ mod tests {
         let preset: Value =
             serde_json::from_str(&vanilla.world_presets["minecraft:normal"]).unwrap();
         let mut stem = preset["dimensions"]["minecraft:overworld"].clone();
-        stem["generator"]["settings"] = "industrial-era:tall".into();
+        stem["generator"]["settings"] = "industrial_era:tall".into();
         let mut ov = WorldgenOverrides::default();
-        ov.set("settings", "industrial-era:tall", settings.to_string());
+        ov.set("settings", "industrial_era:tall", settings.to_string());
         ov.set(
             overrides::DIMENSIONS,
             "minecraft:overworld",
@@ -3797,7 +3798,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_TEST_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -3984,7 +3986,8 @@ mod tests {
             .or_else(|| std::env::var_os("HORIZON_RESOURCES"))
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -4088,7 +4091,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -4139,7 +4143,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -4356,7 +4361,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -4433,7 +4439,8 @@ mod tests {
         let root = std::env::var_os("HORIZON_RESOURCES")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             });
         if !root.join("worldgen/world_presets.json").exists() {
             eprintln!("skipping: no worldgen bundle at {}", root.display());
@@ -4527,7 +4534,8 @@ mod tests {
             .or_else(|| std::env::var_os("HORIZON_RESOURCES"))
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.local/industrial-era-client/26.3")
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../../.local/industrial-era-client/26.3")
             })
     }
     /// The block registry the worldgen bundle needs. `GeneratorData` keeps it

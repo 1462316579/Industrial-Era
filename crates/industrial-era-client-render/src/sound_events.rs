@@ -442,7 +442,8 @@ mod tests {
 
     #[test]
     fn load_keeps_the_sound_files_a_root_holds() {
-        let root = std::env::temp_dir().join(format!("industrial-era-sounds-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-sounds-{}", std::process::id()));
         let ns = root.join("assets/minecraft");
         fs::create_dir_all(ns.join("sounds/block/note")).unwrap();
         fs::write(ns.join("sounds/block/note/harp.ogg"), b"").unwrap();

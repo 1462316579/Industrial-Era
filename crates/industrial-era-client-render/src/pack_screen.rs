@@ -1286,9 +1286,10 @@ mod icon_tests {
     /// without one keeps `unknown_pack`.
     #[test]
     fn drawn_icons_take_atlas_slots() {
-        let atlas =
-            crate::hud::HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets"))
-                .unwrap();
+        let atlas = crate::hud::HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap();
         let m = Measure(&atlas.font);
         let dirt = load_icon(&png(1, 1, &[134, 96, 67, 255])).unwrap();
         let contrast = load_icon(&png(1, 1, &[0, 0, 0, 255])).unwrap();
@@ -1340,9 +1341,10 @@ mod click_sound_tests {
 
     #[test]
     fn only_footer_and_confirmation_buttons_request_a_click_sound() {
-        let atlas =
-            crate::hud::HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets"))
-                .unwrap();
+        let atlas = crate::hud::HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap();
         let m = Measure(&atlas.font);
         let title = tr("resourcePack.title");
         let mut screen = PackScreen::new(&m, title, 480, 320, false, Vec::new(), &[]);
@@ -1579,9 +1581,10 @@ mod footer_label_tests {
     /// does not panic and scrolls; the short "Done" keeps its centre.
     #[test]
     fn a_footer_label_wider_than_its_button_scrolls() {
-        let atlas =
-            crate::hud::HudAtlas::build(std::path::Path::new("/nonexistent/industrial-era-test-assets"))
-                .unwrap();
+        let atlas = crate::hud::HudAtlas::build(std::path::Path::new(
+            "/nonexistent/industrial-era-test-assets",
+        ))
+        .unwrap();
         let m = Measure(&atlas.font);
         let wide = Text::literal("Otvori papku s paketami resursov, i jos nesto");
         assert!(m.width(&wide) > 146);

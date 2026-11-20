@@ -150,7 +150,7 @@ impl Game<'_> {
             night_vision: self.fog_night_vision(),
         };
         let mut fog = industrial_era_client::fog::setup_fog(tables, &self.fog, &input);
-        if !self.settings.industrial-era.fog {
+        if !self.settings.industrial_era.fog {
             industrial_era_client::fog::clear_distance_fog(&mut fog, &input);
         }
         if self.title.is_none() {
@@ -237,17 +237,17 @@ impl Game<'_> {
             None => self.world.shape.min_y,
         }
     }
-    /// `SkyRenderer.shouldRenderDarkDisc`: eye below the industrial-era and not under
+    /// `SkyRenderer.shouldRenderDarkDisc`: eye below the industrial_era and not under
     /// water. `ClientLevelData.getHorizonHeight`: the bottom of a flat world,
     /// otherwise y 63.
     pub(super) fn dark_disc(&self, camera: glam::DVec3) -> bool {
-        let industrial-era = if self.level_flat() {
+        let industrial_era = if self.level_flat() {
             f64::from(self.level_min_y())
         } else {
             63.0
         };
         self.dim == Dim::Overworld
-            && camera.y < industrial-era
+            && camera.y < industrial - era
             && fog_type(
                 &self.world,
                 self.res.facts(),
@@ -494,7 +494,7 @@ impl Game<'_> {
             ];
             animate_tick(self.res.animate(), &mut self.particles, &ctx, block);
             // The Industrial Era Weather option off means no rain visuals or sounds at all.
-            if rain > 0.0 && self.settings.industrial-era.weather {
+            if rain > 0.0 && self.settings.industrial_era.weather {
                 // ClientLevel.tickWeatherEffects: rain splashes within the weather
                 // radius, and the rain sound.
                 let mut random = LegacyRandom::new(self.world.game_time.wrapping_mul(312_987_231));

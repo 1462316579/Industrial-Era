@@ -1,5 +1,5 @@
 //! Two offscreen frames presented in one window, without game resources or player data.
-//! `cargo run --profile fast -p industrial-era-client-render --example compositor -- --smoke`
+//! `cargo run --profile fast -p industrial_era-client-render --example compositor -- --smoke`
 use industrial_era_client_render::gfx::compositor::Compositor;
 use std::sync::Arc;
 use winit::{

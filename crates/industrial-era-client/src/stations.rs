@@ -302,7 +302,8 @@ pub fn anvil_result(
             if n != hover_name {
                 naming_cost = 1;
                 price += 1;
-                result.data_mut().custom_name = Some(industrial_era_world::nbt::Tag::String(n.into()));
+                result.data_mut().custom_name =
+                    Some(industrial_era_world::nbt::Tag::String(n.into()));
             }
         }
         _ => {
@@ -513,7 +514,9 @@ impl StationRecipes {
             mods
         };
         let conditions_hold = |v: &Value| {
-            industrial_era_world::conditions::conditions_hold(v, &|id: &str| mods.iter().any(|m| m == id))
+            industrial_era_world::conditions::conditions_hold(v, &|id: &str| {
+                mods.iter().any(|m| m == id)
+            })
         };
         for namespace in namespaces {
             let dir = root.join(format!("data/{namespace}/recipe"));

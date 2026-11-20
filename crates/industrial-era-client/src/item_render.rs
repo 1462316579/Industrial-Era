@@ -695,10 +695,11 @@ impl ItemRenderer {
         library: std::result::Result<Arc<ModelLibrary>, String>,
         drawn: bool,
     ) -> crate::Result<Self> {
-        let prototypes: BTreeMap<String, Components> = industrial_era_world::item_defaults::read(root)?
-            .into_iter()
-            .map(|(item, components)| Ok((item, serde_json::from_value(components)?)))
-            .collect::<serde_json::Result<_>>()?;
+        let prototypes: BTreeMap<String, Components> =
+            industrial_era_world::item_defaults::read(root)?
+                .into_iter()
+                .map(|(item, components)| Ok((item, serde_json::from_value(components)?)))
+                .collect::<serde_json::Result<_>>()?;
         let models = ItemModels {
             definitions: if drawn {
                 load_definitions(root)
@@ -1145,8 +1146,10 @@ mod tests {
     /// items.json still reports itself first.
     #[test]
     fn item_model_errors_wait_for_the_item_definitions() -> crate::Result<()> {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-item-model-errors-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-item-model-errors-{}",
+            std::process::id()
+        ));
         let model = root.join("assets/industrial-era/models/INVALID.json");
         fs::create_dir_all(model.parent().unwrap())?;
         fs::write(model, "{}")?;
@@ -1183,8 +1186,8 @@ mod tests {
         fs::write(definitions.join("postman/head.json"), empty)?;
         let loaded = load_definitions(&root);
         let _ = fs::remove_dir_all(&root);
-        assert!(loaded.contains_key("industrial-era:top"));
-        assert!(loaded.contains_key("industrial-era:postman/head"));
+        assert!(loaded.contains_key("industrial_era:top"));
+        assert!(loaded.contains_key("industrial_era:postman/head"));
         Ok(())
     }
 
@@ -1192,7 +1195,8 @@ mod tests {
     /// none of the client item definitions.
     #[test]
     fn a_server_keeps_prototypes_without_definitions() -> crate::Result<()> {
-        let root = std::env::temp_dir().join(format!("industrial-era-item-server-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-item-server-{}", std::process::id()));
         let definitions = root.join("assets/industrial-era/items");
         fs::create_dir_all(&definitions)?;
         fs::write(
@@ -1201,13 +1205,13 @@ mod tests {
         )?;
         fs::write(
             root.join("items.json"),
-            r#"{"industrial-era:top":{"minecraft:max_stack_size":16}}"#,
+            r#"{"industrial_era:top":{"minecraft:max_stack_size":16}}"#,
         )?;
         let library = crate::model_library::ParsedModels::load(&root).into_item_library();
         let client = ItemRenderer::load_with_library(&root, library.clone())?;
         let server = ItemRenderer::load_for_server(&root, library)?;
         let _ = fs::remove_dir_all(&root);
-        assert!(client.models.definitions.contains_key("industrial-era:top"));
+        assert!(client.models.definitions.contains_key("industrial_era:top"));
         assert!(server.models.definitions.is_empty());
         assert_eq!(server.models.prototypes, client.models.prototypes);
         Ok(())

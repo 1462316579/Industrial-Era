@@ -322,9 +322,11 @@ mod tests {
     #[test]
     fn only_starlings_own_apk_is_an_update() {
         // Industrial Era Android's last release, the organisation's latest today: not Starling's.
-        let industrial-era =
-            json!({"tag_name": "v0.7.8", "assets": [asset("Industrial Era-Android-0.7.8-arm64-v8a.apk")]});
-        assert_eq!(update_for_abi(&industrial-era, "0.2.2", "arm64-v8a"), None);
+        let industrial_era = json!({"tag_name": "v0.7.8", "assets": [asset("Industrial Era-Android-0.7.8-arm64-v8a.apk")]});
+        assert_eq!(
+            update_for_abi(&industrial - era, "0.2.2", "arm64-v8a"),
+            None
+        );
         // A preview build is another app, signed with another key.
         let preview = json!({"tag_name": "v0.8.0", "assets": [asset("starling-preview-0.8.0-arm64-v8a.apk")]});
         assert_eq!(update_for_abi(&preview, "0.2.2", "arm64-v8a"), None);

@@ -1,5 +1,5 @@
 //! The control API (docs/server.md, section 8): HTTP and JSON on 127.0.0.1, with a random token in
-//! `.industrial-era/api.json` that only the server's own user can read. The CLI manages a running server through
+//! `.industrial_era/api.json` that only the server's own user can read. The CLI manages a running server through
 //! it, and so does the web panel. The admin endpoints (players, moderation, text metrics) are in admin.rs.
 //!
 //! Its routes are [`ROUTES`], listed in docs/api/server-reference.md.
@@ -26,7 +26,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-const ENDPOINT: &str = ".industrial-era/api.json";
+const ENDPOINT: &str = ".industrial_era/api.json";
 /// The log lines kept for `logs` and the panel's console.
 const LOG_LINES: usize = 2000;
 /// The samples kept for the panel's graphs: 10 minutes, one a second.
@@ -407,7 +407,7 @@ impl Shared {
         timeout: Duration,
     ) -> Result<(), String> {
         let install = self.install.clone().ok_or(
-            "this industrial-era-server wasn't installed by install.sh or install.ps1: no updates",
+            "this industrial_era-server wasn't installed by install.sh or install.ps1: no updates",
         )?;
         {
             let mut update = self.update.lock().unwrap();
@@ -604,7 +604,7 @@ pub fn start(shared: Arc<Shared>) -> Result<Endpoint, String> {
             .and_then(|h| h.strip_prefix("Bearer "))
             .is_some_and(|t| same_token(t.trim(), &token));
         if !authorised {
-            return Response::error(401, "missing or wrong token (see .industrial-era/api.json)");
+            return Response::error(401, "missing or wrong token (see .industrial_era/api.json)");
         }
         if !public
             && !request
@@ -942,8 +942,9 @@ mod tests {
 
     #[test]
     fn the_api_wants_its_token() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-server-api-{}", std::process::id()));
-        std::fs::create_dir_all(dir.join(".industrial-era")).unwrap();
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-server-api-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join(".industrial_era")).unwrap();
         std::fs::write(dir.join(crate::config::FILE), crate::config::TEMPLATE).unwrap();
         let shared = Shared::new(&dir);
         let _endpoint = start(shared.clone()).unwrap();
@@ -994,9 +995,11 @@ mod tests {
 
     #[test]
     fn a_token_and_a_port_from_server_toml() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-api-fixed-{}", std::process::id()));
-        std::fs::create_dir_all(dir.join(".industrial-era")).unwrap();
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-api-fixed-{}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(dir.join(".industrial_era")).unwrap();
         let port = TcpListener::bind("127.0.0.1:0")
             .unwrap()
             .local_addr()
@@ -1031,8 +1034,10 @@ mod tests {
 
     #[test]
     fn config_and_backups_over_the_api() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-server-api-admin-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-server-api-admin-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(dir.join("backups")).unwrap();
         let toml = crate::config::TEMPLATE
             .replace("token = \"\"", "token = \"a-token-for-the-discord-bot\"");

@@ -91,8 +91,10 @@ struct Scratch(PathBuf);
 
 impl Scratch {
     fn new(name: &str) -> Scratch {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-registry-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-registry-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         for sub in ["repo/mods", "repo/icons", "files"] {
             std::fs::create_dir_all(dir.join(sub)).unwrap();

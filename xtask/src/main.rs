@@ -1,17 +1,17 @@
 //! Repository tasks, run with `cargo run -p xtask -- TASK`.
 //!
 //! `package BINARY OUTDIR`: a playable Industrial Era folder with the game binary, industrial-era-ctl,
-//! industrial-era-prepare and industrial-era-server (built beside it: cargo build --release -p industrial-era-client -p industrial-era-client-lib
-//! --bins -p industrial-era-prepare -p industrial-era-server), the exporters industrial-era-prepare compiles, its sources (the launcher compares
+//! industrial-era-prepare and industrial_era-server (built beside it: cargo build --release -p industrial_era-client -p industrial_era-client-lib
+//! --bins -p industrial_era-prepare -p industrial_era-server), the exporters industrial_era-prepare compiles, its sources (the launcher compares
 //! them to its own), and PLAY.txt. It holds none of Minecraft's files: players prepare those
 //! from their own copy. .github/workflows/release.yml makes the release folders with it.
 //!
 //! `package-server ENGINE OUTDIR`: a server folder (docs/server.md): the server build of the game
-//! (`cargo build --release -p industrial-era-client --no-default-features`, without sound or controllers)
-//! as industrial-era-engine, with industrial-era-prepare and industrial-era-server from beside it and the same sources.
+//! (`cargo build --release -p industrial_era-client --no-default-features`, without sound or controllers)
+//! as industrial_era-engine, with industrial_era-prepare and industrial_era-server from beside it and the same sources.
 //!
 //! `tokens`: writes `crates/industrial-era-theme/tokens.css`, the design tokens of `crates/industrial-era-theme` as CSS
-//! custom properties (a industrial-era-theme test fails when the file is out of date).
+//! custom properties (a industrial_era-theme test fails when the file is out of date).
 //!
 //! `icons`: renders the icon masters in `docs/media/brand` (with `rsvg-convert`, from librsvg)
 //! into every size the platforms and the website use, and packs `packaging/icons/industrial-era.ico`
@@ -36,9 +36,13 @@ const ARCHIVED: [&str; 5] = [
 
 /// The programs that sit beside the client: industrial-era-ctl, the command line and MCP server that
 /// play the game, industrial-era-prepare, which prepares the resources from the player's own
-/// Minecraft, and industrial-era-server, which hosts a server with the client as its engine
+/// Minecraft, and industrial_era-server, which hosts a server with the client as its engine
 /// (docs/server.md).
-const TOOLS: [&str; 3] = ["industrial-era-ctl", "industrial-era-prepare", "industrial-era-server"];
+const TOOLS: [&str; 3] = [
+    "industrial-era-ctl",
+    "industrial-era-prepare",
+    "industrial-era-server",
+];
 
 /// The programs beside the engine in a server folder.
 const SERVER_TOOLS: [&str; 2] = ["industrial-era-prepare", "industrial-era-server"];
@@ -83,7 +87,8 @@ fn git(repo: &Path, args: &[&str]) -> Result<Vec<u8>, String> {
 }
 
 fn tokens() -> Result<(), String> {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial-era-theme/tokens.css");
+    let path =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial-era-theme/tokens.css");
     fs::write(&path, horizon_theme::css()).map_err(|e| format!("{}: {e}", path.display()))?;
     println!("wrote crates/industrial-era-theme/tokens.css");
     Ok(())
@@ -234,14 +239,17 @@ fn package(binary: &Path, out: &Path) -> Result<(), String> {
 fn package_server(engine: &Path, out: &Path) -> Result<(), String> {
     let repo = new_folder(out)?;
     copy_exporters(&repo.join("exporters"), &out.join("exporters"))?;
-    copy(engine, &out.join(program_name(engine, "industrial-era-engine")))?;
+    copy(
+        engine,
+        &out.join(program_name(engine, "industrial-era-engine")),
+    )?;
     copy_beside(engine, &SERVER_TOOLS, out)
 }
 
 /// Release builds supply only our compiled classes and their integrity manifest.
 fn copy_exporters(from: &Path, to: &Path) -> Result<(), String> {
     if !from.join("manifest.json").is_file() {
-        return Err("Missing exporters/manifest.json; run industrial-era-prepare compile-exporters and copy its bundle to exporters/".into());
+        return Err("Missing exporters/manifest.json; run industrial_era-prepare compile-exporters and copy its bundle to exporters/".into());
     }
     copy_exporter_tree(from, to)
 }
@@ -298,7 +306,7 @@ fn copy_beside(program: &Path, tools: &[&str], out: &Path) -> Result<(), String>
             .join(program_name(program, tool));
         if !path.is_file() {
             return Err(format!(
-                "{} is missing; build it too: cargo build --release -p industrial-era-client -p industrial-era-client-lib --bins -p industrial-era-prepare -p industrial-era-server",
+                "{} is missing; build it too: cargo build --release -p industrial_era-client -p industrial_era-client-lib --bins -p industrial_era-prepare -p industrial_era-server",
                 path.display()
             ));
         }

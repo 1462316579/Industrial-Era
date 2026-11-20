@@ -393,7 +393,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .into(),
             };
             let rule =
-                industrial_era_world::block_collision::ScaffoldingCollision::from_state(&state)?.unwrap();
+                industrial_era_world::block_collision::ScaffoldingCollision::from_state(&state)?
+                    .unwrap();
             emit(
                 &mut out,
                 &rule.shape(

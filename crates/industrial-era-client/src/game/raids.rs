@@ -318,7 +318,9 @@ impl Game<'_> {
             .as_ref()
             .and_then(|p| p.get("raid_omen_position"))
         {
-            Some(industrial_era_world::nbt::Tag::IntArray(v)) if v.len() == 3 => Some([v[0], v[1], v[2]]),
+            Some(industrial_era_world::nbt::Tag::IntArray(v)) if v.len() == 3 => {
+                Some([v[0], v[1], v[2]])
+            }
             _ => None,
         };
     }
@@ -1130,7 +1132,11 @@ impl Game<'_> {
         };
         let at = [m.position.x, m.position.y, m.position.z];
         self.lan_entity_event(id as i32, 42, at);
-        self.particles_around_mob(id, "splash", industrial_era_client::particles::Burst::VILLAGER);
+        self.particles_around_mob(
+            id,
+            "splash",
+            industrial_era_client::particles::Burst::VILLAGER,
+        );
     }
 
     /// The raid bar a living player at `at` is in (`Raid.getPlayers`): red,
@@ -1148,7 +1154,8 @@ impl Game<'_> {
     }
     /// A firework a villager launches to celebrate (`CelebrateVillagersSurvivedRaid`).
     pub(super) fn villager_firework(&mut self, at: [f64; 3], color: usize, flight: u8) {
-        let mut stack = industrial_era_client::items::ItemStack::new("minecraft:firework_rocket", 1);
+        let mut stack =
+            industrial_era_client::items::ItemStack::new("minecraft:firework_rocket", 1);
         stack.data_mut().fireworks = Some((
             flight,
             vec![industrial_era_client::particles::FireworkExplosion {
@@ -1400,8 +1407,11 @@ impl Game<'_> {
         stack: &industrial_era_client::items::ItemStack,
     ) {
         let amplifier = stack.data().and_then(|d| d.ominous_amplifier).unwrap_or(0);
-        let mut effect =
-            industrial_era_client::effects::EffectInstance::new("bad_omen", 120_000, i32::from(amplifier));
+        let mut effect = industrial_era_client::effects::EffectInstance::new(
+            "bad_omen",
+            120_000,
+            i32::from(amplifier),
+        );
         effect.visible = false;
         let new = self.potions.effects.get("bad_omen").is_none();
         self.potions.effects.add(effect);

@@ -181,7 +181,10 @@ impl ConnectedTextures {
                         overlay: OverlayJoin::default(),
                     }),
                     Err(e) => {
-                        log::warn!("Industrial Era: connected textures {}: a tile: {e}", rule.path);
+                        log::warn!(
+                            "Industrial Era: connected textures {}: a tile: {e}",
+                            rule.path
+                        );
                         None
                     }
                 }

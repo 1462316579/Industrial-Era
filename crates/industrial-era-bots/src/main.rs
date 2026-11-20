@@ -779,7 +779,8 @@ fn join(o: &Options, name: &str) -> Result<Connection, String> {
                         })
                     }
                     configuration::Clientbound::Disconnect(p) => {
-                        let reason = industrial_era_protocol::text::plain(&p.reason, &Default::default());
+                        let reason =
+                            industrial_era_protocol::text::plain(&p.reason, &Default::default());
                         return Err(format!("disconnected during configuration: {reason}"));
                     }
                     configuration::Clientbound::FinishConfiguration(_) => {

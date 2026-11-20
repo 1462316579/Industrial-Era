@@ -11,7 +11,9 @@ use crate::{
     management_schema as schema, management_tls,
     websocket::{Link, Socket},
 };
-use industrial_era_server_files::properties::{ServerProperties, SystemEntropy, generate_secret_key};
+use industrial_era_server_files::properties::{
+    ServerProperties, SystemEntropy, generate_secret_key,
+};
 use serde_json::{Value, json};
 use std::{
     net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs},
@@ -1072,8 +1074,10 @@ mod tests {
 
     #[test]
     fn over_tls_with_a_generated_keystore() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-management-wss-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-management-wss-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         let password = management_tls::generate(&dir, "").unwrap();
         let tls = management_tls::load(&dir, management_tls::GENERATED, &password).unwrap();

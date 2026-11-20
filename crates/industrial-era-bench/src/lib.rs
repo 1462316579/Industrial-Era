@@ -445,7 +445,8 @@ mod tests {
 
     #[test]
     fn writes_into_a_folder() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-bench-test-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-bench-test-{}", std::process::id()));
         let mut r = Report::new(Kind::Launcher, App::default());
         r.created = "2026-10-15T14:03:27Z".into();
         r.conditions.scenario = Some("cold start".into());

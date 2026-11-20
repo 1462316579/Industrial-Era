@@ -59,7 +59,7 @@ fn rule_decoding_bounds_nested_and_branching_data() {
 #[test]
 fn binding_rejects_unknown_tag_blocks_and_duplicate_canonical_tags() {
     let registry = registry();
-    let tags = BTreeMap::from([("industrial-era:test".into(), vec!["missing".into()])]);
+    let tags = BTreeMap::from([("industrial_era:test".into(), vec!["missing".into()])]);
     assert!(FeatureBlockBindings::with_tags(&registry, BTreeSet::new(), &tags).is_err());
     let tags = BTreeMap::from([
         ("test".into(), vec!["stone".into()]),
@@ -115,13 +115,21 @@ fn matter_phase_matches_what_a_block_is_made_of() {
     .unwrap();
     let bindings = FeatureBlockBindings::new(&registry, BTreeSet::new()).unwrap();
     let mut random = industrial_era_core::random::LegacyRandom::new(0);
-    let matches = |phase: &str, invert: bool, random: &mut industrial_era_core::random::LegacyRandom| {
+    let matches = |phase: &str,
+                   invert: bool,
+                   random: &mut industrial_era_core::random::LegacyRandom| {
         let json = format!(
-            r#"{{"predicate_type":"industrial-era:matter_phase","phase_to_test_for":"{phase}","invert_condition":{invert}}}"#
+            r#"{{"predicate_type":"industrial_era:matter_phase","phase_to_test_for":"{phase}","invert_condition":{invert}}}"#
         );
         let test = RuleTest::from_json(&json, &bindings).unwrap();
         (0..names.len() as u32)
-            .filter(|&id| test.test(industrial_era_world::registry::BlockStateId(id), [0; 3], random))
+            .filter(|&id| {
+                test.test(
+                    industrial_era_world::registry::BlockStateId(id),
+                    [0; 3],
+                    random,
+                )
+            })
             .collect::<Vec<_>>()
     };
     assert_eq!(matches("AIR", false, &mut random), [0, 1, 2]);
@@ -137,9 +145,9 @@ fn matter_phase_matches_what_a_block_is_made_of() {
     assert_eq!(matches("AIR", true, &mut random), [3, 4, 5, 6]);
     // The phase is the enum's name as written; SOLID needs canOcclude.
     for json in [
-        r#"{"predicate_type":"industrial-era:matter_phase","phase_to_test_for":"air"}"#,
-        r#"{"predicate_type":"industrial-era:matter_phase","phase_to_test_for":"SOLID"}"#,
-        r#"{"predicate_type":"industrial-era:matter_phase"}"#,
+        r#"{"predicate_type":"industrial_era:matter_phase","phase_to_test_for":"air"}"#,
+        r#"{"predicate_type":"industrial_era:matter_phase","phase_to_test_for":"SOLID"}"#,
+        r#"{"predicate_type":"industrial_era:matter_phase"}"#,
     ] {
         assert!(RuleTest::from_json(json, &bindings).is_err(), "{json}");
     }

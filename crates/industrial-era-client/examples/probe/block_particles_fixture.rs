@@ -1,5 +1,7 @@
 //! Transport for ClientLevel shape-aware terrain-particle placement.
-use industrial_era_client::{assets::Assets, blocks::BlockFacts, mesher::MeshTables, models, particles};
+use industrial_era_client::{
+    assets::Assets, blocks::BlockFacts, mesher::MeshTables, models, particles,
+};
 use industrial_era_core::random::{LegacyRandom, RandomSource};
 use industrial_era_world::registry::BlockStateId;
 use serde_json::{Value, json};

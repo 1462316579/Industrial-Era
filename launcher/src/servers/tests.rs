@@ -200,9 +200,9 @@ fn the_api_sends_the_token() {
         seen
     });
     let dir = scratch("api");
-    fs::create_dir_all(dir.join(".industrial-era")).unwrap();
+    fs::create_dir_all(dir.join(".industrial_era")).unwrap();
     fs::write(
-        dir.join(".industrial-era/api.json"),
+        dir.join(".industrial_era/api.json"),
         json!({ "address": address, "token": "t0k", "pid": 1 }).to_string(),
     )
     .unwrap();
@@ -253,9 +253,9 @@ fn deleting_a_stopped_server_moves_its_world_and_backups_to_trash() {
 #[test]
 fn deleting_refuses_a_live_supervisor_even_when_its_api_is_unavailable() {
     let root = scratch("delete-running");
-    fs::create_dir_all(root.join(".industrial-era")).unwrap();
+    fs::create_dir_all(root.join(".industrial_era")).unwrap();
     fs::write(root.join("server.toml"), "[server]\n").unwrap();
-    let lock = fs::File::create(root.join(".industrial-era/lock")).unwrap();
+    let lock = fs::File::create(root.join(".industrial_era/lock")).unwrap();
     lock.try_lock().unwrap();
     let result = trash_stopped_server(&root, |_| panic!("must not move a running server"));
     assert!(result.unwrap_err().contains("Stop the server"));

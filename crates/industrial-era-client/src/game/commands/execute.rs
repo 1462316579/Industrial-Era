@@ -687,7 +687,9 @@ impl Game<'_> {
                         // The player who tied it (the host's when unrecorded).
                         industrial_era_client::mobs::leash::Holder::Player => {
                             let uuid = player.or(self.level.player_uuid)?;
-                            self.target_by_uuid(industrial_era_client::lan::playerdata::ints_uuid(uuid))
+                            self.target_by_uuid(industrial_era_client::lan::playerdata::ints_uuid(
+                                uuid,
+                            ))
                         }
                         industrial_era_client::mobs::leash::Holder::Mob(i) => Some(Target::Mob(i)),
                         industrial_era_client::mobs::leash::Holder::Boat(_)
@@ -809,7 +811,8 @@ impl Game<'_> {
                 continue;
             }
             let facts = self.res.facts().get(state);
-            let blocks = facts.legacy_solid || facts.fluid != industrial_era_client::blocks::Fluid::None;
+            let blocks =
+                facts.legacy_solid || facts.fluid != industrial_era_client::blocks::Fluid::None;
             let leaves = self
                 .pack
                 .assets
@@ -1087,8 +1090,10 @@ impl Game<'_> {
                         let Some(de) = de else {
                             return Ok((false, 0));
                         };
-                        let st = industrial_era_client::save::encode_block_entity((0, 0, 0), se, &name);
-                        let dt = industrial_era_client::save::encode_block_entity((0, 0, 0), de, &name);
+                        let st =
+                            industrial_era_client::save::encode_block_entity((0, 0, 0), se, &name);
+                        let dt =
+                            industrial_era_client::save::encode_block_entity((0, 0, 0), de, &name);
                         if st != dt {
                             return Ok((false, 0));
                         }

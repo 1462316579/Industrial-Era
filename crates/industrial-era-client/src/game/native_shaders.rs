@@ -98,7 +98,9 @@ impl Game<'_> {
             && !industrial_era_client::sprites::labpbr_maps()
         {
             industrial_era_client::sprites::set_labpbr_maps(true);
-            log::info!("Industrial Era: reloading resources for the LabPBR maps a native pack reads");
+            log::info!(
+                "Industrial Era: reloading resources for the LabPBR maps a native pack reads"
+            );
             self.reload_packs();
         }
         let name = path.file_name().unwrap_or_default().to_string_lossy();

@@ -408,7 +408,8 @@ impl ServerAdvancements {
             w.varint(slot("minecraft:item_stack"));
             w.varint(
                 item(
-                    industrial_era_world::loot::recipe_result_id(&r["result"]).unwrap_or("minecraft:air"),
+                    industrial_era_world::loot::recipe_result_id(&r["result"])
+                        .unwrap_or("minecraft:air"),
                 )
                 .unwrap_or(0),
             );
@@ -654,8 +655,10 @@ mod tests {
 
     /// A resources dir with those registries and the given recipe files.
     fn resources(name: &str, recipes: &[(&str, &str)]) -> PathBuf {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-recipe-book-{name}-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-recipe-book-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&root);
         let dir = root.join("data/minecraft/recipe");
         std::fs::create_dir_all(&dir).unwrap();

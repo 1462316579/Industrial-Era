@@ -5,7 +5,9 @@
 //! lines (`ServerDebug`); on another server they show what vanilla shows
 //! there, nothing or `??`.
 use super::Game;
-use industrial_era_client::{debug_entries::ENTRIES, debug_overlay as overlay, debug_overlay::Displayer};
+use industrial_era_client::{
+    debug_entries::ENTRIES, debug_overlay as overlay, debug_overlay::Displayer,
+};
 use industrial_era_world::{
     heightmap::{HeightmapState, HeightmapType},
     worldgen::terrain::TerrainBlockStates,
@@ -570,7 +572,11 @@ impl Game<'_> {
 fn fluid_tags(root: &std::path::Path) -> &'static HashMap<String, HashSet<String>> {
     static TAGS: std::sync::OnceLock<HashMap<String, HashSet<String>>> = std::sync::OnceLock::new();
     TAGS.get_or_init(|| {
-        industrial_era_client::items::load_tags(root, "fluid", &industrial_era_world::loot::PackOverlay::NONE)
-            .unwrap_or_default()
+        industrial_era_client::items::load_tags(
+            root,
+            "fluid",
+            &industrial_era_world::loot::PackOverlay::NONE,
+        )
+        .unwrap_or_default()
     })
 }

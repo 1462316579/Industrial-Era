@@ -1,7 +1,9 @@
 //! Firework tooltip companion for tools/test_firework_tooltip_parity.py: the
 //! lines `item_tooltip::firework_lines` gives each stack (SNBT, one per line;
 //! the `#resources` line names the prepared resources for en_us).
-use industrial_era_client::{enchant::Enchantments, item_data::parse_stack, item_tooltip::firework_lines};
+use industrial_era_client::{
+    enchant::Enchantments, item_data::parse_stack, item_tooltip::firework_lines,
+};
 use std::{error::Error, fmt::Write, path::PathBuf};
 
 pub fn main() -> Result<(), Box<dyn Error>> {

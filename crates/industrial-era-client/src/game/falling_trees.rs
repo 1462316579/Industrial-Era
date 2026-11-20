@@ -122,7 +122,8 @@ impl FallingTree {
         let blocks = list
             .iter()
             .filter_map(|b| {
-                let state = industrial_era_world::chunk::BlockState::from_nbt(b.get("State")?).ok()?;
+                let state =
+                    industrial_era_world::chunk::BlockState::from_nbt(b.get("State")?).ok()?;
                 Some((
                     [int(b, "X"), int(b, "Y"), int(b, "Z")],
                     registry.id(&state)?,
@@ -234,7 +235,8 @@ impl Game<'_> {
                 if let Some(tint) = tint {
                     let tint = industrial_era_client::mobs::render::abgr(tint);
                     for vertex in &mut out[start..] {
-                        vertex.color = industrial_era_client::hud_layout::multiply(vertex.color, tint);
+                        vertex.color =
+                            industrial_era_client::hud_layout::multiply(vertex.color, tint);
                     }
                 }
             }

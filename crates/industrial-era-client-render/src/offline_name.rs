@@ -59,7 +59,7 @@ pub fn for_worlds(dir: &Path) -> String {
     }
 }
 
-/// `key`'s value in `dir`'s industrial-era-player.txt.
+/// `key`'s value in `dir`'s industrial_era-player.txt.
 pub fn value(dir: &Path, key: &str) -> Option<String> {
     let text = fs::read_to_string(dir.join(FILE)).ok()?;
     text.lines().find_map(|line| {
@@ -68,7 +68,7 @@ pub fn value(dir: &Path, key: &str) -> Option<String> {
     })
 }
 
-/// Set these keys in `dir`'s industrial-era-player.txt (None removes one), each in its line's place or
+/// Set these keys in `dir`'s industrial_era-player.txt (None removes one), each in its line's place or
 /// after the others, keeping every other line.
 pub fn set_values(dir: &Path, values: &[(&str, Option<&str>)]) -> std::io::Result<()> {
     let path = dir.join(FILE);

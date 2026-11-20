@@ -482,7 +482,10 @@ fn thrown_kind(stack: &ItemStack) -> &'static str {
 
 impl Game<'_> {
     /// Right-click with a potion, splash/lingering potion or glass bottle.
-    pub(super) fn use_potion_item(&mut self, stack: &ItemStack) -> industrial_era_client::Result<bool> {
+    pub(super) fn use_potion_item(
+        &mut self,
+        stack: &ItemStack,
+    ) -> industrial_era_client::Result<bool> {
         match &*stack.item {
             "minecraft:potion" | "minecraft:ominous_bottle" => {
                 self.start_using_item();
@@ -549,7 +552,8 @@ impl Game<'_> {
                     return Ok(false);
                 };
                 let state = self.world.block(hit.pos[0], hit.pos[1], hit.pos[2]);
-                if self.res.facts().get(state).fluid != industrial_era_client::blocks::Fluid::Water {
+                if self.res.facts().get(state).fluid != industrial_era_client::blocks::Fluid::Water
+                {
                     return Ok(false);
                 }
                 let at = [
@@ -707,7 +711,11 @@ impl Game<'_> {
                 brewing::contents_effects(s)
                     .into_iter()
                     .map(|(id, d, amp)| {
-                        (id, industrial_era_client::effects::scaled_duration(d, scale), amp)
+                        (
+                            id,
+                            industrial_era_client::effects::scaled_duration(d, scale),
+                            amp,
+                        )
                     })
                     .collect()
             }
@@ -1568,7 +1576,9 @@ impl Game<'_> {
                 for (id, duration, amp) in effects {
                     let instant = brewing::effect(id).is_some_and(|e| e.instant);
                     if instant {
-                        if let Some(a) = industrial_era_client::effects::instant(id, *amp, intensity) {
+                        if let Some(a) =
+                            industrial_era_client::effects::instant(id, *amp, intensity)
+                        {
                             self.apply_indirect_effect_action(a, owner);
                         }
                     } else {
@@ -1652,11 +1662,9 @@ impl Game<'_> {
                 [at.x - 0.125 - 4.0, at.y - 2.0, at.z - 0.125 - 4.0],
                 [at.x + 0.125 + 4.0, at.y + 0.25 + 2.0, at.z + 0.125 + 4.0],
             );
-            for m in self
-                .mobs
-                .iter_mut()
-                .filter(|m| m.species() == industrial_era_client::mobs::Species::Axolotl && !m.removed)
-            {
+            for m in self.mobs.iter_mut().filter(|m| {
+                m.species() == industrial_era_client::mobs::Species::Axolotl && !m.removed
+            }) {
                 let (w, h, _) = m.dims();
                 let half = w / 2.0;
                 let (x, y, z) = (m.position.x, m.position.y, m.position.z);

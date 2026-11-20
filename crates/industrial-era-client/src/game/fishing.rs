@@ -780,10 +780,12 @@ impl Game<'_> {
                             .map(|b| (b.position, super::boats::HEIGHT))
                     })
                     .or_else(|| {
-                        self.dropped
-                            .iter()
-                            .find(|i| i.id == id)
-                            .map(|i| (i.position, industrial_era_client::entities::ItemEntity::WIDTH))
+                        self.dropped.iter().find(|i| i.id == id).map(|i| {
+                            (
+                                i.position,
+                                industrial_era_client::entities::ItemEntity::WIDTH,
+                            )
+                        })
                     })
                     .or_else(|| {
                         self.tnts
@@ -1036,8 +1038,11 @@ impl Game<'_> {
             Some(eye + point)
         } else {
             let model = self.player_model.as_ref()?;
-            let body =
-                industrial_era_client::camera::lerp(alpha as f32, model.previous_body_yaw, model.body_yaw);
+            let body = industrial_era_client::camera::lerp(
+                alpha as f32,
+                model.previous_body_yaw,
+                model.body_yaw,
+            );
             let angle = f64::from(body * (std::f64::consts::PI / 180.0) as f32);
             let (sin, cos) = (f64::from(trig::sin(angle)), f64::from(trig::cos(angle)));
             let right = f64::from(invert) * 0.35;
@@ -1367,10 +1372,12 @@ impl Game<'_> {
                         .find(|m| m.id == id && m.alive())
                         .map(|m| (m.position, f64::from(m.height())))
                         .or_else(|| {
-                            self.dropped
-                                .iter()
-                                .find(|i| i.id == id)
-                                .map(|i| (i.position, industrial_era_client::entities::ItemEntity::WIDTH))
+                            self.dropped.iter().find(|i| i.id == id).map(|i| {
+                                (
+                                    i.position,
+                                    industrial_era_client::entities::ItemEntity::WIDTH,
+                                )
+                            })
                         })
                 };
                 return match hooked {

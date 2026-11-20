@@ -152,12 +152,12 @@ impl Session {
     /// Run one command (CLI words); Ok(reply) or a failure.
     pub fn run(&mut self, words: &[String]) -> Result<Value, Failure> {
         let Some(name) = words.first().map(String::as_str) else {
-            return Err(Failure::usage("no command; try industrial-era-ctl help"));
+            return Err(Failure::usage("no command; try industrial_era-ctl help"));
         };
         self.allowed()?;
         if words.iter().skip(1).any(|w| w == "--help" || w == "-h") {
             return Err(Failure::usage(
-                "use industrial-era-ctl COMMAND --help outside scripts",
+                "use industrial_era-ctl COMMAND --help outside scripts",
             ));
         }
         let number = |i: usize, what: &str| -> Result<f64, Failure> {
@@ -241,7 +241,7 @@ impl Session {
                 if let Some(cmd) = commands::find(name) {
                     if cmd.local {
                         return Err(Failure::usage(format!(
-                            "{name} runs only as industrial-era-ctl {name}, not inside a script"
+                            "{name} runs only as industrial_era-ctl {name}, not inside a script"
                         )));
                     }
                     if let Some(wire) = cmd.wire {
@@ -260,7 +260,10 @@ impl Session {
         let png = reply
             .as_object_mut()
             .and_then(|o| o.remove("png_base64"))
-            .and_then(|v| v.as_str().and_then(industrial_era_client::control::unbase64))
+            .and_then(|v| {
+                v.as_str()
+                    .and_then(industrial_era_client::control::unbase64)
+            })
             .ok_or_else(|| Failure {
                 reply: json!({ "error": "the game sent no image (an older game?)" }),
                 status: GAME_ERROR,
@@ -338,7 +341,10 @@ fn logs(home: &Path, words: &[String]) -> Result<Value, Failure> {
 }
 
 fn usage(name: &str) -> String {
-    commands::find(name).map_or_else(|| name.to_owned(), |c| format!("industrial-era-ctl {}", c.usage))
+    commands::find(name).map_or_else(
+        || name.to_owned(),
+        |c| format!("industrial-era-ctl {}", c.usage),
+    )
 }
 
 /// Paths are written by the game process: make them absolute here.
@@ -526,7 +532,10 @@ fn main() -> ExitCode {
             }
         }
         Some("mcp") if session.allowed().is_err() => {
-            eprintln!("industrial-era-ctl mcp: {}", industrial_era_core::no_ai::REFUSAL);
+            eprintln!(
+                "industrial-era-ctl mcp: {}",
+                industrial_era_core::no_ai::REFUSAL
+            );
             DENIED
         }
         Some("mcp") => match mcp::serve(&mut session) {
@@ -585,7 +594,8 @@ mod tests {
 
     #[test]
     fn logs_reads_the_end_of_latest_log_and_the_newest_crash_report() {
-        let home = std::env::temp_dir().join(format!("industrial-era-ctl-logs-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial-era-ctl-logs-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&home);
         let words = |s: &str| -> Vec<String> { s.split_whitespace().map(String::from).collect() };
         let failure = logs(&home, &words("")).unwrap_err();
@@ -651,8 +661,10 @@ mod tests {
 
     #[test]
     fn unreachable_games_fail_with_status_3() {
-        let home =
-            std::env::temp_dir().join(format!("industrial-era-ctl-unreachable-{}", std::process::id()));
+        let home = std::env::temp_dir().join(format!(
+            "industrial-era-ctl-unreachable-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&home).unwrap();
         let mut s = Session::new(home.join("nobody.sock"), None);
         s.home = home.clone();
@@ -666,9 +678,13 @@ mod tests {
 
     #[test]
     fn no_ai_refuses_every_command() {
-        let home = std::env::temp_dir().join(format!("industrial-era-ctl-no-ai-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial-era-ctl-no-ai-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&home);
-        let mut s = Session::new(std::env::temp_dir().join("industrial-era-ctl-nobody.sock"), None);
+        let mut s = Session::new(
+            std::env::temp_dir().join("industrial-era-ctl-nobody.sock"),
+            None,
+        );
         s.home = home.clone();
         assert_eq!(
             s.run(&["state".to_owned()]).unwrap_err().status,

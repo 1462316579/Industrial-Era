@@ -757,7 +757,8 @@ impl Game<'_> {
                 && (matches!(m.species(), Species::Camel | Species::CamelHusk)
                     || industrial_era_client::mobs::nautilus::is_nautilus(m.species())),
         );
-        let draws = industrial_era_client::hud_overlays::jump_bar(w, h, cooldown, self.mount.jump_scale);
+        let draws =
+            industrial_era_client::hud_overlays::jump_bar(w, h, cooldown, self.mount.jump_scale);
         industrial_era_client::hud_layout::paint(batch, &self.gui.atlas, &draws);
     }
 }

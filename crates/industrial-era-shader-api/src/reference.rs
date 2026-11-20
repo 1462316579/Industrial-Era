@@ -32,7 +32,7 @@ fn one_line(doc: &str) -> String {
 pub fn markdown() -> String {
     let mut out = format!(
         "# Shader API reference ({API})\n\n\
-         Generated from `crates/industrial-era-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-shader-api --test reference`\n\
+         Generated from `crates/industrial-era-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p industrial_era-shader-api --test reference`\n\
          rewrites it; the test fails when it drifts). The API's design and pack format: [shaders.md](shaders.md).\n\n\
          A stage is a function your WGSL defines, with the signature below; Industrial Era puts the prelude (these structs, the\n\
          resources and helpers) before your files and calls the function from its own pass. Your files declare no\n\

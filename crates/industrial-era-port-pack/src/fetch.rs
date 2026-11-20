@@ -251,7 +251,7 @@ pub(crate) fn store_download(
     static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     let suffix = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let part = dest.with_file_name(format!(
-        ".industrial-era-download-{}-{suffix}.part",
+        ".industrial_era-download-{}-{suffix}.part",
         std::process::id()
     ));
     let mut file = fs::OpenOptions::new()
@@ -426,7 +426,8 @@ mod tests {
 
     #[test]
     fn copies_the_players_jars_and_lists_what_needs_a_key() {
-        let root = std::env::temp_dir().join(format!("industrial-era-fetch-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-fetch-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         let (work, mine) = (root.join("work"), root.join("instance/mods"));
         fs::create_dir_all(&mine).unwrap();

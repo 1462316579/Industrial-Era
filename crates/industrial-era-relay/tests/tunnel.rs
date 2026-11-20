@@ -1,7 +1,7 @@
 //! Hosts in front of an echo server standing in for the integrated server,
 //! guests, and (for the relay cases) a self-hosted relay, all on loopback
 //! in one process. Port mapping and STUN are off here: they have their own
-//! tests against mock routers and servers in industrial-era-friends.
+//! tests against mock routers and servers in industrial_era-friends.
 use industrial_era_friends::{
     Code, Host, HostConfig, HostEvent, JoinError, PathMode,
     guest::{self, GuestConfig},

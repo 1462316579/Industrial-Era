@@ -53,7 +53,7 @@ impl<W: Write> DecorationWorld for World<'_, W> {
         match feature {
             Some(id) => writeln!(
                 self.out,
-                "generating ResourceKey[minecraft:worldgen/placed_feature / industrial-era:f{}]",
+                "generating ResourceKey[minecraft:worldgen/placed_feature / industrial_era:f{}]",
                 id.0
             ),
             None => writeln!(self.out, "generating none"),

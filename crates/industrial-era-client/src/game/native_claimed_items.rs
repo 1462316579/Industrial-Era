@@ -175,7 +175,11 @@ impl Game<'_> {
         eye: [f64; 3],
         dir: [f64; 3],
         reach: f64,
-    ) -> Option<([i32; 3], [f64; 3], industrial_era_world::registry::BlockStateId)> {
+    ) -> Option<(
+        [i32; 3],
+        [f64; 3],
+        industrial_era_world::registry::BlockStateId,
+    )> {
         let lod = self.lod.as_ref()?;
         let mut t = 0.0;
         while t <= reach {

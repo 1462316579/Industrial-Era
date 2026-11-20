@@ -33,7 +33,12 @@ impl Game<'_> {
             .unwrap_or_default();
         let lines: Vec<String> = std::env::var("HORIZON_NET_CHAT")
             .map(|v| v.split(';').map(str::to_owned).collect())
-            .unwrap_or_else(|_| vec!["hello from the industrial-era client".into(), "/list".into()]);
+            .unwrap_or_else(|_| {
+                vec![
+                    "hello from the industrial_era client".into(),
+                    "/list".into(),
+                ]
+            });
         let mut sent = 0;
         let mut prompts = Vec::new();
         let mut chat_box = None;
@@ -105,12 +110,14 @@ impl Game<'_> {
                 }
                 2 if answered && !quiet.is_empty() => {
                     for data in industrial_era_protocol::quiet::encode("net_harness", &quiet) {
-                        self.send(industrial_era_protocol::packets::play::Serverbound::CustomPayload(
-                            industrial_era_protocol::packets::configuration::CustomPayload {
-                                channel: industrial_era_protocol::quiet::CHANNEL.into(),
-                                data,
-                            },
-                        ));
+                        self.send(
+                            industrial_era_protocol::packets::play::Serverbound::CustomPayload(
+                                industrial_era_protocol::packets::configuration::CustomPayload {
+                                    channel: industrial_era_protocol::quiet::CHANNEL.into(),
+                                    data,
+                                },
+                            ),
+                        );
                     }
                     step = 4;
                     step_at = now;

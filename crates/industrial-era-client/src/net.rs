@@ -398,7 +398,7 @@ pub fn shown_address(address: &str) -> String {
     }
 }
 
-/// The relay the player set (`friendsRelay` in industrial-era.txt, beside
+/// The relay the player set (`friendsRelay` in industrial_era.txt, beside
 /// options.txt), else `HORIZON_RELAY_URL`. None by default.
 pub fn friends_relay_setting() -> Option<String> {
     let dir = std::env::current_dir().ok()?;
@@ -669,7 +669,9 @@ fn run(
                 if hello.should_authenticate {
                     let signed_in = auth.is_some();
                     let authenticated = auth
-                        .ok_or_else(|| Reason::keyed("industrial-era.multiplayer.not_signed_in", lang))
+                        .ok_or_else(|| {
+                            Reason::keyed("industrial-era.multiplayer.not_signed_in", lang)
+                        })
                         .and_then(|account| {
                             let hash = server_hash(&hello.server_id, &secret, &hello.public_key);
                             // The session service's refusal: the wrapped
@@ -923,9 +925,11 @@ fn configure(
             {
                 reply(cfg::Serverbound::CustomPayload(cfg::CustomPayload {
                     channel: industrial_era_protocol::mod_list::CHANNEL.into(),
-                    data: industrial_era_protocol::mod_list::encode(&industrial_era_protocol::mod_list::shared(
-                        &industrial_era_protocol::mod_list::local(),
-                    )),
+                    data: industrial_era_protocol::mod_list::encode(
+                        &industrial_era_protocol::mod_list::shared(
+                            &industrial_era_protocol::mod_list::local(),
+                        ),
+                    ),
                 }))?;
             }
             cfg::Clientbound::CustomPayload(p) => receive_brand(&p, send),
@@ -1335,7 +1339,10 @@ mod tests {
     fn lost_connections_read_like_vanillas_disconnect_reasons() {
         let lang = disconnect_language();
         let lost = |e| connection_lost(e, &lang);
-        assert_eq!(lost(industrial_era_protocol::Error::timed_out()), "Timed out");
+        assert_eq!(
+            lost(industrial_era_protocol::Error::timed_out()),
+            "Timed out"
+        );
         assert_eq!(
             lost(industrial_era_protocol::Error::end_of_stream()),
             "End of stream"
@@ -1348,8 +1355,10 @@ mod tests {
 
     #[test]
     fn configuration_answers_the_content_identity_challenge() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-content-identity-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-content-identity-{}",
+            std::process::id()
+        ));
         std::fs::create_dir_all(&root).unwrap();
         std::fs::write(
             root.join("facts.json"),
@@ -1407,9 +1416,10 @@ mod tests {
             cfg::Serverbound::FinishConfiguration(Empty)
         );
         assert!(thread.join().unwrap().is_ok());
-        std::fs::remove_dir_all(
-            std::env::temp_dir().join(format!("industrial-era-content-identity-{}", std::process::id())),
-        )
+        std::fs::remove_dir_all(std::env::temp_dir().join(format!(
+            "industrial-era-content-identity-{}",
+            std::process::id()
+        )))
         .unwrap();
     }
 

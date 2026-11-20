@@ -286,8 +286,10 @@ pub(crate) mod tests {
 
     /// A fresh empty folder under the system's temp folder.
     pub(crate) fn temp_dir(name: &str) -> PathBuf {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-shaders-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-shaders-{name}-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         dir

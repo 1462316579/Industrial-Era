@@ -343,7 +343,8 @@ mod tests {
     #[test]
     fn an_emptied_bag_from_a_server_stacks_with_a_new_one() {
         let mut sent = bag(2);
-        sent.data_mut().wire = industrial_era_client::item_data::Wire::new(bag(2), Arc::from(vec![1u8]));
+        sent.data_mut().wire =
+            industrial_era_client::item_data::Wire::new(bag(2), Arc::from(vec![1u8]));
         let (_, filled) = insert_one(&sent, Some(1), &of("minecraft:stone", 3), 64).unwrap();
         let (_, emptied) = extract_one(&filled, Some(1), 0, 3).unwrap();
         assert!(emptied.same_item_same_components(&bag(1)));

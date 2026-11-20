@@ -214,7 +214,8 @@ fn server(resources: &Path) -> Server {
 fn server_with(resources: &Path, net: NetConfig) -> Server {
     server_sync(
         Arc::new(
-            SyncData::load(resources, &industrial_era_world::loot::PackOverlay::NONE).expect("sync data"),
+            SyncData::load(resources, &industrial_era_world::loot::PackOverlay::NONE)
+                .expect("sync data"),
         ),
         net,
     )
@@ -736,7 +737,8 @@ fn a_signed_in_hosts_lan_authenticates_guests_but_not_its_own_player() {
         return;
     };
     let sync = Arc::new(
-        SyncData::load(&resources, &industrial_era_world::loot::PackOverlay::NONE).expect("sync data"),
+        SyncData::load(&resources, &industrial_era_world::loot::PackOverlay::NONE)
+            .expect("sync data"),
     );
     let net = NetConfig {
         online: Some(Arc::new(OnlineMode::generate(false).unwrap())),

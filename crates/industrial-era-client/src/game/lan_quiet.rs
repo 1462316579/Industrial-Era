@@ -27,7 +27,7 @@ pub(super) struct QuietBatch {
 }
 
 impl Game<'_> {
-    /// A `industrial-era:quiet_commands` payload from `conn`: queued (or logged as
+    /// A `industrial_era:quiet_commands` payload from `conn`: queued (or logged as
     /// refused when it breaks the payload's caps).
     pub(super) fn guest_quiet_commands(&mut self, host: &mut LanHost, conn: u32, data: &[u8]) {
         let Some(name) = host.hub.guest(conn).map(|g| g.name.clone()) else {

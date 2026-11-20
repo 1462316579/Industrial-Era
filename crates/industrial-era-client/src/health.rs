@@ -22,7 +22,8 @@ use industrial_era_world::{
     synced_floats::{FloatValue, Observer, SyncedFloats},
 };
 use std::{fs, io, path::Path, sync::OnceLock};
-pub(crate) type Attributes = LiveAttributes<Box<dyn industrial_era_world::attributes::live::Identities>>;
+pub(crate) type Attributes =
+    LiveAttributes<Box<dyn industrial_era_world::attributes::live::Identities>>;
 pub(crate) type State = HurtState<DamageTypeId>;
 
 pub use crate::world::HealthRules;
@@ -984,7 +985,9 @@ mod tests {
     /// and `blockedByItem` must not pull the player toward the mob.
     #[test]
     fn a_shield_fully_blocks_a_hit_scaled_down_by_easy() {
-        use industrial_era_world::blocking_rules::{BlockingRules, DamageReduction, ItemDamageFunction};
+        use industrial_era_world::blocking_rules::{
+            BlockingRules, DamageReduction, ItemDamageFunction,
+        };
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.local/industrial-era-client")
             .join(industrial_era_core::VANILLA_VERSION);

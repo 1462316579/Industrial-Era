@@ -1370,7 +1370,9 @@ impl Game<'_> {
                     .spawn(move || {
                         let result = download(&build, &version, &shared);
                         if let Err(e) = &result {
-                            log::warn!("Industrial Era: the native mod build did not download: {e}");
+                            log::warn!(
+                                "Industrial Era: the native mod build did not download: {e}"
+                            );
                         }
                         shared
                             .lock()

@@ -134,11 +134,11 @@ pub(super) struct Part {
     pub range: Range<u32>,
 }
 
-/// Iris's industrial-era (`HorizonRenderer`), from the Iris Features mod (MIT): an octagonal prism around
+/// Iris's industrial_era (`HorizonRenderer`), from the Iris Features mod (MIT): an octagonal prism around
 /// the camera from 16 below it to 16 above, and a plane 16 below, drawn with the sky disc. The disc
-/// ends 1.8 degrees above the industrial-era; without this the space under it keeps colortex0's clear
+/// ends 1.8 degrees above the industrial_era; without this the space under it keeps colortex0's clear
 /// colour where packs colour their sky by direction, a band with a hard edge seen from up high.
-fn industrial-era(out: &mut Vec<Vertex>) {
+fn industrial_era(out: &mut Vec<Vertex>) {
     const TOP: f32 = 16.0;
     const BOTTOM: f32 = -16.0;
     /// Iris's radius is the render distance; 256 keeps the prism's top (3.6 degrees) over the
@@ -201,7 +201,7 @@ pub(super) struct PackSky {
 impl PackSky {
     pub fn new(device: &wgpu::Device) -> Self {
         let mut v = Vec::new();
-        industrial-era(&mut v);
+        industrial_era(&mut v);
         disc(16.0, SKY, &mut v);
         let sky = 0..v.len() as u32;
         let apex = Vertex {
@@ -292,13 +292,13 @@ impl PackSky {
     }
 
     /// Writes the frame's sky and returns its draws in vanilla's order: the disc, the sunset
-    /// fan while the sun is near the industrial-era, the sun and the moon, the stars and, with the
+    /// fan while the sun is near the industrial_era, the sun and the moon, the stars and, with the
     /// camera low, the void. `tilt` is the pack's `sunPathRotation` (degrees): the sun, moon
     /// and stars turn with it (7.1).
     pub fn prepare(&self, queue: &wgpu::Queue, frame: &super::Frame, tilt: f32) -> Vec<Part> {
         let turn = super::pack_uniforms::tilt_matrix(tilt);
         let sun_angle = frame.sky.sun_angle.to_radians();
-        // The fan turns to the other industrial-era in the afternoon (terrain.wgsl's sunrise_weight).
+        // The fan turns to the other industrial_era in the afternoon (terrain.wgsl's sunrise_weight).
         let flip = if sun_angle.sin() < 0.0 { 180f32 } else { 0.0 };
         let theta = (flip + 90.0).to_radians();
         let (rotation, brightness) = frame.stars.unwrap_or_default();

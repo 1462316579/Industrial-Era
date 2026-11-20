@@ -612,8 +612,10 @@ mod tests {
 
     #[test]
     fn models_name_the_predicates_their_faces_draw() {
-        let root =
-            std::env::temp_dir().join(format!("industrial-era-fusion-models-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!(
+            "industrial-era-fusion-models-{}",
+            std::process::id()
+        ));
         let models = root.join("assets/demo/models/block");
         fs::create_dir_all(&models).unwrap();
         // A pane arm over a template whose `particle` names the pane sheet but draws no face
@@ -657,7 +659,8 @@ mod tests {
 
     #[test]
     fn faces_of_one_sprite_join_by_their_own_keys() {
-        let root = std::env::temp_dir().join(format!("industrial-era-fusion-keys-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-fusion-keys-{}", std::process::id()));
         let models = root.join("assets/demo/models/block");
         fs::create_dir_all(&models).unwrap();
         // The wiki's example: four keys on one texture, two of them joining by `blue`.

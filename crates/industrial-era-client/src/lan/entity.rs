@@ -521,13 +521,17 @@ impl ServerEntity {
                     match self.power {
                         // A bundle: the motion and the projectile's power.
                         Some(power) => out.extend([
-                            play::Clientbound::BundleDelimiter(industrial_era_protocol::packets::Empty),
+                            play::Clientbound::BundleDelimiter(
+                                industrial_era_protocol::packets::Empty,
+                            ),
                             motion,
                             play::Clientbound::ProjectilePower(play::ProjectilePower {
                                 id: e.id,
                                 power,
                             }),
-                            play::Clientbound::BundleDelimiter(industrial_era_protocol::packets::Empty),
+                            play::Clientbound::BundleDelimiter(
+                                industrial_era_protocol::packets::Empty,
+                            ),
                         ]),
                         None => out.push(motion),
                     }

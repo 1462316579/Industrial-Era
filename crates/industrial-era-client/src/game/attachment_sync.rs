@@ -128,7 +128,7 @@ impl Game<'_> {
 }
 
 impl Game<'_> {
-    /// A `industrial-era:attachment_sync` payload the server sent the window.
+    /// A `industrial_era:attachment_sync` payload the server sent the window.
     pub(super) fn remote_attachment_sync(&mut self, data: &[u8]) {
         let message = match attachment_sync::decode(data) {
             Ok(message) => message,

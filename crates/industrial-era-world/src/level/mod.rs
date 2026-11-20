@@ -804,7 +804,7 @@ impl Behaviours {
     }
 
     /// Keep snapshots of the resolved tables and the block-state registry in
-    /// `dir` (a game folder's `.industrial-era-cache`), so later launches of the same
+    /// `dir` (a game folder's `.industrial_era-cache`), so later launches of the same
     /// build restore them instead of resolving the resources again. Without
     /// it, [`Self::load`] and `data::load_registry` never cache.
     pub fn set_cache_dir(dir: std::path::PathBuf) {

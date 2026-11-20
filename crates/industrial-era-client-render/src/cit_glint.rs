@@ -357,7 +357,8 @@ mod tests {
 
     #[test]
     fn the_first_global_file_wins() {
-        let root = std::env::temp_dir().join(format!("industrial-era-cit-glint-{}", std::process::id()));
+        let root =
+            std::env::temp_dir().join(format!("industrial-era-cit-glint-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         assert_eq!(load_global(&root), Global::default());
         let write = |path: &str, text: &[u8]| {

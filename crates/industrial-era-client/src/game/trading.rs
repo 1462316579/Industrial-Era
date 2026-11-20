@@ -490,9 +490,11 @@ impl Game<'_> {
             if let Some(m) = self.station.as_mut().and_then(|s| s.merchant.as_mut()) {
                 m.session.selection_hint = index;
             }
-            self.send(industrial_era_protocol::packets::play::Serverbound::SelectTrade(
-                industrial_era_protocol::packets::play::SelectTrade { item: index as i32 },
-            ));
+            self.send(
+                industrial_era_protocol::packets::play::Serverbound::SelectTrade(
+                    industrial_era_protocol::packets::play::SelectTrade { item: index as i32 },
+                ),
+            );
             return;
         }
         self.menu_session(|menu, env, _| {

@@ -1,7 +1,9 @@
 //! The displayed items of `ShelfBlockEntity`.
 use super::{Game, Hit, machines::dir_from_name};
 use industrial_era_assets::item_model::DisplayContext;
-use industrial_era_client::{block_entity_render::vertex_light, containers::BlockEntity, mesher::Vertex};
+use industrial_era_client::{
+    block_entity_render::vertex_light, containers::BlockEntity, mesher::Vertex,
+};
 use industrial_era_core::{
     geometry::{Direction, Vec3},
     position::BlockPos,
@@ -172,7 +174,8 @@ impl Game<'_> {
                     .iter()
                     .find(|(key, _)| key == "minecraft:use_effects")
                     .map_or(default, |(_, tag)| {
-                        industrial_era_client::save::number(tag.get("interact_vibrations")).unwrap_or(1)
+                        industrial_era_client::save::number(tag.get("interact_vibrations"))
+                            .unwrap_or(1)
                             != 0
                     })
             });

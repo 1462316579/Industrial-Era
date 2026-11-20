@@ -1,4 +1,6 @@
-use industrial_era_world::{chunk_status::ChunkStatus, nbt::Tag, worldgen::terrain::PreLightChunkStage};
+use industrial_era_world::{
+    chunk_status::ChunkStatus, nbt::Tag, worldgen::terrain::PreLightChunkStage,
+};
 use serde_json::Value;
 use std::{
     fs,

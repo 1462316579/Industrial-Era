@@ -431,7 +431,10 @@ impl Game<'_> {
     /// team) or a creative player flying.
     fn smash_push_player(&mut self, push: &SmashPush) {
         if self.spectator()
-            || industrial_era_client::scoreboard::teams_allied(push.team.as_ref(), self.player_team())
+            || industrial_era_client::scoreboard::teams_allied(
+                push.team.as_ref(),
+                self.player_team(),
+            )
         {
             return;
         }

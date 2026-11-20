@@ -116,7 +116,8 @@ fn creative_tabs_keep_vanilla_items_missing_from_search() {
 /// vanilla item has fails the build.
 #[test]
 fn block_items_patch_their_template_item() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-block-item-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-block-item-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let base = scratch.join("base");
     fs::create_dir_all(&base).unwrap();
@@ -195,7 +196,8 @@ fn tags_merge_without_repeats() {
 /// Registry IDs and state IDs must not depend on package discovery order.
 #[test]
 fn allocated_ids_follow_mod_and_entry_order_after_vanilla() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-order-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-order-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let base = scratch.join("base");
     fs::create_dir_all(&base).unwrap();
@@ -459,7 +461,8 @@ fn content_root_loads_with_every_table() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-content-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-content-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = ruby_mod(&scratch.join("ruby"));
     // The base as a relative path (cargo runs tests in the crate's folder):
@@ -530,9 +533,13 @@ fn content_root_loads_with_every_table() {
     let independent_behaviours = industrial_era_world::level::Behaviours::load(new, &root).unwrap();
     let (deferred_facts, gameplay) =
         BlockFacts::load_with_projection(&root, new, &shared_json, true).unwrap();
-    let deferred_behaviours =
-        industrial_era_world::level::Behaviours::load_with_gameplay(new, &root, &shared_json, &gameplay)
-            .unwrap();
+    let deferred_behaviours = industrial_era_world::level::Behaviours::load_with_gameplay(
+        new,
+        &root,
+        &shared_json,
+        &gameplay,
+    )
+    .unwrap();
     assert_eq!(shared_facts.states.len(), facts.states.len());
     // `random_ticks` makes the block tick randomly although its template (iron) never does; the
     // sections' counts read the same flag (`random_tick_candidate`).
@@ -637,7 +644,8 @@ fn content_root_loads_with_every_table() {
     crate::models::load_visibility(&root, new).unwrap();
     crate::light::LightTables::load(&root, new, &facts).unwrap();
     crate::motion::MotionResources::load(&root, &assets).unwrap();
-    industrial_era_world::worldgen::generator::GeneratorData::load(&root.join("worldgen"), new).unwrap();
+    industrial_era_world::worldgen::generator::GeneratorData::load(&root.join("worldgen"), new)
+        .unwrap();
     assert!(root.join("assets/ruby/lang/en_us.json").is_file());
     // Blocks without a blockstate of their own take their template's.
     assert_eq!(
@@ -659,7 +667,8 @@ fn refuses_unknown_templates_and_vanilla_ids() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-refuse-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-refuse-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let mut m = ruby_mod(&scratch.join("ruby"));
     m.content.blocks[0].template = "minecraft:not_a_block".into();
@@ -686,7 +695,8 @@ fn refuses_more_states_than_a_world_holds() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-states-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-states-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let mut m = ruby_mod(&scratch.join("ruby"));
     // Redstone wire has 1296 states: 810 copies pass 2^20 with any game.
@@ -712,7 +722,8 @@ fn builds_past_sixteen_bit_states() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-wide-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-wide-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let mut m = ruby_mod(&scratch.join("ruby"));
     // 40 redstone wires: 51,840 states, past 65,536 with vanilla's 35,723.
@@ -806,7 +817,10 @@ fn shared_behaviour_document_matches_independent_loaders() {
 #[ignore = "full content root: CI and pr_ready run it"]
 fn independent_reloads_read_changed_behaviour_json_and_report_invalid_files() {
     let Some(base) = prepared() else { return };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-json-reloads-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-json-reloads-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     fs::create_dir_all(&scratch).unwrap();
     // Keep the remaining resource tree intact without copying a huge prepared client.
@@ -930,7 +944,8 @@ fn content_root_is_reused_until_a_mod_changes() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-reuse-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-reuse-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = ruby_mod(&scratch.join("ruby"));
     let cache = scratch.join("cache");
@@ -967,7 +982,10 @@ fn content_root_carries_a_structure_mod() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-worldgen-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-mod-worldgen-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     let dir = scratch.join("huts");
     let files = [
@@ -1001,23 +1019,23 @@ fn content_root_carries_a_structure_mod() {
         // defines is skipped. A lower priority goes first.
         (
             "data/huts/worldgen/structure_set/added/villages.json",
-            r#"{"industrial-era:add_to": "minecraft:villages",
+            r#"{"industrial_era:add_to": "minecraft:villages",
                 "structures": [{"structure": "huts:hut", "weight": 3}]}"#,
         ),
         (
             "data/huts/worldgen/template_pool/added/houses.json",
-            r#"{"industrial-era:add_to": ["othermod:houses", "minecraft:village/plains/houses"],
+            r#"{"industrial_era:add_to": ["othermod:houses", "minecraft:village/plains/houses"],
                 "elements": [{"weight": 2, "element": {"element_type": "minecraft:single_pool_element",
                 "location": "huts:hut", "projection": "rigid", "processors": "minecraft:empty"}}]}"#,
         ),
         (
             "data/huts/worldgen/template_pool/added/more_houses.json",
-            r#"{"industrial-era:add_to": "minecraft:village/plains/houses", "industrial-era:priority": 10,
+            r#"{"industrial_era:add_to": "minecraft:village/plains/houses", "industrial_era:priority": 10,
                 "elements": [{"weight": 1, "element": {"element_type": "minecraft:empty_pool_element"}}]}"#,
         ),
         (
             "data/huts/worldgen/processor_list/added/mossy.json",
-            r#"{"industrial-era:add_to": "minecraft:mossify_10_percent",
+            r#"{"industrial_era:add_to": "minecraft:mossify_10_percent",
                 "processors": [{"processor_type": "minecraft:nop"}]}"#,
         ),
     ];
@@ -1313,7 +1331,8 @@ fn content_root_registers_a_mod_mob_effect() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-effect-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-effect-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("glow"),
@@ -1356,7 +1375,8 @@ fn content_root_with_only_an_item_checks_its_identity() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-item-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-item-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("gem"),
@@ -1369,7 +1389,8 @@ fn content_root_with_only_an_item_checks_its_identity() {
         ],
     );
     let root = resource_root(&base, std::slice::from_ref(&m), &scratch.join("cache")).unwrap();
-    let ids = industrial_era_protocol::registry::Builtin::load(&root.join("registries.json")).unwrap();
+    let ids =
+        industrial_era_protocol::registry::Builtin::load(&root.join("registries.json")).unwrap();
     assert!(ids.get("minecraft:item").unwrap().id("gem:opal").is_some());
     assert!(root.join(crate::content_identity::MARKER).exists());
     assert_ne!(
@@ -1387,7 +1408,8 @@ fn content_root_registers_a_mod_entity_type() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-entity-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-entity-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("example"),
@@ -1450,7 +1472,8 @@ fn content_root_registers_a_mod_menu_type() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-menu-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-menu-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("example"),
@@ -1505,7 +1528,8 @@ fn a_declared_shape_is_each_states_outline_and_collision() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-shape-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-shape-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let toml = manifest("cogs", "");
     let m = folder_mod(
@@ -1560,7 +1584,8 @@ fn listed_namespaces_join_the_root() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-ns-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-ns-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let toml = manifest("towers", "\"kaisyn\"");
     let m = folder_mod(
@@ -1599,7 +1624,8 @@ fn listed_namespaces_join_the_root() {
 /// or both list it) are refused together, naming both.
 #[test]
 fn mods_sharing_a_namespace_are_refused() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-clash-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-clash-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let towers = folder_mod(
         &scratch.join("towers"),
@@ -1674,7 +1700,8 @@ fn a_replacing_mod_tag_reaches_the_root() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-replace-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-replace-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let file = "data/minecraft/tags/worldgen/biome/has_structure/village_plains.json";
     let adds = folder_mod(
@@ -1770,7 +1797,8 @@ fn exploration_maps_skip_the_structures_maps_pointed_at() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-map-refs-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-map-refs-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let assets = Assets::load(&base).unwrap();
     let biomes = crate::biome::Biomes::load(&base).unwrap();
@@ -1864,8 +1892,10 @@ fn content_shapes_drive_outline_and_collision() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch =
-        std::env::temp_dir().join(format!("industrial-era-content-shapes-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-content-shapes-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("mod"),
@@ -1940,7 +1970,8 @@ fn content_shapes_drive_outline_and_collision() {
 
 #[test]
 fn content_block_default_state_is_validated_and_overlaid() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-default-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-default-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let base = scratch.join("base");
     fs::create_dir_all(&base).unwrap();
@@ -2020,8 +2051,10 @@ fn content_block_default_state_is_validated_and_overlaid() {
 #[test]
 fn shapes_reject_unknown_or_missing_template_values() {
     let Some(base) = prepared() else { return };
-    let scratch =
-        std::env::temp_dir().join(format!("industrial-era-shape-invalid-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-shape-invalid-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     for declaration in [
         r#"{"template":"minecraft:oak_log","shapes":{"property":"typo","values":{"x":[]}}}"#,
@@ -2059,7 +2092,8 @@ fn connecting_blocks_join_themselves_and_their_tag() {
     let Some(_) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-pipe-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-pipe-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let dir = scratch.join("cable");
     for (name, text) in [
@@ -2161,14 +2195,17 @@ fn connecting_blocks_join_themselves_and_their_tag() {
     assert_eq!(sides(level.block_state(at(0, 64, 0))), ["up"]);
     // Its shapes are 4 pixels across: the outline and the cached collision.
     let joined = level.block_state(at(0, 64, 0));
-    let thin = industrial_era_world::collision::pipe_shape(4.0, [false, true, false, false, false, false])
-        .unwrap();
+    let thin =
+        industrial_era_world::collision::pipe_shape(4.0, [false, true, false, false, false, false])
+            .unwrap();
     let facts = BlockFacts::load(&root, registry).unwrap();
     let outline = &facts.get(joined).outline;
     assert_eq!(outline.len(), thin.boxes().len());
-    let file =
-        industrial_era_world::registry::BlockTableFile::open(&root.join("cached-collision.nbt"), registry)
-            .unwrap();
+    let file = industrial_era_world::registry::BlockTableFile::open(
+        &root.join("cached-collision.nbt"),
+        registry,
+    )
+    .unwrap();
     let cached = industrial_era_world::collision::CachedCollisionRegistry::from_table(
         file.table("collision").unwrap(),
     )
@@ -2270,7 +2307,8 @@ fn an_old_chunks_saved_village_comes_back_with_its_pieces() {
             &self,
             _: i32,
             _: i32,
-        ) -> Option<std::sync::Arc<industrial_era_world::worldgen::blending::BlendingData>> {
+        ) -> Option<std::sync::Arc<industrial_era_world::worldgen::blending::BlendingData>>
+        {
             None
         }
         fn old_biomes(
@@ -2363,7 +2401,8 @@ fn mod_recipe_results_are_an_item_stack_or_a_bare_item_id() {
     if prepared().is_none() {
         return;
     }
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-results-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-results-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let dir = scratch.join("ruby");
     let _ = ruby_mod(&dir);
@@ -2440,7 +2479,8 @@ fn creative_tabs_come_on_their_own_page() {
     let Some(_) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-tabs-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-tabs-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let dir = scratch.join("gems");
     for (name, text) in [
@@ -2560,7 +2600,8 @@ fn block_base(tag: &str, declarations: &[&str]) -> (PathBuf, Vec<ContentMod>) {
 /// the plan reads are built from its state count, so a template can have one
 /// state and no properties of its own (a `stone`) as easily as two.
 fn block_base_of(tag: &str, declarations: &[&str], facts: &str) -> (PathBuf, Vec<ContentMod>) {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-{tag}-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-{tag}-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let base = scratch.join("base");
     fs::create_dir_all(&base).unwrap();
@@ -3496,7 +3537,8 @@ fn content_root_generates_a_biome_modifier_ore() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-ore-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-ore-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let ore = |modifier: bool| -> usize {
         let mut files = vec![
@@ -3615,7 +3657,10 @@ fn blocks_and_items_declared_in_code_get_ids() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-declared-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-mod-declared-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     let known = known_components(&base).unwrap();
     let block = |id: &str| Block {
@@ -3680,7 +3725,8 @@ fn blocks_and_items_declared_in_code_get_ids() {
         assets.registry.len() as u32,
         n + log_states + 1 + 64 + 1 + log_states
     );
-    let ids = industrial_era_protocol::registry::Builtin::load(&root.join("registries.json")).unwrap();
+    let ids =
+        industrial_era_protocol::registry::Builtin::load(&root.join("registries.json")).unwrap();
     for item in ["gears:shaft", "gears:wrench", "ruby:ruby_log"] {
         assert!(
             ids.get("minecraft:item").unwrap().id(item).is_some(),
@@ -3721,12 +3767,14 @@ fn a_file_item_whose_remainder_was_refused_takes_only_its_mod_out() {
         }
     };
     let mut jar = make("jar", vec![item("jar:tool", Some("jar:jar"))]);
-    jar.content.blocks.push(industrial_era_mods::content::Block {
-        id: "jar:jar".into(),
-        template: "minecraft:glass".into(),
-        item: true,
-        ..Default::default()
-    });
+    jar.content
+        .blocks
+        .push(industrial_era_mods::content::Block {
+            id: "jar:jar".into(),
+            template: "minecraft:glass".into(),
+            item: true,
+            ..Default::default()
+        });
     let mut mods = vec![
         jar,
         make(
@@ -3761,7 +3809,8 @@ fn signs_take_their_form_wood_and_wall_block_from_their_declaration() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-signs-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-signs-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("signs"),
@@ -3862,8 +3911,10 @@ fn a_feature_gives_a_mods_sign_its_block_entity() {
     let Some(base) = prepared() else {
         return;
     };
-    let scratch =
-        std::env::temp_dir().join(format!("industrial-era-mod-sign-feature-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-mod-sign-feature-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     let m = folder_mod(
         &scratch.join("post"),
@@ -3992,7 +4043,8 @@ fn edit_in_place(path: &Path, bytes: &[u8]) {
 /// holding copies of them.
 #[test]
 fn the_overlay_shares_the_base_files() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-share-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-share-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let (base, out) = (scratch.join("base"), scratch.join("root"));
     small_base(&base);
@@ -4014,7 +4066,8 @@ fn the_overlay_shares_the_base_files() {
 /// files of the overlay still follow the base.
 #[test]
 fn writing_into_the_overlay_leaves_the_base_alone() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-write-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-write-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     let (base, out) = (scratch.join("base"), scratch.join("root"));
     small_base(&base);
@@ -4052,7 +4105,10 @@ fn writing_into_the_overlay_leaves_the_base_alone() {
 /// on Windows; where it can, the file is linked.
 #[test]
 fn a_file_is_linked_or_else_copied() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-linkfile-{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!(
+        "industrial-era-mod-linkfile-{}",
+        std::process::id()
+    ));
     let _ = fs::remove_dir_all(&scratch);
     fs::create_dir_all(&scratch).unwrap();
     let target = scratch.join("base.json");
@@ -4086,7 +4142,8 @@ fn a_file_is_linked_or_else_copied() {
 #[cfg(unix)]
 #[test]
 fn a_symlink_file_is_copied_through() {
-    let scratch = std::env::temp_dir().join(format!("industrial-era-mod-symfile-{}", std::process::id()));
+    let scratch =
+        std::env::temp_dir().join(format!("industrial-era-mod-symfile-{}", std::process::id()));
     let _ = fs::remove_dir_all(&scratch);
     fs::create_dir_all(&scratch).unwrap();
     fs::write(scratch.join("real.json"), b"real").unwrap();

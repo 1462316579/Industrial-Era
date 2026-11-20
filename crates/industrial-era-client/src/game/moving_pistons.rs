@@ -131,13 +131,14 @@ impl Game<'_> {
     ) {
         let chunks = &self.world.chunks;
         let (cx, cz) = (seed.x >> 4, seed.z >> 4);
-        let region: [[Option<&industrial_era_client::chunk::Chunk>; 3]; 3] = std::array::from_fn(|dz| {
-            std::array::from_fn(|dx| {
-                chunks
-                    .get(&(cx + dx as i32 - 1, cz + dz as i32 - 1))
-                    .map(|c| &**c)
-            })
-        });
+        let region: [[Option<&industrial_era_client::chunk::Chunk>; 3]; 3] =
+            std::array::from_fn(|dz| {
+                std::array::from_fn(|dx| {
+                    chunks
+                        .get(&(cx + dx as i32 - 1, cz + dz as i32 - 1))
+                        .map(|c| &**c)
+                })
+            });
         let tint = self.pack.context.tables.block_tints(
             state,
             [seed.x, seed.y, seed.z],

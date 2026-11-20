@@ -547,7 +547,8 @@ pub struct Chunk {
     pub structure_refs: Vec<(Arc<str>, (i32, i32))>,
     /// The starts generation made in this chunk (`structures.starts`), saved
     /// with the state their placement has reached by then.
-    pub structure_starts: Vec<Arc<industrial_era_world::worldgen::structure::start::StructureStart>>,
+    pub structure_starts:
+        Vec<Arc<industrial_era_world::worldgen::structure::start::StructureStart>>,
 }
 impl Chunk {
     /// An all-air chunk in the current `layout`.
@@ -835,7 +836,10 @@ pub struct ChunkExtras {
     /// Server-owned mod data attached to this chunk.
     pub attachments: industrial_era_world::attachments::Attachments,
     /// Attachment maps of the chunk's block entities, on a save snapshot.
-    pub block_entity_attachments: Vec<((i32, i32, i32), industrial_era_world::attachments::Attachments)>,
+    pub block_entity_attachments: Vec<(
+        (i32, i32, i32),
+        industrial_era_world::attachments::Attachments,
+    )>,
     /// Chunk root keys written back as loaded (structures, PostProcessing,
     /// InhabitedTime, blending data, ...).
     pub root: Compound,

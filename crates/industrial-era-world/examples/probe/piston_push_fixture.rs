@@ -7,7 +7,9 @@ use industrial_era_core::{
     geometry::{Aabb, Direction, Vec3},
     position::BlockPos,
 };
-use industrial_era_world::{level::data::PushReaction, piston_push, piston_shape::MovingPistonState};
+use industrial_era_world::{
+    level::data::PushReaction, piston_push, piston_shape::MovingPistonState,
+};
 use serde_json::Value;
 use std::{
     fs,

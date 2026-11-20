@@ -136,14 +136,14 @@ pub fn private_home() -> PathBuf {
     }
 }
 
-/// Derived caches (`.industrial-era-cache`): in the folder the game runs in, or in `HORIZON_PRIVATE`
+/// Derived caches (`.industrial_era-cache`): in the folder the game runs in, or in `HORIZON_PRIVATE`
 /// when that is set apart (shared storage on Android has no symlinks for pack overlays).
 pub fn cache_dir() -> PathBuf {
     match std::env::var_os("HORIZON_PRIVATE").filter(|h| !h.is_empty()) {
-        Some(h) => PathBuf::from(h).join(".industrial-era-cache"),
+        Some(h) => PathBuf::from(h).join(".industrial_era-cache"),
         None => std::env::current_dir()
             .unwrap_or_default()
-            .join(".industrial-era-cache"),
+            .join(".industrial_era-cache"),
     }
 }
 
@@ -470,7 +470,7 @@ impl Floods {
 static LOGGER: std::sync::OnceLock<Logger> = std::sync::OnceLock::new();
 
 /// Where messages are printed instead of stderr, which a platform may discard (Android's
-/// logcat, set by industrial-era-android). It gets every message the file gets, and other crates'
+/// logcat, set by industrial_era-android). It gets every message the file gets, and other crates'
 /// warnings too (the graphics driver's, wgpu's), since nothing else shows them there.
 static CONSOLE: std::sync::OnceLock<fn(log::Level, &str)> = std::sync::OnceLock::new();
 
@@ -833,7 +833,8 @@ mod tests {
 
     #[test]
     fn startup_archives_the_last_runs_log() {
-        let dir = std::env::temp_dir().join(format!("industrial-era-logs-test-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("industrial-era-logs-test-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         // Empty: nothing is archived (OnStartupTriggeringPolicy's minSize is 1 byte).
@@ -871,8 +872,10 @@ mod tests {
 
     #[test]
     fn a_run_that_writes_nothing_leaves_the_last_runs_log() {
-        let dir =
-            std::env::temp_dir().join(format!("industrial-era-logs-quiet-test-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-logs-quiet-test-{}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).unwrap();
         let killed = "[10:00:00] [Render thread/INFO]: the run that was ended\n";
@@ -906,7 +909,8 @@ mod tests {
 
     #[test]
     fn the_newest_crash_report_is_found_by_name() {
-        let home = std::env::temp_dir().join(format!("industrial-era-crash-test-{}", std::process::id()));
+        let home =
+            std::env::temp_dir().join(format!("industrial-era-crash-test-{}", std::process::id()));
         let _ = fs::remove_dir_all(&home);
         assert!(newest_crash_report(&home).is_none());
         let dir = crash_reports_dir(&home);

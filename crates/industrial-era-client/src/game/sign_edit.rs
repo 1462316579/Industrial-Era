@@ -352,7 +352,11 @@ impl Game<'_> {
         };
         let (x, y, z) = edit.pos;
         let near = self.eye_position().is_some_and(|eye| {
-            industrial_era_client::lan::guest::within_block_range(eye, self.reach() + 4.0, [x, y, z])
+            industrial_era_client::lan::guest::within_block_range(
+                eye,
+                self.reach() + 4.0,
+                [x, y, z],
+            )
         });
         let sign = matches!(
             self.world.block_entities.get(&edit.pos),
@@ -845,7 +849,11 @@ impl Game<'_> {
         }
         let (bx, by) = done_button(w, h);
         industrial_era_client::widgets::narratable(|| {
-            industrial_era_client::widgets::Narratable::button(done_label(), [bx, by, 200.0, 20.0], true)
+            industrial_era_client::widgets::Narratable::button(
+                done_label(),
+                [bx, by, 200.0, 20.0],
+                true,
+            )
         });
         batch.sprite_scaled(
             atlas,

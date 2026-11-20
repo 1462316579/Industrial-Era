@@ -279,7 +279,8 @@ pub fn store(guest: &Guest, level: &mut Level, vehicle: Option<Tag>) {
             .player_extra
             .get_or_insert_with(|| industrial_era_world::nbt::Tag::Compound(Default::default()));
         if let industrial_era_world::nbt::Tag::Compound(map) = extra {
-            let short = |v: i32| industrial_era_world::nbt::Tag::Short(v.clamp(-32768, 32767) as i16);
+            let short =
+                |v: i32| industrial_era_world::nbt::Tag::Short(v.clamp(-32768, 32767) as i16);
             map.insert("Fire".into(), short(body.fire_ticks));
             map.insert("Air".into(), short(body.air));
         }
@@ -366,7 +367,10 @@ mod tests {
     }
 
     fn world(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("industrial-era-owner-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!(
+            "industrial-era-owner-{name}-{}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         dir
     }
@@ -566,8 +570,9 @@ mod tests {
     /// a command or a datapack gives.
     fn small_body(resources: &crate::motion::MotionResources) -> crate::motion::PlayerMotion {
         use industrial_era_world::attributes::{Modifier, Operation};
-        let mut m = crate::motion::PlayerMotion::new(resources, industrial_era_core::geometry::Vec3::ZERO)
-            .expect("a body");
+        let mut m =
+            crate::motion::PlayerMotion::new(resources, industrial_era_core::geometry::Vec3::ZERO)
+                .expect("a body");
         let key = m.attributes.key("minecraft:scale").unwrap();
         let handle = m.attributes.get_instance(Some(key)).unwrap().unwrap();
         m.attributes
@@ -594,9 +599,11 @@ mod tests {
             return;
         };
         let next = |g: &Guest| {
-            let mut m =
-                crate::motion::PlayerMotion::new(&resources, industrial_era_core::geometry::Vec3::ZERO)
-                    .expect("a body");
+            let mut m = crate::motion::PlayerMotion::new(
+                &resources,
+                industrial_era_core::geometry::Vec3::ZERO,
+            )
+            .expect("a body");
             m.apply_saved_attributes(g.carried_attributes.as_ref())
                 .unwrap();
             m

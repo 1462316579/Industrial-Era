@@ -1283,7 +1283,12 @@ impl Streaming {
             self.written.insert(key);
         }
         for ([bx, by, bz], state) in writes.blocks {
-            let _ = world.set(bx, by, bz, industrial_era_world::registry::BlockStateId(state));
+            let _ = world.set(
+                bx,
+                by,
+                bz,
+                industrial_era_world::registry::BlockStateId(state),
+            );
         }
         // After the blocks: the write of a block with a block entity made a
         // default one, which the generated one replaces.
@@ -2294,7 +2299,8 @@ impl Streaming {
     /// decorates in vanilla's order (`forced_order`), after every chunk
     /// ranked before.
     pub fn rank_forced(&mut self, x0: i32, z0: i32, x1: i32, z1: i32) {
-        for (x, z) in industrial_era_world::worldgen::decoration_order::forced_order(x0, z0, x1, z1) {
+        for (x, z) in industrial_era_world::worldgen::decoration_order::forced_order(x0, z0, x1, z1)
+        {
             self.decoration_order.rank_or_append(x, z);
         }
     }
@@ -3931,7 +3937,7 @@ mod cover_tests {
     ///
     /// A debug build checks every fourth cell of each row, shifted by row and case so the cases still cover every
     /// cell's position relative to the areas: the full check took 20 of the ~30 s of the crate's tests.
-    /// `cargo test --release -p industrial-era-client --lib the_grid_answers_as_the_scan` checks every cell.
+    /// `cargo test --release -p industrial_era-client --lib the_grid_answers_as_the_scan` checks every cell.
     #[test]
     fn the_grid_answers_as_the_scan() {
         let stride = if cfg!(debug_assertions) { 4 } else { 1 };
@@ -3984,7 +3990,7 @@ mod cover_tests {
         assert!(ExtraCover::new(&[((0, i32::MIN + 1), 11), ((0, i32::MIN + 3), 11)]).is_none());
     }
 
-    /// cargo test --release -p industrial-era-client --lib cover_tests::cover_cost -- --ignored --nocapture
+    /// cargo test --release -p industrial_era-client --lib cover_tests::cover_cost -- --ignored --nocapture
     #[test]
     #[ignore]
     fn cover_cost() {

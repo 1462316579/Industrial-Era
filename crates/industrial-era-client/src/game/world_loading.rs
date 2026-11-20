@@ -141,11 +141,12 @@ impl WorldRequest {
         industrial_era_client::save::migrate_legacy(&save_root)?;
         let session_lock = industrial_era_client::save::SessionLock::acquire(&save_root)?;
         // RandomSequences: the world's data/minecraft/random_sequences.dat.
-        let rand_sequences =
-            industrial_era_client::save::read_dat(&save_root.join("data/minecraft/random_sequences.dat"))
-                .and_then(|t| t.get("data").cloned())
-                .map(|d| industrial_era_client::random_sequences::RandomSequences::from_nbt(&d))
-                .unwrap_or_default();
+        let rand_sequences = industrial_era_client::save::read_dat(
+            &save_root.join("data/minecraft/random_sequences.dat"),
+        )
+        .and_then(|t| t.get("data").cloned())
+        .map(|d| industrial_era_client::random_sequences::RandomSequences::from_nbt(&d))
+        .unwrap_or_default();
         let existing = Level::read(&save_root);
         let created = existing.is_none();
         let level = existing.unwrap_or_else(|| Level {
@@ -366,8 +367,9 @@ pub(super) fn preload_world_data(
                     }
                     // The loot data's item tables and the server's data both
                     // read the recipe folder: held here, it is read once.
-                    let _recipe_files =
-                        industrial_era_client::json_folder::read(&resources.join("data/minecraft/recipe"));
+                    let _recipe_files = industrial_era_client::json_folder::read(
+                        &resources.join("data/minecraft/recipe"),
+                    );
                     // The preload is the game's own data; the world's packs'
                     // tables are built when it opens (finish_open_world).
                     let _ = industrial_era_client::structure_blocks::loot_data(
@@ -474,7 +476,8 @@ fn spawn_sync_preload(
             if behind_server {
                 industrial_era_threads::behind_server();
             }
-            let _ = super::lan::sync_data(&resources, &industrial_era_world::loot::PackOverlay::NONE);
+            let _ =
+                super::lan::sync_data(&resources, &industrial_era_world::loot::PackOverlay::NONE);
         })
         .ok()
 }
@@ -487,7 +490,8 @@ fn join_sync_preload(sync: Option<std::thread::JoinHandle<()>>, resources: &std:
             let _ = thread.join();
         }
         None => {
-            let _ = super::lan::sync_data(resources, &industrial_era_world::loot::PackOverlay::NONE);
+            let _ =
+                super::lan::sync_data(resources, &industrial_era_world::loot::PackOverlay::NONE);
         }
     }
 }
@@ -531,7 +535,8 @@ pub(super) fn packed_biomes(
     enabled_features: &[String],
 ) -> Arc<industrial_era_client::biome::Biomes> {
     let packs = industrial_era_client::datapack::discover_with_features(world_root, resources);
-    let enabled = industrial_era_client::datapack::enabled_ids(world_root, &packs, enabled_features);
+    let enabled =
+        industrial_era_client::datapack::enabled_ids(world_root, &packs, enabled_features);
     let enabled: Vec<_> = enabled
         .iter()
         .filter_map(|id| packs.iter().find(|p| &p.id == id))
@@ -557,8 +562,10 @@ pub(super) fn creation_worldgen_overrides(
     biomes: &industrial_era_client::biome::Biomes,
 ) -> industrial_era_world::worldgen::overrides::WorldgenOverrides {
     let empty = std::path::PathBuf::new();
-    let packs =
-        industrial_era_client::datapack::discover_with_features(pack_dir.unwrap_or(&empty), resources);
+    let packs = industrial_era_client::datapack::discover_with_features(
+        pack_dir.unwrap_or(&empty),
+        resources,
+    );
     let enabled: Vec<_> = data_packs
         .iter()
         .filter_map(|id| packs.iter().find(|p| &p.id == id))
@@ -595,7 +602,8 @@ fn worldgen_overrides_of(
     Vec<String>,
 ) {
     let packs = industrial_era_client::datapack::discover_with_features(world_root, resources);
-    let enabled = industrial_era_client::datapack::enabled_ids(world_root, &packs, enabled_features);
+    let enabled =
+        industrial_era_client::datapack::enabled_ids(world_root, &packs, enabled_features);
     let enabled: Vec<_> = enabled
         .iter()
         .filter_map(|id| packs.iter().find(|p| &p.id == id))
@@ -615,7 +623,8 @@ pub(super) fn level_shapes(
     let enabled_features = industrial_era_client::save::Level::read(world_root)
         .map(|l| l.enabled_features)
         .unwrap_or_default();
-    let enabled = industrial_era_client::datapack::enabled_ids(world_root, &packs, &enabled_features);
+    let enabled =
+        industrial_era_client::datapack::enabled_ids(world_root, &packs, &enabled_features);
     let enabled: Vec<_> = enabled
         .iter()
         .filter_map(|id| packs.iter().find(|p| &p.id == id))
@@ -706,7 +715,9 @@ pub(super) fn make_streaming(
         .then(|| industrial_era_client::save::world_gen_settings(world_root))
         .flatten()
         .and_then(|s| industrial_era_client::flatgen::FlatTerrain::structure_settings(&s))
-        .filter(|_| industrial_era_client::save::WorldGen::read(world_root).is_none_or(|w| w.structures));
+        .filter(|_| {
+            industrial_era_client::save::WorldGen::read(world_root).is_none_or(|w| w.structures)
+        });
     // A generator that cannot be built (a layer block the registry lacks, a level shorter
     // than the noise) leaves the world on its flat ground, as it was before.
     let flat_vanilla = flat_structures.and_then(|settings| {
@@ -809,12 +820,14 @@ pub(super) fn make_streaming(
         }
         // Chunks an older version saved: the new chunks around them blend in.
         if dim == Dim::Overworld {
-            inner.set_old_world(Arc::new(industrial_era_client::old_world::SavedOldWorld::new(
-                save.clone(),
-                pack.assets.clone(),
-                res.biomes().clone(),
-                inner.generator_data().clone(),
-            )));
+            inner.set_old_world(Arc::new(
+                industrial_era_client::old_world::SavedOldWorld::new(
+                    save.clone(),
+                    pack.assets.clone(),
+                    res.biomes().clone(),
+                    inner.generator_data().clone(),
+                ),
+            ));
         }
         inner.set_reference_file(world_root.join("data").join(format!(
             "industrial_era_structure_references_{}.json",
@@ -844,7 +857,7 @@ pub(super) fn make_streaming(
     streaming.smooth_lighting = settings.smooth_lighting;
     streaming.cutout_leaves = settings.cutout_leaves;
     streaming.leaf_culling = settings
-        .industrial-era
+        .industrial_era
         .leaf_culling_effective(&settings.resource_packs);
     streaming.biome_zoom = BiomeZoom::new(obfuscate_seed(seed));
     streaming.sky_light = dim != Dim::Nether;

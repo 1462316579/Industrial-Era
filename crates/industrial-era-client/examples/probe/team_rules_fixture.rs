@@ -4,7 +4,9 @@
 //! `industrial_era_client::scoreboard`, in VanillaTeamRulesOracle's JSON lines.
 //!
 //! usage: team_rules_fixture INPUTS OUTPUT
-use industrial_era_client::scoreboard::{self as sb, CollisionRule, NameView, Scoreboard, Visibility};
+use industrial_era_client::scoreboard::{
+    self as sb, CollisionRule, NameView, Scoreboard, Visibility,
+};
 use serde_json::{Value, json};
 use std::{fs, io::Write};
 

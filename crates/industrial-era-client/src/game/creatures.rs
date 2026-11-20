@@ -524,7 +524,12 @@ impl Game<'_> {
     /// body — 49 to 52 are the four armour slots, which only a player's own
     /// pieces reach). A fire hit leaves a fire-resistant piece alone
     /// (`ItemStack.canBeHurtBy`).
-    fn hurt_mob_armor(&mut self, id: u32, damage: f32, kind: industrial_era_client::mobs::DamageKind) {
+    fn hurt_mob_armor(
+        &mut self,
+        id: u32,
+        damage: f32,
+        kind: industrial_era_client::mobs::DamageKind,
+    ) {
         use industrial_era_world::player_inventory::EquipmentSlot;
         if damage <= 0.0 {
             return;
@@ -885,8 +890,9 @@ impl Game<'_> {
         }
         self.tick_raids();
         self.lan_synced_since(from);
-        let ticked =
-            industrial_era_client::spans::time("tick_creature_entities", || self.tick_creature_entities());
+        let ticked = industrial_era_client::spans::time("tick_creature_entities", || {
+            self.tick_creature_entities()
+        });
         self.dismount_underwater_mob_riders();
         ticked
     }
@@ -971,8 +977,9 @@ impl Game<'_> {
             let mut scratch = self.world.random.clone();
             let mut pushes = industrial_era_client::mobs::PendingPushes::default();
             let mut keep = Vec::with_capacity(mobs.len());
-            let mut grid =
-                industrial_era_client::mobs::seen_grid::SeenGrid::new(snapshot.iter().map(|s| s.bounds));
+            let mut grid = industrial_era_client::mobs::seen_grid::SeenGrid::new(
+                snapshot.iter().map(|s| s.bounds),
+            );
             // The mob ticks' time and count, summed (spans: HORIZON_SPIKES).
             let timed = industrial_era_client::spans::enabled();
             let (mut tick_ms, mut ticked) = (0.0f32, 0usize);
@@ -1846,7 +1853,9 @@ impl Game<'_> {
                     speed,
                     count,
                 } => {
-                    if let Some(ty) = industrial_era_client::particles::ParticleType::from_name(kind) {
+                    if let Some(ty) =
+                        industrial_era_client::particles::ParticleType::from_name(kind)
+                    {
                         let options = industrial_era_client::particles::ParticleOptions::simple(ty);
                         self.particles
                             .send_particles(&options, at, spread, speed, count);
@@ -2075,10 +2084,12 @@ impl Game<'_> {
                         Species::SulfurCube => Some("minecraft:sulfur_cube"),
                         _ => None,
                     }
-                    .map(|kind| industrial_era_client::advancements::EntityView {
-                        kind: kind.into(),
-                        position: at,
-                        ..Default::default()
+                    .map(|kind| {
+                        industrial_era_client::advancements::EntityView {
+                            kind: kind.into(),
+                            position: at,
+                            ..Default::default()
+                        }
                     });
                     // Only a creeper or a wither empties the hives it blows up.
                     // The creeper is already gone from the list, so the event
@@ -2265,12 +2276,13 @@ impl Game<'_> {
                 MobEvent::Bonemeal { pos } => {
                     let at = BlockPos::new(pos[0], pos[1], pos[2]);
                     if self.with_level(|b, level, ticks| b.grow_crop(level, ticks, at)) {
-                        self.level_events
-                            .push(industrial_era_world::level::LevelEvent::LevelEvent {
+                        self.level_events.push(
+                            industrial_era_world::level::LevelEvent::LevelEvent {
                                 id: 1505,
                                 pos: at,
                                 data: 15,
-                            });
+                            },
+                        );
                         let _ = self.process_level_events();
                     }
                 }
@@ -2421,8 +2433,10 @@ impl Game<'_> {
                     at,
                     motion,
                 } => {
-                    let instrument =
-                        industrial_era_client::mobs::goat::create_horn(self.mob_uuid(mob), screaming);
+                    let instrument = industrial_era_client::mobs::goat::create_horn(
+                        self.mob_uuid(mob),
+                        screaming,
+                    );
                     let mut horn = ItemStack::new("minecraft:goat_horn", 1);
                     horn.data_mut().set_other(
                         "minecraft:instrument",
@@ -2622,7 +2636,9 @@ impl Game<'_> {
                 }
                 MobEvent::Particles { kind, at, count } => {
                     // Mob particle bursts (hearts, smoke, splashes) around a point.
-                    if let Some(ty) = industrial_era_client::particles::ParticleType::from_name(kind) {
+                    if let Some(ty) =
+                        industrial_era_client::particles::ParticleType::from_name(kind)
+                    {
                         if kind.starts_with("item_") {
                             self.ensure_item_particle_sprites();
                         }
@@ -2663,7 +2679,9 @@ impl Game<'_> {
                     self.particles_around(kind, feet, [width, height], burst)
                 }
                 MobEvent::ParticleAt { kind, at, velocity } => {
-                    if let Some(ty) = industrial_era_client::particles::ParticleType::from_name(kind) {
+                    if let Some(ty) =
+                        industrial_era_client::particles::ParticleType::from_name(kind)
+                    {
                         let options = industrial_era_client::particles::ParticleOptions::simple(ty);
                         self.particles.add(&options, at, velocity);
                     }
@@ -2686,13 +2704,13 @@ impl Game<'_> {
                         .get("regeneration")
                         .map_or(0, |e| e.duration);
                     if (0..=2399).contains(&previous) {
-                        self.potions
-                            .effects
-                            .add(industrial_era_client::effects::EffectInstance::new(
+                        self.potions.effects.add(
+                            industrial_era_client::effects::EffectInstance::new(
                                 "regeneration",
                                 (previous + 100).min(2400),
                                 0,
-                            ));
+                            ),
+                        );
                     }
                     self.potions
                         .effects
@@ -2773,7 +2791,11 @@ impl Game<'_> {
                     }
                 }
                 MobEvent::StartRiding { rider, vehicle } => {
-                    industrial_era_client::mobs::riders::start_riding(&mut self.mobs, rider, vehicle);
+                    industrial_era_client::mobs::riders::start_riding(
+                        &mut self.mobs,
+                        rider,
+                        vehicle,
+                    );
                 }
                 // Applied after the fish's tick (`apply_brain_events`).
                 MobEvent::StartFollowing { .. } | MobEvent::SchoolSize { .. } => {}
@@ -3171,7 +3193,10 @@ impl Game<'_> {
             // screams if the parent a coin toss picks does, or on a 2% roll.
             if p.species() == Species::Goat {
                 child.extra.lost_horns = [false; 2];
-                industrial_era_client::mobs::finalize::goat_init_memories(child, &mut self.world.random);
+                industrial_era_client::mobs::finalize::goat_init_memories(
+                    child,
+                    &mut self.world.random,
+                );
                 let pick_parent = self.world.random.next_boolean();
                 let parent_screams = if pick_parent {
                     p.extra.screaming
@@ -3326,7 +3351,8 @@ impl Game<'_> {
                     conn,
                     &industrial_era_protocol::packets::play::Clientbound::GameEvent(
                         industrial_era_protocol::packets::play::GameEvent {
-                            event: industrial_era_client::lan::hub::game_event::GUARDIAN_ELDER_EFFECT,
+                            event:
+                                industrial_era_client::lan::hub::game_event::GUARDIAN_ELDER_EFFECT,
                             param: 1.0,
                         },
                     ),
@@ -3765,7 +3791,9 @@ impl Game<'_> {
                     p.owner = shooter;
                 }
                 let (keep, hit) = match (p.arrow.is_some(), mob_shot || pvp, winds.is_empty()) {
-                    (true, false, true) => industrial_era_client::arrows::tick(p, &scene, &arrow_targets),
+                    (true, false, true) => {
+                        industrial_era_client::arrows::tick(p, &scene, &arrow_targets)
+                    }
                     (true, true, true) => {
                         industrial_era_client::arrows::tick(p, &scene, &arrow_targets_guests)
                     }
@@ -3835,7 +3863,11 @@ impl Game<'_> {
                 {
                     super::wind::reverse(p, jitter);
                     if p.arrow.is_some() {
-                        industrial_era_client::arrows::finish_entity_hit(p, &scene, EntityHit::Deflected);
+                        industrial_era_client::arrows::finish_entity_hit(
+                            p,
+                            &scene,
+                            EntityHit::Deflected,
+                        );
                         let a = p.arrow.as_mut().expect("an arrow");
                         arrow_events.extend(a.events.drain(..).map(|e| (p.position, e)));
                     }
@@ -4193,7 +4225,11 @@ impl Game<'_> {
     fn finish_arrow_hit(&mut self, mut arrow: Projectile, outcome: EntityHit) {
         let keep = {
             let rain = self.arrow_rain();
-            industrial_era_client::arrows::finish_entity_hit(&mut arrow, &self.arrow_scene(&rain), outcome)
+            industrial_era_client::arrows::finish_entity_hit(
+                &mut arrow,
+                &self.arrow_scene(&rain),
+                outcome,
+            )
         };
         let Some(a) = arrow.arrow.as_mut() else {
             return;
@@ -4942,7 +4978,9 @@ impl Game<'_> {
             (ProjectileKind::ShulkerBullet { .. }, Hit::Block { .. }) => {
                 self.audio
                     .play("minecraft:entity.shulker_bullet.hit", Some(atp), 1.0, 1.0);
-                if let Some(ty) = industrial_era_client::particles::ParticleType::from_name("explosion") {
+                if let Some(ty) =
+                    industrial_era_client::particles::ParticleType::from_name("explosion")
+                {
                     let options = industrial_era_client::particles::ParticleOptions::simple(ty);
                     for _ in 0..2 {
                         let r = &mut self.world.random;
@@ -4999,7 +5037,8 @@ impl Game<'_> {
                 && !(species == Species::Panda
                     && (industrial_era_client::mobs::panda::scared(m)
                         || industrial_era_client::mobs::panda::is_on_back(m)))
-                && !(species == Species::Armadillo && industrial_era_client::mobs::armadillo::scared(m))
+                && !(species == Species::Armadillo
+                    && industrial_era_client::mobs::armadillo::scared(m))
         } else {
             false
         };
@@ -5144,9 +5183,9 @@ impl Game<'_> {
             && let Some((bucket, sound)) = bucketable(self.mobs[index].species())
         {
             let mut filled = ItemStack::new(bucket, 1);
-            filled.extra = Some(Box::new(industrial_era_client::entity_nbt::bucket_components(
-                &self.mobs[index],
-            )));
+            filled.extra = Some(Box::new(
+                industrial_era_client::entity_nbt::bucket_components(&self.mobs[index]),
+            ));
             self.audio
                 .play(sound, Some(self.mobs[index].center()), 1.0, 1.0);
             self.trigger_item("minecraft:filled_bucket", &filled);
@@ -5401,7 +5440,8 @@ impl Game<'_> {
             }
             Species::Sheep if item == "minecraft:shears" && !m.extra.sheared && !m.is_baby() => {
                 m.extra.sheared = true;
-                let color = industrial_era_client::mobs::render::DYE_NAMES[m.extra.color as usize & 15];
+                let color =
+                    industrial_era_client::mobs::render::DYE_NAMES[m.extra.color as usize & 15];
                 drops_table = format!("minecraft:shearing/sheep/{color}");
                 let stacks = world_items!(self).loot_table(
                     &drops_table,
@@ -6172,7 +6212,9 @@ impl Game<'_> {
             id
         };
         if let Some(child) = self.mobs.iter_mut().find(|m| m.id == id) {
-            industrial_era_client::mobs::finalize::spawn_egg_offspring(child, species, variant, color);
+            industrial_era_client::mobs::finalize::spawn_egg_offspring(
+                child, species, variant, color,
+            );
         }
         if species == Species::Piglin {
             self.native_mobs_joined(self.mobs.len() - 1, false);
@@ -6203,11 +6245,9 @@ impl Game<'_> {
     pub(super) fn spawn_egg_allowed(&self, item: &str) -> bool {
         let kind = item.trim_end_matches("_spawn_egg");
         self.ui.difficulty != 0
-            || self
-                .res
-                .mob_types()
-                .get(kind)
-                .is_none_or(|t| industrial_era_client::mobs::spawn_rules::allowed_in_peaceful(t.species))
+            || self.res.mob_types().get(kind).is_none_or(|t| {
+                industrial_era_client::mobs::spawn_rules::allowed_in_peaceful(t.species)
+            })
     }
     /// `SpawnEggItem.useOn` for a block, or `use` for a fluid source.
     fn use_spawn_egg(&mut self, stack: &ItemStack) -> Result<bool> {
@@ -6296,7 +6336,8 @@ impl Game<'_> {
         };
         let kind = self.mobs[i].kind.id.clone();
         let op = self.acting_player_is_op();
-        let Some(data) = industrial_era_client::block_entity_item::spawn_egg_entity_data(stack, &kind, op)
+        let Some(data) =
+            industrial_era_client::block_entity_item::spawn_egg_entity_data(stack, &kind, op)
         else {
             return;
         };
@@ -6440,24 +6481,26 @@ impl Game<'_> {
         self.rendered_mobs.set(0);
         let skinning = self.skinning();
         // What custom entity model animations read of the frame.
-        industrial_era_client::mobs::cem_anim::set_frame(industrial_era_client::mobs::cem_anim::Frame {
-            time: self.world.game_time as f64 + alpha,
-            day_time: self.world.day_time as f64 + alpha,
-            dimension: match self.dim {
-                Dim::Overworld => 0.0,
-                Dim::Nether => -1.0,
-                Dim::End => 1.0,
+        industrial_era_client::mobs::cem_anim::set_frame(
+            industrial_era_client::mobs::cem_anim::Frame {
+                time: self.world.game_time as f64 + alpha,
+                day_time: self.world.day_time as f64 + alpha,
+                dimension: match self.dim {
+                    Dim::Overworld => 0.0,
+                    Dim::Nether => -1.0,
+                    Dim::End => 1.0,
+                },
+                player: self.player.as_ref().map_or(camera.to_array(), |p| {
+                    [p.position.x, p.position.y, p.position.z]
+                }),
+                player_rot: [self.pitch, self.yaw],
+                paused: self.pause,
+                first_person: self.camera_type.first_person(),
+                third_person_reversed: self.camera_type
+                    == super::perspective::CameraType::ThirdPersonFront,
+                ..Default::default()
             },
-            player: self.player.as_ref().map_or(camera.to_array(), |p| {
-                [p.position.x, p.position.y, p.position.z]
-            }),
-            player_rot: [self.pitch, self.yaw],
-            paused: self.pause,
-            first_person: self.camera_type.first_person(),
-            third_person_reversed: self.camera_type
-                == super::perspective::CameraType::ThirdPersonFront,
-            ..Default::default()
-        });
+        );
         for mob in &self.mobs {
             let entity_start = out.len();
             self.mark_motion(entity_start, (1 << 32) | u64::from(mob.id));
@@ -6600,7 +6643,8 @@ impl Game<'_> {
                 let mut models = self.skin_models.borrow_mut();
                 let mut frame = self.skin_frame.borrow_mut();
                 let mark = frame.mark();
-                let mut skin = industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
+                let mut skin =
+                    industrial_era_client::mobs::skin::Skin::new(&mut models, &mut frame);
                 industrial_era_client::mobs::render::render_skinned(
                     mob,
                     alpha as f32,
@@ -6669,7 +6713,8 @@ impl Game<'_> {
                 && (is_player || &*mob.kind.id == "minecraft:mannequin")
             {
                 let mark = self.skin_frame.borrow().mark();
-                let base = industrial_era_client::mobs::render::base_transform(mob, alpha as f32, camera);
+                let base =
+                    industrial_era_client::mobs::render::base_transform(mob, alpha as f32, camera);
                 let gpu = skinning;
                 if let Some((lo, hi)) =
                     self.cosmetics_geometry(mob, false, base, alpha as f32, packed, gpu, out)
@@ -6709,7 +6754,8 @@ impl Game<'_> {
                 self.cull_skinned(out, entity_start, skinned);
             }
             // GuardianRenderer: the laser to the locked target.
-            if let Some((time, scale)) = industrial_era_client::mobs::guardian::beam(mob, alpha as f32)
+            if let Some((time, scale)) =
+                industrial_era_client::mobs::guardian::beam(mob, alpha as f32)
                 && let Some(target) = self.beam_target(mob.ai.target, alpha)
                 && let Some(uv) = lookup("entity/guardian/guardian_beam")
             {
@@ -7059,7 +7105,10 @@ pub(super) fn melee(kind: industrial_era_client::mobs::DamageKind) -> bool {
 }
 /// The damage type id of a Industrial Era damage kind. `caused`: the source has a
 /// causing entity (only a blast asks).
-pub(super) fn damage_type(kind: industrial_era_client::mobs::DamageKind, caused: bool) -> &'static str {
+pub(super) fn damage_type(
+    kind: industrial_era_client::mobs::DamageKind,
+    caused: bool,
+) -> &'static str {
     use industrial_era_client::mobs::DamageKind as K;
     match kind {
         K::PlayerAttack => "minecraft:player_attack",
@@ -7422,7 +7471,8 @@ mod pearl_tests {
         )
         .unwrap();
         let collision = industrial_era_client::collisions::load(&root, registry).unwrap();
-        let mut world = industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
+        let mut world =
+            industrial_era_client::world::World::test_scene(&assets, &render, 3).unwrap();
         // A pool of still water one block deep at y = 4, from x = 20 on (clear of the
         // scene's pyramid): its
         // surface is at 4 + 8/9.
@@ -7571,7 +7621,8 @@ mod knockback_tests {
             hook as fn(Hurting<'_>, &mut Knock) -> bool
         ));
         let assets = industrial_era_client::assets::Assets::load(&root).unwrap();
-        let resources = industrial_era_client::motion::MotionResources::load(&root, &assets).unwrap();
+        let resources =
+            industrial_era_client::motion::MotionResources::load(&root, &assets).unwrap();
         let mut random = industrial_era_core::random::LegacyRandom::new(1);
         let hit = HurtSource {
             damage_type: "minecraft:player_attack",
@@ -7579,12 +7630,19 @@ mod knockback_tests {
             direct: 5,
         };
         let mut push = |entity, resistance: f64| {
-            let mut p = industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
+            let mut p =
+                industrial_era_client::motion::PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
             p.entity_id = entity;
             p.ground.on_ground = true;
             if resistance != 0.0 {
                 let attribute = "minecraft:knockback_resistance";
-                let set = p.set_modifier(attribute, "industrial-era:test", resistance, "add_value", true);
+                let set = p.set_modifier(
+                    attribute,
+                    "industrial_era:test",
+                    resistance,
+                    "add_value",
+                    true,
+                );
                 set.unwrap();
             }
             knock_back(&mut p, &mut random, 0.4, (0.0, 3.0), hit);

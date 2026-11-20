@@ -34,7 +34,10 @@ fn invalid_selector(
 
 /// `EntitySelectorParser.parse` on all of `source`; the error's
 /// `getMessage` on failure.
-fn compile_selector(source: &str, reg: &industrial_era_client::command::Registries) -> Option<String> {
+fn compile_selector(
+    source: &str,
+    reg: &industrial_era_client::command::Registries,
+) -> Option<String> {
     let mut reader = industrial_era_client::command::Reader::new(source);
     match industrial_era_client::command::selector::parse(&mut reader, reg, true) {
         Err(e) => Some(match e.context() {
@@ -232,9 +235,9 @@ impl Game<'_> {
                 }
                 first = false;
                 let piece = if interpret {
-                    industrial_era_client::scoreboard::comp_text(&industrial_era_client::scoreboard::tag_to_json(
-                        &tag,
-                    ))
+                    industrial_era_client::scoreboard::comp_text(
+                        &industrial_era_client::scoreboard::tag_to_json(&tag),
+                    )
                 } else if plain {
                     Text::literal(industrial_era_client::snbt::pretty(&tag).plain())
                 } else {

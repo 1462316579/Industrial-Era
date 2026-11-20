@@ -75,7 +75,10 @@ impl Game<'_> {
     /// `BlockBehaviour.Properties.isSuffocating` of a state: the block's
     /// explicit predicate, else `causes_suffocation` with a full collision
     /// shape.
-    pub(super) fn state_suffocating(&self, state: industrial_era_world::registry::BlockStateId) -> bool {
+    pub(super) fn state_suffocating(
+        &self,
+        state: industrial_era_world::registry::BlockStateId,
+    ) -> bool {
         let facts = self.res.facts().get(state);
         let name = facts.name.as_ref();
         // Blocks' explicit predicates, then the default causes_suffocation/full-shape rule.
@@ -203,7 +206,9 @@ impl Game<'_> {
                 && let Some(result) = shape.clip(
                     start,
                     end,
-                    industrial_era_core::position::BlockPos::new(hit.pos[0], hit.pos[1], hit.pos[2]),
+                    industrial_era_core::position::BlockPos::new(
+                        hit.pos[0], hit.pos[1], hit.pos[2],
+                    ),
                 )
             {
                 adjusted.face = result.direction.normal();

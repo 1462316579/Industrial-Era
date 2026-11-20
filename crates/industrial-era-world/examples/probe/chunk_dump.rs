@@ -255,7 +255,8 @@ pub fn main() -> Result<(), Error> {
             .map(str::parse)
             .collect::<Result<_, _>>()?;
         let [x, z, view]: [i32; 3] = v.try_into().map_err(|_| "HORIZON_LIST_ORDER=x,z,view")?;
-        for (x, z) in industrial_era_world::worldgen::decoration_order::vanilla_order((x, z), view) {
+        for (x, z) in industrial_era_world::worldgen::decoration_order::vanilla_order((x, z), view)
+        {
             println!("{x} {z}");
         }
         return Ok(());

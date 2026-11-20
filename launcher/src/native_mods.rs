@@ -96,7 +96,7 @@ impl Profile {
     fn cargo(self) -> (&'static str, &'static [&'static str]) {
         match self {
             Self::Performance => ("fast", &[]),
-            Self::Dev => ("fast", &["profile.fast.package.industrial-era-client.opt-level=0"]),
+            Self::Dev => ("fast", &["profile.fast.package.industrial_era-client.opt-level=0"]),
             Self::Release => ("release", &[]),
         }
     }
@@ -155,7 +155,7 @@ impl Target {
 /// what the next build is compared with to say what changed.
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Record {
-    pub industrial-era: String,
+    pub industrial_era: String,
     pub mixins: String,
     /// Each mod's id and the hash of its files.
     pub mods: std::collections::BTreeMap<String, String>,
@@ -205,12 +205,12 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
         return Plan::First;
     };
     let mut changes = Vec::new();
-    if before.industrial-era != now.industrial-era {
+    if before.industrial_era != now.industrial_era {
         let short = |r: &str| r.chars().take(7).collect::<String>();
         changes.push(format!(
             "Industrial Era commit {} to {}",
-            short(&before.industrial-era),
-            short(&now.industrial-era)
+            short(&before.industrial_era),
+            short(&now.industrial_era)
         ));
     }
     let changed: Vec<&str> = now
@@ -465,7 +465,7 @@ pub struct Bundle {
     pub version: String,
     pub dir: PathBuf,
     /// The Industrial Era commit it builds on (`[compatibility] industrial_era_revision`, or its `.hnmod`'s).
-    pub industrial-era: Option<String>,
+    pub industrial_era: Option<String>,
     /// The industrial-era-mixins commit it was tested with (its `.hnmod`'s).
     pub mixins: Option<String>,
     /// The native hook points' version it needs (its `.hnmod`'s `hooks`): then `industrial-era` is the
@@ -595,12 +595,12 @@ pub(crate) fn bundle_in(dir: &Path) -> Result<Option<Bundle>, String> {
         return Err(format!("{}: invalid mod id {id:?}", path.display()));
     }
     let found = bundle(&dir.join("mixins").join(&id), field("mixins"))?;
-    match (&found.industrial-era, field("industrial-era")) {
+    match (&found.industrial_era, field("industrial-era")) {
         (Some(pinned), Some(native)) if *pinned != native => Err(format!(
             "{id}: {NATIVE_MANIFEST} pins Industrial Era {native}, its {MANIFEST} {pinned}."
         )),
         (_, native) => Ok(Some(Bundle {
-            industrial-era: found.industrial-era.clone().or(native),
+            industrial_era: found.industrial_era.clone().or(native),
             hooks: native_json["hooks"]
                 .as_u64()
                 .and_then(|v| u32::try_from(v).ok()),
@@ -679,7 +679,7 @@ fn bundle(dir: &Path, mixins: Option<String>) -> Result<Bundle, String> {
         id,
         version: need("version")?,
         dir: dir.to_owned(),
-        industrial-era: field("compatibility", "industrial_era_revision"),
+        industrial_era: field("compatibility", "industrial_era_revision"),
         mixins,
         hooks: None,
         injections,
@@ -932,7 +932,7 @@ fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     let list: Vec<String> = mods
         .iter()
         .filter(|b| b.hooks.is_none())
-        .filter_map(|b| b.industrial-era.as_ref().map(|r| (b, r)))
+        .filter_map(|b| b.industrial_era.as_ref().map(|r| (b, r)))
         .filter(|(_, r)| *r != revision)
         .map(|(b, r)| format!("{} → {}", b.id, &r[..r.len().min(7)]))
         .collect();
@@ -990,7 +990,7 @@ fn with_hooks(
     let fallback = agreed(
         &tested,
         "Industrial Era",
-        |b| b.industrial-era.as_ref(),
+        |b| b.industrial_era.as_ref(),
         || Err(String::new()),
     );
     if let (true, Ok(revision)) = (free, fallback) {
@@ -1078,7 +1078,7 @@ pub struct About {
     /// The release or Nightly it started from.
     pub base: String,
     /// The Industrial Era commit it compiled.
-    pub industrial-era: String,
+    pub industrial_era: String,
     /// What it compiles: the game the player plays (also the only kind a `native-mods.json`
     /// from before the target was recorded builds), or the headless engine a server runs.
     pub target: Target,
@@ -1100,7 +1100,7 @@ fn about_in(dir: &Path) -> Option<About> {
     let field = |name: &str| json[name].as_str().map(str::to_owned);
     Some(About {
         base: field("base")?,
-        industrial-era: field("industrial-era").filter(|r| is_revision(r))?,
+        industrial_era: field("industrial-era").filter(|r| is_revision(r))?,
         target: match field("target").as_deref() {
             Some("server") => Target::Server,
             _ => Target::Client,
@@ -1543,7 +1543,7 @@ fn lock_crates(
         let path = dir.join("Cargo.lock");
         fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
     };
-    let industrial-era = crates::downloaded(&read(source)?)?;
+    let industrial_era = crates::downloaded(&read(source)?)?;
     let staged = crates::downloaded(&read(stage)?)?;
     // `wanted` reads native-crates, which API-only stages do not have.
     let wanted = if crates::any(stage) {
@@ -1614,12 +1614,12 @@ fn post_build_programs(
 }
 
 /// Industrial Era's source at commit `revision`: GitHub's archive of it, unpacked once, with the commit in
-/// `.industrial-era-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
+/// `.industrial_era-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
 /// is gone: its `nightly-source/…` tag keeps it (docs/release-flow.md). Links are left out:
 /// industrial-era-mixins refuses them, and none is needed to build.
 fn source(revision: &str) -> Result<PathBuf, String> {
     let dir = root().join("source").join(revision);
-    if dir.join(".industrial-era-revision").is_file() {
+    if dir.join(".industrial_era-revision").is_file() {
         return Ok(dir);
     }
     let archive = format!(
@@ -1628,7 +1628,7 @@ fn source(revision: &str) -> Result<PathBuf, String> {
     );
     let partial = root().join("source").join(format!(".{revision}.partial"));
     let top = unpack_archive(&archive, &partial, u64::MAX)?;
-    fs::write(top.join(".industrial-era-revision"), revision).map_err(|e| e.to_string())?;
+    fs::write(top.join(".industrial_era-revision"), revision).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&dir);
     fs::rename(&top, &dir).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&partial);
@@ -1804,13 +1804,13 @@ fn pipeline(
     let ordered: Vec<Bundle> = resolution.order.iter().map(|&i| mods[i].clone()).collect();
     // A mod naming a hook points' version doesn't pin: it follows the others, else the game.
     let pins: Vec<Bundle> = mods.iter().filter(|b| b.hooks.is_none()).cloned().collect();
-    let free = pins.iter().all(|b| b.industrial-era.is_none());
+    let free = pins.iter().all(|b| b.industrial_era.is_none());
     let pinned = newest(
         &pins,
         "Industrial Era",
-        |b| b.industrial-era.as_ref(),
+        |b| b.industrial_era.as_ref(),
         || match &built_on {
-            Some(about) => Ok(about.industrial-era.clone()),
+            Some(about) => Ok(about.industrial_era.clone()),
             None => revision_of(base),
         },
         None,
@@ -1824,7 +1824,7 @@ fn pipeline(
     }
     for b in mods
         .iter()
-        .filter(|b| b.hooks.is_some() || b.industrial-era.as_ref().is_some_and(|r| *r != revision))
+        .filter(|b| b.hooks.is_some() || b.industrial_era.as_ref().is_some_and(|r| *r != revision))
     {
         repin(b, &revision)?;
     }
@@ -1847,7 +1847,7 @@ fn pipeline(
     )?;
     let version = version_for(&revision, &mixins, profile, target, &mods)?;
     let now = Record {
-        industrial-era: revision.clone(),
+        industrial_era: revision.clone(),
         mixins: mixins.clone(),
         mods: mods
             .iter()
@@ -2714,7 +2714,7 @@ mod tests {
     const B: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
     /// An unpacked `.hnmod`, as the registry ships one (industrial_era_mods::index::native).
-    fn write_native(at: &Path, id: &str, industrial-era: &str, mixins: &str) {
+    fn write_native(at: &Path, id: &str, industrial_era: &str, mixins: &str) {
         let manifest = serde_json::json!({"schema": 1, "id": id, "version": "0.3.0", "game": "26.3",
             "industrial-era": industrial-era, "mixins": mixins});
         fs::create_dir_all(at.join("mixins").join(id)).unwrap();
@@ -2734,10 +2734,10 @@ mod tests {
         assert_eq!(found.len(), 2);
         assert_eq!(found[1].id, "veinminer");
         assert_eq!(found[1].dir, d.join("veinminer/mixins/veinminer"));
-        assert_eq!(found[1].industrial-era.as_deref(), Some(A));
+        assert_eq!(found[1].industrial_era.as_deref(), Some(A));
         assert_eq!(found[1].mixins.as_deref(), Some(B));
         assert_eq!(
-            (found[0].industrial-era.as_ref(), found[0].mixins.as_ref()),
+            (found[0].industrial_era.as_ref(), found[0].mixins.as_ref()),
             (None, None)
         );
     }
@@ -2768,7 +2768,7 @@ mod tests {
         let out = installed_mods(&home).unwrap();
         let found = bundles(&out).unwrap();
         assert_eq!(
-            (found[0].id.as_str(), found[0].industrial-era.as_deref()),
+            (found[0].id.as_str(), found[0].industrial_era.as_deref()),
             ("veinminer", Some(A))
         );
         // What a build records of it is what the Mods page compares: up to date, not Needs rebuild.
@@ -2819,11 +2819,11 @@ mod tests {
 
     #[test]
     fn the_mods_of_one_build_pin_one_revision() {
-        let pinned = |id: &str, industrial-era: Option<&str>| Bundle {
+        let pinned = |id: &str, industrial_era: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            industrial-era: industrial-era.map(str::to_owned),
+            industrial_era: industrial-era.map(str::to_owned),
             mixins: None,
             hooks: None,
             injections: Vec::new(),
@@ -2832,7 +2832,7 @@ mod tests {
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
         fn get(b: &Bundle) -> Option<&String> {
-            b.industrial-era.as_ref()
+            b.industrial_era.as_ref()
         }
         let same = [
             pinned("a", Some(A)),
@@ -2854,11 +2854,11 @@ mod tests {
 
     #[test]
     fn mods_made_for_different_revisions_build_on_the_newest() {
-        let pinned = |id: &str, industrial-era: Option<&str>, mixins: Option<&str>| Bundle {
+        let pinned = |id: &str, industrial_era: Option<&str>, mixins: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            industrial-era: industrial-era.map(str::to_owned),
+            industrial_era: industrial-era.map(str::to_owned),
             mixins: mixins.map(str::to_owned),
             hooks: None,
             injections: Vec::new(),
@@ -2876,8 +2876,8 @@ mod tests {
             .into())
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
-        fn industrial-era(b: &Bundle) -> Option<&String> {
-            b.industrial-era.as_ref()
+        fn industrial_era(b: &Bundle) -> Option<&String> {
+            b.industrial_era.as_ref()
         }
         fn mixins(b: &Bundle) -> Option<&String> {
             b.mixins.as_ref()
@@ -2960,11 +2960,11 @@ mod tests {
             Some(3)
         );
         assert_eq!(hooks_in("const NATIVE_HOOKS_API: u32 = 3;"), None);
-        let mod_ = |id: &str, industrial-era: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, industrial_era: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            industrial-era: Some(industrial-era.into()),
+            industrial_era: Some(industrial-era.into()),
             mixins: None,
             hooks,
             injections: Vec::new(),
@@ -3019,11 +3019,11 @@ mod tests {
     /// commits, and the build was refused although the installed game (B) has them all.
     #[test]
     fn mods_needing_newer_hook_points_move_the_build_to_the_installed_game() {
-        let mod_ = |id: &str, industrial-era: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, industrial_era: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            industrial-era: Some(industrial-era.into()),
+            industrial_era: Some(industrial-era.into()),
             mixins: None,
             hooks,
             injections: Vec::new(),
@@ -3072,13 +3072,13 @@ mod tests {
         fs::write(d.join(NATIVE_MANIFEST), json).unwrap();
         let found = bundles(&d).unwrap();
         assert_eq!(
-            (found[0].hooks, found[0].industrial-era.as_deref()),
+            (found[0].hooks, found[0].industrial_era.as_deref()),
             (Some(1), Some(A))
         );
         repin(&found[0], B).unwrap();
         let again = bundle(&found[0].dir, None).unwrap();
         assert_eq!(
-            (again.id.as_str(), again.industrial-era.as_deref()),
+            (again.id.as_str(), again.industrial_era.as_deref()),
             ("zoom", Some(B))
         );
     }
@@ -3302,7 +3302,7 @@ mod tests {
         assert_eq!(record(Some("client")).target, Target::Client);
         assert_eq!(record(Some("server")).target, Target::Server);
         assert_eq!(record(Some("anything-else")).target, Target::Client);
-        assert_eq!(record(None).industrial-era, A);
+        assert_eq!(record(None).industrial_era, A);
     }
 
     /// The export ([`build_server`]): a standalone runtime folder with the engine, the mods'
@@ -3520,9 +3520,9 @@ mod tests {
         );
     }
 
-    fn record(industrial-era: &str, mods: &[(&str, &str)]) -> Record {
+    fn record(industrial_era: &str, mods: &[(&str, &str)]) -> Record {
         Record {
-            industrial-era: industrial-era.into(),
+            industrial_era: industrial-era.into(),
             mixins: "m1".into(),
             mods: mods
                 .iter()
@@ -3813,7 +3813,7 @@ mod tests {
         assert!(dev.windows(2).any(|w| w
             == [
                 "--config",
-                "profile.fast.package.industrial-era-client.opt-level=0"
+                "profile.fast.package.industrial_era-client.opt-level=0"
             ]));
         let release = args(Profile::Release);
         assert!(release.windows(2).any(|w| w == ["--profile", "release"]));

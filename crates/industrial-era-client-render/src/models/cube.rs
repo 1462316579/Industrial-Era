@@ -100,9 +100,10 @@ mod tests {
                 )
             })
             .collect();
-        let model = CuboidModel::from_json(&json!({"textures":{"all":"industrial-era:probe"},"elements":[{"from":[0,0,0],"to":[16,16,16],"faces":faces}]}).to_string()).unwrap();
-        let library = ModelLibrary::new([("industrial-era:cube".to_owned(), model)].into()).unwrap();
-        let model = library.resolve("industrial-era:cube").unwrap();
+        let model = CuboidModel::from_json(&json!({"textures":{"all":"industrial_era:probe"},"elements":[{"from":[0,0,0],"to":[16,16,16],"faces":faces}]}).to_string()).unwrap();
+        let library =
+            ModelLibrary::new([("industrial_era:cube".to_owned(), model)].into()).unwrap();
+        let model = library.resolve("industrial_era:cube").unwrap();
         let mut eligible = 0;
         for x in 0..4 {
             for y in 0..4 {
