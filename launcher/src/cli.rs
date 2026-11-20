@@ -3203,11 +3203,13 @@ fn instance(action: InstanceCmd, as_json: bool) -> Result<(), String> {
                         p.title, i.name
                     );
                 }
-                Dropped::DataPack => return Err(format!(
+                Dropped::DataPack => {
+                    return Err(format!(
                     "{} is a data pack: put it into a world with industrial_era-launcher worlds \
                          datapack-add <world> <file>",
                     file.display()
-                )),
+                ))
+                }
             }
         }
         InstanceCmd::Export {
