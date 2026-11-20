@@ -1,0 +1,38 @@
+# Industrial Era launcher: builds on pushes to main and on demand, keeps the artifact.
+name: Launcher build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install the C++ toolchain launcher needs
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends g++ build-essential
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+          rustup default stable
+      - name: Check formatting and lint
+        run: |
+          cargo +stable fmt --all -- --check
+          cargo +stable clippy --workspace --all-targets -- -D warnings
+      - name: Build launcher
+        run: cargo +stable build --release
+      - name: Upload launcher binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: industrial-era-launcher
+          path: target/release/horizon-launcher
+          retention-days: 7
