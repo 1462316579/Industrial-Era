@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Compare actual vanilla and Horizon client boat ticks across ownership changes.
+"""Compare actual vanilla and Industrial Era client boat ticks across ownership changes.
 
 An empty stand-in vanilla client level isolates cached motion from block effects
-and displacement, while AbstractBoat.tick and floatBoat remain real. Horizon
+and displacement, while AbstractBoat.tick and floatBoat remain real. Industrial Era
 loads its resources headlessly and runs tick_boat plus the actual remote boat
 ticker. Both report velocity and angular-velocity bits after each tick, including
 controlled ticks and dismount/reboard transitions. Real ice/control/network
@@ -54,7 +54,7 @@ def main():
     lab.write_json(work / 'inputs.json', inputs)
     classes = work / 'classes'
     classes.mkdir(exist_ok=True)
-    sources = lab.ROOT / 'mods/horizon/src/test/java'
+    sources = lab.ROOT / 'mods/industrial-era/src/test/java'
     package = sources / 'dev/horizonlab/parity'
     dependencies = os.pathsep.join(map(str, [jars['client'], *baking.client_libraries()]))
 
@@ -70,8 +70,8 @@ def main():
         'compile-java')
     run(['java', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaBoatAuthorityOracle',
          work / 'inputs.json', work / 'vanilla.json'], 'vanilla')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], 'compile-rust')
-    binary = lab.cargo_target() / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client', '--bin', 'industrial-era-client'], 'compile-rust')
+    binary = lab.cargo_target() / 'fast' / ('industrial-era-client.exe' if os.name == 'nt' else 'industrial-era-client')
     with (work / 'rust.log').open('w') as log:
         run_game([str(binary), '--headless', '--resources', str(lab.RESOURCES)], cwd=lab.ROOT,
                  env=lab.game_env(HORIZON_BOAT_AUTHORITY_FIXTURE=work), stdout=log,

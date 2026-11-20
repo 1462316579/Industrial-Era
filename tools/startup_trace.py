@@ -131,8 +131,8 @@ def print_timeline(steps, marks, floor_ms):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--bin", default=str(ROOT / "target/release/horizon-client"))
-    ap.add_argument("--resources", default=str(ROOT / ".local/horizon-client/26.3"))
+    ap.add_argument("--bin", default=str(ROOT / "target/release/industrial-era-client"))
+    ap.add_argument("--resources", default=str(ROOT / ".local/industrial-era-client/26.3"))
     ap.add_argument("--world", help="open (or create) this world from the command line")
     ap.add_argument("--seed", type=int, default=1234)
     ap.add_argument("--server", help="join this server from the command line")
@@ -151,12 +151,12 @@ def main():
     # The game runs in its scratch folder.
     args.bin, args.resources = (str(pathlib.Path(p).resolve()) for p in (args.bin, args.resources))
 
-    shared = pathlib.Path(tempfile.mkdtemp(prefix="horizon-startup-")) if args.warm else None
+    shared = pathlib.Path(tempfile.mkdtemp(prefix="industrial-era-startup-")) if args.warm else None
     if shared:
         run_once(args, shared, "warmup")
     results = []
     for i in range(args.runs):
-        home = shared or pathlib.Path(tempfile.mkdtemp(prefix="horizon-startup-"))
+        home = shared or pathlib.Path(tempfile.mkdtemp(prefix="industrial-era-startup-"))
         steps, marks, trace = run_once(args, home, f"run{i + 1}")
         results.append(marks)
         print(f"== run {i + 1} ({'later start' if shared else 'first start'}, {home})")

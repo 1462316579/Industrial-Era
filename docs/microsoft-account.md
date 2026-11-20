@@ -1,6 +1,6 @@
 # Microsoft account sign-in and online-mode play
 
-Horizon signs players in with their Microsoft account in the launcher and joins online-mode
+Industrial Era signs players in with their Microsoft account in the launcher and joins online-mode
 (authenticated) servers like vanilla 26.3 does. The launcher plays only with an account that owns
 Minecraft: Java Edition ([the owner gate](#the-owner-gate)); offline names, LAN and offline-mode
 servers play behind it. This note is the design, the status of each part and what Ludovic has to
@@ -14,13 +14,13 @@ no Microsoft sign-in"); release builds have it.
 
 1. **Azure app registration** (https://portal.azure.com → Microsoft Entra ID → App registrations →
    New registration):
-   - Name: `Horizon` (shown to players on the Microsoft consent page).
+   - Name: `Industrial Era` (shown to players on the Microsoft consent page).
    - Supported account types: **Personal Microsoft accounts only** (Minecraft accounts are
      consumer accounts; the launcher uses the `consumers` tenant).
    - Redirect URI: none needed for the device-code flow. If the form insists, add a
      "Mobile and desktop applications" redirect `https://login.microsoftonline.com/common/oauth2/nativeclient`.
    - After creating it: Authentication → Advanced settings → **Allow public client flows: Yes**
-     (this enables the device-code flow; there is no client secret, Horizon is a public client).
+     (this enables the device-code flow; there is no client secret, Industrial Era is a public client).
    - API permissions: none to add. The launcher requests the scopes `XboxLive.signin offline_access`
      at sign-in time; `offline_access` gives the refresh token.
    - Copy the **Application (client) ID** (a GUID).
@@ -28,7 +28,7 @@ no Microsoft sign-in"); release builds have it.
    `api.minecraftservices.com/authentication/login_with_xbox` (HTTP 403, "Invalid app registration")
    until Mojang approves them. Apply with the form linked from https://aka.ms/mce-reviewappid
    (Minecraft Java "App ID review"), giving the client ID above, the app name, the project URL
-   (https://github.com/horizon-rust/horizon) and a short description ("open-source Minecraft Java
+   (https://github.com/industrial-era-rust/industrial-era) and a short description ("open-source Minecraft Java
    Edition client written in Rust; signs players in to join online-mode servers"). Approval takes
    days to weeks; sign-in fails at the Minecraft step with "This app is not approved by Mojang yet"
    until then.
@@ -68,17 +68,17 @@ All requests use HTTPS and JSON except the two OAuth calls (form-encoded):
 
 ## The owner gate
 
-Decided 2026-10-27 (Ludovic, after a modder's suggestion): like other launchers, Horizon's
+Decided 2026-10-27 (Ludovic, after a modder's suggestion): like other launchers, Industrial Era's
 launcher starts the game only while an account in it owns Java Edition. Offline play stays
 possible; the launcher just doesn't offer it on its own.
 
-- **Play needs an owner.** Every Play (Home, instances and packs, `horizon-launcher play`,
+- **Play needs an owner.** Every Play (Home, instances and packs, `industrial-era-launcher play`,
   `modpack play`, the MCP's `play`) asks `account::launch` first. It asks the Minecraft services
   again for each account, the selected one first, until one owns the game: the token renewal
   (below) if due, then entitlements and profile. Without an owner the game doesn't start and Play
   says "Sign in with a Microsoft account that owns Minecraft: Java Edition to play", with Sign in.
 - **The window says it once.** A player without an owner (one who played offline until now) sees
-  the gate's screen once when the launcher opens: why Horizon needs the account ("like other
+  the gate's screen once when the launcher opens: why Industrial Era needs the account ("like other
   launchers"), that worlds, offline names and settings stay where they are, and Sign in, which shows
   the device code on the same screen. It comes back whenever Play is refused; Not now closes it,
   and Home keeps a Sign in row (`launcher/src/owner_page.rs`).
@@ -90,16 +90,16 @@ possible; the launcher just doesn't offer it on its own.
   without a session, offline. An answer of "doesn't own" (or no profile) blocks at once.
 - **Offline names play behind an owner.** They can be added and played only while an owning
   account is signed in. Signing the last one out keeps them, and they play again once one is back.
-- **Who isn't affected:** the game binary itself (`horizon-client`, `horizon-ctl launch`, the
-  harnesses, CI), the dedicated server and `horizon-server`, the website. There is no bypass flag:
+- **Who isn't affected:** the game binary itself (`industrial-era-client`, `industrial-era-ctl launch`, the
+  harnesses, CI), the dedicated server and `industrial-era-server`, the website. There is no bypass flag:
   the launcher's tests use accounts in a memory store (`MemoryStore`, and `HORIZON_NO_KEYCHAIN`
   for the CLI and MCP tests, which then have no owner).
 
 ## Downloading the game for an owner
 
-Decided 2026-10-27. This is the only exception to "Horizon never downloads the game", and it
+Decided 2026-10-27. This is the only exception to "Industrial Era never downloads the game", and it
 applies only on the player's machine, for an account the owner gate just asked about. The
-launcher's "Download and prepare" (`horizon-launcher prepare --download`) fetches the pinned
+launcher's "Download and prepare" (`industrial-era-launcher prepare --download`) fetches the pinned
 version straight from Mojang (`launcher/src/mojang.rs`): the version file, the client jar,
 libraries, the asset index and the assets, each checked against the size and sha1 Mojang lists.
 They go to `minecraft/` in the launcher's data folder, and the preparation runs as usual. The
@@ -165,7 +165,7 @@ one is selected. "Sign out" deletes the account's secrets from the keychain.
 - No keychain on macOS or Windows, or `HORIZON_NO_KEYCHAIN` (the launcher's own tests): secrets
   stay in memory for the run, and the launcher says "No keychain available: you are signed in until
   the launcher closes".
-- Tokens never appear in logs, errors, `horizon-launcher` CLI output, MCP results or crash reports.
+- Tokens never appear in logs, errors, `industrial-era-launcher` CLI output, MCP results or crash reports.
   Requests are logged by endpoint name only.
 
 ## Account status and renewal
@@ -184,7 +184,7 @@ claiming it requires a full login. Unreadable keychain data is never overwritten
 If Microsoft rotates its refresh credential before Xbox/Minecraft fails, the rotated credential
 is still saved so another attempt can recover.
 
-`horizon-launcher account refresh NAME_OR_UUID` exposes the same operation (MCP:
+`industrial-era-launcher account refresh NAME_OR_UUID` exposes the same operation (MCP:
 `account_refresh`). `account list --json` includes public authentication status and token
 expiry, never tokens. `account refresh --json` returns a status object, including when renewal
 needs attention; callers inspect `state` rather than treating transport success as an online
@@ -224,7 +224,7 @@ or offline name currently selected for Play. Adding a new account remains a sepa
 ## Handing the session to the game
 
 Vanilla's launcher passes `--accessToken <token>` on the command line, where every user of the
-machine can read it in the process list. Horizon keeps it out of argv:
+machine can read it in the process list. Industrial Era keeps it out of argv:
 
 - The launcher writes `session-<random>.json` (mode 0600 on Unix, created new, in the game home's
   `sessions/` folder) with `{"name", "uuid", "access_token", "user_type": "msa", "xuid"}` and starts
@@ -254,23 +254,23 @@ Vanilla's `ClientHandshakePacketListenerImpl.handleHello`, `Crypt` and authlib's
    game and the launcher)", `InsufficientPrivilegesException` → "Multiplayer is disabled…",
    `multiplayer.access.banned` / `FORCED_USERNAME_CHANGE` → "You are banned from playing online",
    5xx or no network → "The authentication servers are currently not reachable…". Without a session
-   the game says "This server is in online mode. Sign in with your Microsoft account in the Horizon
+   the game says "This server is in online mode. Sign in with your Microsoft account in the Industrial Era
    launcher to join it." (Vanilla goes on after a failed join on LAN-discovered servers, which then
-   refuse the player anyway; Horizon stops at once.)
+   refuse the player anyway; Industrial Era stops at once.)
 5. Send `ServerboundKeyPacket` (the secret and the challenge, each RSA PKCS#1 v1.5 encrypted with
    the server key), then AES/CFB8 (key = IV = the secret) both ways.
 
 The connecting screen follows vanilla's states: "Connecting to the server..." until the encryption
 request, "Logging in..." while joining the session service, "Encrypting...", then "Joining world...".
-Code: `horizon-protocol` (`rsa.rs`, `crypto::server_hash`), `horizon-client` (`auth.rs`, `net.rs`).
+Code: `industrial-era-protocol` (`rsa.rs`, `crypto::server_hash`), `industrial-era-client` (`auth.rs`, `net.rs`).
 
-Horizon's dedicated server verifies players when `online-mode=true`. A LAN or Play with Friends world
+Industrial Era's dedicated server verifies players when `online-mode=true`. A LAN or Play with Friends world
 verifies its guests when the host is signed in, as vanilla's `IntegratedServer` does
 (`OnlineMode::lan`); under an offline name it stays offline-mode. The host's own player joins through
 memory and is never asked to authenticate.
 
 `HORIZON_API_DISCOVERY` overrides the discovery URL, the counterpart of authlib's
-`-Dminecraft.api.discovery.host`; it is how the harness points both the vanilla server and Horizon at
+`-Dminecraft.api.discovery.host`; it is how the harness points both the vanilla server and Industrial Era at
 a local mock.
 
 ## Skins and capes (part b)
@@ -327,7 +327,7 @@ validators; the script above doesn't send another player's chat.
 services (discovery document, `join`, `hasJoined`/`verify`, no public keys) and a vanilla 26.3
 dedicated server in online mode started with `-Dminecraft.api.discovery.host=<mock>` (authlib
 10.0.77's only override: it replaces the whole discovery URL; the old `minecraft.api.session.host`
-style properties are gone). Horizon's
+style properties are gone). Industrial Era's
 headless client (`HORIZON_NET_REPORT`) joins with a session file holding a mock token: the server
 verifies the join through the mock with the hash it computed itself (so the RSA wrapping, the hash
 and AES/CFB8 are all checked against vanilla's code), the player spawns, chats and runs `/list`.
@@ -335,7 +335,7 @@ Negative cases: a token the mock rejects (the client must show vanilla's "Invali
 and a client that skips the join (the server must say "Failed to verify username!").
 
 Rust unit tests: server hash vectors (Notch, jeb_, simon), RSA wrapping round trip with a test key,
-X.509 key parsing, AES/CFB8 vectors (already in `horizon-protocol`), the session file (permissions,
+X.509 key parsing, AES/CFB8 vectors (already in `industrial-era-protocol`), the session file (permissions,
 age, deletion), the error mapping. Launcher: the whole token chain against a local mock of the
 Microsoft, Xbox and Minecraft endpoints, and the keychain abstraction with an in-memory backend.
 

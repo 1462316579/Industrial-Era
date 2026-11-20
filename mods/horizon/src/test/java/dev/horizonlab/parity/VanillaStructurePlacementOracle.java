@@ -48,7 +48,7 @@ public final class VanillaStructurePlacementOracle {
     /**
      * Allocated without a constructor: no feature flags are enabled, so
      * EntityType.create returns null and structure entities are skipped as
-     * Horizon skips them, while block placement continues.
+     * Industrial Era skips them, while block placement continues.
      */
     private static final class NoEntityLevel extends net.minecraft.server.level.ServerLevel {
         private NoEntityLevel() {
@@ -89,7 +89,7 @@ public final class VanillaStructurePlacementOracle {
         var randomState=RandomState.create(world.lookupOrThrow(Registries.NOISE),seed,settings.value());
         var generator=new NoiseBasedChunkGenerator(biomeSource,settings);
         var state=ChunkGeneratorStructureState.createForNormal(randomState,seed,new ChunkPos(0,0),biomeSource,world.lookupOrThrow(Registries.STRUCTURE_SET));
-        Path tmp=Files.createTempDirectory("horizon-structures");
+        Path tmp=Files.createTempDirectory("industrial-era-structures");
         var storage=LevelStorageSource.createDefault(tmp).createAccess("oracle");
         var templates=new StructureTemplateManager(resources,storage,DataFixers.getDataFixer(),BuiltInRegistries.BLOCK);
         LevelHeightAccessor height=dimension.equals("overworld")?LevelHeightAccessor.create(-64,384):LevelHeightAccessor.create(0,256);

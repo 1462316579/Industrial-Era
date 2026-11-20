@@ -1,11 +1,11 @@
 # Native mods on Starling
 
-Horizon's native mods ([native-mods.md](native-mods.md)) are horizon-mixins bundles: Rust that hooks the game's own
+Industrial Era's native mods ([native-mods.md](native-mods.md)) are industrial-era-mixins bundles: Rust that hooks the game's own
 functions and is compiled into the game. On a computer the launcher downloads Rust and builds the game with them. A
 phone cannot build the game (Rust and the NDK are gigabytes, and the build takes hours on a phone), so Starling's build
 service does it and the phone swaps in the result:
 
-1. **The mod.** The player opens an `.hnmod` with Starling (`import.rs`), which puts it in `horizon-native-mods/`.
+1. **The mod.** The player opens an `.hnmod` with Starling (`import.rs`), which puts it in `industrial-era-native-mods/`.
 2. **Compile.** The top of the Mods page says which game runs (the APK's own, or a build with which mods, compiled
    when), what the next start runs, and whether the native mods turned on are the ones in it; when they are not, it has
    Compile and Use GitHub (slower) (`game/native_builds.rs`). After a warning, the game sends the folder's mods that
@@ -28,20 +28,20 @@ without native mods" stops using one. Nothing is installed: the APK stays the re
 
 ## The build (native_build.sh)
 
-1. horizon-mixins at Horizon's launcher's pinned commit (`MIXINS_REV`), built once into the cache.
+1. industrial-era-mixins at Industrial Era's launcher's pinned commit (`MIXINS_REV`), built once into the cache.
 2. The source of the commit (git archive, without links), and copies of the bundles, their pins set to that commit.
-3. **One identity for the game module.** While horizon-mixins plans, horizon-android's library is an empty file (it
+3. **One identity for the game module.** While industrial-era-mixins plans, industrial-era-android's library is an empty file (it
    refuses a module destination reached under two names, `E_TARGET_AMBIGUOUS`), and `lib.rs` loses the conditional
-   attribute that keeps it from looking at the modules under that file. The bundles' targets stay Horizon's
-   (`horizon_client::game::Game<'_>::use_item`), so Horizon's own native mods apply unchanged.
-4. `horizon-mixins apply` into a stage, then into a build folder kept between builds: files whose bytes changed get
+   attribute that keeps it from looking at the modules under that file. The bundles' targets stay Industrial Era's
+   (`horizon_client::game::Game<'_>::use_item`), so Industrial Era's own native mods apply unchanged.
+4. `industrial-era-mixins apply` into a stage, then into a build folder kept between builds: files whose bytes changed get
    the time of now, the others keep theirs, so Cargo recompiles only what the mods touched.
 5. `build_apk.py --profile fast`, as a release: the stripped library, an APK unless `NATIVE_LIBRARY_ONLY` is set, and
    `build.json`.
 
 ## Permissions
 
-A native mod is written for Horizon on a computer, where nothing asks before a program opens the microphone. On Android
+A native mod is written for Industrial Era on a computer, where nothing asks before a program opens the microphone. On Android
 the app holds the permission and asks the player, and the mod stays as its maker wrote it: `native_build.sh` reads each
 mod's source with `native_mod_permissions.py` and writes what it needs in `build.json` (the mod's `permissions`, and
 all of them at the top). Today that is `microphone`: capturing sound through cpal (`build_input_stream`,

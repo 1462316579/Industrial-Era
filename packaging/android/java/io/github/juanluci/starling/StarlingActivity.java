@@ -73,7 +73,7 @@ import javax.crypto.spec.GCMParameterSpec;
  */
 public class StarlingActivity extends NativeActivity {
     private static final int PICK_FILE = 1;
-    /** Horizon Android's folder picked: its worlds and packs come over (HorizonImport). */
+    /** Industrial Era Android's folder picked: its worlds and packs come over (HorizonImport). */
     private static final int PICK_HORIZON = 2;
     /** Android's answer to the permissions the running build's mods need. */
     private static final int MOD_PERMISSIONS = 3;
@@ -730,13 +730,13 @@ public class StarlingActivity extends NativeActivity {
         return true;
     }
 
-    /** Whether Horizon Android is on the phone, so its worlds can come over (the setup asks). */
+    /** Whether Industrial Era Android is on the phone, so its worlds can come over (the setup asks). */
     public boolean horizonAndroidInstalled() {
         return HorizonImport.installed(this);
     }
 
     /**
-     * The system's folder picker on Horizon Android's folder; its worlds and packs go to the
+     * The system's folder picker on Industrial Era Android's folder; its worlds and packs go to the
      * game's import inbox (HorizonImport). False when it is not installed or nothing can pick.
      */
     public boolean importFromHorizonAndroid() {
@@ -759,7 +759,7 @@ public class StarlingActivity extends NativeActivity {
     /**
      * The system's file manager on a folder; false where none can show it. A folder of the game's
      * opens through this app's own provider (GameFolderProvider), which shows it in shared storage
-     * and in the app's own files alike, as Horizon Android did. Another one of shared storage opens
+     * and in the app's own files alike, as Industrial Era Android did. Another one of shared storage opens
      * through the storage's provider. When nothing opens, the player is told where to look.
      */
     public boolean openFolder(String path) {

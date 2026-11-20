@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Compare chunks generated with a world's data packs block-for-block with vanilla.
 
-The packs of tools/fixtures/datapacks (Horizon's own, MIT) override and add
+The packs of tools/fixtures/datapacks (Industrial Era's own, MIT) override and add
 noises, density functions, the overworld noise settings, a placed feature and
 a biome tag. Vanilla side: VanillaChunkGenerationOracle with HORIZON_DATAPACKS,
 which selects every pack of the folder after vanilla, as a world does, and
-loads the registries through vanilla's own pack repository. Horizon side:
+loads the registries through vanilla's own pack repository. Industrial Era side:
 chunk_dump with the same variable, reading the packs through
 worldgen::overrides into GeneratorData::load_with. The same terrain sites are
 compared for every block state, quart biome and block entity, first after
-TERRAIN, then with decoration. Horizon without the packs must differ from
+TERRAIN, then with decoration. Industrial Era without the packs must differ from
 vanilla with them, so the packs are known to take effect.
 
 usage: test_datapack_worldgen_parity.py [--seed N] [--sites K] [--phase terrain|full]
@@ -59,7 +59,7 @@ def main():
             del os.environ['HORIZON_DATAPACKS']
             for line in stderr.splitlines():
                 if 'data pack' in line:
-                    print('  horizon:', line)
+                    print('  industrial-era:', line)
             vanilla, rust = chunks.parse(vanilla_path), chunks.parse(rust_path)
             counts = chunks.compare(vanilla, rust, names, f'{tag} packs')
             differing += counts[0]
@@ -68,7 +68,7 @@ def main():
             chunks.run_rust(binary, plain_path, seed, 'overworld', rects)
             plain = chunks.compare(vanilla, chunks.parse(plain_path), names, f'{tag} without packs', quiet=True)
             pack_effect += plain[0]
-            print(f'{tag}: without the packs Horizon differs from them in {plain[0]} of {len(vanilla)} chunks ({plain[1]} blocks)')
+            print(f'{tag}: without the packs Industrial Era differs from them in {plain[0]} of {len(vanilla)} chunks ({plain[1]} blocks)')
     if not pack_effect:
         sys.exit('the packs changed nothing: the harness would not see them')
     if differing:

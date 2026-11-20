@@ -76,7 +76,7 @@ public final class VanillaTickDataOracle {
         CompoundTag actual = NbtIo.read(base.resolve("ticks-output.nbt"));
         if (!actual.equals(expected)) throw new AssertionError("Rust saved tick NBT differs from vanilla");
         Path regionPath = base.resolve("tick-region/r.0.0.mca");
-        RegionStorageInfo info = new RegionStorageInfo("horizon-tick-fixture", Level.OVERWORLD, "chunk");
+        RegionStorageInfo info = new RegionStorageInfo("industrial-era-tick-fixture", Level.OVERWORLD, "chunk");
         try (RegionFile region = new RegionFile(info, regionPath, regionPath.getParent(), false);
              DataInputStream input = region.getChunkDataInputStream(POS)) {
             if (input == null || !NbtIo.read(input).equals(expected)) throw new AssertionError("Rust region tick data differs from vanilla");

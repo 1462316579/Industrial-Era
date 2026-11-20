@@ -7,7 +7,7 @@ from tools.ci import triage_command as tc
 
 ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 10, 28, 12, tzinfo=timezone.utc)
-URL = "https://github.com/horizon-rust/horizon/issues/5#issuecomment-1"
+URL = "https://github.com/industrial-era-rust/industrial-era/issues/5#issuecomment-1"
 LIST = ns.read_reviewers("kacpherek\nrdbtCVS\n")
 
 
@@ -225,7 +225,7 @@ class LimitTests(unittest.TestCase):
 
 @unittest.skipUnless(
     (ROOT / ".github/workflows/triage-command.yml").exists(),
-    "Horizon's triage workflow is not in this repository",
+    "Industrial Era's triage workflow is not in this repository",
 )
 class WorkflowTests(unittest.TestCase):
     def test_workflow_is_safe(self):

@@ -1,0 +1,15 @@
+[package]
+name = "industrial-era-command"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version = "1.90"
+description = "Commands (Brigadier): the vanilla command tree, argument types, selectors, parsing, suggestions and the network form of the tree"
+
+[dependencies]
+industrial-era-client-core = { path = "../industrial-era-client-core" }
+industrial-era-protocol = { path = "../industrial-era-protocol" }
+industrial-era-world = { path = "../industrial-era-world" }
+
+[lints]
+workspace = true

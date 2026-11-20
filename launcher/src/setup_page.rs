@@ -1,6 +1,6 @@
-//! The Windows setup window: `horizon-launcher-setup.exe` installs, `horizon-launcher.exe
+//! The Windows setup window: `industrial-era-launcher-setup.exe` installs, `industrial-era-launcher.exe
 //! uninstall` removes. The launcher's own sky and plates (docs/design-system.md, "Night"); the
-//! work is `horizon_launcher::installer`, on a thread, reported over a channel.
+//! work is `industrial_era_launcher::installer`, on a thread, reported over a channel.
 use crate::plate::plate;
 use crate::shell::{action, c, label, text, Action};
 use crate::sky::Sky;
@@ -10,9 +10,9 @@ use gpui::{
     div, prelude::*, px, size, App, Bounds, ClickEvent, Context, Div, PathPromptOptions, Render,
     Task, Window, WindowBounds, WindowOptions,
 };
-use horizon_launcher::backend::Settings;
-use horizon_launcher::i18n::{self, tr};
-use horizon_launcher::installer::{self, Mode, Options, Step};
+use industrial_era_launcher::backend::Settings;
+use industrial_era_launcher::i18n::{self, tr};
+use industrial_era_launcher::installer::{self, Mode, Options, Step};
 use std::sync::mpsc::{channel, Receiver};
 use std::time::{Duration, Instant};
 
@@ -48,7 +48,7 @@ pub fn open(mode: Mode, cx: &mut App) {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
             window_min_size: Some(size(px(760.), px(520.))),
             titlebar: Some(titlebar::options()),
-            app_id: Some("horizon-launcher".into()),
+            app_id: Some("industrial-era-launcher".into()),
             ..Default::default()
         },
         |window, cx| cx.new(|_| Setup::new(mode, window)),
@@ -257,7 +257,7 @@ impl Setup {
             Stage::Welcome if self.mode == Mode::Install => {
                 body = body
                     .child(text(night::UI, c(n.ink_soft)).child(
-                        tr("Installs Horizon Launcher for this account. No administrator needed.")
+                        tr("Installs Industrial Era Launcher for this account. No administrator needed.")
                             .to_string(),
                     ))
                     .child(self.folder_row(cx))
@@ -282,7 +282,7 @@ impl Setup {
             Stage::Welcome => {
                 body = body
                     .child(text(night::UI, c(n.ink_soft)).child(
-                        tr("Removes Horizon Launcher from this computer. Your worlds and the game's folder stay.")
+                        tr("Removes Industrial Era Launcher from this computer. Your worlds and the game's folder stay.")
                             .to_string(),
                     ))
                     .child(self.toggle(
@@ -323,8 +323,8 @@ impl Setup {
             }
             Stage::Done { left } => {
                 let said = match self.mode {
-                    Mode::Install => tr("Horizon Launcher is installed.").to_string(),
-                    Mode::Uninstall => tr("Horizon Launcher was removed.").to_string(),
+                    Mode::Install => tr("Industrial Era Launcher is installed.").to_string(),
+                    Mode::Uninstall => tr("Industrial Era Launcher was removed.").to_string(),
                 };
                 body = body.child(text(night::TITLE, c(n.ink)).child(said));
                 if !left.is_empty() {
@@ -349,7 +349,7 @@ impl Setup {
                                 .on_click(
                                     cx.listener(|this, _: &ClickEvent, _, cx| this.launch(cx)),
                                 )
-                                .child(label(tr("Launch Horizon").to_string())),
+                                .child(label(tr("Launch Industrial Era").to_string())),
                         ),
                     );
                 }
@@ -375,7 +375,7 @@ impl Setup {
             .flex()
             .flex_col()
             .gap(px(18.))
-            .child(text(night::DISPLAY, c(n.ink)).child("Horizon"))
+            .child(text(night::DISPLAY, c(n.ink)).child("Industrial Era"))
             .child(body)
     }
 }

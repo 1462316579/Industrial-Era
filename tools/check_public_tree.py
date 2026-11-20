@@ -9,7 +9,7 @@ import sys
 PRIVATE_ROOTS = {".local", "decompiled", "minecraft", "assets", "run", "logs"}
 PRIVATE_EXTENSIONS = {".jar", ".class", ".jfr", ".hprof", ".java"}
 ORIGINAL_JDK_TOOLS = {"tools/JfrSummary.java", "tests/java/JfrFixture.java", "tests/java/GameFolderChecks.java"}
-# The Android app's own classes (packaging/android/build_apk.py), Horizon's code like the above.
+# The Android app's own classes (packaging/android/build_apk.py), Industrial Era's code like the above.
 ORIGINAL_ANDROID = {
     "packaging/android/java/io/github/juanluci/starling/StarlingActivity.java",
     "packaging/android/java/io/github/juanluci/starling/GameActivity.java",
@@ -24,10 +24,10 @@ ORIGINAL_ANDROID = {
     "packaging/android/java/io/github/juanluci/starling/GameFolder.java",
     "packaging/android/java/io/github/juanluci/starling/GameFolderProvider.java",
     # The same activity before the app was named Starling, in the history.
-    "packaging/android/java/dev/horizon/android/HorizonActivity.java",
+    "packaging/android/java/dev/industrial-era/android/HorizonActivity.java",
 }
-# The prepared folder's files in one file (crates/horizon-core/src/prepared_files.rs): Mojang's data.
-PRIVATE_NAMES = {"horizon-data.bin"}
+# The prepared folder's files in one file (crates/industrial-era-core/src/prepared_files.rs): Mojang's data.
+PRIVATE_NAMES = {"industrial-era-data.bin"}
 
 
 def prohibited(path):
@@ -35,8 +35,8 @@ def prohibited(path):
     # Original JDK-only tools are an exact allowlist; recovered game Java stays private.
     if path in ORIGINAL_JDK_TOOLS or path in ORIGINAL_ANDROID:
         return False
-    # Original Horizon mod sources may also be tracked.
-    if parsed.suffix == ".java" and path.startswith(("mods/horizon/src/", "mods/horizon-lab/src/")):
+    # Original Industrial Era mod sources may also be tracked.
+    if parsed.suffix == ".java" and path.startswith(("mods/industrial-era/src/", "mods/industrial-era-lab/src/")):
         return not ("/dev/horizonlab/" in path)
     return (
         bool(parsed.parts and parsed.parts[0] in PRIVATE_ROOTS)

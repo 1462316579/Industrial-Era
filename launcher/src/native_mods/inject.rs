@@ -8,7 +8,7 @@ use std::{
 };
 use syn::visit_mut::VisitMut;
 
-/// A trait declaration to add to the staged game after horizon-mixins has run.
+/// A trait declaration to add to the staged game after industrial-era-mixins has run.
 pub(super) struct Injection {
     name: syn::Ident,
     /// The bindings' struct, as each catalog hook's (`InjectExampleTickEvent`).
@@ -144,8 +144,8 @@ pub(super) fn prepare(mods: &[Bundle], source: &Path) -> Result<Vec<Injection>, 
                         .to_owned()
                 };
                 let target_crate = target.split("::").next().unwrap_or_default();
-                if target_crate != "horizon_client" {
-                    return Err(format!("trait injection target {target:?} is in crate {target_crate:?}; only horizon-client targets are supported"));
+                if target_crate != "industrial_era_client" {
+                    return Err(format!("trait injection target {target:?} is in crate {target_crate:?}; only industrial-era-client targets are supported"));
                 }
                 if table.contains_key("helper") {
                     return Err(format!(
@@ -240,7 +240,7 @@ pub(super) fn prepare(mods: &[Bundle], source: &Path) -> Result<Vec<Injection>, 
                     parameters,
                     contract,
                 };
-                let helper_path = format!("horizon-trait-injection-{index}.rs");
+                let helper_path = format!("industrial-era-trait-injection-{index}.rs");
                 let helper_file = bundle.dir.join(&helper_path);
                 if helper_file.exists() {
                     return Err(format!(
@@ -318,7 +318,7 @@ impl Injection {
             }
         };
         quote! {
-            fn horizon_trait_dispatch(#(#params),*) #output {
+            fn industrial_era_trait_dispatch(#(#params),*) #output {
                 let Some(owner) = crate::mod_api::mods().get(#owner) else {
                     return #absent;
                 };
@@ -388,7 +388,7 @@ pub(super) fn stage(stage: &Path, injections: &[Injection]) -> Result<(), String
     if injections.is_empty() {
         return Ok(());
     }
-    let path = stage.join("crates/horizon-client/src/mod_api/generated.rs");
+    let path = stage.join("crates/industrial-era-client/src/mod_api/generated.rs");
     let source = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     let file = syn::parse_file(&source).map_err(|e| format!("{}: {e}", path.display()))?;
     let hooks = file
@@ -437,7 +437,7 @@ mod tests {
 
     fn fixture(name: &str, injection: &str) -> (std::path::PathBuf, Bundle) {
         let root =
-            std::env::temp_dir().join(format!("horizon-inject-{}-{name}", std::process::id()));
+            std::env::temp_dir().join(format!("industrial-era-inject-{}-{name}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(root.join("engine/src")).unwrap();
         fs::write(
@@ -480,13 +480,13 @@ mod tests {
 
     #[test]
     fn owner_dispatch_and_cancel_are_generated_from_bindings() {
-        let (root, bundle) = fixture("cancel", "[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\ncancellable = true\nbindings = [{ name = 'amount', ty = '&mut i32', value = '&mut *amount' }]\n");
+        let (root, bundle) = fixture("cancel", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\ncancellable = true\nbindings = [{ name = 'amount', ty = '&mut i32', value = '&mut *amount' }]\n");
         let injections = prepare(&[bundle], &root).unwrap();
-        let helper = fs::read_to_string(root.join("horizon-trait-injection-0.rs")).unwrap();
+        let helper = fs::read_to_string(root.join("industrial-era-trait-injection-0.rs")).unwrap();
         let manifest = fs::read_to_string(root.join(MANIFEST)).unwrap();
         assert!(!manifest.contains("trait_method"));
         assert!(!manifest.contains("[api]"));
-        let stage_dir = root.join("stage/crates/horizon-client/src/mod_api");
+        let stage_dir = root.join("stage/crates/industrial-era-client/src/mod_api");
         fs::create_dir_all(&stage_dir).unwrap();
         fs::write(
             stage_dir.join("generated.rs"),
@@ -521,7 +521,7 @@ mod tests {
             {helper}
             fn main() {{
                 let mut value = 1;
-                assert!(matches!(horizon_trait_dispatch(&mut value), core::ops::ControlFlow::Break(())));
+                assert!(matches!(industrial_era_trait_dispatch(&mut value), core::ops::ControlFlow::Break(())));
                 assert_eq!(value, 42);
             }}
         "#
@@ -532,10 +532,10 @@ mod tests {
 
     #[test]
     fn value_injection_returns_what_the_owner_changed() {
-        let (root, bundle) = fixture("value", "[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = 'RETURN'\ntrait_method = 'total'\nbindings = [{ name = 'total', ty = 'i32', value = '$value' }, { name = 'calls', ty = '&mut u32', value = '&mut *calls' }]\n");
+        let (root, bundle) = fixture("value", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'RETURN'\ntrait_method = 'total'\nbindings = [{ name = 'total', ty = 'i32', value = '$value' }, { name = 'calls', ty = '&mut u32', value = '&mut *calls' }]\n");
         let injections = prepare(&[bundle], &root).unwrap();
-        let helper = fs::read_to_string(root.join("horizon-trait-injection-0.rs")).unwrap();
-        let stage_dir = root.join("stage/crates/horizon-client/src/mod_api");
+        let helper = fs::read_to_string(root.join("industrial-era-trait-injection-0.rs")).unwrap();
+        let stage_dir = root.join("stage/crates/industrial-era-client/src/mod_api");
         fs::create_dir_all(&stage_dir).unwrap();
         fs::write(
             stage_dir.join("generated.rs"),
@@ -573,10 +573,10 @@ mod tests {
             {helper}
             fn main() {{
                 let mut calls = 0;
-                assert_eq!(horizon_trait_dispatch(20, &mut calls), 20);
+                assert_eq!(industrial_era_trait_dispatch(20, &mut calls), 20);
                 assert_eq!(calls, 0);
                 mod_api::INSTALLED.store(true, std::sync::atomic::Ordering::SeqCst);
-                assert_eq!(horizon_trait_dispatch(20, &mut calls), 41);
+                assert_eq!(industrial_era_trait_dispatch(20, &mut calls), 41);
                 assert_eq!(calls, 1);
             }}
         "#
@@ -630,7 +630,7 @@ mod tests {
 
     #[test]
     fn trait_edits_do_not_invalidate_mixin_cache() {
-        let (root, bundle) = fixture("cache", "[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\n");
+        let (root, bundle) = fixture("cache", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\n");
         let key = || {
             super::super::inject_cache::key(
                 "revision",
@@ -650,7 +650,7 @@ mod tests {
 
     #[test]
     fn mixin_inputs_inside_api_are_not_excluded_from_cache() {
-        let (root, bundle) = fixture("api-helper", "[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = 'HEAD'\nhelper = 'engine/src/lib.rs'\n");
+        let (root, bundle) = fixture("api-helper", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'HEAD'\nhelper = 'engine/src/lib.rs'\n");
         let key = || {
             super::super::inject_cache::key(
                 "revision",
@@ -711,19 +711,19 @@ mod tests {
 
     #[test]
     fn trait_injections_reject_targets_in_other_crates() {
-        let (root, bundle) = fixture("other-crate", "[[injection]]\nid = 'hook'\ntarget = 'horizon_world::loot::load'\nkind = 'HEAD'\ntrait_method = 'load'\n");
+        let (root, bundle) = fixture("other-crate", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_world::loot::load'\nkind = 'HEAD'\ntrait_method = 'load'\n");
         let error = prepare(&[bundle], &root).err().unwrap();
-        assert!(error.contains("horizon_world::loot::load") && error.contains("horizon_world"));
+        assert!(error.contains("industrial_era_world::loot::load") && error.contains("industrial_era_world"));
         fs::remove_dir_all(root).unwrap();
 
         let (root, bundle) = fixture("other-catalog", "[[injection]]\nid = 'hook'\nhook = 'loot_table_load'\nkind = 'HEAD'\ntrait_method = 'load'\n");
         fs::write(
             root.join("native-hooks.json"),
-            r#"{"hooks":[{"name":"loot_table_load","target":"horizon_world::loot::load"}]}"#,
+            r#"{"hooks":[{"name":"loot_table_load","target":"industrial_era_world::loot::load"}]}"#,
         )
         .unwrap();
         let error = prepare(&[bundle], &root).err().unwrap();
-        assert!(error.contains("horizon_world::loot::load") && error.contains("horizon_world"));
+        assert!(error.contains("industrial_era_world::loot::load") && error.contains("industrial_era_world"));
         fs::remove_dir_all(root).unwrap();
     }
 
@@ -748,7 +748,7 @@ mod tests {
         ] {
             let (root, bundle) = fixture(
                 "kinds",
-                &format!("[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = '{kind}'\ntrait_method = 'tick'\n{extra}"),
+                &format!("[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = '{kind}'\ntrait_method = 'tick'\n{extra}"),
             );
             let error = prepare(&[bundle], &root).err().unwrap();
             assert!(error.contains(expected), "{kind}: {error}");

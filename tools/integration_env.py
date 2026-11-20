@@ -36,7 +36,7 @@ def suite_lock():
         from . import file_lock
     except ImportError:
         import file_lock
-    with (Path(tempfile.gettempdir()) / 'horizon-integration-gpu.lock').open('a') as handle:
+    with (Path(tempfile.gettempdir()) / 'industrial-era-integration-gpu.lock').open('a') as handle:
         file_lock.lock(handle)
         yield
 

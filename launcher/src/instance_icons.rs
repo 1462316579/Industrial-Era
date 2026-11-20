@@ -1,11 +1,11 @@
 //! What an instance's icon shows (plan R8): its own picture (one the player chose, or its
 //! modpack's icon) first; else the block or colour chosen in its dialog; else its mark: the loader
-//! it plays with, the grass block for plain Minecraft, Horizon's own for Horizon. The letter tile
+//! it plays with, the grass block for plain Minecraft, Industrial Era's own for Industrial Era. The letter tile
 //! is the last resort. Each is decoded once per size and kept in `Instances::icons`.
 use super::*;
 use gpui::RenderImage;
-use horizon_launcher::browser::images;
-use horizon_launcher::instances::{self, Instance, Kind as InstanceKind};
+use industrial_era_launcher::browser::images;
+use industrial_era_launcher::instances::{self, Instance, Kind as InstanceKind};
 use std::sync::Arc;
 
 /// The loaders' logos as the launcher mockup on playhorizon.dev shows them, each its project's
@@ -57,8 +57,8 @@ impl Launcher {
                 std::fs::read(grass).ok()
             });
         }
-        let horizon = || Some(horizon_theme::ICON_PNG.to_vec());
-        self.icon_image("mark:horizon".into(), size, false, horizon)
+        let industrial-era = || Some(industrial_era_theme::ICON_PNG.to_vec());
+        self.icon_image("mark:industrial-era".into(), size, false, industrial-era)
     }
 
     /// A mod loader's logo by its id (`fabric`, `quilt`, `forge`, `neoforge`): None for another

@@ -36,7 +36,7 @@ public final class PrepareWorker {
         net.minecraft.server.Bootstrap.bootStrap();
         var resets = new ArrayList<Runnable>();
         for (var registry : BuiltInRegistries.REGISTRY) resets.add(restoreTags(registry));
-        System.setProperty("horizon.prepare.reuse", "true");
+        System.setProperty("industrial-era.prepare.reuse", "true");
         try (var input = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             for (String line; (line = input.readLine()) != null;) {
                 var task = JsonParser.parseString(line).getAsJsonArray();

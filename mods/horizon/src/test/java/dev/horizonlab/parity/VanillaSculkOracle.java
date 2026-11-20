@@ -231,7 +231,7 @@ public final class VanillaSculkOracle {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         Util.startTimerHackThread();
-        Path universe = Files.createTempDirectory("horizon-sculk");
+        Path universe = Files.createTempDirectory("industrial-era-sculk");
         LevelStorageSource.LevelStorageAccess access = LevelStorageSource.createDefault(universe).createAccess("sculkworld");
         PackRepository packs = ServerPacksSource.createPackRepository(access);
         MinecraftServer.spin(thread -> Server.create(thread, access, packs));
@@ -271,7 +271,7 @@ public final class VanillaSculkOracle {
 
     /**
      * A mob's own random, its sensors' first delays and its gates' shuffles (RunOne's ShufflingList)
-     * are unseeded: seed what appeared, as Horizon does.
+     * are unseeded: seed what appeared, as Industrial Era does.
      */
     static void seedFresh(Mob mob, long seed) throws Exception {
         mob.getRandom().setSeed(seed);
@@ -522,7 +522,7 @@ public final class VanillaSculkOracle {
             level.getGameRules().set(GameRules.SPAWN_WARDENS, s.wardens, this);
             names.clear();
             if (player == null) {
-                CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(new UUID(0x1234L, 0x5678L), "horizon-sculk"), false);
+                CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(new UUID(0x1234L, 0x5678L), "industrial-era-sculk"), false);
                 player = new ServerPlayer(this, level, cookie.gameProfile(), cookie.clientInformation());
                 Connection connection = new Connection(PacketFlow.SERVERBOUND);
                 new EmbeddedChannel(connection);
@@ -644,7 +644,7 @@ public final class VanillaSculkOracle {
                 for (Entity e : fresh) {
                     known.add(e);
                     names.put(e, "n" + names.size());
-                    // An entity's own random is unseeded: seed what appeared, as Horizon does.
+                    // An entity's own random is unseeded: seed what appeared, as Industrial Era does.
                     if (e instanceof Mob mob && seeded.add(mob)) seedFresh(mob, 0x5eedL + names.size());
                     if (e instanceof net.minecraft.world.entity.ExperienceOrb orb) {
                         // Where an orb flies comes from its own unseeded random: its value only.

@@ -56,7 +56,7 @@ public final class VanillaBlockStateBindingOracle {
     private static Object bind(JsonObject row) throws Exception {
         var states=Objects.requireNonNull(mapper.apply(Identifier.parse(row.get("block").getAsString())));
         var definition=BlockStateModelDispatcher.CODEC.parse(JsonOps.INSTANCE,StrictJsonParser.parse(row.get("json").getAsString())).getOrThrow();
-        var roots=definition.instantiate(states,()->"horizon:binding_probe");
+        var roots=definition.instantiate(states,()->"industrial-era:binding_probe");
         var indices=new IdentityHashMap<BlockStateModel.Unbaked,Integer>();
         definition.simpleModels().ifPresent(m->{int index=0;for(var value:m.models().values())indices.put(value,index++);});
         var selected=new ArrayList<Object>();

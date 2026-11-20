@@ -9,8 +9,8 @@ run on our own machines now, and the heavy checks can follow when the pool is fu
 | --- | --- | --- | --- |
 | `playhorizon-ci-1`, `playhorizon-ci-2` | playhorizon (partner's server, 8 vCPU) | `playhorizon-ci` | Only with `SELF_HOSTED_CI=all`: `checks`' `verify` and `launcher` for main's pushes and this repository's own pull requests |
 | `playhorizon-light-1`, `playhorizon-light-2` | playhorizon | `playhorizon-light` | The bots that run main's own scripts: `pr labels`, `overlap note`, `cancel-on-close`, `claim command`, and `checks`' `parity-scope` |
-| `playhorizon-horizon` | playhorizon | `horizon-game`, `playhorizon` | Parity ([release-flow.md](release-flow.md#the-parity-job)) |
-| `ludovics-mac-mini*` | Mac mini | `horizon-game`, `horizon-parity-main`, `horizon-release`, `horizon-nightly` | Parity, parity-main, macOS builds, releases |
+| `playhorizon-industrial-era` | playhorizon | `industrial-era-game`, `playhorizon` | Parity ([release-flow.md](release-flow.md#the-parity-job)) |
+| `ludovics-mac-mini*` | Mac mini | `industrial-era-game`, `industrial-era-parity-main`, `industrial-era-release`, `industrial-era-nightly` | Parity, parity-main, macOS builds, releases |
 
 Everything else stays on GitHub's runners: `checks` by default, a fork's pull request always, the Windows and Linux
 builds, and every job that holds a secret (signing, publishing: the partner keeps hypervisor access to playhorizon).
@@ -25,7 +25,7 @@ The repository variable `SELF_HOSTED_CI` decides:
 | `all` | playhorizon | playhorizon |
 | `off` | GitHub | GitHub |
 
-`gh variable set SELF_HOSTED_CI --body all --repo horizon-rust/horizon` (or `off`; `gh variable delete` for the
+`gh variable set SELF_HOSTED_CI --body all --repo industrial-era-rust/industrial-era` (or `off`; `gh variable delete` for the
 default) takes effect from the next run; queued jobs keep the runner they asked for.
 
 Why the checks stay on GitHub by default: the checks runners have CPUs 4–7, shared with the parity runner, about
@@ -69,15 +69,15 @@ Installed by `tools/ci/checks-runners.sh` (run it there; it reads the registrati
 touches the disk or the screen):
 
 ```sh
-gh api -X POST repos/horizon-rust/horizon/actions/runners/registration-token --jq .token |
-  ssh ludovic@playhorizon 'bash ~/horizon-install/checks-runners.sh install'
-ssh ludovic@playhorizon 'bash ~/horizon-install/checks-runners.sh status'
+gh api -X POST repos/industrial-era-rust/industrial-era/actions/runners/registration-token --jq .token |
+  ssh ludovic@playhorizon 'bash ~/industrial-era-install/checks-runners.sh install'
+ssh ludovic@playhorizon 'bash ~/industrial-era-install/checks-runners.sh status'
 ```
 
-- Each runner is a systemd user service (`horizon-runner-ci-<n>`, `horizon-runner-light-<n>`) in
-  `~/.actions-runners/horizon-{ci,light}-<n>`, with its own work folder and `HOME`.
-- All of them run nice and pinned to CPUs 4–7, inside `horizon-ci.slice` (the CPU quota and memory cap of all CI on
-  the machine, `linux-runner.sh`). The checks runners have their own `horizon-ci-checks.slice` (memory ≤ 16 GB).
+- Each runner is a systemd user service (`industrial-era-runner-ci-<n>`, `industrial-era-runner-light-<n>`) in
+  `~/.actions-runners/industrial-era-{ci,light}-<n>`, with its own work folder and `HOME`.
+- All of them run nice and pinned to CPUs 4–7, inside `industrial-era-ci.slice` (the CPU quota and memory cap of all CI on
+  the machine, `linux-runner.sh`). The checks runners have their own `industrial-era-ci-checks.slice` (memory ≤ 16 GB).
   CPUs 0–3 stay for `tools/remote.sh` runs, benchmarks and the servers.
 - The checks runners share one cargo home (`~/.actions-runners/ci-shared/cargo`: registry and git sources). Each has
   its own rustup home and its own build folder (`CARGO_TARGET_DIR`, outside the checkout, so the checkout's clean

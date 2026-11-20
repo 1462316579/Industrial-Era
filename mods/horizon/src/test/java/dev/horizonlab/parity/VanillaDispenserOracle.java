@@ -466,7 +466,7 @@ public final class VanillaDispenserOracle {
             if (e instanceof ItemEntity item) line.append(' ').append(ParityData.canon(item.getItem()));
             if (e instanceof PrimedTnt tnt) line.append(" fuse=").append(tnt.getFuse());
             // An orb that took others in (ExperienceOrb.tryMergeToExisting) prints once per
-            // count: whether orbs merge depends on entity ids, which Horizon doesn't share.
+            // count: whether orbs merge depends on entity ids, which Industrial Era doesn't share.
             for (int n = e instanceof ExperienceOrb orb ? orbCount(orb) : 1; n > 0; n--) result.add(line.toString());
         }
         for (int i = 0; i < targets.size(); i++) result.add(describe(i, targets.get(i)));

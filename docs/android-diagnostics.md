@@ -68,7 +68,7 @@ arbitrary third-party log text cannot be guaranteed free of private data. Nothin
 is uploaded automatically. CPU spans nest, worker totals overlap and GPU timings
 arrive late: these numbers identify correlations, not proof of lock contention.
 
-This port reuses Horizon Android's existing diagnostics, exit-history, tombstone
+This port reuses Industrial Era Android's existing diagnostics, exit-history, tombstone
 and performance recorder code. It adapts them to Starling's logging, streaming
 workers, GPU timers, translation keys and in-game settings. It does not add an
 automatic backend benchmark, change the selected graphics API or add a 32-bit APK.

@@ -30,7 +30,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 
 /**
- * Original exporter of the block-behaviour inputs Horizon's level simulation needs:
+ * Original exporter of the block-behaviour inputs Industrial Era's level simulation needs:
  * every block's class chain and immutable instance configuration (read reflectively),
  * per-state support/redstone/fluid facts from vanilla's accessors over an empty level,
  * fire odds and block-item placement bindings. No behaviour is evaluated here.

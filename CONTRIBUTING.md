@@ -1,11 +1,11 @@
 # Contributing to Starling
 
-Thanks for helping. Starling is the Android port of [Horizon](https://github.com/ludovic111/horizon), Minecraft: Java Edition 26.3 rewritten in Rust. This page is the short version of how we work.
+Thanks for helping. Starling is the Android port of [Industrial Era](https://github.com/ludovic111/industrial-era), Minecraft: Java Edition 26.3 rewritten in Rust. This page is the short version of how we work.
 
 ## Where a change goes
 
-- **The game itself** (gameplay, world generation, rendering shared with the desktop, menus) belongs upstream, in Horizon, where it is checked against vanilla. Follow [Horizon's contributing guide](https://github.com/ludovic111/horizon/blob/main/CONTRIBUTING.md): vanilla is the specification, and gameplay changes come with a parity harness.
-- **The Android app** belongs here: the packaging (`packaging/android/`), the app's entry (`crates/horizon-client/src/android_lib.rs`), touch controls (`touch.rs`, `game/touch.rs`), the Starling folder and imports (`import.rs`, `game/imports.rs`, `game/files_offer.rs`) and anything that only matters on a phone.
+- **The game itself** (gameplay, world generation, rendering shared with the desktop, menus) belongs upstream, in Industrial Era, where it is checked against vanilla. Follow [Industrial Era's contributing guide](https://github.com/ludovic111/industrial-era/blob/main/CONTRIBUTING.md): vanilla is the specification, and gameplay changes come with a parity harness.
+- **The Android app** belongs here: the packaging (`packaging/android/`), the app's entry (`crates/industrial-era-client/src/android_lib.rs`), touch controls (`touch.rs`, `game/touch.rs`), the Starling folder and imports (`import.rs`, `game/imports.rs`, `game/files_offer.rs`) and anything that only matters on a phone.
 
 ## Build it
 
@@ -20,11 +20,11 @@ The APK carries no game files. On its first start the app signs in, downloads th
 
 ## Test on a phone
 
-Say what you checked on a real device, and on which one. A `horizon-args.txt` in the app's own files adds command-line arguments and environment variables at launch (one per line, `NAME=value` for the environment); with `--control-socket` and `HORIZON_CONTROL_PORT`, `horizon-ctl` drives the game over `adb forward`. Empty the file afterwards so the app starts normally.
+Say what you checked on a real device, and on which one. A `industrial-era-args.txt` in the app's own files adds command-line arguments and environment variables at launch (one per line, `NAME=value` for the environment); with `--control-socket` and `HORIZON_CONTROL_PORT`, `industrial-era-ctl` drives the game over `adb forward`. Empty the file afterwards so the app starts normally.
 
 ## Only original code, or code whose license allows it
 
-Starling is MIT, as Horizon is. Its code is written from Minecraft 26.3 itself and from public documentation. Another project's source may also be read and used, **only when that project's license allows it**:
+Starling is MIT, as Industrial Era is. Its code is written from Minecraft 26.3 itself and from public documentation. Another project's source may also be read and used, **only when that project's license allows it**:
 
 - **Allowed:** MIT, MIT-0, BSD-2-Clause, BSD-3-Clause, 0BSD, ISC, zlib, Apache-2.0, Unlicense, and the CC0-1.0 public-domain dedication. That code may be read, copied or adapted.
 - **Everything else is off limits, even to read:** GPL, LGPL (Iris), AGPL, MPL, EPL, Polyform (Sodium), the Creative Commons licenses (CC BY, CC BY-SA, CC BY-NC and the others; CC0 is a public-domain dedication, not one of them), custom or "source available" licenses, all rights reserved (OptiFine), and any project with no license or an unclear one. Don't read, copy, translate or paraphrase their source, and don't send code an AI tool wrote from it. Being able to download a mod or a pack does not give you the right to read its files.

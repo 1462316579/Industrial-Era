@@ -19,7 +19,7 @@ import net.minecraft.world.phys.shapes.*;
 /** Exports private runtime data locally and invokes actual vanilla cached-shape queries. */
 public final class VanillaCollisionOracle {
     static { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
-    private static final boolean REUSE = Boolean.getBoolean("horizon.prepare.reuse");
+    private static final boolean REUSE = Boolean.getBoolean("industrial-era.prepare.reuse");
     private static Map<String,byte[]> generated;
     private static final Map<BlockState,Tag> encodedStates = new IdentityHashMap<>();
     private static final Map<VoxelShape,CompoundTag> encodedGrids = new IdentityHashMap<>();

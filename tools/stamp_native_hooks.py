@@ -9,17 +9,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FRAGMENTS = Path("tools/native-hook-fragments")
-SOURCE = Path("crates/horizon-client/src/game/native_hooks.rs")
+SOURCE = Path("crates/industrial-era-client/src/game/native_hooks.rs")
 DOCS = Path("docs/native-mods.md")
 CATALOG = Path("native-hooks.json")
 # The mod API's types and the files `cargo run -p xtask -- mod-api` generates: they copy hook and
 # helper comments, markers included, so every marker is stamped in them too and `--check` holds.
 MOD_API = (
-    Path("crates/horizon-client/src/mod_api.rs"),
-    Path("crates/horizon-client/src/mod_api/generated.rs"),
-    Path("crates/horizon-client/src/mod_api/generated_host.rs"),
-    Path("crates/horizon-client/src/game/mod_api_host_generated.rs"),
-    Path("crates/horizon-client-render/src/gfx/native_render/generated.rs"),
+    Path("crates/industrial-era-client/src/mod_api.rs"),
+    Path("crates/industrial-era-client/src/mod_api/generated.rs"),
+    Path("crates/industrial-era-client/src/mod_api/generated_host.rs"),
+    Path("crates/industrial-era-client/src/game/mod_api_host_generated.rs"),
+    Path("crates/industrial-era-client-render/src/gfx/native_render/generated.rs"),
 )
 
 

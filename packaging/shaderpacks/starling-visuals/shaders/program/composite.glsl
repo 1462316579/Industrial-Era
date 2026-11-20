@@ -49,8 +49,8 @@ float hazeDepth(vec3 rel, float y0, vec3 s) {
     return density * min(mean, 2.0) * length(rel);
 }
 
-// The light the haze along `d` sends to the eye: the sky's near the horizon (looking down at a
-// valley, the sunlit air is as bright as the horizon), dark where the eye has no sky above.
+// The light the haze along `d` sends to the eye: the sky's near the industrial-era (looking down at a
+// valley, the sunlit air is as bright as the industrial-era), dark where the eye has no sky above.
 vec3 hazeLight(vec3 d, vec3 s) {
     vec3 level = normalize(vec3(d.x, max(d.y, 0.0) + 0.001, d.z));
     float eyeSky = float(eyeBrightnessSmooth.y) / 240.0;

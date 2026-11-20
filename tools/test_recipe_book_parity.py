@@ -78,7 +78,7 @@ def main():
                           {'op': 'save'}, {'op': 'load'}, {'op': 'save'}, {'op': 'load', 'drop': 'toBeDisplayed'}]})
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
     vanilla.run('VanillaRecipeBookOracle', work / 'cases.jsonl', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'recipe_book_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'recipe_book_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
 
     def by_case(path):
         out, cur = [], []

@@ -22,7 +22,7 @@ public final class VanillaEffectAttributeModifiersOracle {
     static final class Stop extends RuntimeException {}
     static final class Basic extends Attribute {
         int hash;
-        Basic(double value, int hash) { super("horizon.fixture", value); this.hash = hash; }
+        Basic(double value, int hash) { super("industrial-era.fixture", value); this.hash = hash; }
         @Override public int hashCode() { return hash; }
     }
     static final class Effect extends MobEffect { Effect() { super(MobEffectCategory.BENEFICIAL, 0); } }

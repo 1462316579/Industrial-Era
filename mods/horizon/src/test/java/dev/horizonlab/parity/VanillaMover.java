@@ -18,7 +18,7 @@ import net.minecraft.client.Options;
  */
 public final class VanillaMover {
     public static void main(String[] args) throws Exception {
-        Thread reader = new Thread(VanillaMover::read, "horizon-vanilla-mover");
+        Thread reader = new Thread(VanillaMover::read, "industrial-era-vanilla-mover");
         reader.setDaemon(true);
         reader.start();
         net.minecraft.client.main.Main.main(args);

@@ -168,9 +168,9 @@ def main():
     if args.compare:
         compare(*args.compare)
         return
-    ctl = Path(args.build).resolve() / "horizon-ctl"
+    ctl = Path(args.build).resolve() / "industrial-era-ctl"
     if not ctl.exists():
-        sys.exit(f"{ctl} missing: cargo build --release -p horizon-client -p horizon-client-lib --bins")
+        sys.exit(f"{ctl} missing: cargo build --release -p industrial-era-client -p industrial-era-client-lib --bins")
     cwd = ROOT / ".local/graphics-bench"
     shutil.rmtree(cwd / "saves" / WORLD, ignore_errors=True)
     cwd.mkdir(parents=True, exist_ok=True)

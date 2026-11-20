@@ -169,7 +169,7 @@ def main():
     cases = [gen.case(menus[n % len(menus)]) for n in range(args.cases)]
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
     vanilla.run('VanillaPlaceRecipeOracle', work / 'cases.jsonl', work / 'native.txt', work / 'orders.txt')
-    lib.cargo_example('horizon-client', 'place_recipe_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'orders.txt',
+    lib.cargo_example('industrial-era-client', 'place_recipe_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'orders.txt',
                       work / 'rust.txt')
     bad = lib.compare(cases, work / 'native.txt', work / 'rust.txt',
                       lambda case, line: f'{case["menu"]} {line.split(" ")[1] if line.startswith("post") else "error"}',

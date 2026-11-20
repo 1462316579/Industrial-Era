@@ -31,7 +31,7 @@ public final class VanillaSpriteAnimationOracle {
         // This guard scopes allocation to valid sprite grids. Frame-size calculation
         // above remains tested for impossible dimensions; loader errors are separate.
         if(size.width()>width || size.height()>height || width%size.width()!=0 || height%size.height()!=0) return result;
-        try(var contents=new SpriteContents(Identifier.parse("horizon:probe"),size,new NativeImage(width,height,true),Optional.of(metadata),List.of(),Optional.empty())) {
+        try(var contents=new SpriteContents(Identifier.parse("industrial-era:probe"),size,new NativeImage(width,height,true),Optional.of(metadata),List.of(),Optional.empty())) {
             var animation=field(contents,"animatedTexture");
             if(animation==null) { result.put("animation",null); return result; }
             var nativeFrames=(List<?>)field(animation,"frames"); var sequence=new ArrayList<int[]>();

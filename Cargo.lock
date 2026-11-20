@@ -374,10 +374,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-horizon-mod"
+name = "cargo-industrial-era-mod"
 version = "0.1.0"
 dependencies = [
- "horizon-mods",
+ "industrial-era-mods",
  "serde_json",
  "zip",
 ]
@@ -1308,536 +1308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-android"
-version = "0.1.0"
-dependencies = [
- "horizon-client",
- "jni 0.21.1",
- "winit",
-]
-
-[[package]]
-name = "horizon-anticheat"
-version = "0.1.0"
-dependencies = [
- "serde",
- "toml",
-]
-
-[[package]]
-name = "horizon-assets"
-version = "0.1.0"
-dependencies = [
- "horizon-core",
- "png",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-bench"
-version = "0.1.0"
-dependencies = [
- "horizon-telemetry",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-bots"
-version = "0.1.0"
-dependencies = [
- "horizon-protocol",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-chat-filter"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "toml",
-]
-
-[[package]]
-name = "horizon-client"
-version = "0.1.0"
-dependencies = [
- "ab_glyph",
- "bytemuck",
- "chrono",
- "flate2",
- "fs4",
- "gilrs",
- "glam",
- "horizon-anticheat",
- "horizon-assets",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-client-core",
- "horizon-client-input",
- "horizon-client-lib",
- "horizon-client-render",
- "horizon-command",
- "horizon-core",
- "horizon-cosmetics",
- "horizon-dualsense",
- "horizon-friends",
- "horizon-hdr",
- "horizon-items",
- "horizon-mods",
- "horizon-narrator",
- "horizon-optifine",
- "horizon-protocol",
- "horizon-server-files",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
- "jni 0.21.1",
- "log",
- "miniz_oxide 0.8.9",
- "naga",
- "objc2 0.6.5",
- "objc2-app-kit 0.3.2",
- "objc2-foundation 0.3.2",
- "open",
- "png",
- "pollster",
- "regex",
- "rustix 1.1.5",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "starling-catalog",
- "unicode-bidi",
- "ureq",
- "wgpu",
- "winit",
- "winresource",
- "zip",
-]
-
-[[package]]
-name = "horizon-client-core"
-version = "0.1.0"
-dependencies = [
- "horizon-world",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-client-input"
-version = "0.1.0"
-dependencies = [
- "arboard",
- "horizon-client-core",
- "horizon-dualsense",
- "horizon-theme",
- "png",
- "winit",
-]
-
-[[package]]
-name = "horizon-client-lib"
-version = "0.1.0"
-dependencies = [
- "ab_glyph",
- "bytemuck",
- "chrono",
- "flate2",
- "fs4",
- "gilrs",
- "glam",
- "horizon-anticheat",
- "horizon-assets",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-client-core",
- "horizon-client-input",
- "horizon-client-render",
- "horizon-command",
- "horizon-core",
- "horizon-dualsense",
- "horizon-friends",
- "horizon-hdr",
- "horizon-items",
- "horizon-mcp",
- "horizon-mods",
- "horizon-narrator",
- "horizon-optifine",
- "horizon-prepare",
- "horizon-protocol",
- "horizon-server-files",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
- "log",
- "miniz_oxide 0.8.9",
- "naga",
- "objc2 0.6.5",
- "objc2-app-kit 0.3.2",
- "objc2-foundation 0.3.2",
- "open",
- "png",
- "pollster",
- "rustix 1.1.5",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "starling-account",
- "unicode-bidi",
- "ureq",
- "wgpu",
- "winit",
- "zip",
-]
-
-[[package]]
-name = "horizon-client-render"
-version = "0.1.0"
-dependencies = [
- "ab_glyph",
- "base64",
- "bytemuck",
- "chrono",
- "cpal",
- "flate2",
- "glam",
- "half",
- "horizon-assets",
- "horizon-bench",
- "horizon-client-core",
- "horizon-client-input",
- "horizon-command",
- "horizon-core",
- "horizon-cosmetics",
- "horizon-hdr",
- "horizon-items",
- "horizon-narrator",
- "horizon-optifine",
- "horizon-protocol",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
- "junction",
- "log",
- "lz4_flex",
- "miniz_oxide 0.8.9",
- "naga",
- "png",
- "pollster",
- "rustix 1.1.5",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "smallvec",
- "symphonia",
- "unicode-bidi",
- "ureq",
- "wgpu",
- "winit",
- "zip",
-]
-
-[[package]]
-name = "horizon-command"
-version = "0.1.0"
-dependencies = [
- "horizon-client-core",
- "horizon-protocol",
- "horizon-world",
-]
-
-[[package]]
-name = "horizon-core"
-version = "0.1.0"
-dependencies = [
- "libm",
-]
-
-[[package]]
-name = "horizon-cosmetics"
-version = "0.1.0"
-dependencies = [
- "base64",
- "glam",
- "png",
- "serde",
- "serde_json",
- "ureq",
-]
-
-[[package]]
-name = "horizon-dualsense"
-version = "0.1.0"
-dependencies = [
- "cpal",
- "hidapi",
- "log",
-]
-
-[[package]]
-name = "horizon-friends"
-version = "0.1.0"
-dependencies = [
- "chacha20poly1305",
- "getrandom 0.3.4",
- "hkdf",
- "if-addrs",
- "serde",
- "serde_json",
- "sha2",
- "socket2 0.5.10",
- "spake2",
-]
-
-[[package]]
-name = "horizon-hdr"
-version = "0.1.0"
-dependencies = [
- "ash",
- "wayland-backend",
- "wayland-client",
- "wayland-protocols",
- "wgpu",
-]
-
-[[package]]
-name = "horizon-items"
-version = "0.1.0"
-dependencies = [
- "horizon-client-core",
- "horizon-core",
- "horizon-world",
- "log",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-mcp"
-version = "0.1.0"
-dependencies = [
- "serde_json",
-]
-
-[[package]]
-name = "horizon-mods"
-version = "0.1.0"
-dependencies = [
- "horizon-shader-api",
- "log",
- "minisign-verify",
- "serde",
- "serde_json",
- "sha2",
- "toml",
- "wasmparser",
- "zip",
-]
-
-[[package]]
-name = "horizon-narrator"
-version = "0.1.0"
-dependencies = [
- "libloading",
- "log",
- "objc2 0.6.5",
- "objc2-app-kit 0.3.2",
- "objc2-foundation 0.3.2",
- "windows 0.62.2",
-]
-
-[[package]]
-name = "horizon-optifine"
-version = "0.1.0"
-dependencies = [
- "horizon-bench",
- "horizon-core",
- "log",
- "regex",
-]
-
-[[package]]
-name = "horizon-port-pack"
-version = "0.1.0"
-dependencies = [
- "horizon-mods",
- "serde",
- "serde_json",
- "sha1",
- "toml",
- "ureq",
- "zip",
-]
-
-[[package]]
-name = "horizon-prepare"
-version = "0.1.0"
-dependencies = [
- "crc32fast",
- "libc",
- "regex",
- "rustix 1.1.5",
- "sha1",
- "sha2",
- "zip",
-]
-
-[[package]]
-name = "horizon-protocol"
-version = "0.1.0"
-dependencies = [
- "aes",
- "flate2",
- "getrandom 0.3.4",
- "horizon-core",
- "horizon-world",
- "ipconfig",
- "serde_json",
- "sha1",
- "sha2",
-]
-
-[[package]]
-name = "horizon-relay"
-version = "0.1.0"
-dependencies = [
- "getrandom 0.3.4",
- "horizon-friends",
- "serde_json",
-]
-
-[[package]]
-name = "horizon-release-sign"
-version = "0.1.0"
-dependencies = [
- "base64",
- "ring",
-]
-
-[[package]]
-name = "horizon-server"
-version = "0.1.0"
-dependencies = [
- "ab_glyph",
- "base64",
- "chrono",
- "horizon-anticheat",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-core",
- "horizon-mcp",
- "horizon-release-sign",
- "horizon-server-files",
- "libc",
- "p12-keystore",
- "png",
- "rcgen",
- "rustls",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "toml",
- "toml_edit",
- "ureq",
- "windows-sys 0.61.2",
- "zip",
-]
-
-[[package]]
-name = "horizon-server-files"
-version = "0.1.0"
-dependencies = [
- "base64",
- "horizon-core",
- "horizon-protocol",
- "horizon-world",
- "log",
- "ureq",
-]
-
-[[package]]
-name = "horizon-shader-api"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "naga",
- "png",
- "serde",
- "serde_json",
- "sha2",
- "toml",
- "zip",
-]
-
-[[package]]
-name = "horizon-shaders"
-version = "0.1.0"
-dependencies = [
- "half",
- "horizon-core",
- "naga",
- "png",
- "zip",
-]
-
-[[package]]
-name = "horizon-telemetry"
-version = "0.1.0"
-dependencies = [
- "getrandom 0.3.4",
- "ruzstd",
- "serde",
- "serde_json",
- "ureq",
-]
-
-[[package]]
-name = "horizon-theme"
-version = "0.1.0"
-
-[[package]]
-name = "horizon-threads"
-version = "0.1.0"
-dependencies = [
- "libc",
- "libmimalloc-sys",
- "mimalloc",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "horizon-world"
-version = "0.1.0"
-dependencies = [
- "flate2",
- "horizon-core",
- "libm",
- "log",
- "lz4_flex",
- "postcard",
- "serde",
- "serde_json",
- "sha2",
- "xxhash-rust",
-]
-
-[[package]]
 name = "iana-time-zone"
 version = "0.1.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2013,6 +1483,536 @@ dependencies = [
  "hashbrown 0.17.1",
  "serde",
  "serde_core",
+]
+
+[[package]]
+name = "industrial-era-android"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-client",
+ "jni 0.21.1",
+ "winit",
+]
+
+[[package]]
+name = "industrial-era-anticheat"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "industrial-era-assets"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-core",
+ "png",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-bench"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-telemetry",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-bots"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-protocol",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-chat-filter"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
+name = "industrial-era-client"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "bytemuck",
+ "chrono",
+ "flate2",
+ "fs4",
+ "gilrs",
+ "glam",
+ "industrial-era-anticheat",
+ "industrial-era-assets",
+ "industrial-era-bench",
+ "industrial-era-chat-filter",
+ "industrial-era-client-core",
+ "industrial-era-client-input",
+ "industrial-era-client-lib",
+ "industrial-era-client-render",
+ "industrial-era-command",
+ "industrial-era-core",
+ "industrial-era-cosmetics",
+ "industrial-era-dualsense",
+ "industrial-era-friends",
+ "industrial-era-hdr",
+ "industrial-era-items",
+ "industrial-era-mods",
+ "industrial-era-narrator",
+ "industrial-era-optifine",
+ "industrial-era-protocol",
+ "industrial-era-server-files",
+ "industrial-era-shader-api",
+ "industrial-era-shaders",
+ "industrial-era-telemetry",
+ "industrial-era-theme",
+ "industrial-era-threads",
+ "industrial-era-world",
+ "jni 0.21.1",
+ "log",
+ "miniz_oxide 0.8.9",
+ "naga",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
+ "open",
+ "png",
+ "pollster",
+ "regex",
+ "rustix 1.1.5",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "starling-catalog",
+ "unicode-bidi",
+ "ureq",
+ "wgpu",
+ "winit",
+ "winresource",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-client-core"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-world",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-client-input"
+version = "0.1.0"
+dependencies = [
+ "arboard",
+ "industrial-era-client-core",
+ "industrial-era-dualsense",
+ "industrial-era-theme",
+ "png",
+ "winit",
+]
+
+[[package]]
+name = "industrial-era-client-lib"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "bytemuck",
+ "chrono",
+ "flate2",
+ "fs4",
+ "gilrs",
+ "glam",
+ "industrial-era-anticheat",
+ "industrial-era-assets",
+ "industrial-era-bench",
+ "industrial-era-chat-filter",
+ "industrial-era-client-core",
+ "industrial-era-client-input",
+ "industrial-era-client-render",
+ "industrial-era-command",
+ "industrial-era-core",
+ "industrial-era-dualsense",
+ "industrial-era-friends",
+ "industrial-era-hdr",
+ "industrial-era-items",
+ "industrial-era-mcp",
+ "industrial-era-mods",
+ "industrial-era-narrator",
+ "industrial-era-optifine",
+ "industrial-era-prepare",
+ "industrial-era-protocol",
+ "industrial-era-server-files",
+ "industrial-era-shader-api",
+ "industrial-era-shaders",
+ "industrial-era-telemetry",
+ "industrial-era-theme",
+ "industrial-era-threads",
+ "industrial-era-world",
+ "log",
+ "miniz_oxide 0.8.9",
+ "naga",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
+ "open",
+ "png",
+ "pollster",
+ "rustix 1.1.5",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "starling-account",
+ "unicode-bidi",
+ "ureq",
+ "wgpu",
+ "winit",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-client-render"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "base64",
+ "bytemuck",
+ "chrono",
+ "cpal",
+ "flate2",
+ "glam",
+ "half",
+ "industrial-era-assets",
+ "industrial-era-bench",
+ "industrial-era-client-core",
+ "industrial-era-client-input",
+ "industrial-era-command",
+ "industrial-era-core",
+ "industrial-era-cosmetics",
+ "industrial-era-hdr",
+ "industrial-era-items",
+ "industrial-era-narrator",
+ "industrial-era-optifine",
+ "industrial-era-protocol",
+ "industrial-era-shader-api",
+ "industrial-era-shaders",
+ "industrial-era-telemetry",
+ "industrial-era-theme",
+ "industrial-era-threads",
+ "industrial-era-world",
+ "junction",
+ "log",
+ "lz4_flex",
+ "miniz_oxide 0.8.9",
+ "naga",
+ "png",
+ "pollster",
+ "rustix 1.1.5",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "smallvec",
+ "symphonia",
+ "unicode-bidi",
+ "ureq",
+ "wgpu",
+ "winit",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-command"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-client-core",
+ "industrial-era-protocol",
+ "industrial-era-world",
+]
+
+[[package]]
+name = "industrial-era-core"
+version = "0.1.0"
+dependencies = [
+ "libm",
+]
+
+[[package]]
+name = "industrial-era-cosmetics"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "glam",
+ "png",
+ "serde",
+ "serde_json",
+ "ureq",
+]
+
+[[package]]
+name = "industrial-era-dualsense"
+version = "0.1.0"
+dependencies = [
+ "cpal",
+ "hidapi",
+ "log",
+]
+
+[[package]]
+name = "industrial-era-friends"
+version = "0.1.0"
+dependencies = [
+ "chacha20poly1305",
+ "getrandom 0.3.4",
+ "hkdf",
+ "if-addrs",
+ "serde",
+ "serde_json",
+ "sha2",
+ "socket2 0.5.10",
+ "spake2",
+]
+
+[[package]]
+name = "industrial-era-hdr"
+version = "0.1.0"
+dependencies = [
+ "ash",
+ "wayland-backend",
+ "wayland-client",
+ "wayland-protocols",
+ "wgpu",
+]
+
+[[package]]
+name = "industrial-era-items"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-client-core",
+ "industrial-era-core",
+ "industrial-era-world",
+ "log",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-mcp"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-mods"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-shader-api",
+ "log",
+ "minisign-verify",
+ "serde",
+ "serde_json",
+ "sha2",
+ "toml",
+ "wasmparser",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-narrator"
+version = "0.1.0"
+dependencies = [
+ "libloading",
+ "log",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
+ "windows 0.62.2",
+]
+
+[[package]]
+name = "industrial-era-optifine"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-bench",
+ "industrial-era-core",
+ "log",
+ "regex",
+]
+
+[[package]]
+name = "industrial-era-port-pack"
+version = "0.1.0"
+dependencies = [
+ "industrial-era-mods",
+ "serde",
+ "serde_json",
+ "sha1",
+ "toml",
+ "ureq",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-prepare"
+version = "0.1.0"
+dependencies = [
+ "crc32fast",
+ "libc",
+ "regex",
+ "rustix 1.1.5",
+ "sha1",
+ "sha2",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-protocol"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "flate2",
+ "getrandom 0.3.4",
+ "industrial-era-core",
+ "industrial-era-world",
+ "ipconfig",
+ "serde_json",
+ "sha1",
+ "sha2",
+]
+
+[[package]]
+name = "industrial-era-relay"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "industrial-era-friends",
+ "serde_json",
+]
+
+[[package]]
+name = "industrial-era-release-sign"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "ring",
+]
+
+[[package]]
+name = "industrial-era-server"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "base64",
+ "chrono",
+ "industrial-era-anticheat",
+ "industrial-era-bench",
+ "industrial-era-chat-filter",
+ "industrial-era-core",
+ "industrial-era-mcp",
+ "industrial-era-release-sign",
+ "industrial-era-server-files",
+ "libc",
+ "p12-keystore",
+ "png",
+ "rcgen",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "toml",
+ "toml_edit",
+ "ureq",
+ "windows-sys 0.61.2",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-server-files"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "industrial-era-core",
+ "industrial-era-protocol",
+ "industrial-era-world",
+ "log",
+ "ureq",
+]
+
+[[package]]
+name = "industrial-era-shader-api"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "naga",
+ "png",
+ "serde",
+ "serde_json",
+ "sha2",
+ "toml",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-shaders"
+version = "0.1.0"
+dependencies = [
+ "half",
+ "industrial-era-core",
+ "naga",
+ "png",
+ "zip",
+]
+
+[[package]]
+name = "industrial-era-telemetry"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "ruzstd",
+ "serde",
+ "serde_json",
+ "ureq",
+]
+
+[[package]]
+name = "industrial-era-theme"
+version = "0.1.0"
+
+[[package]]
+name = "industrial-era-threads"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "libmimalloc-sys",
+ "mimalloc",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "industrial-era-world"
+version = "0.1.0"
+dependencies = [
+ "flate2",
+ "industrial-era-core",
+ "libm",
+ "log",
+ "lz4_flex",
+ "postcard",
+ "serde",
+ "serde_json",
+ "sha2",
+ "xxhash-rust",
 ]
 
 [[package]]
@@ -3836,9 +3836,9 @@ dependencies = [
 name = "starling-catalog"
 version = "0.1.0"
 dependencies = [
- "horizon-mods",
- "horizon-port-pack",
  "image",
+ "industrial-era-mods",
+ "industrial-era-port-pack",
  "serde",
  "serde_json",
  "sha1",
@@ -5328,7 +5328,7 @@ checksum = "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7"
 name = "xtask"
 version = "0.1.0"
 dependencies = [
- "horizon-theme",
+ "industrial-era-theme",
  "quote",
  "serde_json",
  "syn 2.0.119",

@@ -25,7 +25,7 @@ public final class VanillaWorldOracle {
     static { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
     private static final IdMapper<String> IDS = new IdMapper<>();
     static { for (int i = 0; i < 8192; i++) IDS.add("state" + i); }
-    private static final RegionStorageInfo INFO = new RegionStorageInfo("horizon-fixture", Level.OVERWORLD, "chunk");
+    private static final RegionStorageInfo INFO = new RegionStorageInfo("industrial-era-fixture", Level.OVERWORLD, "chunk");
     private static final Strategy<BlockState> BLOCKS = Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY);
     private static final Codec<PalettedContainer<BlockState>> BLOCK_CODEC = PalettedContainer.codecRW(BlockState.CODEC, BLOCKS, Blocks.AIR.defaultBlockState());
 

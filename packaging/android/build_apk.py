@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build Starling's Android APK (Horizon on Android): horizon-android as a
+"""Build Starling's Android APK (Industrial Era on Android): industrial-era-android as a
 NativeActivity library.
 
 The APK holds the game library, the launcher icon, Starling Visuals and what prepares the game
 files on the phone (the Java launchers in native/ and original exporter classes/sources), nothing of
 Minecraft: the resources
-horizon-prepare makes from the player's own copy are made on the phone, or copied there.
+industrial-era-prepare makes from the player's own copy are made on the phone, or copied there.
 
     python3 packaging/android/build_apk.py                 # build the library, then the APK
     python3 packaging/android/build_apk.py --no-build      # package the library built last
@@ -69,13 +69,13 @@ ICONS = {
     "mipmap-xxhdpi": "128x128",
     "mipmap-xxxhdpi": "256x256",
 }
-# What horizon-prepare reads from its version folder on the phone (assets/prepare-kit.zip):
+# What industrial-era-prepare reads from its version folder on the phone (assets/prepare-kit.zip):
 # the pins, original sources and verified original exporter classes. The phone
 # runs these against the player's jars; ARM32's runtime has no javac module.
 PREPARE_KIT = (
     "research-lock.json",
-    "crates/horizon-prepare/src/exporters.rs",
-    "mods/horizon/src/test/java",
+    "crates/industrial-era-prepare/src/exporters.rs",
+    "mods/industrial-era/src/test/java",
 )
 
 
@@ -123,13 +123,13 @@ def build_library(profile, ndk, sdk, abi=ABI):
     env["RUSTFLAGS"] = (env.get("RUSTFLAGS", "") + " " + PAGE_FLAGS + " " + BUILD_ID_FLAGS).strip()
     run(
         "cargo", "ndk", "-t", abi, "--platform", MIN_SDK,
-        "build", "--profile", profile, "-p", "horizon-android",
+        "build", "--profile", profile, "-p", "industrial-era-android",
         cwd=ROOT, env=env,
     )
 
 
 def build_launchers(ndk, out, abi=ABI):
-    """The `java` and `javac` horizon-prepare runs on the phone (native/java_launcher.c), with the
+    """The `java` and `javac` industrial-era-prepare runs on the phone (native/java_launcher.c), with the
     C++ runtime the Java runtime's libraries need: an app runs programs only from its library
     folder, so they go in the APK as libraries."""
     _, compiler, sysroot_triple = TARGETS[abi]
@@ -159,7 +159,7 @@ def zip_folder(folder, archive):
 
 
 def assets(out):
-    """The APK's assets/: prepare-kit.zip (PREPARE_KIT, with the paths horizon-prepare reads),
+    """The APK's assets/: prepare-kit.zip (PREPARE_KIT, with the paths industrial-era-prepare reads),
     lowbudget.zip, the skin the setup draws the menus with (packaging/lowbudget/pack, made by its
     make.py), and StarlingVisuals.zip, the shader pack the app puts in shaderpacks/ (also left in
     `out` for the release page)."""
@@ -170,7 +170,7 @@ def assets(out):
     fonts = folder / "diagnostic-fonts"
     fonts.mkdir()
     for name in ("Geist-Regular.ttf", "Geist-SemiBold.ttf"):
-        shutil.copyfile(ROOT / "crates/horizon-theme/fonts" / name, fonts / name)
+        shutil.copyfile(ROOT / "crates/industrial-era-theme/fonts" / name, fonts / name)
     with zipfile.ZipFile(folder / "prepare-kit.zip", "w", zipfile.ZIP_DEFLATED) as kit:
         for entry in PREPARE_KIT:
             path = ROOT / entry
@@ -226,7 +226,7 @@ def link_resources(aapt2, android_jar, out, assets, variant, abi=ABI):
         target = res / folder
         target.mkdir(parents=True)
         shutil.copyfile(
-            ROOT / "packaging" / "icons" / "hicolor" / size / "apps" / "horizon.png",
+            ROOT / "packaging" / "icons" / "hicolor" / size / "apps" / "industrial-era.png",
             target / "ic_launcher.png",
         )
     # The window themes (res/: the starting window's icon and background).
@@ -234,7 +234,7 @@ def link_resources(aapt2, android_jar, out, assets, variant, abi=ABI):
     shortcuts = res / "xml" / "shortcuts.xml"
     shortcuts.write_text(shortcuts.read_text(encoding="utf-8").replace("@APPLICATION_ID@", application_id), encoding="utf-8")
     # Match the setup dialogs without loading Rust or the game's renderer.
-    theme = (ROOT / "crates/horizon-theme/src/lib.rs").read_text(encoding="utf-8")
+    theme = (ROOT / "crates/industrial-era-theme/src/lib.rs").read_text(encoding="utf-8")
     dark = theme.split("pub const DARK: Palette = Palette {", 1)[1].split("};", 1)[0]
     colors = dict(re.findall(r"(\w+): 0x([0-9a-fA-F]{6})", dark))
     entries = "\n".join(
@@ -274,7 +274,7 @@ def add_code(base, libraries, dex, unsigned, abi=ABI):
 
 def sign(build_tools, aligned, apk, out):
     keystore = os.environ.get("HORIZON_ANDROID_KEYSTORE")
-    alias = os.environ.get("HORIZON_ANDROID_KEY_ALIAS", "horizon-debug")
+    alias = os.environ.get("HORIZON_ANDROID_KEY_ALIAS", "industrial-era-debug")
     env = dict(os.environ)
     if not keystore:
         keystore = out / "debug.keystore"
@@ -283,7 +283,7 @@ def sign(build_tools, aligned, apk, out):
             run(
                 "keytool", "-genkeypair", "-keystore", keystore, "-storepass", "android",
                 "-keypass", "android", "-alias", alias, "-keyalg", "RSA", "-keysize", "2048",
-                "-validity", "10000", "-dname", "CN=Horizon Android debug",
+                "-validity", "10000", "-dname", "CN=Industrial Era Android debug",
             )
     apksigner = tool(build_tools, "apksigner")
     run(

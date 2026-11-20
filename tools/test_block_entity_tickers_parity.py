@@ -23,7 +23,7 @@ except ImportError:
     import lab
     import test_rust_parity as base
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity'
 TICKING = ['hopper', 'furnace', 'blast_furnace', 'smoker', 'beacon', 'spawner', 'trial_spawner', 'vault',
            'beehive', 'bee_nest', 'crafter', 'brewing_stand', 'jukebox_record']
 KINDS = TICKING + ['jukebox', 'chest', 'barrel']
@@ -119,7 +119,7 @@ def main():
         'compile-java')
     run(['java', '-Xmx1G', '-cp', str(classes) + os.pathsep + dependencies,
          'dev.horizonlab.parity.VanillaBlockEntityTickerOracle', inputs, build / 'vanilla.txt'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'industrial-era-client-lib', '--example',
          'client_probe', '--', 'block_entity_tickers_fixture', inputs, build / 'rust.txt'], 'rust')
     matched = base.compare(build / 'vanilla.txt', build / 'rust.txt')
     ticks = sum(1 for line in lines if line == 'tick')

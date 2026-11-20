@@ -12,7 +12,7 @@ again.
 
 | Shelf | Where from | Goes to | Then |
 |---|---|---|---|
-| Mods | Horizon's registry of reviewed mods | `horizon-native-mods/` or `horizon-mods/` | A native mod gets its Compile button ([starling-native-mods.md](starling-native-mods.md)); a content mod loads at the next start |
+| Mods | Industrial Era's registry of reviewed mods | `industrial-era-native-mods/` or `industrial-era-mods/` | A native mod gets its Compile button ([starling-native-mods.md](starling-native-mods.md)); a content mod loads at the next start |
 | Resource packs | Modrinth | `resourcepacks/` | The Resource Packs page lists it at once; the player turns it on |
 | Shader packs | Modrinth's Iris and OptiFine packs; a search also finds the registry's | `shaderpacks/` | The player chooses it |
 
@@ -30,5 +30,5 @@ again.
 ## Testing without a phone
 
 `cargo test -p starling-catalog` runs what needs no network, the list's pages and the finger on it among them. The
-browser's own tests stay in the launcher's workspace. `cargo test -p horizon-client-render --lib options_ui` covers the
+browser's own tests stay in the launcher's workspace. `cargo test -p industrial-era-client-render --lib options_ui` covers the
 pages' Catalog buttons and the Resource Packs page's list after an install.

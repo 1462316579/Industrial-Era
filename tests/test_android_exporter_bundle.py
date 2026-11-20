@@ -115,7 +115,7 @@ class ExporterBundle(unittest.TestCase):
             root = Path(folder)
             source = root / 'compiled'
             bundle(source, 'server/net/minecraft/Foreign.class')
-            with self.assertRaisesRegex(ValueError, 'Non-Horizon'):
+            with self.assertRaisesRegex(ValueError, 'Non-Industrial Era'):
                 builder.copy_bundle(source, root / 'exporters')
             self.assertFalse((root / 'exporters').exists())
 
@@ -127,10 +127,10 @@ class ExporterBundle(unittest.TestCase):
             foreign = root / 'exporters/server/net/minecraft/Foreign.class'
             foreign.parent.mkdir(parents=True)
             foreign.write_bytes(b'must stay out')
-            for entry in ['research-lock.json', 'crates/horizon-prepare/src/exporters.rs',
-                          'mods/horizon/src/test/java/dev/horizonlab/parity/PrepareWorker.java',
-                          'crates/horizon-theme/fonts/Geist-Regular.ttf',
-                          'crates/horizon-theme/fonts/Geist-SemiBold.ttf',
+            for entry in ['research-lock.json', 'crates/industrial-era-prepare/src/exporters.rs',
+                          'mods/industrial-era/src/test/java/dev/horizonlab/parity/PrepareWorker.java',
+                          'crates/industrial-era-theme/fonts/Geist-Regular.ttf',
+                          'crates/industrial-era-theme/fonts/Geist-SemiBold.ttf',
                           'packaging/lowbudget/pack/original.txt',
                           'packaging/shaderpacks/starling-visuals/original.txt']:
                 path = root / entry

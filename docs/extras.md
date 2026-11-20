@@ -1,4 +1,4 @@
-# Horizon extras
+# Industrial Era extras
 
 Optional conveniences built into the client: fullbright, dynamic lights, your own name tag, hiding block-break particles, auto-reconnect,
 Mouse Tweaks-style inventory controls, inventory sorting, a smooth chat and a music page. **Every one is off by default**: a fresh
@@ -9,18 +9,18 @@ again restores vanilla's behaviour completely.
 
 | Part | Code |
 |---|---|
-| Settings, parsing and saving | `crates/horizon-client-render/src/extras.rs` |
+| Settings, parsing and saving | `crates/industrial-era-client-render/src/extras.rs` |
 | FPS and click counters (for native mods) | `extras.rs` (pure logic, unit tested) |
-| Dynamic lights: item glow, nearest sources | `crates/horizon-client-render/src/dynamic_light.rs` (unit tested), `game/dynamic_lights.rs`, `terrain.wgsl` and `entity.wgsl` (`dynamic_block_light`) |
-| HUD drawing (a native mod's minimap, corner stacking) | `crates/horizon-client/src/extras_hud.rs` |
-| Minimap colours, tiles and image (for the Minimap native mod) | `crates/horizon-client-render/src/minimap.rs` |
-| Reconnect policy and backoff | `crates/horizon-client/src/reconnect.rs` |
-| Game glue (input hooks, per-frame update) | `crates/horizon-client/src/game/extras.rs` |
-| Mouse Tweaks-style controls, sort buttons | `crates/horizon-client/src/game/tweaks.rs` |
-| Sort order and its clicks | `crates/horizon-client/src/inv_sort.rs` (pure, unit tested) |
-| The music page's rows, and the pools it filters | `options_ui.rs` (`Page::Music`), `crates/horizon-client/src/music.rs` (`track_groups`, `MusicManager::set_off`), `sound_events.rs` (`sound_except`) |
-| Cosmetics (show mine, show others'), off with their flag | `extras.rs`, `crates/horizon-client/src/game/cosmetics.rs` ([cosmetics.md](cosmetics.md)) |
-| The settings page | `options_ui.rs` (`Page::Extras`): **Options → Horizon Settings... → Extras...** |
+| Dynamic lights: item glow, nearest sources | `crates/industrial-era-client-render/src/dynamic_light.rs` (unit tested), `game/dynamic_lights.rs`, `terrain.wgsl` and `entity.wgsl` (`dynamic_block_light`) |
+| HUD drawing (a native mod's minimap, corner stacking) | `crates/industrial-era-client/src/extras_hud.rs` |
+| Minimap colours, tiles and image (for the Minimap native mod) | `crates/industrial-era-client-render/src/minimap.rs` |
+| Reconnect policy and backoff | `crates/industrial-era-client/src/reconnect.rs` |
+| Game glue (input hooks, per-frame update) | `crates/industrial-era-client/src/game/extras.rs` |
+| Mouse Tweaks-style controls, sort buttons | `crates/industrial-era-client/src/game/tweaks.rs` |
+| Sort order and its clicks | `crates/industrial-era-client/src/inv_sort.rs` (pure, unit tested) |
+| The music page's rows, and the pools it filters | `options_ui.rs` (`Page::Music`), `crates/industrial-era-client/src/music.rs` (`track_groups`, `MusicManager::set_off`), `sound_events.rs` (`sound_except`) |
+| Cosmetics (show mine, show others'), off with their flag | `extras.rs`, `crates/industrial-era-client/src/game/cosmetics.rs` ([cosmetics.md](cosmetics.md)) |
+| The settings page | `options_ui.rs` (`Page::Extras`): **Options → Industrial Era Settings... → Extras...** |
 
 The settings are grouped by extra, under a header each, two buttons to a row as
 vanilla's options lists are, and each says what it does in its tooltip. An
@@ -32,12 +32,12 @@ extras stay out of the way of other input and options work.
 
 ## Options storage
 
-`horizon-extras.txt` beside `options.txt`, in the same `key:value` format as
-`horizon-graphics.txt`. `options.txt` is untouched, so a vanilla client can share
+`industrial-era-extras.txt` beside `options.txt`, in the same `key:value` format as
+`industrial-era-graphics.txt`. `options.txt` is untouched, so a vanilla client can share
 the folder. Unknown or broken lines fall back to the defaults.
 
-Extras' keys (the sort key) are Horizon settings stored in that file and bound on
-the Extras page, not in vanilla's Key Binds screen: Horizon has no Horizon category
+Extras' keys (the sort key) are Industrial Era settings stored in that file and bound on
+the Extras page, not in vanilla's Key Binds screen: Industrial Era has no Industrial Era category
 in Controls, and adding one would put a non-vanilla mapping into `options.txt`.
 
 ## The extras
@@ -65,10 +65,10 @@ in Controls, and adding one would put a non-vanilla mapping into `options.txt`.
 ### Moved to native mods
 
 The **FPS counter**, **Keystrokes**, **Zoom** and the **Minimap** are official native mods now (in
-horizon-rust/horizon-mods under `native/<name>/`, [mods.md](mods.md#horizons-official-mods)), with the same look and
+industrial-era-rust/industrial-era-mods under `native/<name>/`, [mods.md](mods.md#horizons-official-mods)), with the same look and
 options. Players install them from the launcher's Mods page, and the launcher builds them into the game
 ([native-mods.md](native-mods.md)). The game keeps
-the hook points they use (`crates/horizon-client/src/game/native_hooks.rs`), and `horizon-extras.txt` keeps the old
+the hook points they use (`crates/industrial-era-client/src/game/native_hooks.rs`), and `industrial-era-extras.txt` keeps the old
 keys and `movedToMods`.
 
 The game still draws the minimap, for the native mod (`native_minimap` in `native_hooks.rs`, [mods.md](mods.md)):
@@ -121,7 +121,7 @@ The game still draws the minimap, for the native mod (`native_minimap` in `nativ
   hundreds of blocks at once) then can't stop the pause menu's clicks.
 - Vanilla 26.3 gives all 247 to whatever starts first
   (`Library.acquireChannel` returns null once the pool is full); with the
-  extra off Horizon does exactly that. Below 231 sounds at once nothing
+  extra off Industrial Era does exactly that. Below 231 sounds at once nothing
   changes either way. Streaming sounds (music, records) are untouched
   (`sound_engine.rs`, `listener_reserve`). Client-only.
 
@@ -188,7 +188,7 @@ and the container screen tests are unchanged).
 
 ### Splitscreen (`splitscreen`, default off)
 
-**Options → Horizon Settings... → Splitscreen...** turns local joining on or off at once.
+**Options → Industrial Era Settings... → Splitscreen...** turns local joining on or off at once.
 In P1's single-player world, a controller P1 isn't using can press a button, then A to join
 (or Y to play as P1, while P1 has no controller). Each
 player picks an instance-local profile with its own options and saved progress. LB/RB on
@@ -237,7 +237,7 @@ Joining P1 on an external server follows separately.
 - **On/Off** at the right of a row takes a track out of every pool it plays in, so
   a situation with all its tracks off plays nothing. Every track is on by default,
   so vanilla's random selection is unchanged; the off ones are `musicOff` in
-  `horizon-extras.txt`.
+  `industrial-era-extras.txt`.
 - The pools are filtered where they are picked (`sound_except` in
   `sound_events.rs`), the manager is `music.rs`, and the page is in `options_ui.rs`.
 

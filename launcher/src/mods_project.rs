@@ -1,4 +1,4 @@
-//! The Mods page's project page, search filters and project icons (`horizon_launcher::browser`:
+//! The Mods page's project page, search filters and project icons (`industrial_era_launcher::browser`:
 //! `details` for the data, `images` for the icons and gallery). Drawn only with the launcher's
 //! shared components, so a restyle of those restyles this.
 //!
@@ -12,7 +12,7 @@
 use super::mods_page::{Checking, Event};
 use super::*;
 use gpui::img;
-use horizon_launcher::browser::{
+use industrial_era_launcher::browser::{
     self,
     details::{Details, Environment, Filters, Sort, Tags},
     images, java, Kind as PackKind, Project, SourceId, Support, Version,
@@ -82,14 +82,14 @@ pub(super) struct Opened {
     details: Option<Result<Arc<Details>, String>>,
     versions: Option<Result<Arc<[ProjectVersion]>, String>>,
     version_list: cull::Cull,
-    checked_versions: HashMap<String, horizon_port_pack::check::Verdict>,
+    checked_versions: HashMap<String, industrial_era_port_pack::check::Verdict>,
 }
 
 /// Cached verdicts are read with the version request, never while drawing a frame.
 #[derive(Clone)]
 pub(super) struct ProjectVersion {
     version: Version,
-    verdict: Option<horizon_port_pack::check::Verdict>,
+    verdict: Option<industrial_era_port_pack::check::Verdict>,
 }
 
 /// The project page, filters and images' share of the Mods page's state.
@@ -114,7 +114,7 @@ pub(super) enum Loaded {
     Checked(
         (SourceId, String),
         String,
-        horizon_port_pack::check::Verdict,
+        industrial_era_port_pack::check::Verdict,
     ),
     Image((String, u32), Option<PathBuf>),
     Tags((SourceId, PackKind), Result<Tags, String>),
@@ -292,9 +292,9 @@ impl Launcher {
     /// The orders the current source can sort by, "Best match" first.
     fn mods_sorts(&self) -> Vec<(Option<Sort>, &'static str)> {
         let own =
-            self.mods.source == SourceId::Horizon && self.mods.java_for(self.mods.kind).is_none();
+            self.mods.source == SourceId::Industrial Era && self.mods.java_for(self.mods.kind).is_none();
         let all: &[Sort] = if own {
-            &browser::horizon::SORTS
+            &browser::industrial-era::SORTS
         } else {
             &Sort::ALL
         };
@@ -660,8 +660,8 @@ impl Launcher {
             .child(div().flex().child(back))
             .child(head);
         // Registry projects are rated on the site, signed in with GitHub (one rating per account).
-        if p.source == SourceId::Horizon {
-            let url = browser::horizon::rate_url(&p.id);
+        if p.source == SourceId::Industrial Era {
+            let url = browser::industrial-era::rate_url(&p.id);
             page = page.child(
                 div()
                     .flex()

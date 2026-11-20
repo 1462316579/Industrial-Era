@@ -58,10 +58,10 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
 /**
- * Dev-only oracle for Horizon's mod ports (docs/modpacks.md): once the server has started,
+ * Dev-only oracle for Industrial Era's mod ports (docs/modpacks.md): once the server has started,
  * writes every block, item, recipe and tag of the namespaces named in {@code
- * horizon.oracle.namespaces} (plus the vanilla blocks, so templates can be compared) to {@code
- * horizon.oracle.out}, then stops the server. Never shipped to players.
+ * industrial-era.oracle.namespaces} (plus the vanilla blocks, so templates can be compared) to {@code
+ * industrial-era.oracle.out}, then stops the server. Never shipped to players.
  */
 @Mod("horizon_oracle")
 public final class FactsExporter {
@@ -73,9 +73,9 @@ public final class FactsExporter {
 
     private void started(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        Path out = Path.of(System.getProperty("horizon.oracle.out", "horizon-oracle.json"));
+        Path out = Path.of(System.getProperty("industrial-era.oracle.out", "industrial-era-oracle.json"));
         Set<String> namespaces =
-                new TreeSet<>(Arrays.asList(System.getProperty("horizon.oracle.namespaces", "").split(",")));
+                new TreeSet<>(Arrays.asList(System.getProperty("industrial-era.oracle.namespaces", "").split(",")));
         namespaces.remove("");
         try (Writer w = Files.newBufferedWriter(out, StandardCharsets.UTF_8);
                 JsonWriter json = new JsonWriter(w)) {
@@ -84,7 +84,7 @@ public final class FactsExporter {
             e.printStackTrace();
             System.exit(3);
         }
-        System.out.println("horizon-oracle: wrote " + out);
+        System.out.println("industrial-era-oracle: wrote " + out);
         server.halt(false);
     }
 

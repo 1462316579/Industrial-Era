@@ -4,7 +4,7 @@
 use super::*;
 use crate::glass_ui::{self as ui, white};
 use gpui::deferred;
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_theme::glass::{fill, ink, radius};
 use std::time::Instant;
 
 /// Play, the version and the big icons are this tall (`h-14`).
@@ -20,7 +20,7 @@ pub(super) enum HomeMenu {
 }
 
 impl Launcher {
-    /// The head: what Home shows above its tabs. `tag`: the Horizon version it plays (empty for a
+    /// The head: what Home shows above its tabs. `tag`: the Industrial Era version it plays (empty for a
     /// Java instance); `prepared`: whether that version's files are ready.
     pub(super) fn glass_home_head(
         &mut self,
@@ -92,7 +92,7 @@ impl Launcher {
                 .h(px(32.))
                 .px(px(12.))
                 .rounded(px(radius::CONTROL))
-                .font_family(horizon_theme::glass::FONT)
+                .font_family(industrial_era_theme::glass::FONT)
                 .text_size(px(13.))
                 .line_height(px(18.))
                 .child(icon)
@@ -142,7 +142,7 @@ impl Launcher {
                 div()
                     .min_w_0()
                     .truncate()
-                    .font_family(horizon_theme::glass::DISPLAY_FONT)
+                    .font_family(industrial_era_theme::glass::DISPLAY_FONT)
                     .font_weight(FontWeight::SEMIBOLD)
                     .text_size(px(64.))
                     .line_height(px(64.))
@@ -221,7 +221,7 @@ impl Launcher {
             .is_some_and(|i| i.version.is_none());
         let update = self
             .updates
-            .horizon
+            .industrial-era
             .as_ref()
             .filter(|_| follows && !tag.is_empty())
             .map(|r| r.tag.clone());
@@ -233,7 +233,7 @@ impl Launcher {
             (Some(p), _, _) => Some((tr("Updating"), Some(p))),
             (_, true, _) => Some((
                 tr("Preparing"),
-                horizon_launcher::mojang::progress().map(|(d, n)| d as f32 / n.max(1) as f32),
+                industrial_era_launcher::mojang::progress().map(|(d, n)| d as f32 / n.max(1) as f32),
             )),
             (_, _, Some(_)) => Some((tr("Starting"), None)),
             _ => None,
@@ -278,7 +278,7 @@ impl Launcher {
                 .justify_center()
                 .gap(px(10.))
                 .pr(px(40.))
-                .font_family(horizon_theme::glass::FONT)
+                .font_family(industrial_era_theme::glass::FONT)
                 .text_size(px(18.))
                 .font_weight(FontWeight::SEMIBOLD)
                 .child(ui::icon(icon, 20., white(ink::FULL)))
@@ -303,7 +303,7 @@ impl Launcher {
                         .flex_1()
                         .justify_center()
                         .pr(px(40.))
-                        .font_family(horizon_theme::glass::FONT)
+                        .font_family(industrial_era_theme::glass::FONT)
                         .text_size(px(16.))
                         .font_weight(FontWeight::SEMIBOLD)
                         .child(match progress {
@@ -389,7 +389,7 @@ impl Launcher {
                         "Stay on {version}",
                         &[(
                             "version",
-                            &horizon_launcher::nightly::label(tag).unwrap_or(tag.to_string()),
+                            &industrial_era_launcher::nightly::label(tag).unwrap_or(tag.to_string()),
                         )],
                     ),
                     locked || !ready,
@@ -473,7 +473,7 @@ impl Launcher {
         let label = self.selected().map_or_else(
             || tr("No version").into(),
             |tag| {
-                horizon_launcher::nightly::label(tag)
+                industrial_era_launcher::nightly::label(tag)
                     .or_else(|| build_import::label(tag))
                     .unwrap_or_else(|| tag.clone())
             },
@@ -536,7 +536,7 @@ impl Launcher {
             for tag in &self.installed {
                 let chosen = self.selected() == Some(tag);
                 let latest = follows.as_ref() == Some(tag);
-                let name = horizon_launcher::nightly::label(tag)
+                let name = industrial_era_launcher::nightly::label(tag)
                     .or_else(|| build_import::label(tag))
                     .unwrap_or_else(|| tag.clone());
                 let note = if latest {
@@ -579,8 +579,8 @@ impl Launcher {
     }
 
     /// The folder button and its ⋯ (`FolderGroup`), which shows under the pointer or while its
-    /// menu is open: the instance's folder, its screenshots, and (Horizon) the Minecraft folder.
-    fn folder_group(&self, horizon: bool, cx: &mut Context<Self>) -> Option<Div> {
+    /// menu is open: the instance's folder, its screenshots, and (Industrial Era) the Minecraft folder.
+    fn folder_group(&self, industrial-era: bool, cx: &mut Context<Self>) -> Option<Div> {
         let t = self.theme;
         let instance = self.selected_instance()?;
         let home = instance.home.clone();
@@ -664,7 +664,7 @@ impl Launcher {
                     Some(shots),
                 ),
             ];
-            if horizon {
+            if industrial-era {
                 items.push((
                     "folder-minecraft",
                     tr("Choose the Minecraft folder"),
@@ -720,7 +720,7 @@ impl Launcher {
             .pr(px(84.))
             .rounded(px(radius::LARGE))
             .bg(white(if focused { 0.09 } else { 0.06 }))
-            .font_family(horizon_theme::glass::FONT)
+            .font_family(industrial_era_theme::glass::FONT)
             .text_size(px(14.))
             .text_color(white(ink::FULL))
             .cursor_text()
@@ -748,7 +748,7 @@ impl Launcher {
                 cx.notify();
             }));
         let field = line_edit::mouse(field, cx, |this| &mut this.friend_code);
-        let valid = horizon_friends::invite::parse(self.friend_code.text()).is_some();
+        let valid = industrial_era_friends::invite::parse(self.friend_code.text()).is_some();
         let can = valid && (tag.is_empty() || self.can_start(tag));
         let join = ui::quiet("join-friend", tr("Join"), 40., &t);
         let join = if can {
@@ -788,5 +788,5 @@ enum PlayItem {
 
 /// The command that plays instance `id` without the window, as its desktop shortcut runs it.
 fn launch_command(id: &str) -> String {
-    format!("horizon-launcher play --instance {id}")
+    format!("industrial-era-launcher play --instance {id}")
 }

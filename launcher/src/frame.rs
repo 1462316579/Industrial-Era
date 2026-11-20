@@ -6,9 +6,9 @@ use super::*;
 use crate::glass_ui::{self as ui, white, Tone};
 use crate::instances_page::java_line;
 use gpui::{anchored, canvas, deferred, point};
-use horizon_launcher::account::Player;
-use horizon_launcher::instances::{Icon, Instance, Kind as InstanceKind};
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_launcher::account::Player;
+use industrial_era_launcher::instances::{Icon, Instance, Kind as InstanceKind};
+use industrial_era_theme::glass::{fill, ink, radius};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -41,8 +41,8 @@ fn measure(rows: &Rc<RefCell<HashMap<String, Bounds<Pixels>>>>, id: String) -> i
 }
 
 impl Launcher {
-    /// An instance's icon (`InstanceIcon`), `size` square with no frame: Horizon's mark tile for
-    /// Horizon's own instance; else its picture or the block chosen for it, round at 26 %; else
+    /// An instance's icon (`InstanceIcon`), `size` square with no frame: Industrial Era's mark tile for
+    /// Industrial Era's own instance; else its picture or the block chosen for it, round at 26 %; else
     /// its loader's or Minecraft's mark; else its initial on its colour (the accent when none was
     /// chosen), as `ColorTile` draws it.
     pub(super) fn glass_instance_icon(&mut self, i: &Instance, size: f32) -> AnyElement {
@@ -84,9 +84,9 @@ impl Launcher {
             .rounded(r)
             .bg(ui::color(colour))
             .font_family(if letter >= 40. {
-                horizon_theme::glass::DISPLAY_FONT
+                industrial_era_theme::glass::DISPLAY_FONT
             } else {
-                horizon_theme::glass::HEADING_FONT
+                industrial_era_theme::glass::HEADING_FONT
             })
             .font_weight(FontWeight::SEMIBOLD)
             .text_size(px(letter))
@@ -121,7 +121,7 @@ impl Launcher {
                     ),
                     (None, None, None) => (Tone::Off, tr("No version installed").into()),
                     // Following the launcher's version, which has a newer one waiting.
-                    (None, Some(_), None) if self.updates.horizon.is_some() => (
+                    (None, Some(_), None) if self.updates.industrial-era.is_some() => (
                         Tone::Accent(self.look.accent_soft),
                         tr("Update available").into(),
                     ),
@@ -132,7 +132,7 @@ impl Launcher {
                             Tone::Live,
                             trf(
                                 "Native build · {version}",
-                                &[("version", &build.horizon_short())],
+                                &[("version", &build.industrial_era_short())],
                             ),
                         )
                     }
@@ -148,7 +148,7 @@ impl Launcher {
                     summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
                 )
             }
-            InstanceKind::Pack => (Tone::Off, tr("From Horizon's registry").into()),
+            InstanceKind::Pack => (Tone::Off, tr("From Industrial Era's registry").into()),
         }
     }
 
@@ -442,8 +442,8 @@ impl Launcher {
                     .mt(px(12.))
                     .h(px(40.))
                     .rounded(px(radius::ROW))
-                    .bg(ui::color(horizon_theme::glass::DISCORD))
-                    .hover(|s| s.bg(ui::color(horizon_theme::glass::DISCORD_HOVER)))
+                    .bg(ui::color(industrial_era_theme::glass::DISCORD))
+                    .hover(|s| s.bg(ui::color(industrial_era_theme::glass::DISCORD_HOVER)))
                     .cursor_pointer()
                     .child(ui::icon("discord", 18., gpui::white()))
                     .child(
@@ -475,7 +475,7 @@ impl Launcher {
                         .child(
                             div()
                                 .relative()
-                                .font_family(horizon_theme::glass::FONT)
+                                .font_family(industrial_era_theme::glass::FONT)
                                 .text_size(px(14.))
                                 .child(label),
                         )
@@ -902,7 +902,7 @@ impl Launcher {
                     },
                 )),
             );
-        // Horizon's own instance can't be deleted, nor one while a game runs.
+        // Industrial Era's own instance can't be deleted, nor one while a game runs.
         let can_delete = instance.kind != InstanceKind::Default
             && self.client.is_none()
             && self.starting_client.is_none();

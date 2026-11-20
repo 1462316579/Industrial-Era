@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Original oracle for the creative inventory (test_creative_parity.py): writes
- * the exported creative-inventory.json Horizon loads, then what the vanilla
+ * the exported creative-inventory.json Industrial Era loads, then what the vanilla
  * client shows: every tab's display items (canonical stacks) and, for each
  * query, CreativeModeInventoryScreen.refreshSearchResults' items as indices
  * into the search tab, searched through the client's own SessionSearchTrees

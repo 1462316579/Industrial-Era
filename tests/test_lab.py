@@ -174,13 +174,13 @@ class ArtifactTests(unittest.TestCase):
 class PublicationTests(unittest.TestCase):
     def test_private_paths_rejected(self):
         for path in [".local/minecraft/source.java", "decompiled/Foo.txt", "game.JAR", "capture.jfr", "source/Foo.java",
-                     "fixtures/26.3/horizon-data.bin"]:
+                     "fixtures/26.3/industrial-era-data.bin"]:
             self.assertTrue(check_public_tree.prohibited(path), path)
-        for path in ["tools/lab.py", "crates/horizon-core/src/lib.rs", "Cargo.lock", "docs/analysis.md",
-                     "mods/horizon/src/main/java/dev/horizonlab/HorizonLab.java",
-                     "mods/horizon-lab/src/main/java/dev/horizonlab/HorizonLab.java"]:
+        for path in ["tools/lab.py", "crates/industrial-era-core/src/lib.rs", "Cargo.lock", "docs/analysis.md",
+                     "mods/industrial-era/src/main/java/dev/horizonlab/HorizonLab.java",
+                     "mods/industrial-era-lab/src/main/java/dev/horizonlab/HorizonLab.java"]:
             self.assertFalse(check_public_tree.prohibited(path), path)
-        self.assertTrue(check_public_tree.prohibited("mods/horizon/src/main/java/net/minecraft/Client.java"))
+        self.assertTrue(check_public_tree.prohibited("mods/industrial-era/src/main/java/net/minecraft/Client.java"))
         for path in ["tools/JfrSummary.java", "tests/java/JfrFixture.java",
                      "packaging/android/java/io/github/juanluci/starling/StarlingActivity.java",
                      "packaging/android/java/io/github/juanluci/starling/LauncherActivity.java"]:

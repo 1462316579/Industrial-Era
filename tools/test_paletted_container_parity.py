@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare Horizon's resident PalettedContainer with the client's own.
+"""Compare Industrial Era's resident PalettedContainer with the client's own.
 
 Scripted edits run through vanilla's PalettedContainer (block-state and biome
 strategies: single-value, linear, hash-map and global palettes, resizing, network
@@ -56,10 +56,10 @@ def main():
     parser.parse_args()
     lock, jars, libraries = base.verify_artifacts()
     BUILD.mkdir(parents=True, exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaPalettedContainerOracle.java'
+    oracle = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaPalettedContainerOracle.java'
     sources = [Path(__file__), oracle, lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'Cargo.toml', lab.ROOT / 'Cargo.lock',
-               lab.ROOT / 'crates/horizon-core/Cargo.toml', lab.ROOT / 'crates/horizon-core/examples/paletted_fixture.rs',
-               *sorted((lab.ROOT / 'crates/horizon-core/src').rglob('*.rs'))]
+               lab.ROOT / 'crates/industrial-era-core/Cargo.toml', lab.ROOT / 'crates/industrial-era-core/examples/paletted_fixture.rs',
+               *sorted((lab.ROOT / 'crates/industrial-era-core/src').rglob('*.rs'))]
     tested = base.source_hashes(sources)
     scenarios = list(corpus())
     inputs = BUILD / 'inputs.txt'
@@ -73,7 +73,7 @@ def main():
     classes.mkdir(exist_ok=True)
     dependencies = os.pathsep.join(map(str, [jars['client'], *libraries]))
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-cp', dependencies, '-d', classes, oracle], 'compile-java')
-    run(['cargo', 'build', '--locked', '--profile', 'fast', '-j', os.environ.get('CARGO_BUILD_JOBS', '3'), '-p', 'horizon-core', '--example', 'paletted_fixture'], 'compile-rust')
+    run(['cargo', 'build', '--locked', '--profile', 'fast', '-j', os.environ.get('CARGO_BUILD_JOBS', '3'), '-p', 'industrial-era-core', '--example', 'paletted_fixture'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--locked', '--no-deps', '--format-version', '1'], cwd=lab.ROOT))
     binary = Path(metadata['target_directory']) / 'fast/examples/paletted_fixture'
     run([binary, inputs, BUILD / 'rust.txt'], 'rust')

@@ -1,6 +1,6 @@
 ---
 name: vanilla-parity
-description: Fix a Horizon bug or gap so it behaves 1:1 like vanilla 26.3, starting from the port ledger (tools/port_ledger.py) instead of grepping. Use for any issue, Discord report or PR that makes Horizon match vanilla: "X doesn't work like in Java", a missing sound, particle, animation, mob behaviour, block rule, screen or packet.
+description: Fix a Industrial Era bug or gap so it behaves 1:1 like vanilla 26.3, starting from the port ledger (tools/port_ledger.py) instead of grepping. Use for any issue, Discord report or PR that makes Industrial Era match vanilla: "X doesn't work like in Java", a missing sound, particle, animation, mob behaviour, block rule, screen or packet.
 ---
 
 # Vanilla parity with the port ledger
@@ -33,7 +33,7 @@ already written there ("Type is not saved"). Then drill in:
 ```sh
 python3 tools/port_ledger.py where MushroomCow.readAdditionalSaveData   # ports, callers, callees, gaps
 python3 tools/port_ledger.py class MushroomCow                          # every method: where, or missing
-python3 tools/port_ledger.py what crates/horizon-client/src/mobs/farm.rs:120   # which vanilla method a fn ports
+python3 tools/port_ledger.py what crates/industrial-era-client/src/mobs/farm.rs:120   # which vanilla method a fn ports
 ```
 
 A ledger answer is a lead, not a verdict: about 1 in 12 map rows is wrong. Read the vanilla method (path and

@@ -66,7 +66,7 @@ def main():
     if run.returncode:
         print(run.stderr[-4000:])
         sys.exit('oracle failed')
-    lib.cargo_example('horizon-client', 'ghost_recipe_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'ghost_recipe_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
     bad = lib.compare(cases, work / 'native.txt', work / 'rust.txt',
                       lambda case, line: case['menu'] if not line.startswith('error') else 'oracle error',
                       describe=json.dumps, limit=args.limit)

@@ -22,7 +22,7 @@ except ImportError:
     import lab
     import test_rust_parity as base
 
-# Living types that are not Horizon mob types or not mobs at all.
+# Living types that are not Industrial Era mob types or not mobs at all.
 SKIPPED = {'player', 'mannequin', 'armor_stand', 'ender_dragon', 'giant', 'copper_golem'}
 
 SCENARIOS = {
@@ -137,9 +137,9 @@ def main():
     resources = lab.RESOURCES
     entity_types = json.loads((resources / 'entity-types.json').read_text())
     types = sorted(t for t, v in entity_types.items() if 'attributes' in v and t.split(':')[1] not in SKIPPED)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaSpawnRulesOracle.java'
-    sources = [oracle, Path(__file__), lab.ROOT / 'crates/horizon-client/examples/probe/spawn_rules_fixture.rs',
-               lab.ROOT / 'crates/horizon-client/src/mobs/spawn_rules.rs']
+    oracle = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaSpawnRulesOracle.java'
+    sources = [oracle, Path(__file__), lab.ROOT / 'crates/industrial-era-client/examples/probe/spawn_rules_fixture.rs',
+               lab.ROOT / 'crates/industrial-era-client/src/mobs/spawn_rules.rs']
     tested = base.source_hashes(sources)
     inputs = build / 'inputs.txt'
     cases = corpus(types)
@@ -151,11 +151,11 @@ def main():
     def run(command, name):
         with (build / (name + '.log')).open('w', encoding='utf-8') as log:
             base.run(list(map(str, command)), stdout=log, stderr=subprocess.STDOUT)
-    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'mods/horizon/src/test/java'),
+    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath', str(lab.ROOT / 'mods/industrial-era/src/test/java'),
          '-cp', str(jars['server']) + os.pathsep + deps, '-d', classes, oracle], 'compile-java')
     run(['java', '-Xmx2G', '-cp', os.pathsep.join([str(classes), str(jars['server']), deps]),
          'dev.horizonlab.parity.VanillaSpawnRulesOracle', inputs, build / 'server.txt'], 'server')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client-lib', '--example', 'client_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     binary = Path(metadata['target_directory']) / 'fast/examples/client_probe'
     run([binary, 'spawn_rules_fixture', resources, inputs, build / 'rust.txt'], 'rust')

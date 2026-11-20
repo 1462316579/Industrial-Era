@@ -300,7 +300,7 @@ public final class LocatorBarClient {
          * Waits until the game time moves on from the latest sync's: the server has run the tick that handles what
          * this player sent since. A sleep of 50 ms drifts from the server's ticks, and a jump then gets a tick of
          * gravity more or less. Vanilla runs commands between ticks and movement in the tick (its PacketProcessor),
-         * Horizon both at the tick's start: the latest reply, not a new sync, is the tick to wait past on both.
+         * Industrial Era both at the tick's start: the latest reply, not a new sync, is the tick to wait past on both.
          * Returns how many ticks the server ran: more than one when it caught up on a busy machine.
          */
         long nextTick() throws Exception {

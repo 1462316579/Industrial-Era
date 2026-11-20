@@ -1,14 +1,14 @@
-# Horizon's design system
+# Industrial Era's design system
 
 One design language for the launcher, the website and the few overlays the game draws that
 vanilla has no screen for (the on-screen keyboard a controller types with). Every game screen
 and the HUD are not part of it: they are vanilla's, because parity is the point of the game, and
-Horizon's own settings are pages built from vanilla's widgets, the way mods add theirs.
+Industrial Era's own settings are pages built from vanilla's widgets, the way mods add theirs.
 
-The tokens live in one place, `crates/horizon-theme`. The launcher (`launcher/src/theme.rs`)
-and the game (`crates/horizon-client/src/ui_theme.rs`) read them as Rust constants, and the
+The tokens live in one place, `crates/industrial-era-theme`. The launcher (`launcher/src/theme.rs`)
+and the game (`crates/industrial-era-client/src/ui_theme.rs`) read them as Rust constants, and the
 website reads them as CSS custom properties generated from the same crate
-(`cargo run -p xtask -- tokens` writes `crates/horizon-theme/tokens.css`, which the website's build
+(`cargo run -p xtask -- tokens` writes `crates/industrial-era-theme/tokens.css`, which the website's build
 reads from main; a test fails when the file is out of date). Change a value in the crate and all three follow.
 
 ## Where it comes from
@@ -36,9 +36,9 @@ almost nothing but type. What we take from it is its restraint rather than its c
 
 ### Colour
 
-Cool, slightly blue neutrals in two appearances with the same restraint, and Horizon's violet.
+Cool, slightly blue neutrals in two appearances with the same restraint, and Industrial Era's violet.
 Every text colour passes WCAG AA (4.5:1) on every background it is used on; the tests in
-`horizon-theme` check each pair in both palettes.
+`industrial-era-theme` check each pair in both palettes.
 
 | Token        | Light     | Dark      | Use |
 |--------------|-----------|-----------|-----|
@@ -118,7 +118,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
   written in mono beside the label, not on the track.
 - **Segmented control / tabs**: a `plate_soft` pill; the selected segment is an `ink` pill with
   `page` text that slides over `move`.
-- **Navigation**: text only. Launcher: a top bar with the mark and "Horizon" on the left and
+- **Navigation**: text only. Launcher: a top bar with the mark and "Industrial Era" on the left and
   the pages on the right, `label` size, `muted`, the current one `ink` on a soft pill. Game
   menus keep their sidebar layout (it suits a controller), but as a plain column of text items
   under the mark, with no panel tint and no border: the current one `ink` on a soft pill that
@@ -141,18 +141,18 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
   landscape banner with the hero, the version picker and Play; Mods holds the mod, resource pack
   and modpack tabs; Versions and Patch notes are lists of panels; Settings is
   grouped panels of rows. Dark by default, Light or System in Settings (Appearance).
-- **Website** (horizon-rust/horizon-site): the Blocks look below. The same page structure as before (what it
+- **Website** (industrial-era-rust/industrial-era-site): the Blocks look below. The same page structure as before (what it
   is, screenshots, parity, launcher, patch notes, community), headings in Pixelify Sans, lists as
-  stacks of panels, the stone texture behind the page and Horizon's pixel landscape (a dawn or a
+  stacks of panels, the stone texture behind the page and Industrial Era's pixel landscape (a dawn or a
   sunset) behind the hero. Light and dark follow the system, with a toggle. A giant wordmark in
   pixels sits in the footer.
 - **Game**: vanilla's screens. The on-screen keyboard is a rounded plate of keys in the page
-  colour, the focused key in the accent. Horizon's graphics settings screen takes the Blocks
+  colour, the focused key in the accent. Industrial Era's graphics settings screen takes the Blocks
   palette below in a lighter form (`graphics_style.rs`).
 
 ## Blocks
 
-A blocky, Minecraft-like look in Horizon's purple, for the website, the redesigned launcher and
+A blocky, Minecraft-like look in Industrial Era's purple, for the website, the redesigned launcher and
 the game's graphics settings screen:
 Minecraft's inventory rather than a document. Its colours are `horizon_theme::Blocks`
 (`BLOCKS_LIGHT`, `BLOCKS_DARK`), which `tokens.css` carries under the same names as before plus
@@ -176,11 +176,11 @@ than Pixelify. Hover and focus are vanilla's white edge.
 - **Inventory tabs** switch the kinds in Mods: the open tab joins the panel under it.
 - **Slots** hold pictures: a mod's or pack's own icon and gallery images from its source,
   downloaded when first shown and kept on disk (`launcher/src/browser/images.rs`); the launcher
-  ships no third-party pictures. The Horizon instance shows a grass block drawn from the player's
+  ships no third-party pictures. The Industrial Era instance shows a grass block drawn from the player's
   own prepared Minecraft textures. Sources are named in text ("from Modrinth"): Modrinth's logo is
   all rights reserved, so it is not shown.
 - **Partner banner**: the one exception to shipping no third-party pictures. Sculk, a server host,
-  sponsors Horizon: its banner (`launcher/assets/sculk-banner.webp`, `launcher/src/partner.rs`) sits
+  sponsors Industrial Era: its banner (`launcher/assets/sculk-banner.webp`, `launcher/src/partner.rs`) sits
   under a muted mono "Partner" label at the end of the Servers page and opens Sculk's page in the
   browser. The sidebar of the other pages shows a card made for its width instead: Sculk's characters
   and logo cropped from the same banner, and the text drawn by the launcher in its language, so it
@@ -194,14 +194,14 @@ than Pixelify. Hover and focus are vanilla's white edge.
   the mark, hills and square trees (a sunset in dark, a dawn in light). The launcher bakes them in
   `launcher/src/art.rs` at the window's scale so each texel covers whole device pixels; the website
   draws them in its `scripts/art.mjs`.
-- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/horizon-theme/icons/pixel/`, tinted
+- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/industrial-era-theme/icons/pixel/`, tinted
   with the text colour.
 - **Contrast**: every text colour meets WCAG AA (4.5:1) on the panels, the page and the lightest
   stone shade in both palettes (`blocks_text_meets_wcag_aa_in_both_appearances`).
 
 ## Night
 
-The launcher's look from 0.3: a pixel night sky that turns to a sunset at the horizon, with the
+The launcher's look from 0.3: a pixel night sky that turns to a sunset at the industrial-era, with the
 content on top. Its tokens are `horizon_theme::night` (`NIGHT`, and `DAWN` for players who pick
 Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
@@ -237,7 +237,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 | Token       | Night     | Dawn      | Use |
 |-------------|-----------|-----------|-----|
-| `sky-0…5`   | `#07061a` `#140f38` `#2a1656` `#5b2a78` `#b0477d` `#f08a5d` | `#c9d3f2` `#dcd8f3` `#ead5ec` `#f5d3d8` `#f9d6bd` `#fbe4c6` | the sky, top to horizon |
+| `sky-0…5`   | `#07061a` `#140f38` `#2a1656` `#5b2a78` `#b0477d` `#f08a5d` | `#c9d3f2` `#dcd8f3` `#ead5ec` `#f5d3d8` `#f9d6bd` `#fbe4c6` | the sky, top to industrial-era |
 | `card`      | `#15112e` at 84 % | `#fdfcff` at 86 % | plates |
 | `card-hi`   | `#231c4a` at 90 % | `#ffffff` at 94 % | a selected or raised plate |
 | `stroke`, `rule` | `#b9acff` at 12 %, 10 % | `#3b2f78` at 12 %, 10 % | a plate's inner stroke, rules between rows |
@@ -254,7 +254,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   in whole texels on a half-second beat, so it asks for two frames a second at most;
   `HORIZON_LAUNCHER_MOTION=off` stills it, `always` keeps it moving unfocused (for recordings).
 - **Copy says what happens** ("Downloads 26.3 and Java 21, about 600 MB"), never praises.
-- The specimen (`HORIZON_LAUNCHER_PAGE=specimen horizon-launcher`) draws the type and colours in the
+- The specimen (`HORIZON_LAUNCHER_PAGE=specimen industrial-era-launcher`) draws the type and colours in the
   launcher itself.
 - **The frame** (`launcher/src/shell.rs`): the sidebar is one plate from the window's top to its
   bottom (the wordmark, instances by group, servers, the launcher's version); the top bar over the
@@ -264,7 +264,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 - **Home** (`launcher/src/home.rs`): the selected instance's name in the display cut over the bare
   sky, a caption above it naming what it plays and its state (the same square), and when it was
   played below. Play is the main action (`night::PLAY` tall, cut in one step); the version picker
-  is a raised control of the same height; Mods and Folder are quiet buttons. A Horizon instance
+  is a raised control of the same height; Mods and Folder are quiet buttons. A Industrial Era instance
   gets a plate on the right: a release's notes in one line (not a Nightly's) and Join a friend.
   While it gets ready, Play names it ("Getting ready… 34%") beside Cancel, and below sit the
   bar, what is happening with the time left, and the steps (game files, Java, sounds, prepare,
@@ -275,7 +275,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   game folder: one the player chose with Choose image…, scaled to 128 pixels, or its modpack's
   icon from where it was installed), else the block or colour chosen in the dialog, else its
   mark: the loader's logo (Fabric, Quilt, Forge, NeoForge), the grass block for plain Minecraft,
-  Horizon's for Horizon. The letter tile is the last resort. The New instance dialog's loader
+  Industrial Era's for Industrial Era. The letter tile is the last resort. The New instance dialog's loader
   cards show the same logos. Pixel-art logos are scaled by whole
   pixels; each is decoded once per size.
 - **The instance's tabs** (`launcher/src/home_tabs.rs`): under Home's hero, one tab at a time
@@ -285,7 +285,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   strip's end, where a list's header would put them (`HORIZON_LAUNCHER_PAGE=worlds`, `packs`...
   opens one for screenshots).
 - **The Mods tab** (`launcher/src/instance_mods.rs`): the instance's mods on one nearly opaque
-  card, its loader in the header ("Fabric mods", "Horizon mods") beside a filter. A row is the
+  card, its loader in the header ("Fabric mods", "Industrial Era mods") beside a filter. A row is the
   mod's own icon (Modrinth's, else its jar's, else a glyph), its name and version, where it comes from (Modrinth,
   "needed by another mod", or a local file by name), an update as an amber pill when the browser
   found one, and a switch (a Java jar turned off is renamed `.disabled`). Update all and Add mods
@@ -301,7 +301,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   goes on by itself once Microsoft answers (`HORIZON_LAUNCHER_PAGE=sign-in` shows it with a made-up
   code for screenshots).
 - **New instance** (`launcher/src/new_instance.rs`): an opaque plate over the dimmed launcher,
-  tabs for the kind (Horizon, Vanilla, Modded). A Java kind lists Mojang's versions (search,
+  tabs for the kind (Industrial Era, Vanilla, Modded). A Java kind lists Mojang's versions (search,
   Snapshots, Old; the newest release chosen), Modded adds the loader (Fabric or Quilt, at its newest
   stable version), and the name follows the choice ("Fabric 1.21.4") until the player types one.
   Create is the main action.
@@ -309,7 +309,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 ## Glass
 
 The launcher's next look, designed by Anthony S. (dezer-x) as a web mockup: playhorizon.dev/launcher,
-source in horizon-site `app/launcher/` and `components/launcher/`. The launcher ports it one to one,
+source in industrial-era-site `app/launcher/` and `components/launcher/`. The launcher ports it one to one,
 screen by screen, replacing Night where they differ; the mockup is the reference for every size,
 colour, state and motion. Its tokens are `horizon_theme::glass`; `tokens.css` carries the colours
 as `--glass-*`.
@@ -334,12 +334,12 @@ as `--glass-*`.
   at the optical size a browser picks for them: `Bricolage Grotesque Display` (56) and
   `Bricolage Grotesque Heading` (28), cut by `tools/bake_bricolage.py`.
 - **Icons**: Hugeicons' free set (MIT), the ones the mockup uses, stroked 1.6 in the text colour
-  (`crates/horizon-theme/icons/glass/`, served as `icons/glass/<name>.svg`).
+  (`crates/industrial-era-theme/icons/glass/`, served as `icons/glass/<name>.svg`).
 
 ## The mark
 
-**Horizon line.** A sun half set below a horizon, drawn as three horizontal bars of 4, 8 and
-10 units over a 12 unit line, on a 16 unit grid. The bars are the sun cut by the horizon into
+**Industrial Era line.** A sun half set below a industrial-era, drawn as three horizontal bars of 4, 8 and
+10 units over a 12 unit line, on a 16 unit grid. The bars are the sun cut by the industrial-era into
 slices, which also reads as layers of terrain and as a nod to voxels without drawing a block. It
 is built on whole units of the 16 px grid so it stays sharp at 16 px, and it scales without
 detail to 1024 px.

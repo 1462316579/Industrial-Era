@@ -1,12 +1,12 @@
 # Cosmetics
 
-Small items Horizon players wear: a hat, something on the back, a pet on the shoulder. They are
-drawn by Horizon clients only and change nothing in the game. **Off by default**: nothing below
+Small items Industrial Era players wear: a hat, something on the back, a pet on the shoulder. They are
+drawn by Industrial Era clients only and change nothing in the game. **Off by default**: nothing below
 runs until the feature flag is turned on.
 
 ## Rules
 
-- **Only Horizon clients see them.** Other Horizon players learn what someone wears from Horizon's
+- **Only Industrial Era clients see them.** Other Industrial Era players learn what someone wears from Industrial Era's
   cosmetics service, keyed by the Minecraft UUID. The game protocol doesn't change: servers, vanilla
   clients and anticheats receive nothing.
 - **No gameplay effect of any kind**, no capes or anything that looks or acts like one, no random
@@ -14,7 +14,7 @@ runs until the feature flag is turned on.
 - **A setting hides them**: other players' cosmetics, and your own.
 - **Zero cost when none is in view**, and a vertex budget per item.
 
-## The item format (`crates/horizon-cosmetics`)
+## The item format (`crates/industrial-era-cosmetics`)
 
 One JSON file per item. Coordinates are model pixels (1/16 block) in the player model's space:
 y points down, as in vanilla's `ModelPart`s and Blockbench's "Modded Entity" models.
@@ -62,7 +62,7 @@ Unknown fields are refused, so a file never carries anything the game would sile
 
 ## What other players wear (`horizon_cosmetics::Cosmetics`)
 
-The game asks Horizon's cosmetics service (HTTPS, JSON) what the players in view wear, and draws
+The game asks Industrial Era's cosmetics service (HTTPS, JSON) what the players in view wear, and draws
 from its answers. The frame never waits on the network: it reads a cache, and a thread of its own
 does the asking.
 

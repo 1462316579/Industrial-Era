@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SpawnEggItem.use on source fluids, through real vanilla and Horizon servers.
+"""SpawnEggItem.use on source fluids, through real vanilla and Industrial Era servers.
 
 Fluid cases send UseItem into a deep pool; a UseItemOn control has a mob
 under the last look direction. Compare spawn, egg count and used stat. Covers

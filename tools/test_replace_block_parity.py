@@ -18,7 +18,7 @@ except ImportError:
 def corpus(facts):
     yes={'predicate_type':'always_true'}
     no={'predicate_type':'not','rule':yes}
-    rules=[yes,no,{'predicate_type':'tag_match','tag':'leaves'}, {'predicate_type':'tag_match','tag':'horizon:missing'}, {'predicate_type':'height_match','min_inclusive':-64,'max_inclusive':63}]
+    rules=[yes,no,{'predicate_type':'tag_match','tag':'leaves'}, {'predicate_type':'tag_match','tag':'industrial-era:missing'}, {'predicate_type':'height_match','min_inclusive':-64,'max_inclusive':63}]
     for name in ['air','cave_air','void_air','stone','water','oak_leaves','dirt']:
         for kind,field in [('block_match','block'),('blockstate_match','block_state')]:
             rules.append({'predicate_type':kind,field:name})
@@ -44,14 +44,14 @@ def main():
     report_path=build/"report.json";report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaReplaceBlockOracle.java"
+    oracle=lab.ROOT/"mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaReplaceBlockOracle.java"
     helper=oracle.with_name("VanillaBlockStateCodecOracle.java")
     tag_helper=oracle.with_name("VanillaHeightmapOracle.java")
     tags=worldgen.tag_resources(jars['server'])
     if not tags or tags!=worldgen.tag_resources(jars['client']):raise ValueError('client/server tags differ')
     (build/'tags.json').write_text(json.dumps(tags,separators=(',',':')),encoding='utf-8')
-    sources=[oracle,helper,tag_helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/horizon-core/Cargo.toml",lab.ROOT/"crates/horizon-world/Cargo.toml",
-             *sorted((lab.ROOT/"crates/horizon-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/horizon-world/src").rglob("*.rs")),lab.ROOT/"crates/horizon-world/examples/probe/replace_block_fixture.rs"]
+    sources=[oracle,helper,tag_helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/industrial-era-core/Cargo.toml",lab.ROOT/"crates/industrial-era-world/Cargo.toml",
+             *sorted((lab.ROOT/"crates/industrial-era-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/industrial-era-world/src").rglob("*.rs")),lab.ROOT/"crates/industrial-era-world/examples/probe/replace_block_fixture.rs"]
     tested_sources=base.source_hashes(sources)
     fixture_paths=[build/"tags.json"];classes=build/"classes";classes.mkdir(exist_ok=True)
     def run(command,name):
@@ -68,7 +68,7 @@ def main():
     fixtures=list(corpus(facts));inputs=build/"inputs.txt";inputs.write_text("".join(json.dumps(f,separators=(",",":"))+"\n" for f in fixtures),encoding="utf-8")
     fixture_paths.append(inputs)
     tested_fixtures=base.source_hashes(fixture_paths)
-    run(["cargo","build","--release","-p","horizon-world","--example","world_probe"],"compile-rust")
+    run(["cargo","build","--release","-p","industrial-era-world","--example","world_probe"],"compile-rust")
     metadata=json.loads(subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"],cwd=lab.ROOT,text=True))
     binary=Path(metadata["target_directory"])/"release/examples"/("world_probe.exe" if os.name=="nt" else "world_probe")
     run([binary,"replace_block_fixture",build],"rust")

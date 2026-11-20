@@ -42,7 +42,7 @@ except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
     from hud_parity_cases import KINDS
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity'
 
 
 def cases(count, kinds):
@@ -114,7 +114,7 @@ def main():
          *(PARITY / f'{n}.java' for n in ('ParityData', 'ParityFont', 'VanillaHudOracle'))], 'compile-java')
     run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaHudOracle',
          inputs, build / 'vanilla.jsonl'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'industrial-era-client-lib', '--example', 'client_probe', '--',
          'hud_fixture', resources, inputs, build / 'rust.jsonl'], 'rust')
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]
@@ -142,7 +142,7 @@ def main():
         print('ORACLE ERROR', e)
     for case, i, a, b, la, lb in bad[:args.detail]:
         print('MISMATCH', json.dumps(case))
-        print(f'   at call {i} ({la} vanilla, {lb} Horizon calls)\n   vanilla {a}\n   horizon {b}')
+        print(f'   at call {i} ({la} vanilla, {lb} Industrial Era calls)\n   vanilla {a}\n   industrial-era {b}')
     for kind, (ok, n) in sorted(totals.items()):
         print(f'  {kind:12} {ok}/{n}')
     print(f'{len(vanilla) - len(bad) - len(errors)}/{len(vanilla)} HUD states match; {len(errors)} oracle errors')

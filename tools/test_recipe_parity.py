@@ -287,7 +287,7 @@ def main():
     cases += list(smithing_cases(g))
     (work / 'cases.txt').write_text(''.join(c + '\n' for c in cases))
     vanilla.run('VanillaRecipeOracle', work / 'cases.txt', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'recipe_fixture', lib.RESOURCES, work / 'cases.txt', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'recipe_fixture', lib.RESOURCES, work / 'cases.txt', work / 'rust.txt')
 
     def key(case, native_line):
         kind = case.split('\t')[0]

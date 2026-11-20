@@ -7,11 +7,11 @@
     python3 tools/splitscreen_e2e.py --only native_pointer  # macOS, real OS input; desktop must be idle
 
 How it works
-- `Game(players)` launches P1's game through horizon-ctl (`target/fast/horizon-ctl`, built with
-  `cargo build --profile fast -p horizon-client`) with `HORIZON_SPLIT=players`: the game adds the
+- `Game(players)` launches P1's game through industrial-era-ctl (`target/fast/industrial-era-ctl`, built with
+  `cargo build --profile fast -p industrial-era-client`) with `HORIZON_SPLIT=players`: the game adds the
   others itself, as P2, P3...
 - Every player has its own control socket (`c.sock`, `c.sock2`...). `g.ctl(n, words...)` sends one
-  horizon-ctl command to player n (docs/horizon-ctl-commands.md).
+  industrial-era-ctl command to player n (docs/industrial-era-ctl-commands.md).
 - Checks look from outside: each player's view size (`g.size(n)`, from `status`) and its `state`.
   `check(name, got, want)` records a failure and goes on; a `RuntimeError` (a `wait` that timed
   out) ends that scenario as failed.
@@ -46,8 +46,8 @@ except ImportError:
     import lab
 
 ROOT = Path(__file__).resolve().parents[1]
-CTL = lab.cargo_target() / ('fast/horizon-ctl' + ('.exe' if os.name == 'nt' else ''))
-RESOURCES = ROOT / '.local/horizon-client/26.3'
+CTL = lab.cargo_target() / ('fast/industrial-era-ctl' + ('.exe' if os.name == 'nt' else ''))
+RESOURCES = ROOT / '.local/industrial-era-client/26.3'
 # Logical; the views are checked as fractions of what P1 gets alone, so any scale works.
 WIDTH, HEIGHT = 1000, 600
 VERBOSE = False
@@ -69,12 +69,12 @@ class Game:
         """`pick`: the others stop at the profile picker (`HORIZON_SPLIT_PICK`) instead of
         joining as P2, P3...; `seed(home)` fills the game folder first; `args` go to the game;
         `ready=False`: return once P1's game answers, before it is in a world."""
-        self.home = Path(home) if home is not None else Path(tempfile.mkdtemp(prefix='horizon-split-e2e-'))
+        self.home = Path(home) if home is not None else Path(tempfile.mkdtemp(prefix='industrial-era-split-e2e-'))
         self.home.mkdir(parents=True, exist_ok=True)
         if seed:
             seed(self.home)
         if saved_split:
-            (self.home / 'horizon-extras.txt').write_text('splitscreen:true\n')
+            (self.home / 'industrial-era-extras.txt').write_text('splitscreen:true\n')
         self.sockets = Path(tempfile.mkdtemp(prefix='hzse-'))  # short: Unix socket paths
         if pick:
             env['HORIZON_SPLIT_PICK'] = '1'
@@ -128,14 +128,14 @@ class Game:
         return [w.get('label', '') for w in self.ctl(n, 'ui')['widgets']]
 
     def page(self, n=1):
-        """Open player n's Splitscreen Setup screen (Horizon Settings > Splitscreen...), on or
+        """Open player n's Splitscreen Setup screen (Industrial Era Settings > Splitscreen...), on or
         off; its widgets."""
         def shown():
             labels = self.labels(n)
             return 'Done' in labels and any(l in labels for l in ['Identify', 'Splitscreen: Off', 'Splitscreen: On'])
         if shown():
             return self.ctl(n, 'ui')['widgets']
-        self.ctl(n, 'options', 'horizon')
+        self.ctl(n, 'options', 'industrial-era')
         self.press(n, 'Splitscreen...')
         self.wait(shown, 'the Setup screen', seconds=5)
         return self.ctl(n, 'ui')['widgets']
@@ -250,9 +250,9 @@ def scenario_alone():
         w, h = g.size(1)
         check('P1 has its whole window', (w, h), (2 * WIDTH, 2 * HEIGHT) if w > WIDTH else (WIDTH, HEIGHT))
         check('P1 plays', g.ctl(1, 'state').get('player') is not None, True)
-        g.ctl(1, 'options', 'horizon')
+        g.ctl(1, 'options', 'industrial-era')
         labels = lambda: [w['label'] for w in g.ctl(1, 'ui')['widgets']]
-        g.wait(lambda: 'Splitscreen...' in labels(), 'Horizon Settings')
+        g.wait(lambda: 'Splitscreen...' in labels(), 'Industrial Era Settings')
         g.ctl(1, 'click-button', 'Splitscreen...')
         g.wait(lambda: any(s.startswith('Splitscreen: ') for s in labels()), 'saved switch')
         check('testing override leaves the saved switch off', 'Splitscreen: Off' in labels(), True)
@@ -388,8 +388,8 @@ def scenario_toggle():
     def labels(g):
         return [w['label'] for w in g.ctl(1, 'ui')['widgets']]
     def page(g):
-        g.ctl(1, 'options', 'horizon')
-        g.wait(lambda: 'Splitscreen...' in labels(g), 'Horizon Settings')
+        g.ctl(1, 'options', 'industrial-era')
+        g.wait(lambda: 'Splitscreen...' in labels(g), 'Industrial Era Settings')
         g.ctl(1, 'click-button', 'Splitscreen...')
         g.wait(lambda: any(s.startswith('Splitscreen: ') for s in labels(g)), 'switch')
     g = Game(1, split=False)
@@ -402,12 +402,12 @@ def scenario_toggle():
         # Close all options pages to persist, then return.
         for _ in range(3):
             g.ctl(1, 'key', 'esc', 'tap')
-        check('saved enabled', 'splitscreen:true' in (g.home / 'horizon-extras.txt').read_text(), True)
+        check('saved enabled', 'splitscreen:true' in (g.home / 'industrial-era-extras.txt').read_text(), True)
         page(g)
         g.ctl(1, 'click-button', 'Splitscreen: On')
         for _ in range(3):
             g.ctl(1, 'key', 'esc', 'tap')
-        check('saved disabled', 'splitscreen:false' in (g.home / 'horizon-extras.txt').read_text(), True)
+        check('saved disabled', 'splitscreen:false' in (g.home / 'industrial-era-extras.txt').read_text(), True)
         check('solo keeps its full view', g.size(1), whole)
     finally:
         g.quit()
@@ -439,7 +439,7 @@ def scenario_setup():
     def enabled(label):
         return next(w['enabled'] for w in g.ctl(1, 'ui')['widgets'] if w['label'] == label)
     def page():
-        g.ctl(1, 'options', 'horizon')
+        g.ctl(1, 'options', 'industrial-era')
         g.press(1, 'Splitscreen...')
         g.wait(lambda: (g.ctl(1, 'state').get('menu') or {}).get('status') == 'active', 'Setup active')
     try:
@@ -479,7 +479,7 @@ def scenario_setup():
         check('idle P1 has the full window', g.settle([1], [whole]), [whole])
         for _ in range(3):
             g.press(1, 'Done')
-            g.ctl(1, 'options', 'horizon')
+            g.ctl(1, 'options', 'industrial-era')
             g.press(1, 'Splitscreen...')
             g.wait(lambda: (g.ctl(1, 'state').get('menu') or {}).get('status') == 'idle', 'reopened idle')
         g.press(1, 'Splitscreen: On')
@@ -495,7 +495,7 @@ def scenario_setup_leave():
     g = Game(3, saved_split=True)
     try:
         g.wait(lambda: g.ctl(3, 'state').get('player') is not None, 'P3 playing')
-        g.ctl(1, 'options', 'horizon')
+        g.ctl(1, 'options', 'industrial-era')
         g.press(1, 'Splitscreen...')
         g.wait(lambda: (g.ctl(1, 'state').get('menu') or {}).get('status') == 'active', 'Setup active')
         g.press(1, 'P3')
@@ -529,7 +529,7 @@ def scenario_controls():
         g.wait(lambda: g.ctl(2, 'state').get('player') is not None, 'P2 playing')
         half = g.size(1)
         whole = (2 * half[0], half[1])
-        g.ctl(1, 'options', 'horizon')
+        g.ctl(1, 'options', 'industrial-era')
         g.press(1, 'Splitscreen...')
         g.wait(lambda: (g.ctl(1, 'state').get('menu') or {}).get('status') == 'active', 'Setup active')
         # Two sharing a window: Auto (side by side here), Side by side, Top and bottom.
@@ -768,7 +768,7 @@ def scenario_leave():
 
 def scenario_signedin():
     print('signedin: P1 signed into an account, another player joins under its own profile')
-    session = Path(tempfile.mkdtemp(prefix='horizon-session-')) / 'session.json'
+    session = Path(tempfile.mkdtemp(prefix='industrial-era-session-')) / 'session.json'
     session.write_text(json.dumps({'name': 'Signed', 'uuid': '069a79f444e94726a5befca90e38aaf5',
                                    'access_token': 'not-a-real-token', 'user_type': 'msa'}))
     session.chmod(0o600)
@@ -890,10 +890,10 @@ def scenario_pausemenu():
         menu = lambda: (g.ctl(2, 'state').get('menu') or {}).get('mode')  # noqa: E731
         g.wait(lambda: menu() == 'splitscreen-profiles', "P2's picker")
         # P2 still choosing: nobody else plays yet, so the pause menu has no Splitscreen Settings;
-        # Setup stays reachable from Horizon Settings.
+        # Setup stays reachable from Industrial Era Settings.
         check('alone: no Splitscreen Settings in the pause menu', 'Splitscreen Settings' in paused(1), False)
         g.page(1)
-        check('alone: Horizon Settings > Splitscreen... still there', 'Done' in g.labels(1), True)
+        check('alone: Industrial Era Settings > Splitscreen... still there', 'Done' in g.labels(1), True)
         g.close_page(1)
         g.ctl(2, 'click-button', 'New Profile...')
         g.ctl(2, 'type', 'Dee')
@@ -930,7 +930,7 @@ def scenario_native_pointer():
         state = lambda n: g.ctl(n, 'state')
         grabbed = lambda: [state(n)['pointer_grabbed'] for n in [1, 2]]
         check('P1 keeps capture after P2 joins without another click', grabbed(), [True, False])
-        # OS mouse motion, unlike horizon-ctl mouse-move, passes through Split.device_event.
+        # OS mouse motion, unlike industrial-era-ctl mouse-move, passes through Split.device_event.
         def look(owner):
             other = 3 - owner
             before = [state(n)['player']['yaw'] for n in [1, 2]]
@@ -1066,7 +1066,7 @@ def main():
     VERBOSE = args.verbose
     sys.stdout.reconfigure(line_buffering=True)
     if not CTL.exists():
-        sys.exit(f'{CTL} is missing: cargo build --profile fast -p horizon-client')
+        sys.exit(f'{CTL} is missing: cargo build --profile fast -p industrial-era-client')
     if not (RESOURCES / 'assets').exists():
         sys.exit(f'no prepared resources in {RESOURCES}')
     for name in args.only or [n for n in SCENARIOS if n != 'native_pointer']:

@@ -4,7 +4,7 @@
 Vanilla side: VanillaChunkGenerationOracle with HORIZON_OLD_CHUNKS: the chunks
 of a second seed count as saved by an older version (blending data, no
 worldgen heightmap), and the target chunks around them are generated with
-`Blender.of(region)`: biomes, noise terrain, surface and carvers. Horizon side:
+`Blender.of(region)`: biomes, noise terrain, surface and carvers. Industrial Era side:
 the chunk_dump probe does the same with `worldgen::blending`. Every block and
 quart biome of the target chunks is compared.
 
@@ -57,7 +57,7 @@ def main():
             oracle.run(vanilla_path, ['dump', seed, 'overworld', rect])
             stderr = rust_run.result()
         for line in stderr.splitlines()[:5]:
-            print('  horizon:', line)
+            print('  industrial-era:', line)
         vanilla, rust = base.parse(vanilla_path), base.parse(rust_path)
         ox0, oz0, ox1, oz1 = map(int, old.split(','))
         # The old chunks themselves are another seed's plain terrain: only what blends with them is compared.

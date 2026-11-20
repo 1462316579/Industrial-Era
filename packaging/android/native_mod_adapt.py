@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""Native mods made before Horizon split its client into crates, pointed at where things went.
+"""Native mods made before Industrial Era split its client into crates, pointed at where things went.
 
-A mod names what it hooks by crate and module, and is built by Horizon at the commit it pins. Starling
+A mod names what it hooks by crate and module, and is built by Industrial Era at the commit it pins. Starling
 builds every mod at its own commit (native_build.sh), and at that commit `horizon_client` holds only the
-game module and a glob of `horizon_client_lib`, which horizon-mixins can't look through. The manifests
+game module and a glob of `horizon_client_lib`, which industrial-era-mixins can't look through. The manifests
 are pointed at where things went, and the mods' calls to what changed its shape since are brought up to
 date (CALLS, CHANGED). What is left is the compiler's to judge.
 
-    native_mod_adapt.py SOURCE MODS    SOURCE is a checkout, MODS holds <bundle>/horizon-mixin.toml
+    native_mod_adapt.py SOURCE MODS    SOURCE is a checkout, MODS holds <bundle>/industrial-era-mixin.toml
 """
 import pathlib
 import re
 import sys
 
 ROOTS = {
-    "horizon_client_lib": "crates/horizon-client/src/client_lib.rs",
-    "horizon_client_render": "crates/horizon-client-render/src/lib.rs",
-    "horizon_client_core": "crates/horizon-client-core/src/lib.rs",
-    "horizon_client_input": "crates/horizon-client-input/src/lib.rs",
+    "horizon_client_lib": "crates/industrial-era-client/src/client_lib.rs",
+    "horizon_client_render": "crates/industrial-era-client-render/src/lib.rs",
+    "horizon_client_core": "crates/industrial-era-client-core/src/lib.rs",
+    "horizon_client_input": "crates/industrial-era-client-input/src/lib.rs",
 }
-FOLDERS = ("crates/horizon-client-render/src/", "crates/horizon-client-core/src/", "crates/horizon-client-input/src/")
-OLD_FOLDER = "crates/horizon-client/src/"
+FOLDERS = ("crates/industrial-era-client-render/src/", "crates/industrial-era-client-core/src/", "crates/industrial-era-client-input/src/")
+OLD_FOLDER = "crates/industrial-era-client/src/"
 OLD_ROOT = OLD_FOLDER + "lib.rs"
-# What Horizon renamed since, and takes the same arguments.
+# What Industrial Era renamed since, and takes the same arguments.
 RENAMED = {"horizon_client::game::titles::Game<'_>::draw_titles": "horizon_client::game::titles::Game<'_>::draw_title"}
 MODULE = re.compile(r"^\s*(?:pub(?:\(crate\))? )?mod (\w+)\s*(?:;|\{)", re.M)
 # Calls with the arguments they took (a call, how many, what the new ones are).
@@ -149,7 +149,7 @@ def adapt(text, source, modules):
 def main():
     source, mods = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
     modules = owners(source)
-    for manifest in mods.glob("*/horizon-mixin.toml"):
+    for manifest in mods.glob("*/industrial-era-mixin.toml"):
         old = manifest.read_text(encoding="utf-8")
         new = adapt(old, source, modules)
         if new != old:

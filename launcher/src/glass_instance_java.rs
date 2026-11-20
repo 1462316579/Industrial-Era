@@ -6,8 +6,8 @@ use crate::glass_ui::{self as ui, white};
 use glass_instance::{
     choice, choice_text, letter_tile, list_box, list_choice, loaders, section, tick, tile_image,
 };
-use horizon_launcher::minecraft_versions::Kind as VersionKind;
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_launcher::minecraft_versions::Kind as VersionKind;
+use industrial_era_theme::glass::{fill, ink, radius};
 use new_instance::VersionList;
 use servers_page::Field;
 
@@ -39,7 +39,7 @@ impl Launcher {
                     .px(px(12.))
                     .rounded(px(radius::CONTROL))
                     .cursor_pointer()
-                    .font_family(horizon_theme::glass::FONT)
+                    .font_family(industrial_era_theme::glass::FONT)
                     .text_size(px(13.))
                     .when(on, |d| {
                         d.bg(white(fill::BUTTON_HOVER))
@@ -100,7 +100,7 @@ impl Launcher {
                 line(tr("Asking Mojang for its versions…").into(), ink::QUIET),
             ),
             VersionList::Failed(e) => list_box("mc-versions", 264.).child(
-                line(e.clone(), ink::FULL).text_color(ui::color(horizon_theme::glass::DANGER)),
+                line(e.clone(), ink::FULL).text_color(ui::color(industrial_era_theme::glass::DANGER)),
             ),
             VersionList::Ready(versions) => {
                 let rows: Vec<_> = versions

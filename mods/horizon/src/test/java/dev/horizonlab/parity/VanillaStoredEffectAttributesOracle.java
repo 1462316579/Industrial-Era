@@ -20,7 +20,7 @@ public final class VanillaStoredEffectAttributesOracle {
     static final class Stop extends RuntimeException {}
     static final class Basic extends Attribute {
         Data d; int id, hash;
-        Basic(Data d,int id,int hash) { super("horizon.fixture",d.defaults[id]); this.d=d; this.id=id; this.hash=hash; }
+        Basic(Data d,int id,int hash) { super("industrial-era.fixture",d.defaults[id]); this.d=d; this.id=id; this.hash=hash; }
         @Override public int hashCode() { return hash; }
         @Override public double getDefaultValue() { if(d.op!=null)d.event("default "+id); return d.defaults[id]; }
         @Override public boolean isClientSyncable() { d.event("syncable "+id); return d.syncable[id]; }

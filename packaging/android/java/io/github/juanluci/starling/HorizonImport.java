@@ -22,28 +22,28 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Horizon Android's worlds and resource packs brought into Starling, the two ports being one now.
- * Horizon Android shows its files to the system as a documents provider (its
- * HorizonDocumentsProvider: a root "horizon" holding each profile's "p0/worlds", "p0/packs"...),
+ * Industrial Era Android's worlds and resource packs brought into Starling, the two ports being one now.
+ * Industrial Era Android shows its files to the system as a documents provider (its
+ * HorizonDocumentsProvider: a root "industrial-era" holding each profile's "p0/worlds", "p0/packs"...),
  * so the system's folder picker, opened on it, gives Starling read access to what the player
  * picks: the whole folder, its Worlds or Resource Packs, or one world or pack. Each world goes
  * into the game's import inbox as a zip of its folder, each pack as it is (zipped when it is a
  * folder); the game installs them as it does a file opened with Starling
- * (crates/horizon-client/src/import.rs), a world under a name of its own beside the others.
+ * (crates/industrial-era-client/src/import.rs), a world under a name of its own beside the others.
  */
 final class HorizonImport {
-    static final String PACKAGE = "dev.horizon.android";
+    static final String PACKAGE = "dev.industrial-era.android";
     static final String AUTHORITY = PACKAGE + ".documents";
     /** The provider's root document: its children are "p<profile>/<folder>" (document_store.rs). */
-    private static final String ROOT = "horizon";
+    private static final String ROOT = "industrial-era";
     /** Why the process is held in the foreground while the copy runs (WorkService). */
-    private static final String REASON = "horizon-import";
+    private static final String REASON = "industrial-era-import";
     /** What a world keeps that is the running game's, not the world's. */
     private static final String LOCK = "session.lock";
 
     private HorizonImport() {}
 
-    /** Whether Horizon Android is on the phone (its package is declared in the manifest's queries). */
+    /** Whether Industrial Era Android is on the phone (its package is declared in the manifest's queries). */
     static boolean installed(Context context) {
         try {
             context.getPackageManager().getPackageInfo(PACKAGE, 0);
@@ -53,7 +53,7 @@ final class HorizonImport {
         }
     }
 
-    /** The system's folder picker, opened on Horizon Android's folder. */
+    /** The system's folder picker, opened on Industrial Era Android's folder. */
     static Intent picker() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI,
@@ -67,7 +67,7 @@ final class HorizonImport {
             @Override
             public void run() {
                 WorkService.hold(activity, REASON,
-                        "Bringing your worlds over from Horizon Android", true);
+                        "Bringing your worlds over from Industrial Era Android", true);
                 try {
                     String said = bring(activity, tree);
                     if (said != null) {
@@ -77,7 +77,7 @@ final class HorizonImport {
                     WorkService.hold(activity, REASON, "", false);
                 }
             }
-        }, "starling-horizon-import").start();
+        }, "starling-industrial-era-import").start();
     }
 
     /** One document of the tree: its id, its name, and whether it is a folder. */
@@ -99,7 +99,7 @@ final class HorizonImport {
      */
     private static String bring(Activity activity, Uri tree) {
         if (!AUTHORITY.equals(tree.getAuthority())) {
-            return "That is not Horizon Android's folder: pick Horizon in the list of places";
+            return "That is not Industrial Era Android's folder: pick Industrial Era in the list of places";
         }
         ContentResolver files = activity.getContentResolver();
         File inbox = new File(activity.getFilesDir(), "import-inbox");
@@ -127,10 +127,10 @@ final class HorizonImport {
                 brought += bring(files, tree, inbox, path[1], document(files, tree, picked));
             }
         } catch (IOException | RuntimeException e) {
-            android.util.Log.w("starling", "could not read Horizon Android's folder", e);
-            return "Could not read Horizon Android's files: close Horizon Android, then try again";
+            android.util.Log.w("starling", "could not read Industrial Era Android's folder", e);
+            return "Could not read Industrial Era Android's files: close Industrial Era Android, then try again";
         }
-        return brought == 0 ? "Horizon Android has no worlds or resource packs there" : null;
+        return brought == 0 ? "Industrial Era Android has no worlds or resource packs there" : null;
     }
 
     /** One world or pack into the inbox: 1 when it went, 0 for anything else. */
@@ -255,7 +255,7 @@ final class HorizonImport {
 
     /** A name the inbox can hold (LauncherActivity's rule): no folders, no ".part" at its end. */
     private static String safe(String name) {
-        String clean = name == null || name.isEmpty() ? "Horizon Android" : name;
+        String clean = name == null || name.isEmpty() ? "Industrial Era Android" : name;
         clean = clean.replaceAll("[/\\\\:*?\"<>|]", "_");
         return clean.endsWith(".part") ? clean + "_" : clean;
     }

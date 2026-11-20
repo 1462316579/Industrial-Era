@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Horizon's client on a vanilla 26.3 dedicated server, end to end.
+"""Industrial Era's client on a vanilla 26.3 dedicated server, end to end.
 
-A vanilla server (the pinned server jar, offline mode, a flat world) and one Horizon game joined to it,
-driven by horizon-ctl. The server's console does what a server or its plugins do; the checks read what
+A vanilla server (the pinned server jar, offline mode, a flat world) and one Industrial Era game joined to it,
+driven by industrial-era-ctl. The server's console does what a server or its plugins do; the checks read what
 the game shows and what reaches the server (its console and, for custom click actions, its debug log).
 
     python3 tools/server_e2e.py --bin-dir target/fast             # every check
@@ -174,7 +174,7 @@ def check_dialog_close(server, game, out, proxy):
         'can_close_with_escape': False, 'pause': False, 'columns': 1,
         'after_action': 'wait_for_response',
         'actions': [{'label': 'Close', 'width': 20,
-                     'action': {'type': 'minecraft:custom', 'id': 'horizon:close_dialog'}}],
+                     'action': {'type': 'minecraft:custom', 'id': 'industrial-era:close_dialog'}}],
     }
 
     def show(data=dialog):
@@ -194,7 +194,7 @@ def check_dialog_close(server, game, out, proxy):
     # WAIT_FOR_RESPONSE must survive clear_dialog, but not container_close.
     show()
     game.raw('click', 'close')
-    server.wait_for(r'Received custom click action horizon:close_dialog', timeout=30)
+    server.wait_for(r'Received custom click action industrial-era:close_dialog', timeout=30)
     assert game('state')['dialog']['screen'] == 'waiting_for_response'
     server.console(f'dialog clear {PLAYER}')
     game.wait(10)
@@ -292,9 +292,9 @@ def check_dialog(server, game, out):
         'actions': [
             {'label': 'Send', 'action': {'type': 'minecraft:dynamic/run_command',
                                          'template': 'trigger answer set $(number)$(agree)'}},
-            {'label': 'Submit', 'action': {'type': 'minecraft:dynamic/custom', 'id': 'horizon:e2e',
+            {'label': 'Submit', 'action': {'type': 'minecraft:dynamic/custom', 'id': 'industrial-era:e2e',
                                            'additions': {'tag': 'x'}}},
-            {'label': 'Wait', 'action': {'type': 'minecraft:dynamic/custom', 'id': 'horizon:wait'}},
+            {'label': 'Wait', 'action': {'type': 'minecraft:dynamic/custom', 'id': 'industrial-era:wait'}},
         ],
         'after_action': 'none',
         'pause': False,  # a pausing dialog must close after an action
@@ -318,8 +318,8 @@ def check_dialog(server, game, out):
     shown['trigger'] = 41
     # A custom action: its additions and every input's tag.
     game.raw('click', 'submit')
-    server.wait_for(r'Received custom click action horizon:e2e with payload', timeout=30)
-    line = next(l for l in server.lines if 'horizon:e2e' in l)
+    server.wait_for(r'Received custom click action industrial-era:e2e with payload', timeout=30)
+    line = next(l for l in server.lines if 'industrial-era:e2e' in l)
     shown['custom'] = line.split('payload ', 1)[1]
     for part in ('agree:1b', 'number:"4"', 'tag:"x"'):
         assert part in shown['custom'], shown
@@ -331,7 +331,7 @@ def check_dialog(server, game, out):
     server.console(f'dialog show {PLAYER} {snbt(dict(dialog, after_action="wait_for_response"))}')
     game.raw('wait-for', 'screen', 'dialog', '--timeout', 30)
     game.raw('click', 'wait')
-    server.wait_for(r'Received custom click action horizon:wait', timeout=30)
+    server.wait_for(r'Received custom click action industrial-era:wait', timeout=30)
     shown['waiting'] = game('state')['dialog']['screen']
     game.shot(out, 'waiting')
     assert shown['waiting'] == 'waiting_for_response', shown
@@ -401,7 +401,7 @@ def check_dialog_text(server, game, out):
     """Custom component clicks (including an inherited inline sprite) reach the real server."""
     results = {}
     for after in ('none', 'close', 'wait_for_response'):
-        event = {'action': 'custom', 'id': f'horizon:text_{after}'}
+        event = {'action': 'custom', 'id': f'industrial-era:text_{after}'}
         if after != 'none':
             event['payload'] = {'shop': 'potions', 'amount': 3}
         dialog = {
@@ -471,7 +471,7 @@ def run(bins, out, checks):
     server = Server(['java', '-Xmx2g', f'-Dlog4j.configurationFile={work / "log4j2.xml"}', '-cp', classpath,
                      'net.minecraft.server.Main', 'nogui'], directory, 'vanilla')
     proxy = PacketProxy(port) if 'book_menu' in checks or 'dialog_close' in checks else None
-    game = Game('client', bins / 'horizon-ctl', lab.RESOURCES.resolve())
+    game = Game('client', bins / 'industrial-era-ctl', lab.RESOURCES.resolve())
     for key in ('XDG_DATA_HOME', 'XDG_CONFIG_HOME', 'HORIZON_LAUNCHER_HOME'):
         game.d.env[key] = str(game.work / key.lower())
     game.d.env['HORIZON_LAUNCHER_NO_SELF_UPDATE'] = '1'
@@ -505,14 +505,14 @@ def run(bins, out, checks):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--bin-dir', help='prebuilt horizon-client and horizon-ctl (default: build with the fast profile)')
+    parser.add_argument('--bin-dir', help='prebuilt industrial-era-client and industrial-era-ctl (default: build with the fast profile)')
     parser.add_argument('--check', action='append', choices=list(CHECKS), help='run only these checks (repeatable)')
     parser.add_argument('--out', default=str(ROOT / '.local/server-e2e'), help='screenshots and logs go here')
     args = parser.parse_args()
     if args.bin_dir:
         bins = Path(args.bin_dir).resolve()
     else:
-        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'horizon-client', '-p', 'horizon-client-lib', '--bins'],
+        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'industrial-era-client', '-p', 'industrial-era-client-lib', '--bins'],
                        cwd=ROOT, check=True)
         bins = ROOT / 'target/fast'
     out = Path(args.out)

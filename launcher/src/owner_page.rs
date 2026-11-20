@@ -1,4 +1,4 @@
-//! The owner gate in the window (`horizon_launcher::account::launch`): the screen that asks for a
+//! The owner gate in the window (`industrial_era_launcher::account::launch`): the screen that asks for a
 //! Microsoft account that owns Minecraft: Java Edition. It covers the launcher once for players
 //! without one (those who played offline before the gate), and again whenever Play is refused.
 //! The sign-in runs on it, code and all.
@@ -74,11 +74,11 @@ impl Launcher {
                     .child(tr("Sign in to play").to_string()),
             )
             .child(line(
-                "Horizon needs a Microsoft account that owns Minecraft: Java Edition, like other launchers.",
+                "Industrial Era needs a Microsoft account that owns Minecraft: Java Edition, like other launchers.",
                 n.ink_soft,
             ))
             .child(line(
-                "No Minecraft install needed: Horizon downloads it from Mojang for your account.",
+                "No Minecraft install needed: Industrial Era downloads it from Mojang for your account.",
                 n.ink_soft,
             ))
             .child(line(

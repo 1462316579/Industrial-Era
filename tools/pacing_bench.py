@@ -5,7 +5,7 @@ perf_bench.py measures throughput on short flights; this measures smoothness (1%
 p99/p99.9, the worst frame, frames over 33 ms) in the situations where players see hitches:
 
     fly16      the village flight of perf_bench, 16 blocks/s, 12 s
-    ocean      perf_bench's ocean flight (16 blocks/s, 12 s): Horizon's worst lows on Windows at RD 32
+    ocean      perf_bench's ocean flight (16 blocks/s, 12 s): Industrial Era's worst lows on Windows at RD 32
     fly64      a 1,920-block straight line at 64 blocks/s (30 s), new terrain all the way
     teleport   8 teleports of 1,500-3,000 blocks, 5 s recorded after each
     elytra     a 990-block straight line at 33 blocks/s (30 s, an elytra's cruise), new terrain all the way
@@ -37,7 +37,7 @@ First-use costs (pipelines compiled in the frame) block the render thread in the
 shader compiler: the frame's wall time grows, its CPU time hardly. The driver's shader cache hides them
 after the first run on a machine: give the game a resources folder whose shaders differ to see them cold.
 
-One game per render distance, from a fresh world (seed 1234, creative), driven over horizon-ctl.
+One game per render distance, from a fresh world (seed 1234, creative), driven over industrial-era-ctl.
 The game runs with HORIZON_SPIKES so each slow frame logs its timed spans; the report keeps the
 slowest frames' span lines next to each scenario's figures.
 
@@ -382,9 +382,9 @@ def launch(args, distance, tag):
         if "enableVsync:false\n" not in text:
             raise RuntimeError("perf_bench's options no longer set enableVsync:false")
         options.write_text(text.replace("enableVsync:false\n", "enableVsync:true\n"))
-    sock = Path("/tmp") / f"horizon-pacing-{os.getpid()}{tag}.sock"
+    sock = Path("/tmp") / f"industrial-era-pacing-{os.getpid()}{tag}.sock"
     sock.unlink(missing_ok=True)
-    client = Path(args.build).resolve() / "horizon-client"
+    client = Path(args.build).resolve() / "industrial-era-client"
     command = [str(client), "--resources", str(Path(args.resources).resolve()), "--control-socket", str(sock),
                "--no-pause", "--weather", "clear", "--time", "6000"]
     if args.size:
@@ -418,7 +418,7 @@ def dedicated_server(args, distance, directory):
     (directory / "server.properties").write_text("".join(f"{k}={v}\n" for k, v in properties.items()),
                                                  encoding="iso-8859-1")
     (directory / "eula.txt").write_text("eula=true\n")
-    binary = Path(args.build).resolve() / "horizon-client"
+    binary = Path(args.build).resolve() / "industrial-era-client"
     server = Server([binary, "--resources", Path(args.resources).resolve(), "--dedicated", "--nogui"],
                     directory, "server")
     server.wait_for(r"Done \(", 900)
@@ -519,9 +519,9 @@ def compare(labels):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--label", default="horizon")
+    parser.add_argument("--label", default="industrial-era")
     parser.add_argument("--build", default=str(lab.ROOT / "target/fast"))
-    parser.add_argument("--resources", default=str(lab.ROOT / ".local/horizon-client/26.3"))
+    parser.add_argument("--resources", default=str(lab.ROOT / ".local/industrial-era-client/26.3"))
     parser.add_argument("--distances", default="32")
     parser.add_argument("--scenarios", default=",".join(SCENARIOS))
     parser.add_argument("--timeout", type=float, default=600)

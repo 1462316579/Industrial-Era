@@ -1,4 +1,4 @@
-# Horizon Rust rewrite status
+# Industrial Era Rust rewrite status
 
 The behavior target is the repository's pinned **Minecraft Java Edition 26.3**.
 One-to-one vanilla gameplay parity is the acceptance criterion. It has **not**
@@ -31,7 +31,7 @@ families now have native differential coverage. Full simulation callbacks,
 complete chunk generation, entity behavior, networking, rendering and playable
 integration remain unfinished. The linked subsystem documents and hashed reports
 record the exact tested scope and remaining gaps.
-The `horizon-assets` crate now decodes pinned cuboid models, with all 2,883 bundled
+The `industrial-era-assets` crate now decodes pinned cuboid models, with all 2,883 bundled
 block-model JSON files and 2,457 synthetic cases compared against the actual
 client parser. [Decoder scope and validation](native-client.md#validation)
 also include parent/texture resolution over 5,648 roots and cuboid baking over
@@ -57,7 +57,7 @@ interpolation and game-loop synchronization remain unfinished.
 
 ## Completion criteria and playable builds
 
-The final deliverable is the complete Horizon Rust game with one-to-one parity
+The final deliverable is the complete Industrial Era Rust game with one-to-one parity
 with pinned Java Edition 26.3, plus a playable **Linux** build that the user can
 download and test. The target platform is a Linux x86-64 desktop with an NVIDIA
 GPU (Vulkan) on Wayland. macOS and Windows are out of scope. The build must include a packaged native
@@ -78,7 +78,7 @@ verified development checkpoints regularly.
 
 ## Implemented foundation
 
-`crates/horizon-core` is a dependency-free Rust library with no unsafe code.
+`crates/industrial-era-core` is a dependency-free Rust library with no unsafe code.
 It uses small integer position values, exclusively owned RNG state, and packed
 64-bit storage. These choices avoid Java object overhead in this slice; no
 whole-game memory, FPS, or render-distance gain has been measured.
@@ -1264,7 +1264,7 @@ attribute queries. Healing, health and base absorption limits, synchronized
 health storage and hunger regeneration therefore share its stored values and
 modifier engine. The [health integration comparison](../benchmarks/rust-live-attribute-health-2026-10-07/scoped-parity.json)
 matches **666,082 lines per reference JAR for each storage backend**, including
-all 93 entity suppliers and observer failure prefixes. All `horizon-world`
+all 93 entity suppliers and observer failure prefixes. All `industrial-era-world`
 targets compile, and library/affected fixture Clippy checks pass. This borrowed
 binding keeps its selected attribute map fixed; entity virtual dispatch,
 attribute refresh, player absorption synchronization and starvation damage
@@ -1373,7 +1373,7 @@ expiry, the fade by age, the direction arrows and the box width. The overlay
 listens to the sound engine from the frame that renders it with the option on
 until one renders with it off, as vanilla's does.
 
-Not covered yet: the player's air supply (Horizon does not track drowning, so
+Not covered yet: the player's air supply (Industrial Era does not track drowning, so
 the `air` criteria stays at 300); displays auto-updated with the player's name
 carry the team formatting but not the click, hover and insertion of
 `Player.getDisplayName`; there is no attack sweep for allies to be spared from;
@@ -1481,7 +1481,7 @@ held, from the local player and scoreboard in single player and from
 `PlayerInfoUpdate`, the tab list header and footer, `onlineMode` and the
 objective, score, display-slot and team packets on a server (checked live
 against the 26.3 server jar). Real skins are not downloaded: every head uses
-its default skin. Horizon has no "chat background only" option, so the row
+its default skin. Industrial Era has no "chat background only" option, so the row
 background is vanilla's default.
 
 The client `WorldBorder` wraps `horizon_core::geometry::border` (checked by

@@ -5,7 +5,7 @@ name: mojang republish
 #   gh workflow run "mojang republish" -f dry_run=true
 on:
   schedule:
-    - cron: '23 * * * *'  # hourly: a republished JSON breaks horizon-prepare for every new player until accepted
+    - cron: '23 * * * *'  # hourly: a republished JSON breaks industrial-era-prepare for every new player until accepted
   workflow_dispatch:
     inputs:
       dry_run:
@@ -21,8 +21,8 @@ concurrency:
 
 jobs:
   check:
-    # Horizon's own repository files these issues; a fork would only repeat them.
-    if: github.repository == 'horizon-rust/horizon'
+    # Industrial Era's own repository files these issues; a fork would only repeat them.
+    if: github.repository == 'industrial-era-rust/industrial-era'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

@@ -15,7 +15,7 @@ import net.minecraft.server.MinecraftServer;
  */
 public final class OfflineLanHost {
     public static void main(String[] args) throws Exception {
-        int port = Integer.getInteger("horizon.lanPort", 0);
+        int port = Integer.getInteger("industrial-era.lanPort", 0);
         Thread watcher = new Thread(() -> {
             boolean published = false;
             while (!published) {
@@ -34,7 +34,7 @@ public final class OfflineLanHost {
                     // The game is still starting.
                 }
             }
-        }, "horizon-offline-lan");
+        }, "industrial-era-offline-lan");
         watcher.setDaemon(true);
         watcher.start();
         net.minecraft.client.main.Main.main(args);

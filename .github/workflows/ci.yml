@@ -1,11 +1,11 @@
 name: checks
 # verify: every pull request and every push to the android branch, on GitHub's runners: the public-tree check, the
-# Python tests, rustfmt, clippy and the Rust tests, as in Horizon (a pull request that changes no Rust finishes in
-# seconds). Horizon's vanilla parity jobs need a runner holding a copy of the game and stay upstream; the Android APK
+# Python tests, rustfmt, clippy and the Rust tests, as in Industrial Era (a pull request that changes no Rust finishes in
+# seconds). Industrial Era's vanilla parity jobs need a runner holding a copy of the game and stay upstream; the Android APK
 # is built by android.yml.
 on:
   push:
-    # starling and integration in starling-client/starling (android: Horizon Android's, and JuanLuci/starling's).
+    # starling and integration in starling-client/starling (android: Industrial Era Android's, and JuanLuci/starling's).
     branches: [android, starling, integration]
   pull_request:
     types: [opened, synchronize, reopened]
@@ -48,7 +48,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: python3 tools/ci/rust_changes.py "$BASE_SHA" "$HEAD_SHA" >> "$GITHUB_OUTPUT"
       # A pull request adds only its own commits to main, so it reads those; a push reads the pushed branch's whole
-      # history, not every ref's: in starling-client/starling the other refs hold Horizon Android's own history.
+      # history, not every ref's: in starling-client/starling the other refs hold Industrial Era Android's own history.
       - name: Keep game artifacts out of Git
         env:
           EVENT: ${{ github.event_name }}
@@ -84,9 +84,9 @@ jobs:
           cargo +stable fmt --all -- --check
           cargo +stable clippy --workspace --all-targets -- -D warnings
           # The server build: the game without sound or controllers.
-          cargo +stable clippy -p horizon-client --all-targets --no-default-features -- -D warnings
+          cargo +stable clippy -p industrial-era-client --all-targets --no-default-features -- -D warnings
       # Libraries, binaries and integration tests, then doc tests: not the ~275 examples, which clippy above already
-      # type-checks and Horizon's parity jobs build and run (they were most of this step's build and link time).
+      # type-checks and Industrial Era's parity jobs build and run (they were most of this step's build and link time).
       # cargo test, not nextest: nextest's process per test reloads each binary's shared tables for every test, and on
       # these 4-core runners it was no faster (#4978).
       - name: Test Rust core and voxel kernel correctness

@@ -1,10 +1,10 @@
 # Benchmark report format (version 1)
 
-Every benchmark Horizon writes uses this one JSON format: `horizon-client --benchmark`, the launcher's own
+Every benchmark Industrial Era writes uses this one JSON format: `industrial-era-client --benchmark`, the launcher's own
 measurements, and `tools/perf_bench.py` (which also writes it for vanilla and vanilla with mods). The same
 file is the local log a player can attach to an issue and, only with the player's consent, what the
 telemetry upload sends (minus the local-only fields below). The types, the statistics and the hardware
-detection are in `crates/horizon-bench`; nothing else builds a report by hand.
+detection are in `crates/industrial-era-bench`; nothing else builds a report by hand.
 
 A report holds summaries and histogram counts, never raw frame streams: a 10-minute run is a few
 kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
@@ -13,11 +13,11 @@ kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
 
 ```json
 {
-  "format": "horizon-benchmark-report",
+  "format": "industrial-era-benchmark-report",
   "version": 1,
   "kind": "game",
   "created": "2026-10-15T14:03:27Z",
-  "app": { "name": "horizon-client", "version": "0.21.0", "commit": "e96e1571" },
+  "app": { "name": "industrial-era-client", "version": "0.21.0", "commit": "e96e1571" },
   "hardware": {
     "os": "macos", "os_version": "27.0", "arch": "aarch64",
     "cpu": "Apple M4 Pro", "cpu_threads": 14, "cpu_cores": 14, "ram_mb": 65536, "storage": "nvme", "form": "desktop",
@@ -46,16 +46,16 @@ kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
 
 ## Fields
 
-**`format`, `version`.** Always `"horizon-benchmark-report"` and `1`. A reader rejects other formats and
+**`format`, `version`.** Always `"industrial-era-benchmark-report"` and `1`. A reader rejects other formats and
 newer versions. Adding an optional field keeps the version; renaming, removing or changing the meaning of
 one (histogram edges included) makes it 2.
 
-**`kind`.** `"game"` (a game run: Horizon, or vanilla from `tools/perf_bench.py`) or `"launcher"`.
+**`kind`.** `"game"` (a game run: Industrial Era, or vanilla from `tools/perf_bench.py`) or `"launcher"`.
 
 **`created`.** When the run ended, UTC, `YYYY-MM-DDTHH:MM:SSZ`.
 
-**`app`.** What was measured: `name` (`horizon-client`, `horizon-launcher`, `minecraft`), `version`,
-optionally `commit` (Horizon builds) and `mods` (`[{ "name", "version" }]`, vanilla with mods).
+**`app`.** What was measured: `name` (`industrial-era-client`, `industrial-era-launcher`, `minecraft`), `version`,
+optionally `commit` (Industrial Era builds) and `mods` (`[{ "name", "version" }]`, vanilla with mods).
 
 **`hardware`.** `os` (`macos`, `linux`, `windows`), `os_version`, `arch`, `cpu` (brand string; on Windows
 without one in the registry, `PROCESSOR_IDENTIFIER`), `cpu_threads`, `cpu_cores` (physical), `cpu_base_mhz` and
@@ -89,13 +89,13 @@ confidence interval of the mean, Student's t, null when `n` is 1). The unit is t
 | `memory.rss_peak_mb`, `memory.rss_steady_mb` | resident memory: peak over the run, median while flying |
 | `memory.gpu_mb`, `memory.<phase>.gpu_mb` | video memory the game allocated (or NVIDIA attributes to it), where readable |
 | `memory.<phase>.rss_mb` | resident memory, median over that phase's flight (perf_bench) |
-| `cpu.<phase>.p50_ms` | median CPU time of a frame (the frame minus its waits for the GPU, the display and the limiter; Horizon only) |
-| `tick.<phase>.client_ms` | mean time of one client tick during the phase (vanilla: `Minecraft.tick`; Horizon: the frames' tick phase over the ticks run) |
+| `cpu.<phase>.p50_ms` | median CPU time of a frame (the frame minus its waits for the GPU, the display and the limiter; Industrial Era only) |
+| `tick.<phase>.client_ms` | mean time of one client tick during the phase (vanilla: `Minecraft.tick`; Industrial Era: the frames' tick phase over the ticks run) |
 | `gpu_pass.<phase>.<pass>_ms` | GPU time of one of the game's render passes (`world`, `world_after_culling`, `occlusion_test`, `hud`...), the median of the last 15 timed frames in the 2 s before the flight, at its start; the flight itself is not timed per pass. Not on Metal, where passes overlap |
 | `power.package_w`, `power.battery_drain_pct` | power draw, battery used per hour (laptops; planned) |
 | `thermal.cpu_c`, `thermal.throttled_pct` | temperature, share of the run spent throttled (planned) |
 | `launcher.start_ms` | launcher process start to its first frame (a session) |
-| `launcher.cold_start_ms`, `launcher.warm_start_ms` | the same in `horizon-launcher benchmark`: its first start, then the others |
+| `launcher.cold_start_ms`, `launcher.warm_start_ms` | the same in `industrial-era-launcher benchmark`: its first start, then the others |
 | `launcher.rss_mb`, `launcher.cpu_idle_pct` | launcher resident memory (sampled; `max` is the peak), CPU used while idle |
 | `launcher.release_list_ms` | fetching the release list |
 | `launcher.install_ms`, `launcher.update_ms` | downloading and unpacking a version: a new one, an update |
@@ -120,7 +120,7 @@ Bucket *i* counts frames from edge *i* (included) to edge *i* + 1; the last buck
 
 `label` (a name the person running it chose) and `local` (paths of the logs the run wrote next to the
 report) stay on the machine: the upload removes them and dates the report to the day only, as every
-telemetry item is (`Report::for_upload`). The upload is `horizon-telemetry`'s `benchmark` item: this
+telemetry item is (`Report::for_upload`). The upload is `industrial-era-telemetry`'s `benchmark` item: this
 report, as it is, only with the player's consent to benchmark uploads (docs/telemetry.md). Nothing in a report
 identifies the player, the machine's name or the world: no host name, user name, path or address.
 

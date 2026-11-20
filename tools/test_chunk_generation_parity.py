@@ -4,7 +4,7 @@
 Vanilla side: VanillaChunkGenerationOracle drives the actual ChunkGenerator
 stages (structure starts and references, biomes, terrain with surface and
 carvers, then biome decoration with every placed feature and structure piece)
-through real WorldGenRegion instances. Horizon side: the chunk_dump probe
+through real WorldGenRegion instances. Industrial Era side: the chunk_dump probe
 runs the same stages in the same order. Every block state, quart biome and
 block entity (canonical NBT) of each target chunk is compared.
 
@@ -41,7 +41,7 @@ REGRESSIONS = [
     (-1860902098141295193, 'the_nether', '-1,6,3,9', 'bastion_remnant across 20 chunks (#249)'),
 ]
 RESOURCES = lab.RESOURCES
-ORACLE = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaChunkGenerationOracle.java'
+ORACLE = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaChunkGenerationOracle.java'
 
 
 def build_dir():
@@ -75,7 +75,7 @@ class Oracle:
 
 
 def rust_binary():
-    subprocess.run(['cargo', 'build', '--release', '-q', '-p', 'horizon-world', '--example', 'world_probe'], check=True, cwd=lab.ROOT)
+    subprocess.run(['cargo', 'build', '--release', '-q', '-p', 'industrial-era-world', '--example', 'world_probe'], check=True, cwd=lab.ROOT)
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     return Path(metadata['target_directory']) / 'release/examples/world_probe'
 
@@ -154,8 +154,8 @@ def parse_nbt(text, i=0):
 
 
 def nbt_matches(vanilla, rust, default):
-    """Horizon stores the placed data only; vanilla saves defaults too. Every key
-    Horizon sets must match, and every other vanilla key must be what vanilla
+    """Industrial Era stores the placed data only; vanilla saves defaults too. Every key
+    Industrial Era sets must match, and every other vanilla key must be what vanilla
     loads for an absent key (the oracle's second form)."""
     if isinstance(vanilla, dict) and isinstance(rust, dict):
         default = default if isinstance(default, dict) else {}
@@ -215,7 +215,7 @@ def compare(vanilla, rust, names, label, limit=6, quiet=False):
     for pos in sorted(vanilla):
         a, b = vanilla[pos], rust.get(pos)
         if b is None:
-            print(f'  {label} chunk {pos}: missing from Horizon output')
+            print(f'  {label} chunk {pos}: missing from Industrial Era output')
             chunks += 1
             continue
         block_diffs, biome_diffs, entity_diffs = [], [], []
@@ -224,7 +224,7 @@ def compare(vanilla, rust, names, label, limit=6, quiet=False):
             if ra == rb:
                 continue
             if rb is None:
-                # Above the noise height (Nether roof, End sky) Horizon keeps no section; vanilla's is all air.
+                # Above the noise height (Nether roof, End sky) Industrial Era keeps no section; vanilla's is all air.
                 if set(ra.split(' ')) != {AIR}:
                     block_diffs.append((pos[0] * 16, y, pos[1] * 16, 'non-air section', 'section missing'))
                 continue
@@ -233,7 +233,7 @@ def compare(vanilla, rust, names, label, limit=6, quiet=False):
                     block_diffs.append((pos[0] * 16 + i % 16, y, pos[1] * 16 + i // 16, names[int(u)], names[int(v)]))
         for q in sorted(a['q']):
             if q not in b['q']:
-                continue  # biomes of sections Horizon does not generate (above the noise height)
+                continue  # biomes of sections Industrial Era does not generate (above the noise height)
             if a['q'][q] != b['q'].get(q):
                 for i, (u, v) in enumerate(zip(a['q'][q].split(' '), b['q'].get(q, '').split(' '))):
                     if u != v:
@@ -255,7 +255,7 @@ def compare(vanilla, rust, names, label, limit=6, quiet=False):
             missing = Counter(pa) - Counter(pb)
             block_diffs.append((pos[0] * 16, 0, pos[1] * 16,
                                 f'{len(pa)} postprocessing marks, #{first}: {pa[first] if first < len(pa) else "-"}'
-                                f' ({sum(missing.values())} not in Horizon, e.g. {next(iter(missing), "-")})',
+                                f' ({sum(missing.values())} not in Industrial Era, e.g. {next(iter(missing), "-")})',
                                 f'{len(pb)} marks, #{first}: {pb[first] if first < len(pb) else "-"}'
                                 f' ({sum(extra.values())} not in vanilla, e.g. {next(iter(extra), "-")})'))
         if block_diffs or biome_diffs or entity_diffs:
@@ -267,11 +267,11 @@ def compare(vanilla, rust, names, label, limit=6, quiet=False):
                 continue
             print(f'  {label} chunk {pos}: {len(block_diffs)} blocks, {len(biome_diffs)} biome cells, {len(entity_diffs)} block entities')
             for d in block_diffs[:limit]:
-                print(f'    block {d[0]} {d[1]} {d[2]}: vanilla {d[3]} / horizon {d[4]}')
+                print(f'    block {d[0]} {d[1]} {d[2]}: vanilla {d[3]} / industrial-era {d[4]}')
             for d in biome_diffs[:2]:
-                print(f'    biome quart {d[0]} {d[1]} {d[2]}: vanilla {d[3]} / horizon {d[4]}')
+                print(f'    biome quart {d[0]} {d[1]} {d[2]}: vanilla {d[3]} / industrial-era {d[4]}')
             for d in entity_diffs[:3]:
-                print(f'    block entity {d[0]}: vanilla {d[1]} / horizon {d[2]}')
+                print(f'    block entity {d[0]}: vanilla {d[1]} / industrial-era {d[2]}')
     return chunks, blocks, biomes, entities
 
 
@@ -361,7 +361,7 @@ def main():
             tag = f'{dimension}-{seed}-{args.phase}' + ('-iso' if os.environ.get('HORIZON_ISOLATED') else '') + ('-rect' if args.rect else '')
             vanilla_path, rust_path = build / f'vanilla-{tag}.txt', build / f'rust-{tag}.txt'
             t0 = time.time()
-            # Vanilla and Horizon generate the same chunks independently: run them side by side.
+            # Vanilla and Industrial Era generate the same chunks independently: run them side by side.
             with ThreadPoolExecutor(2) as pool:
                 rust_run = pool.submit(run_rust, binary, rust_path, seed, dimension, rects)
                 if not (os.environ.get('REUSE_VANILLA') and vanilla_path.exists()):
@@ -371,7 +371,7 @@ def main():
             t2 = time.time()
             vanilla, rust = parse(vanilla_path), parse(rust_path)
             for line in stderr.splitlines()[:5]:
-                print('  horizon:', line)
+                print('  industrial-era:', line)
             counts = [0, 0, 0, 0]
             for rect, label in zip(rects, labels):
                 x0, z0, x1, z1 = map(int, rect.split(','))

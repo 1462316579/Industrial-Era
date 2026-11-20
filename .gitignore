@@ -14,7 +14,7 @@
 /run/
 /logs/
 /dist/
-/mods/horizon/build/
+/mods/industrial-era/build/
 /saves/
 /backups/
 /tools/logs/
@@ -22,21 +22,21 @@
 # What the client writes to its working directory when run from the repo root.
 /options.txt
 /debug-profile.json
-/horizon.txt
-/horizon-graphics.txt
-/horizon-controller.txt
-/horizon-extras.txt
-/horizon-player.txt
+/industrial-era.txt
+/industrial-era-graphics.txt
+/industrial-era-controller.txt
+/industrial-era-extras.txt
+/industrial-era-player.txt
 /servers.dat
 /touch-layout.json
 /resourcepacks/
-/horizon-mods/
+/industrial-era-mods/
 /screenshots/
-/.horizon-cache/
+/.industrial-era-cache/
 /crash-reports/
 /debug/
 
 # Mod storage the game writes beside a mod it runs (--dev-mod of a source folder).
-.horizon-mod-data/
+.industrial-era-mod-data/
 # Release-only compiled original exporter bundle.
 /exporters/

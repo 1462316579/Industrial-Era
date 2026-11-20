@@ -1,5 +1,5 @@
 {
-  "kind": "horizon-server-benchmark",
+  "kind": "industrial-era-server-benchmark",
   "date": "2026-10-17T05:04:57+00:00",
   "machine": {
     "system": "Linux",
@@ -11,7 +11,7 @@
     "openjdk 25.0.4.1 2026-08-18"
   ],
   "settings": {
-    "servers": "horizon",
+    "servers": "industrial-era",
     "bots": "1,10,25,50,100",
     "behaviour": "walk,explore",
     "join_every": 1.0,
@@ -24,7 +24,7 @@
     "out": "/home/ludovic/scratch/sh2-bench4.json",
     "nice": 19,
     "bots_via": "ssh -o BatchMode=yes macmini",
-    "bots_bin": "/tmp/sh2-horizon-bots",
+    "bots_bin": "/tmp/sh2-industrial-era-bots",
     "connect": "100.72.51.8",
     "properties": {
       "level-seed": "12345",
@@ -42,7 +42,7 @@
   },
   "runs": [
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 1,
       "behaviour": "walk",
       "start_seconds": 11.02,
@@ -79,7 +79,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 10,
       "behaviour": "walk",
       "start_seconds": 11.02,
@@ -116,7 +116,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 25,
       "behaviour": "walk",
       "start_seconds": 10.91,
@@ -153,7 +153,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 50,
       "behaviour": "walk",
       "start_seconds": 11.12,
@@ -190,7 +190,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 100,
       "behaviour": "walk",
       "start_seconds": 18.16,
@@ -227,7 +227,7 @@
       "tick_queries": 57
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 1,
       "behaviour": "explore",
       "start_seconds": 17.45,
@@ -264,7 +264,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 10,
       "behaviour": "explore",
       "start_seconds": 11.32,
@@ -301,7 +301,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 25,
       "behaviour": "explore",
       "start_seconds": 11.42,
@@ -338,7 +338,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 50,
       "behaviour": "explore",
       "start_seconds": 20.06,
@@ -375,7 +375,7 @@
       "tick_queries": 58
     },
     {
-      "server": "horizon",
+      "server": "industrial-era",
       "bots": 100,
       "behaviour": "explore",
       "start_seconds": 11.82,

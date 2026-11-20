@@ -354,7 +354,7 @@ public final class VanillaTradingOracle {
 
         ServerPlayer player(ServerLevel level) throws Exception {
             if (player == null) {
-                CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(PLAYER_UUID, "horizon-trade"), false);
+                CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(PLAYER_UUID, "industrial-era-trade"), false);
                 player = new ServerPlayer(this, level, cookie.gameProfile(), cookie.clientInformation());
                 Connection connection = new Connection(PacketFlow.SERVERBOUND);
                 new EmbeddedChannel(connection);

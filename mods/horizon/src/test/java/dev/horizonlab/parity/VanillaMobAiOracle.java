@@ -271,7 +271,7 @@ public final class VanillaMobAiOracle {
         Bootstrap.bootStrap();
         Util.startTimerHackThread();
         // The harness passes an empty world directory under its build directory.
-        Path universe = args.length > 2 ? Path.of(args[2]) : Files.createTempDirectory("horizon-mob-ai");
+        Path universe = args.length > 2 ? Path.of(args[2]) : Files.createTempDirectory("industrial-era-mob-ai");
         Files.createDirectories(universe);
         UNIVERSE = universe;
         LevelStorageSource.LevelStorageAccess access = LevelStorageSource.createDefault(universe).createAccess("aiworld");
@@ -515,7 +515,7 @@ public final class VanillaMobAiOracle {
             level.setThunderLevel(s.thunder ? 1.0F : 0.0F);
             if (s.player != null) {
                 if (player == null) {
-                    CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(PLAYER_UUID, "horizon-ai"), false);
+                    CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(PLAYER_UUID, "industrial-era-ai"), false);
                     player = new ServerPlayer(this, level, cookie.gameProfile(), cookie.clientInformation());
                     Connection connection = new Connection(PacketFlow.SERVERBOUND);
                     new EmbeddedChannel(connection);

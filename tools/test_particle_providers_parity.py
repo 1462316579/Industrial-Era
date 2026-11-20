@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare Horizon's ParticleEngine with the pinned client's ParticleProviders:
+"""Compare Industrial Era's ParticleEngine with the pinned client's ParticleProviders:
 every supported particle type is built through its real registered provider
 (real ParticleResources, sprite sets bound to stand-in sprites named after the
 vanilla particles/*.json textures) in a stand-in ClientLevel (air, optionally a
@@ -22,7 +22,7 @@ except ImportError:
 
 STONE = 1  # Block.stateById(1) in 26.3
 
-# Types Horizon implements, with the options each is built with.
+# Types Industrial Era implements, with the options each is built with.
 SIMPLE = """angry_villager ash bubble bubble_column_up bubble_pop campfire_cosy_smoke campfire_signal_smoke
 cherry_leaves cloud composter crimson_spore crit current_down damage_indicator dolphin dripping_dripstone_lava
 dripping_dripstone_water dripping_honey dripping_lava dripping_obsidian_tear dripping_water egg_crack enchant
@@ -195,9 +195,9 @@ def main():
     report.unlink(missing_ok=True)
     sources = [lab.ROOT / p for p in [
         'tools/test_particle_providers_parity.py', 'tools/oracle_harness.py', 'tools/test_rust_parity.py', 'tools/lab.py',
-        f'mods/horizon/src/test/java/dev/horizonlab/parity/{oracle}.java', 'Cargo.toml', 'Cargo.lock',
-        'crates/horizon-client/Cargo.toml', 'crates/horizon-client-render/src/particles.rs',
-        f'crates/horizon-client/examples/probe/{probe}.rs', 'crates/horizon-core/src/random.rs']]
+        f'mods/industrial-era/src/test/java/dev/horizonlab/parity/{oracle}.java', 'Cargo.toml', 'Cargo.lock',
+        'crates/industrial-era-client/Cargo.toml', 'crates/industrial-era-client-render/src/particles.rs',
+        f'crates/industrial-era-client/examples/probe/{probe}.rs', 'crates/industrial-era-core/src/random.rs']]
     tested = base.source_hashes(sources)
     cases_path, units = make_cases(build)
     classes, dependencies, _ = harness.compile_oracle(build, oracle, jars, libraries, lock['minecraft']['java_major'])
@@ -220,7 +220,7 @@ def main():
         sources_sha256=tested, input_sha256=lab.digest(cases_path, 'sha256'),
         client_jar_sha256=lab.digest(jars['client'], 'sha256'), matched_output_lines=matched,
         output_sha256=lab.digest(build / 'rust.txt', 'sha256'), libm_tolerated_lines=tolerance,
-        scope=('Real ParticleResources providers for every type Horizon implements, ticked in an air level with an optional '
+        scope=('Real ParticleResources providers for every type Industrial Era implements, ticked in an air level with an optional '
                'stone floor and, for the bubbles, still water: construction (provider, level, SpellParticle and particle-local random draws), per-tick '
                'position, previous position, motion, age, lifetime, removal, onGround, quad size at partial 0 and 0.5, '
                'colour, alpha, roll, sprite, UVs and light at partial 0.5 (unloaded chunk), and the particles and sounds '

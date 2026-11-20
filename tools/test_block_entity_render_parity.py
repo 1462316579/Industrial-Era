@@ -6,9 +6,9 @@ block entity, sets its animation fields, runs the real BlockEntityRenderer's
 extractRenderState and submit, and captures what it submits: model vertices
 after setupAnim and the pose stack (sprite-local UVs, tint, normal, light),
 text calls and items. `examples/probe/block_entity_render_fixture` replays the case
-through Horizon's BlockEntityRenderer. Quads are matched by texture and
+through Industrial Era's BlockEntityRenderer. Quads are matched by texture and
 position; colours compare vanilla's tint times the entity shader's
-`minecraft_mix_light` for the vanilla normal with Horizon's baked colour.
+`minecraft_mix_light` for the vanilla normal with Industrial Era's baked colour.
 
   test_block_entity_render_parity.py [--filter SUBSTRING] [--detail N] [--tolerance EPS]
 """
@@ -26,7 +26,7 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity'
 DYES = ['white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple',
         'blue', 'brown', 'green', 'red', 'black']
 HORIZONTAL = ['north', 'south', 'west', 'east']
@@ -143,7 +143,7 @@ def cases():
 
 
 def light_coords(light):
-    """Horizon light (sky*16 low byte, block*16 next) as vanilla light coords."""
+    """Industrial Era light (sky*16 low byte, block*16 next) as vanilla light coords."""
     return ((light & 0xFF) << 16) | ((light >> 8) & 0xFF)
 
 
@@ -232,10 +232,10 @@ def compare_case(v, r, tol):
     rq = r.get('quads', [])
     if len(vq) != len(rq):
         tex = lambda qs: sorted({q['texture'] for q in qs})
-        problems.append(f'{len(vq)} vanilla quads {tex(vq)} vs {len(rq)} Horizon quads {tex(rq)}')
+        problems.append(f'{len(vq)} vanilla quads {tex(vq)} vs {len(rq)} Industrial Era quads {tex(rq)}')
     pairs, extra = pair(vq, rq)
     for b in extra[:1]:
-        problems.append(f'extra Horizon quad {b["texture"]} {b["v"]}')
+        problems.append(f'extra Industrial Era quad {b["texture"]} {b["v"]}')
     for a, b in pairs:
         if b is None:
             problems.append(f'missing {a["texture"]} quad {a["v"]}')
@@ -245,7 +245,7 @@ def compare_case(v, r, tol):
             problems.append(f'{a["texture"]} vertices {a["v"]} != {b["v"]}')
             break
         if a['custom']:
-            # Horizon packs the beam sprite's v range into the light bytes (its shader wraps v).
+            # Industrial Era packs the beam sprite's v range into the light bytes (its shader wraps v).
             got = b['color']
             if [got & 255, (got >> 8) & 255, (got >> 16) & 255, got >> 24] != a['rgb'] + [a['alpha']]:
                 problems.append(f'{a["texture"]} colour {a["rgb"]}/{a["alpha"]} != {got:#x}')
@@ -255,7 +255,7 @@ def compare_case(v, r, tol):
             problems.append(f'overlay {a["overlay"]}')
         got = b['color']
         rgb = [got & 255, (got >> 8) & 255, (got >> 16) & 255]
-        # A zero-area quad shows nothing: vanilla shades it by its face normal, Horizon cannot derive one.
+        # A zero-area quad shows nothing: vanilla shades it by its face normal, Industrial Era cannot derive one.
         if area(a['v']) > 1e-9 and (any(abs(x - y) > 1 for x, y in zip(a['rgb'], rgb)) or (got >> 24) != a['alpha']):
             problems.append(f'{a["texture"]} colour {a["rgb"]}/{a["alpha"]} != {rgb}/{got >> 24} at {a["v"]}')
             break
@@ -265,7 +265,7 @@ def compare_case(v, r, tol):
     vt = [s for s in v['submits'] if s['type'] == 'submitText' and s['text']]
     rt = r.get('texts', [])
     if len(vt) != len(rt):
-        problems.append(f'{len(vt)} vanilla texts {[t["text"] for t in vt]} vs {len(rt)} Horizon texts {[t["text"] for t in rt]}')
+        problems.append(f'{len(vt)} vanilla texts {[t["text"] for t in vt]} vs {len(rt)} Industrial Era texts {[t["text"] for t in rt]}')
     for a, b in zip(vt, rt):
         for k in ('text', 'x', 'y', 'color', 'outline', 'light'):
             av, bv = a[k], b[k]
@@ -305,7 +305,7 @@ def main():
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     textures = sorted({s['texture'] for v in vanilla for s in v.get('submits', []) if 'texture' in s})
     (build / 'textures.txt').write_text(''.join(t + '\n' for t in textures))
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'industrial-era-client-lib', '--example', 'client_probe', '--',
          'block_entity_render_fixture', resources, inputs, build / 'textures.txt', build / 'rust.jsonl'], 'rust')
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]
     assert len(vanilla) == len(rust), (len(vanilla), len(rust))
@@ -326,7 +326,7 @@ def main():
         else:
             passed += 1
     for reason, blocks in sorted(skipped.items()):
-        print(f'NOT RENDERED by Horizon ({reason}): {", ".join(sorted(blocks))}')
+        print(f'NOT RENDERED by Industrial Era ({reason}): {", ".join(sorted(blocks))}')
     for block, error in sorted(errors.items()):
         print(f'ORACLE ERROR {block}: {error}')
     for block, items in sorted(groups.items()):

@@ -1,8 +1,8 @@
-# Horizon's parity audit
+# Industrial Era's parity audit
 
-Starling's game is [Horizon](https://github.com/ludovic111/horizon)'s. This page keeps Horizon's own audit of each subsystem, as of the Horizon version Starling is built on: it was measured by Horizon's harnesses on the desktop, not on Android. The current audit is in [Horizon's README](https://github.com/ludovic111/horizon#project-status); the state of the Android port is in [Starling's README](../README.md#android-status).
+Starling's game is [Industrial Era](https://github.com/ludovic111/industrial-era)'s. This page keeps Industrial Era's own audit of each subsystem, as of the Industrial Era version Starling is built on: it was measured by Industrial Era's harnesses on the desktop, not on Android. The current audit is in [Industrial Era's README](https://github.com/ludovic111/industrial-era#project-status); the state of the Android port is in [Starling's README](../README.md#android-status).
 
-<img src="https://img.shields.io/badge/vanilla%20parity-100%25-F0795A" alt="Horizon's vanilla parity: 100%">
+<img src="https://img.shields.io/badge/vanilla%20parity-100%25-F0795A" alt="Industrial Era's vanilla parity: 100%">
 
 The table below is the project's own audit of each subsystem. Every subsystem now matches vanilla in every harness that compares it. 100% means 100% of what the harnesses compare, not proof that nothing else differs. The remaining known differences are listed below.
 
@@ -20,7 +20,7 @@ them too (Rust uses Java's own float maths on each platform).
 | --- | ---: | --- |
 | Window, input and game loop | 1 | None: the game loop, options, camera, auto-jump, toggle sprint/sneak, local input and the frame limiter match vanilla |
 | Assets and resources | 1 | None: item models match vanilla over 196,290 stacks and the client draws every item through them; the resource pack screen matches vanilla's drawing over 3,000 sessions of clicks, scrolling and searching, its incompatibility confirmation included |
-| Network protocol and multiplayer | 1 | None: joins vanilla servers; the dedicated server (`--dedicated`) matches vanilla's files, status ping, login, configuration, play, chunks, chat, recipes, advancements and command tree, a client built from vanilla's packet code joins it, Horizon joins a vanilla server, and LAN discovery matches over 462 cases (offline mode only) |
+| Network protocol and multiplayer | 1 | None: joins vanilla servers; the dedicated server (`--dedicated`) matches vanilla's files, status ping, login, configuration, play, chunks, chat, recipes, advancements and command tree, a client built from vanilla's packet code joins it, Industrial Era joins a vanilla server, and LAN discovery matches over 462 cases (offline mode only) |
 | Chunk storage and palettes | 1 | None: client and saves share paletted containers, identical to vanilla over 266 scenarios |
 | Section meshing | 1 | None: 112 scenes and over a million quads identical to vanilla |
 | Rendering | 1 | None: entity models, block entity renderers (407 cases, End portals, gateways and the loom's banner preview included) and their animations (296 cases, End gateway beams included), the HUD overlays (2,200 states), the recipe book (600 states), the player list, subtitles and the world border match vanilla |
@@ -35,4 +35,4 @@ them too (Rust uses Java's own float maths on each platform).
 
 ### Known issues
 
-Horizon can't sign in to a Microsoft account yet, so it can't join online-mode servers (it joins offline-mode ones); skins served over https show the default skin unless already cached; pack icons show the unknown-pack texture in game; the creative hotbar keys (C/X) aren't wired to the hotbar loader; item tooltips lack attribute lines.
+Industrial Era can't sign in to a Microsoft account yet, so it can't join online-mode servers (it joins offline-mode ones); skins served over https show the default skin unless already cached; pack icons show the unknown-pack texture in game; the creative hotbar keys (C/X) aren't wired to the hotbar loader; item tooltips lack attribute lines.

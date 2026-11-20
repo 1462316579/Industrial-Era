@@ -17,7 +17,7 @@ focus = true                     # optional: one of the 3 to 5 Now items in the 
 ongoing = true                   # optional: a workstream that goes on after its pull requests merge
 owner = "levzzz5154"             # Now items: the GitHub login who leads it (a person, or the account an agent works as)
 issue = "#3911"                  # Now items: the tracking issue that holds the checklist
-plain = """Servers that show dialogs ... will work in Horizon."""   # players' words, at most 240 characters
+plain = """Servers that show dialogs ... will work in Industrial Era."""   # players' words, at most 240 characters
 dev = """26.3's dialog packets and model (#1720), ..."""             # crates, approach, what is left
 links = ["#1720", "#1734", "docs/hosting.md"]                       # #N, a repository path, or https://
 shipped_in = "v0.2.58"           # shipped items only: a game tag, launcher@x.y.z, or "website"
@@ -61,7 +61,7 @@ Whoever moves the work (the orchestrator on each heartbeat, or anyone in their p
    shows it among the releases, and `/data/journal.json` carries it to Kira's #updates and to X.
    In the same pass, `python3 tools/parity_gaps.py readme --write` refreshes the parity headline: the
    player-visible gaps still open in the port ledger's ten lists (#3512 to #3521), on the README and the website.
-6. Suggestions come only from #horizon-ideas posts on Discord: Kira sends each one to the maintainers' private
+6. Suggestions come only from #industrial-era-ideas posts on Discord: Kira sends each one to the maintainers' private
    channel. A good one becomes an item in a normal pull request; none is published automatically.
 
 CI runs `tests/test_roadmap.py` (in the Python tests), which fails when ROADMAP.md is not what `build` writes
@@ -70,7 +70,7 @@ or when the file breaks a rule; `python3 tools/roadmap.py check --offline` runs 
 ## The journal
 
 The hub's Journal tab and `https://playhorizon.dev/data/journal.json` are built with each deploy of the website
-(`src/hub.js` in horizon-rust/horizon-site). The tab shows every game and launcher release with its notes' changes, each placed under
+(`src/hub.js` in industrial-era-rust/industrial-era-site). The tab shows every game and launcher release with its notes' changes, each placed under
 the roadmap item it moves (the pull request's `roadmap:<id>` label, else the item that links it), the merged pull
 requests no release has yet, and the weekly summaries above.
 
@@ -78,7 +78,7 @@ requests no release has yet, and the weekly summaries above.
 merged pull request, release, shipped item and weekly summary, newest first, the latest 300.
 
 ```json
-{ "format": "horizon-journal", "version": 2, "generated": "…", "url": "https://playhorizon.dev/hub#journal",
+{ "format": "industrial-era-journal", "version": 2, "generated": "…", "url": "https://playhorizon.dev/hub#journal",
   "entries": [
     { "id": "pr-1788", "kind": "merge", "date": "…", "title": "the pull request's title", "url": "…",
       "number": 1788, "item": "discord-presence", "item_title": "Discord Rich Presence" },
@@ -100,7 +100,7 @@ merged pull request, release, shipped item and weekly summary, newest first, the
 ## The intake: votes and bug reports
 
 The hub's forms and vote buttons talk to the telemetry server (`https://telemetry.playhorizon.dev`,
-`crates/horizon-telemetry-server`, `src/hub.rs` and `src/intake.rs`; its README lists the limits and settings).
+`crates/industrial-era-telemetry-server`, `src/hub.rs` and `src/intake.rs`; its README lists the limits and settings).
 Kira uses the same endpoints, so a bug goes the same way from the site and from Discord.
 
 | Endpoint | Body | Answer |
@@ -109,8 +109,8 @@ Kira uses the same endpoints, so a bug goes the same way from the site and from 
 | `GET /hub/votes` | | `{"votes": {"<item>": n}}`, a minute old at most |
 | `POST /hub/report` | `{"title", "did", "happened", "expected", "version"?, "system", "name"?}` | 201 `{"id", "issue": "<GitHub URL>"}`; 202 `{"id", "issue": null}` when GitHub was down (opened later) |
 
-- A report becomes an issue at once, labels `bug` and `from-website`, in the `#horizon-bugs` template (What I did,
-  What happened, What I expected, Horizon version, OS, CPU, GPU) with "Reported on playhorizon.dev". Every field
+- A report becomes an issue at once, labels `bug` and `from-website`, in the `#industrial-era-bugs` template (What I did,
+  What happened, What I expected, Industrial Era version, OS, CPU, GPU) with "Reported on playhorizon.dev". Every field
   but the version and the name is required; mentions, `#123` references and HTML in people's text are made inert.
 - Errors are `{"error": "…"}`: 400 names the field (`"did: 3 to 2000 characters"`), 429 means too many from that
   address, 503 a full day or reports turned off (no GitHub token on the server).

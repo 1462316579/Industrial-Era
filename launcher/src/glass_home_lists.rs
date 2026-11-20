@@ -6,8 +6,8 @@
 use super::*;
 use crate::glass_ui::{self as ui, white};
 use gpui::{deferred, ExternalPaths};
-use horizon_launcher::worlds::World;
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_launcher::worlds::World;
+use industrial_era_theme::glass::{fill, ink, radius};
 use std::path::Path;
 use worlds_page::{ago, Action};
 
@@ -332,7 +332,7 @@ impl Launcher {
     fn glass_server_row(
         &mut self,
         i: usize,
-        server: horizon_launcher::server_list::Server,
+        server: industrial_era_launcher::server_list::Server,
         icon: Option<std::sync::Arc<gpui::Image>>,
         pictures: bool,
         cx: &mut Context<Self>,
@@ -439,7 +439,7 @@ pub(super) fn picture(image: Option<gpui::ImageSource>, fallback: &'static str) 
 pub(super) fn danger_line(message: String) -> Div {
     div().px(px(12.)).pb(px(8.)).child(
         ui::text(13., FontWeight::NORMAL, ink::FULL)
-            .text_color(ui::color(horizon_theme::glass::DANGER))
+            .text_color(ui::color(industrial_era_theme::glass::DANGER))
             .child(message),
     )
 }
@@ -456,10 +456,10 @@ pub(super) fn danger_button(id: SharedString, label: SharedString) -> Stateful<D
         .px(px(12.))
         .rounded(px(radius::CONTROL))
         .cursor_pointer()
-        .hover(|s| s.bg(gpui::rgba(horizon_theme::glass::DANGER_HOVER << 8 | 0x1f)))
+        .hover(|s| s.bg(gpui::rgba(industrial_era_theme::glass::DANGER_HOVER << 8 | 0x1f)))
         .child(
             ui::text(13., FontWeight::MEDIUM, ink::FULL)
-                .text_color(ui::color(horizon_theme::glass::DANGER))
+                .text_color(ui::color(industrial_era_theme::glass::DANGER))
                 .child(label),
         )
 }

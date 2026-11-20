@@ -19,9 +19,9 @@ public final class VanillaModelChoiceOracle {
         public void collectParts(RandomSource random,List<BlockStateModelPart> parts){output.add(tag);}
     }
     private static BlockStateModel choice(JsonElement value,int index,List<String> output) {
-        if(value.isJsonNull())return new Leaf("horizon:part"+index+"_single",output);
+        if(value.isJsonNull())return new Leaf("industrial-era:part"+index+"_single",output);
         var list=new ArrayList<Weighted<BlockStateModel>>();int variant=0;
-        for(var weight:value.getAsJsonArray())list.add(new Weighted<>(new Leaf("horizon:part"+index+"_variant"+variant++,output),weight.getAsInt()));
+        for(var weight:value.getAsJsonArray())list.add(new Weighted<>(new Leaf("industrial-era:part"+index+"_variant"+variant++,output),weight.getAsInt()));
         return new WeightedVariants(WeightedList.of(list));
     }
     private static Object probe(JsonObject row) throws Exception {

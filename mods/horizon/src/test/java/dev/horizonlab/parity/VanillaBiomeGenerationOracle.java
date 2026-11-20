@@ -33,7 +33,7 @@ public final class VanillaBiomeGenerationOracle {
         for(var e:bundle.getAsJsonObject("densities").entrySet())densities.register(ResourceKey.create(Registries.DENSITY_FUNCTION,Identifier.parse(e.getKey())),DensityFunctions.DIRECT_CODEC.parse(ops,JsonParser.parseString(e.getValue().getAsString())).getOrThrow(),RegistrationInfo.BUILT_IN);densities.freeze();
         var presets=new TreeMap<String,Climate.ParameterList<ResourceKey<Biome>>>();MultiNoiseBiomeSourceParameterList.knownPresets().forEach((preset,list)->presets.put(preset.id().toString(),list));
         var ids=new IdMapper<Holder<Biome>>();var holders=new TreeMap<String,Holder<Biome>>();
-        var keys=new TreeSet<String>();keys.add("minecraft:plains");keys.addAll(List.of("horizon:old_0","horizon:old_1","horizon:old_2"));keys.addAll(List.of("minecraft:the_end","minecraft:end_highlands","minecraft:end_midlands","minecraft:small_end_islands","minecraft:end_barrens"));for(var list:presets.values())for(var entry:list.values())keys.add(entry.getSecond().identifier().toString());
+        var keys=new TreeSet<String>();keys.add("minecraft:plains");keys.addAll(List.of("industrial-era:old_0","industrial-era:old_1","industrial-era:old_2"));keys.addAll(List.of("minecraft:the_end","minecraft:end_highlands","minecraft:end_midlands","minecraft:small_end_islands","minecraft:end_barrens"));for(var list:presets.values())for(var entry:list.values())keys.add(entry.getSecond().identifier().toString());
         for(var key:keys){var holder=Holder.Reference.<Biome>createStandAlone(new HolderOwner<Biome>(){},ResourceKey.create(Registries.BIOME,Identifier.parse(key)));holders.put(key,holder);ids.add(holder);}
         var factory=new PalettedContainerFactory(Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY),Blocks.AIR.defaultBlockState(),null,Strategy.createForBiomes(ids),holders.get("minecraft:plains"),null);
         var fill=ChunkGenerator.class.getDeclaredMethod("doCreateBiomes",Blender.class,RandomState.class,ChunkAccess.class);fill.setAccessible(true);
@@ -51,13 +51,13 @@ public final class VanillaBiomeGenerationOracle {
                     case "end" -> {var constructor=TheEndBiomeSource.class.getDeclaredConstructor(Holder.class,Holder.class,Holder.class,Holder.class,Holder.class);constructor.setAccessible(true);source=constructor.newInstance(holders.get("minecraft:the_end"),holders.get("minecraft:end_highlands"),holders.get("minecraft:end_midlands"),holders.get("minecraft:small_end_islands"),holders.get("minecraft:end_barrens"));}
                     default -> throw new IllegalArgumentException("unknown source");
                 }
-                var material=Holder.Reference.<MaterialRule>createStandAlone(new HolderOwner<MaterialRule>(){},ResourceKey.create(Registries.MATERIAL_RULE,Identifier.parse("horizon:unused")));
+                var material=Holder.Reference.<MaterialRule>createStandAlone(new HolderOwner<MaterialRule>(){},ResourceKey.create(Registries.MATERIAL_RULE,Identifier.parse("industrial-era:unused")));
                 var settings=new NoiseGeneratorSettings(NoiseSettings.create(min,height),Blocks.STONE.defaultBlockState(),Blocks.WATER.defaultBlockState(),router,material,List.of(),sea,false,Optional.empty(),legacy,NoiseGeneratorSettings.DebugFunctions.EMPTY);
                 var generator=new NoiseBasedChunkGenerator(source,Holder.direct(settings));
                 var bounds=LevelHeightAccessor.create(f.get("write_min").getAsInt(),f.get("write_max").getAsInt()-f.get("write_min").getAsInt()+1);
                 var chunk=new ProtoChunk(new ChunkPos(f.get("cx").getAsInt(),f.get("cz").getAsInt()),UpgradeData.EMPTY,LevelHeightAccessor.create(min,height),factory,null){@Override public LevelHeightAccessor getHeightAccessorForGeneration(){return f.has("retrogen")&&f.get("retrogen").getAsBoolean()?super.getHeightAccessorForGeneration():bounds;}};
                 if(f.has("retrogen")&&f.get("retrogen").getAsBoolean()) {
-                    chunk.fillBiomesFromNoise((x,y,z)->holders.get("horizon:old_"+Math.floorMod(x*31+y*7+z*17,3)));
+                    chunk.fillBiomesFromNoise((x,y,z)->holders.get("industrial-era:old_"+Math.floorMod(x*31+y*7+z*17,3)));
                     chunk.setBelowZeroRetrogen(BelowZeroRetrogen.CODEC.parse(JsonOps.INSTANCE,JsonParser.parseString("{\"target_status\":\"minecraft:full\"}")).getOrThrow());
                 } else chunk.setPersistedStatus(net.minecraft.world.level.chunk.status.ChunkStatus.BIOMES);
                 for(int repeat=0;repeat<f.get("repeats").getAsInt();repeat++) {

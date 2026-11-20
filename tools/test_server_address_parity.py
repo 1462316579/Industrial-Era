@@ -19,7 +19,7 @@ def main():
     report.unlink(missing_ok=True)
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaServerAddressOracle.java'
+    oracle = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaServerAddressOracle.java'
     _, game = lab.config()
     manifest = json.loads((game / 'manifest.json').read_text(encoding='utf-8'))
     for artifact in lab.client_library_artifacts(manifest):
@@ -40,10 +40,10 @@ def main():
          '-cp', classpath, '-d', classes, oracle], 'compile-java')
     expected = run(['java', '-cp', str(classes) + os.pathsep + classpath,
                     'dev.horizonlab.parity.VanillaServerAddressOracle'], 'vanilla')
-    actual = run(['cargo', 'test', '-p', 'horizon-protocol', '--lib',
+    actual = run(['cargo', 'test', '-p', 'industrial-era-protocol', '--lib',
                   'resolver::tests::login_handshake_address_matches_vanilla', '--', '--nocapture'], 'rust')
     if len(expected) != 3 or actual != expected:
-        raise AssertionError(f'vanilla: {expected!r}; Horizon: {actual!r}')
+        raise AssertionError(f'vanilla: {expected!r}; Industrial Era: {actual!r}')
     report.write_text(json.dumps({'passed': True, 'cases': expected}, indent=2) + '\n', encoding='utf-8')
     print(f'Server address parity: {len(expected)} cases passed')
 

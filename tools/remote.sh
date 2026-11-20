@@ -2,7 +2,7 @@
 # Run a command on a Linux build host (default playhorizon) at a worktree's commit, and get its output back.
 #
 #   tools/remote.sh [--host H] [--name N] [--cpus LIST] [--exclusive] [--jobs J] <worktree> <command...>
-#   tools/remote.sh .claude/worktrees/my-fix cargo test -p horizon-world --lib
+#   tools/remote.sh .claude/worktrees/my-fix cargo test -p industrial-era-world --lib
 #   tools/remote.sh . python3 tools/parity.py food light
 #   tools/remote.sh --cpus 0-3 --exclusive . python3 tools/perf_bench.py   # a benchmark: CPUs 0-3 to itself
 #   tools/remote.sh --list                          # checkouts on the host, their size and last use
@@ -14,7 +14,7 @@
 # commit over it, so only what changed rebuilds (sccache shares the registry crates between names). One run per
 # name at a time. The command runs in bash at the checkout's root, niced in the host's CI slice, with the host's
 # toolchains, a virtual screen and scratch homes for the game and launcher. .local/ links to the host's vanilla
-# data; a command that runs harnesses (it names parity, lan_e2e or horizon-prepare) also gets .local/horizon-client,
+# data; a command that runs harnesses (it names parity, lan_e2e or industrial-era-prepare) also gets .local/industrial-era-client,
 # prepared as CI prepares it (tools/ci/vanilla-data.sh). Output streams back and is kept in ~/remote-work/<name>.logs/.
 # What the command leaves running is stopped when it ends; stopping this script stops the command on the host.
 # The exit status is the command's.
@@ -69,7 +69,7 @@ printf 'name=%q sha=%q jobs=%q cpus=%q exclusive=%q command=%q\n' "$name" "$sha"
 cat <<'REMOTE'
 set -euo pipefail
 if [ "$cpus" = all ]; then pin=(); jobs=${jobs:-$(nproc)}; else pin=(taskset -c "$cpus"); jobs=${jobs:-$(taskset -c "$cpus" nproc)}; fi
-runner=~/.actions-runners/horizon
+runner=~/.actions-runners/industrial-era
 if [ -e "$runner/paused" ]; then echo "remote.sh: this host is paused ($runner/paused)" >&2; exit 75; fi
 set -a; . "$runner/.env"; set +a
 export PATH="$(cat "$runner/.path")" DISPLAY=":$(cat "$runner/display")" RUSTC_WRAPPER="$(command -v sccache || true)"
@@ -87,7 +87,7 @@ elif ! flock -s -n 8; then
   flock -s 8
 fi
 if [ ! -d "$name/.git" ]; then
-  git clone -q --filter=blob:none --no-checkout https://github.com/horizon-rust/horizon "$name" 8>&- 9>&-
+  git clone -q --filter=blob:none --no-checkout https://github.com/industrial-era-rust/industrial-era "$name" 8>&- 9>&-
 fi
 cd "$name"
 # The lock's descriptor stays out of everything started here (8>&- 9>&-): a daemon one of them starts (sccache's server,
@@ -95,9 +95,9 @@ cd "$name"
 git fetch -q --no-tags origin "$sha" 8>&- 9>&-
 git checkout -q --force --detach "$sha"
 git clean -qfd -e /target -e /.local
-# The host's vanilla data, linked as CI's runner links it; for harnesses also .local/horizon-client, prepared by
+# The host's vanilla data, linked as CI's runner links it; for harnesses also .local/industrial-era-client, prepared by
 # this commit's own preparer (once per preparer version, kept beside the data and shared by every name).
-if [[ $command =~ parity|lan_e2e|horizon-prepare ]]; then
+if [[ $command =~ parity|lan_e2e|industrial-era-prepare ]]; then
   RUNNER_WORKSPACE=$(dirname "$HORIZON_SHARED_SOURCE") RUNNER_TEMP=$(mktemp -d) bash tools/ci/vanilla-data.sh >&2 8>&- 9>&-
 else
   mkdir -p .local
@@ -121,7 +121,7 @@ session=$PPID
   < /dev/null > /dev/null 2>&1 8>&- 9>&- &
 watcher=$!
 status=0
-systemd-run --user --scope --quiet --slice=horizon-ci.slice --unit="$unit" \
+systemd-run --user --scope --quiet --slice=industrial-era-ci.slice --unit="$unit" \
   "${pin[@]}" nice -n 10 bash -c "$command" 2>&1 < /dev/null 8>&- 9>&- | tee "$log" || status=${PIPESTATUS[0]}
 kill "$watcher" 2>/dev/null || true
 systemctl --user stop "$unit" 2>/dev/null || true

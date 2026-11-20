@@ -33,7 +33,7 @@ import net.minecraft.util.RandomSource;
  */
 public final class ParityFont {
     public static ResourceManager resources() throws Exception {
-        return resources(Path.of("/nonexistent-horizon-assets"));
+        return resources(Path.of("/nonexistent-industrial-era-assets"));
     }
 
     public static ResourceManager resources(Path assets) throws Exception {

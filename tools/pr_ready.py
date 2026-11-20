@@ -8,9 +8,9 @@
 
 From the files the branch changes since its merge base with --base (committed or not) it decides what to run:
 rustfmt, and clippy with warnings denied exactly as CI's verify job runs it (the whole workspace with the game's code
-mods, plus the server build when horizon-client is affected); the tests of the touched crates, with the features
+mods, plus the server build when industrial-era-client is affected); the tests of the touched crates, with the features
 CI's workspace-wide run gives them; the launcher (its own workspace) the same way when CI's launcher job would run
-(tools/ci/rust_changes.py --launcher); crates/horizon-theme/tokens.css against horizon-theme; Cargo.lock changing
+(tools/ci/rust_changes.py --launcher); crates/industrial-era-theme/tokens.css against industrial-era-theme; Cargo.lock changing
 only with a Cargo.toml; the Python tests (always, as in CI) and the public-tree check; and the vanilla harnesses the
 changes can affect, picked as CI's parity job picks them (tools/parity.py --changed). Harnesses run where the
 vanilla data is (a prepared .local/ here, or the Mac mini); elsewhere they are listed for CI.
@@ -40,7 +40,7 @@ if os.name == "nt":
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-FLEET_SHARED = Path.home() / "code" / "horizon-parity" / "shared-local" / "parity-shared"
+FLEET_SHARED = Path.home() / "code" / "industrial-era-parity" / "shared-local" / "parity-shared"
 if "PARITY_SHARED" not in os.environ and not (ROOT / ".local" / "minecraft").exists() and FLEET_SHARED.is_dir():
     # A fleet worktree without vanilla data still knows each harness's dependencies.
     os.environ["PARITY_SHARED"] = str(FLEET_SHARED)
@@ -59,7 +59,7 @@ HOST_SETUP = {
 # workspace (as its second runner does), so the vanilla data, preparations, recorded harness dependencies, passes and
 # machine slots are CI's; the parity state and probe builds stay per checkout.
 HARNESS_SETUP = {
-    "macmini": """export RUNNER_WORKSPACE="$HOME/.actions-runners/horizon/_work/horizon" RUNNER_TEMP="$(mktemp -d)"
+    "macmini": """export RUNNER_WORKSPACE="$HOME/.actions-runners/industrial-era/_work/industrial-era" RUNNER_TEMP="$(mktemp -d)"
 export GITHUB_PATH="$RUNNER_TEMP/path" GITHUB_ENV="$RUNNER_TEMP/env"
 bash tools/ci/runner-env.sh || exit 1
 while read -r entry; do PATH="$entry:$PATH"; done < "$GITHUB_PATH"; set -a; . "$GITHUB_ENV"; set +a
@@ -78,10 +78,10 @@ in_shell() { if [ "$(uname)" = Linux ] && ! pkg-config --exists xkbcommon 2>/dev
 # What `cargo run -p xtask -- mod-api` reads: the catalog, the hook points and helpers (every file of
 # the game), the mod API's own types, and the free hook points of other crates.
 MOD_API_INPUTS = (
-    "xtask/", "native-hooks.json", "crates/horizon-client/src/game/",
-    "crates/horizon-client/src/mod_api", "crates/horizon-world/src/loot.rs",
-    "crates/horizon-world/src/item_defaults.rs",
-    "crates/horizon-client-render/src/gfx/native_render",
+    "xtask/", "native-hooks.json", "crates/industrial-era-client/src/game/",
+    "crates/industrial-era-client/src/mod_api", "crates/industrial-era-world/src/loot.rs",
+    "crates/industrial-era-world/src/item_defaults.rs",
+    "crates/industrial-era-client-render/src/gfx/native_render",
 )
 
 def is_doc(path):
@@ -106,12 +106,12 @@ def touched_crates(paths, packages):
     for path in paths:
         if is_doc(path):
             continue
-        if "horizon-client-lib" in packages and path.startswith("crates/horizon-client/"):
-            relative = path.removeprefix("crates/horizon-client/")
+        if "industrial-era-client-lib" in packages and path.startswith("crates/industrial-era-client/"):
+            relative = path.removeprefix("crates/industrial-era-client/")
             gameplay = relative in {"Cargo.toml", "build.rs", "windows-segment-heap.manifest",
                                     "src/lib.rs", "src/main.rs", "src/entry.rs", "src/game.rs", "tests/launch_api.rs"} \
                 or relative.startswith("src/game/")
-            crates.add("horizon-client" if gameplay else "horizon-client-lib")
+            crates.add("industrial-era-client" if gameplay else "industrial-era-client-lib")
             continue
         owners = [name for name, directory in packages.items() if path.startswith(directory.rstrip("/") + "/")]
         if owners:
@@ -124,11 +124,11 @@ def area(path):
     if is_doc(path) or path.startswith(("tests/", "mods/", "docs/", "roadmap/")) or path == "research-lock.json" or \
             (path.startswith("tools/") and not path.startswith("tools/ci/")):
         return None
-    if path.startswith(("launcher/", "crates/horizon-prepare/")):
+    if path.startswith(("launcher/", "crates/industrial-era-prepare/")):
         return "launcher"
     if path.startswith((".github/", "tools/ci/")):
         return "CI"
-    if path.startswith("crates/horizon-theme/"):
+    if path.startswith("crates/industrial-era-theme/"):
         return None  # the design system feeds the game, the launcher and the website (its tokens.css) alike
     return "game"
 
@@ -245,7 +245,7 @@ def dependent_crates(crates, dependencies):
 
 def prepare_key():
     """tools/ci/vanilla-data.sh's preparation key, for a copy without Git history."""
-    listing = git("ls-files", "-s", "crates/horizon-prepare", "mods/horizon/src/test/java", "research-lock.json")
+    listing = git("ls-files", "-s", "crates/industrial-era-prepare", "mods/industrial-era/src/test/java", "research-lock.json")
     return hashlib.sha256(listing.encode()).hexdigest()[:16]
 
 
@@ -289,7 +289,7 @@ def parity_summary(output):
 # CI's verify job (.github/workflows/ci.yml): clippy over the whole workspace, and over the server build (the game
 # without sound or controllers).
 CI_CLIPPY = "cargo clippy --workspace --all-targets --locked -- -D warnings"
-CI_CLIPPY_SERVER = "cargo clippy -p horizon-client --all-targets --locked --no-default-features -- -D warnings"
+CI_CLIPPY_SERVER = "cargo clippy -p industrial-era-client --all-targets --locked --no-default-features -- -D warnings"
 
 
 # CI installs the current stable each run (rustup toolchain install stable), and Rust ships one every six weeks
@@ -336,15 +336,15 @@ def mark_old_rust(steps, warning):
 
 def mod_features(crates):
     """The features CI's workspace-wide test run gives these crates. Cargo unifies features over the packages it
-    builds, so a crate tested alone needs the ones the workspace would have turned on for it: horizon-mods' index."""
-    return " --features horizon-mods/index" if crates is not None and "horizon-mods" in crates else ""
+    builds, so a crate tested alone needs the ones the workspace would have turned on for it: industrial-era-mods' index."""
+    return " --features industrial-era-mods/index" if crates is not None and "industrial-era-mods" in crates else ""
 
 
-# What horizon-client's full content-root tests load (mod_content_tests.rs). They take minutes on prepared data, so
+# What industrial-era-client's full content-root tests load (mod_content_tests.rs). They take minutes on prepared data, so
 # they are #[ignore]d and run here only when one of these changes.
-CONTENT_ROOT = ("crates/horizon-client/src/mod_content", "crates/horizon-client-render/src/assets.rs", "crates/horizon-items/",
-                "crates/horizon-mods/", "crates/horizon-assets/")
-CONTENT_ROOT_TESTS = "cargo test --locked -p horizon-client-lib --lib mod_content::tests:: -- --ignored"
+CONTENT_ROOT = ("crates/industrial-era-client/src/mod_content", "crates/industrial-era-client-render/src/assets.rs", "crates/industrial-era-items/",
+                "crates/industrial-era-mods/", "crates/industrial-era-assets/")
+CONTENT_ROOT_TESTS = "cargo test --locked -p industrial-era-client-lib --lib mod_content::tests:: -- --ignored"
 
 
 def plan(args, base, changed, crates_of, libraries, dependencies):
@@ -362,7 +362,7 @@ def plan(args, base, changed, crates_of, libraries, dependencies):
     # the touched crates and their dependents did (14-32 s against 14-17 s on the Mac mini, 2026-10-26).
     clippy_crates = dependent_crates(crates, dependencies)
     clippy = CI_CLIPPY
-    if clippy_crates is None or "horizon-client" in clippy_crates:
+    if clippy_crates is None or "industrial-era-client" in clippy_crates:
         clippy += f" && {CI_CLIPPY_SERVER}"
     test_skip = None if crates is None or crates else "no crate touched"
     doc_crates = sorted(libraries if crates is None else libraries.intersection(crates))
@@ -386,8 +386,8 @@ def plan(args, base, changed, crates_of, libraries, dependencies):
         Step("mod API up to date", "cargo test --locked -p xtask mod_api",
              skip=None if any(p.startswith(MOD_API_INPUTS) for p in changed)
              else "native hooks untouched"),
-        Step("tokens.css up to date", "cargo test --locked -p horizon-theme --lib tokens_css_is_up_to_date",
-             skip=None if any(p.startswith(("crates/horizon-theme/", "xtask/")) for p in changed)
+        Step("tokens.css up to date", "cargo test --locked -p industrial-era-theme --lib tokens_css_is_up_to_date",
+             skip=None if any(p.startswith(("crates/industrial-era-theme/", "xtask/")) for p in changed)
              else "theme untouched"),
     ]
     launcher_skip = None if launcher else "launcher untouched"
@@ -398,7 +398,7 @@ def plan(args, base, changed, crates_of, libraries, dependencies):
                           summary=tests_passed if name == "launcher tests" else None))
     harness = Step("Parity", summary=parity_summary)
     affected = affected_here(changed)
-    local_data = (ROOT / ".local" / "minecraft").exists() and (ROOT / ".local" / "horizon-client").exists()
+    local_data = (ROOT / ".local" / "minecraft").exists() and (ROOT / ".local" / "industrial-era-client").exists()
     if args.quick or (args.host == "local" and not local_data) or (args.host != "local" and args.host not in HARNESS_SETUP):
         harness.status = "list"
         why = "--quick" if args.quick else "no vanilla data here"

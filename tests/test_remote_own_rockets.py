@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-GAME = ROOT / "crates/horizon-client/src/game"
+GAME = ROOT / "crates/industrial-era-client/src/game"
 
 
 def lift(path, start, end):

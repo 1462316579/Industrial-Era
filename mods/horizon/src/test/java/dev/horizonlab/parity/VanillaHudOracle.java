@@ -310,7 +310,7 @@ public final class VanillaHudOracle {
             o.add("matrix", a);
             draws.add(o);
         }
-        /** Off for the hotbar cases (Horizon draws the decorations with the item). */
+        /** Off for the hotbar cases (Industrial Era draws the decorations with the item). */
         boolean realDecorations;
         @Override public void itemDecorations(Font font, ItemStack stack, int x, int y, String count) {
             if (realDecorations) super.itemDecorations(font, stack, x, y, count);

@@ -65,7 +65,7 @@ public final class VanillaTerrainOracle {
         var router=NoiseRouter.CODEC.parse(ops,f.get("router")).getOrThrow();
         Optional<Aquifer.Config> config=f.get("aquifers").isJsonNull()?Optional.empty():Optional.of(Aquifer.Config.CODEC.parse(ops,f.get("aquifers")).getOrThrow());
         // Neither material rules nor biome properties are evaluated by doFill.
-        var rule=Holder.Reference.createStandAlone(new HolderOwner<MaterialRule>(){},ResourceKey.create(Registries.MATERIAL_RULE,Identifier.parse("horizon:unused")));
+        var rule=Holder.Reference.createStandAlone(new HolderOwner<MaterialRule>(){},ResourceKey.create(Registries.MATERIAL_RULE,Identifier.parse("industrial-era:unused")));
         var settings=new NoiseGeneratorSettings(NoiseSettings.create(noiseMin,noiseHeight),block,fluid,router,rule,List.of(),sea,false,config,legacy,NoiseGeneratorSettings.DebugFunctions.EMPTY);
         var state=RandomState.create(noises,seed,legacy,block,sea,router);
         var generator=new NoiseBasedChunkGenerator(new FixedBiomeSource(biome),Holder.direct(settings));

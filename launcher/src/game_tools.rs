@@ -1,8 +1,8 @@
 //! The running game's tools in the launcher's MCP, so an agent needs one server
-//! (docs/agent-control.md): the selected version's `horizon-ctl mcp` runs as a child, its tools
+//! (docs/agent-control.md): the selected version's `industrial-era-ctl mcp` runs as a child, its tools
 //! are offered as `game_<name>`, and calls go to it unchanged. `play` starts the game
 //! with the control socket that child talks to.
-use horizon_launcher::backend;
+use industrial_era_launcher::backend;
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -10,13 +10,13 @@ use std::process::{Child, ChildStdin, ChildStdout, Stdio};
 
 pub const PREFIX: &str = "game_";
 
-/// horizon-ctl tools the launcher covers itself: `play` starts the game.
+/// industrial-era-ctl tools the launcher covers itself: `play` starts the game.
 const HIDDEN: &[&str] = &["launch"];
 
 const CTL: &str = if cfg!(windows) {
-    "horizon-ctl.exe"
+    "industrial-era-ctl.exe"
 } else {
-    "horizon-ctl"
+    "industrial-era-ctl"
 };
 
 /// The control endpoint of a game started by `play`: a Unix socket, or on Windows the
@@ -55,13 +55,13 @@ pub struct GameTools {
 }
 
 impl GameTools {
-    /// Start `horizon-ctl mcp` of an installed version and read its tools.
+    /// Start `industrial-era-ctl mcp` of an installed version and read its tools.
     pub fn start(tag: &str) -> Result<Self, String> {
         let ctl = backend::version_dir(tag).join(CTL);
         if !ctl.exists() {
             return Err(format!("{tag} has no {CTL}"));
         }
-        let mut child = horizon_launcher::process::command(&ctl)
+        let mut child = industrial_era_launcher::process::command(&ctl)
             .arg("--socket")
             .arg(socket_path())
             .arg("mcp")
@@ -80,11 +80,11 @@ impl GameTools {
             tools: Vec::new(),
         };
         tools.rpc(
-            // The child is whichever `horizon-ctl` the player has installed, so open with the
+            // The child is whichever `industrial-era-ctl` the player has installed, so open with the
             // handshake revision: older versions do not know the stateless one.
             "initialize",
-            json!({ "protocolVersion": horizon_mcp::LEGACY, "capabilities": {},
-                    "clientInfo": { "name": "horizon-launcher", "version": backend::VERSION } }),
+            json!({ "protocolVersion": industrial_era_mcp::LEGACY, "capabilities": {},
+                    "clientInfo": { "name": "industrial-era-launcher", "version": backend::VERSION } }),
         )?;
         tools.send(&json!({ "jsonrpc": "2.0", "method": "notifications/initialized" }))?;
         let listed = tools.rpc("tools/list", json!({}))?;
@@ -97,7 +97,7 @@ impl GameTools {
         &self.tools
     }
 
-    /// Call a `game_` tool; the result is horizon-ctl's (text and image content).
+    /// Call a `game_` tool; the result is industrial-era-ctl's (text and image content).
     pub fn call(&mut self, name: &str, args: &Value) -> Result<Value, String> {
         let inner = name.strip_prefix(PREFIX).ok_or("not a game tool")?;
         let result = self.rpc("tools/call", json!({ "name": inner, "arguments": args }))?;
@@ -107,7 +107,7 @@ impl GameTools {
     fn send(&mut self, message: &Value) -> Result<(), String> {
         writeln!(self.stdin, "{message}")
             .and_then(|_| self.stdin.flush())
-            .map_err(|e| format!("horizon-ctl stopped: {e}"))
+            .map_err(|e| format!("industrial-era-ctl stopped: {e}"))
     }
 
     fn rpc(&mut self, method: &str, params: Value) -> Result<Value, String> {
@@ -118,7 +118,7 @@ impl GameTools {
         loop {
             line.clear();
             match self.stdout.read_line(&mut line) {
-                Ok(0) | Err(_) => return Err("horizon-ctl stopped".into()),
+                Ok(0) | Err(_) => return Err("industrial-era-ctl stopped".into()),
                 Ok(_) => {}
             }
             let Ok(reply) = serde_json::from_str::<Value>(&line) else {
@@ -142,7 +142,7 @@ impl Drop for GameTools {
     }
 }
 
-/// horizon-ctl's tools as the launcher offers them.
+/// industrial-era-ctl's tools as the launcher offers them.
 fn prefixed(tools: &Value) -> Vec<Value> {
     tools
         .as_array()

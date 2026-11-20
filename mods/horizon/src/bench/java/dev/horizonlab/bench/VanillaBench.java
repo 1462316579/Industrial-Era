@@ -28,19 +28,19 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Dev-only benchmark driver for the vanilla client (tools/perf_bench.py): the
- * same steps horizon-ctl drives in Horizon. From the title screen it creates a
+ * same steps industrial-era-ctl drives in Industrial Era. From the title screen it creates a
  * fresh creative world with the script's seed, waits until the spawn area is
  * loaded, then for each scene teleports, waits for the chunks, settles and
  * flies the player along a straight line at constant speed, facing along it,
  * recording every frame time. Events go to the output file as JSON lines as
  * they happen; the game quits after the last scene.
  *
- * Script (system property horizon.bench.script): {"world", "seed", "settle",
+ * Script (system property industrial-era.bench.script): {"world", "seed", "settle",
  * "seconds", "timeout", "scenes": [{"name", "from": [x,y,z], "to": [x,y,z],
  * "pitch", "settle"?, "setup"?: [command...], "cleanup"?: [command...]}]}: a scene's own settle replaces
  * the script's, its setup commands (tools/stress_scenes.py) run once its chunks are loaded and its cleanup
  * commands after its flight. "server" ("host:port") joins that server instead of creating a world (the
- * player needs op there for /tp and /time). Output: horizon.bench.out.
+ * player needs op there for /tp and /time). Output: industrial-era.bench.out.
  */
 public final class VanillaBench implements ClientModInitializer {
     private static VanillaBench bench;
@@ -56,7 +56,7 @@ public final class VanillaBench implements ClientModInitializer {
     private long lastFrame;
     private long readyCheck;
     private long lastTrace;
-    private static final boolean TRACE = System.getProperty("horizon.bench.trace") != null;
+    private static final boolean TRACE = System.getProperty("industrial-era.bench.trace") != null;
     private int lastLoaded = -1;
     private long lastChange;
     private final List<Float> frames = new ArrayList<>();
@@ -77,8 +77,8 @@ public final class VanillaBench implements ClientModInitializer {
     }
 
     @Override public void onInitializeClient() {
-        String scriptPath = System.getProperty("horizon.bench.script");
-        String outPath = System.getProperty("horizon.bench.out");
+        String scriptPath = System.getProperty("industrial-era.bench.script");
+        String outPath = System.getProperty("industrial-era.bench.out");
         if (scriptPath == null || outPath == null) return;
         try {
             JsonObject json = JsonParser.parseString(Files.readString(Path.of(scriptPath))).getAsJsonObject();
@@ -164,7 +164,7 @@ public final class VanillaBench implements ClientModInitializer {
                 // Once the teleport has arrived, hold the player there, flying.
                 if (mc.player != null && mc.player.position().distanceToSqr(from) < 1024.0) place(mc, s, 0);
                 if (TRACE && now - lastTrace >= 50_000_000L && mc.level != null) {
-                    // PERF_BENCH_TRACE: when the columns arrive, to compare with Horizon's trace.
+                    // PERF_BENCH_TRACE: when the columns arrive, to compare with Industrial Era's trace.
                     lastTrace = now;
                     JsonObject e = named(s);
                     e.addProperty("ms", (now - phaseStart) / 1e6);
@@ -301,7 +301,7 @@ public final class VanillaBench implements ClientModInitializer {
         return have + "/" + all;
     }
 
-    /** Puts the player on the scene's line at fraction t, facing along it, as Horizon's flight. */
+    /** Puts the player on the scene's line at fraction t, facing along it, as Industrial Era's flight. */
     private static void place(Minecraft mc, JsonObject s, double t) {
         LocalPlayer player = mc.player;
         if (player == null) return;

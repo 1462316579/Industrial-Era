@@ -19,7 +19,7 @@ public final class VanillaBiomeChunkOracle {
         net.minecraft.SharedConstants.tryDetectVersion();net.minecraft.server.Bootstrap.bootStrap();
         var ids=new IdMapper<Holder<Biome>>();
         for(int i=0;i<512;i++) {
-            String key=switch(i){case 0->"minecraft:lush_caves";case 1->"minecraft:dripstone_caves";case 2->"minecraft:deep_dark";case 3->"horizon:lush_caves";default->"horizon:biome_"+i;};
+            String key=switch(i){case 0->"minecraft:lush_caves";case 1->"minecraft:dripstone_caves";case 2->"minecraft:deep_dark";case 3->"industrial-era:lush_caves";default->"industrial-era:biome_"+i;};
             // No biome properties are accessed; direct holders have no registry key.
             ids.add(i==511?Holder.direct(null):Holder.Reference.createStandAlone(new HolderOwner<Biome>(){},ResourceKey.create(Registries.BIOME,Identifier.parse(key))));
         }

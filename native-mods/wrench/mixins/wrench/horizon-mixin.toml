@@ -10,18 +10,18 @@ priority = 210
 # No pin: Starling's mod build sets the commit it builds on. The use hook
 # below is not a hook point (game/native_hooks.rs has none for a right
 # click) and native.rs calls the game's own internals (its aim, the block
-# registry, the level's block behaviour), so a Horizon or Starling commit that
+# registry, the level's block behaviour), so a Industrial Era or Starling commit that
 # renames them fails this build with the compiler's error.
 
 [[module]]
 id = "runtime"
-file = "crates/horizon-client/src/game.rs"
+file = "crates/industrial-era-client/src/game.rs"
 name = "wrench"
 source = "runtime.rs"
 
 [[module]]
 id = "native"
-file = "crates/horizon-client/src/game.rs"
+file = "crates/industrial-era-client/src/game.rs"
 name = "wrench_native"
 source = "native.rs"
 

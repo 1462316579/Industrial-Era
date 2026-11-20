@@ -1,13 +1,13 @@
-//! The instance dialog in the glass look (the mockup's `InstanceModal`, horizon-site
+//! The instance dialog in the glass look (the mockup's `InstanceModal`, industrial-era-site
 //! `components/launcher/instance-modal.tsx`): one plate round at 28 over the dimmed page. On the
 //! left, what the instance will be (its icon, name and what it plays) and its kind; on the right,
 //! what it plays, its name and group, and its icon; Cancel and Create at the foot. Dark
 //! appearance only: the light look keeps `instance_dialog`.
 use super::*;
 use crate::glass_ui::{self as ui, white};
-use horizon_launcher::instances::{self, Icon, Instance};
-use horizon_launcher::loaders::Kind as Loader;
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_launcher::instances::{self, Icon, Instance};
+use industrial_era_launcher::loaders::Kind as Loader;
+use industrial_era_theme::glass::{fill, ink, radius};
 use new_instance::{NewKind, VersionList};
 use servers_page::Field;
 use std::sync::Arc;
@@ -33,7 +33,7 @@ pub(super) fn loaders() -> Vec<Loader> {
 /// What an existing instance plays.
 fn kind_of(i: &Instance) -> NewKind {
     match &i.java {
-        None => NewKind::Horizon,
+        None => NewKind::Industrial Era,
         Some(j) if j.loader.is_some() => NewKind::Modded,
         Some(_) => NewKind::Vanilla,
     }
@@ -144,9 +144,9 @@ pub(super) fn letter_tile(colour: Hsla, name: &str, size: f32) -> Div {
         .rounded(px((size * 0.26).round()))
         .bg(colour)
         .font_family(if letter >= 40. {
-            horizon_theme::glass::DISPLAY_FONT
+            industrial_era_theme::glass::DISPLAY_FONT
         } else {
-            horizon_theme::glass::HEADING_FONT
+            industrial_era_theme::glass::HEADING_FONT
         })
         .font_weight(FontWeight::SEMIBOLD)
         .text_size(px(letter))
@@ -232,7 +232,7 @@ impl Launcher {
                         .top_0()
                         .left_0()
                         .size_full()
-                        .bg(ui::color(horizon_theme::glass::SCRIM).opacity(0.5))
+                        .bg(ui::color(industrial_era_theme::glass::SCRIM).opacity(0.5))
                         .on_mouse_down(gpui::MouseButton::Left, close),
                 )
                 .child(card),
@@ -267,17 +267,17 @@ impl Launcher {
         self.instances.dialog.as_ref()?.java.minecraft(versions)
     }
 
-    /// The Horizon version an instance plays: the one it keeps, else the launcher's.
+    /// The Industrial Era version an instance plays: the one it keeps, else the launcher's.
     fn draft_horizon(&self) -> Option<String> {
         let pin = self.instances.dialog.as_ref()?.pin.clone();
         pin.or_else(|| self.launcher_version().cloned())
     }
 
-    /// The mark an instance shows when nothing is chosen: Horizon's, the grass block, its
+    /// The mark an instance shows when nothing is chosen: Industrial Era's, the grass block, its
     /// loader's logo.
     fn auto_mark(&mut self, kind: NewKind, loader: Loader, size: f32) -> AnyElement {
         let mark = match kind {
-            NewKind::Horizon => {
+            NewKind::Industrial Era => {
                 return ui::mark_tile(size, self.look.accent_soft).into_any_element()
             }
             NewKind::Vanilla => self.vanilla_icon().and_then(|grass| {
@@ -378,9 +378,9 @@ impl Launcher {
             )],
         );
         let mut summary = match kind {
-            NewKind::Horizon => match self.draft_horizon() {
-                Some(tag) => format!("Horizon · {}", version_label(&tag)),
-                None => "Horizon".into(),
+            NewKind::Industrial Era => match self.draft_horizon() {
+                Some(tag) => format!("Industrial Era · {}", version_label(&tag)),
+                None => "Industrial Era".into(),
             },
             NewKind::Vanilla => format!("{} · {minecraft}", tr("Vanilla")),
             NewKind::Modded => format!("{} · {minecraft}", loader.name()),
@@ -391,7 +391,7 @@ impl Launcher {
         }
         let icon = self.draft_icon(editing, kind, &name, 88.);
         let note = match kind {
-            NewKind::Horizon => {
+            NewKind::Industrial Era => {
                 tr("Its own worlds and packs. Your options and player name come along.")
             }
             _ => tr("Play downloads the game from Mojang the first time, with the Java it needs."),
@@ -399,7 +399,7 @@ impl Launcher {
         // An instance keeps its kind: editing shows only its own.
         let kinds: Vec<NewKind> = match editing {
             Some(_) => vec![kind],
-            None => vec![NewKind::Horizon, NewKind::Vanilla, NewKind::Modded],
+            None => vec![NewKind::Industrial Era, NewKind::Vanilla, NewKind::Modded],
         };
         let names: Vec<&str> = loaders().iter().map(|l| l.name()).collect();
         let modded = match names.split_last() {
@@ -413,10 +413,10 @@ impl Launcher {
         let mut cards = Vec::new();
         for k in kinds {
             let (id, title, note) = match k {
-                NewKind::Horizon => (
-                    "horizon",
-                    tr("Horizon"),
-                    tr("Minecraft rebuilt in Rust, with Horizon mods").to_string(),
+                NewKind::Industrial Era => (
+                    "industrial-era",
+                    tr("Industrial Era"),
+                    tr("Minecraft rebuilt in Rust, with Industrial Era mods").to_string(),
                 ),
                 NewKind::Vanilla => (
                     "vanilla",
@@ -466,7 +466,7 @@ impl Launcher {
                         .px(px(8.))
                         .rounded(px(radius::CONTROL))
                         .cursor_pointer()
-                        .font_family(horizon_theme::glass::FONT)
+                        .font_family(industrial_era_theme::glass::FONT)
                         .text_size(px(14.))
                         .text_color(white(ink::BODY))
                         .hover(|s| s.bg(white(fill::ROW_HOVER)).text_color(white(ink::FULL)))
@@ -503,7 +503,7 @@ impl Launcher {
                 div()
                     .mt(px(20.))
                     .truncate()
-                    .font_family(horizon_theme::glass::DISPLAY_FONT)
+                    .font_family(industrial_era_theme::glass::DISPLAY_FONT)
                     .font_weight(FontWeight::SEMIBOLD)
                     .text_size(px(30.))
                     .line_height(px(32.))
@@ -536,7 +536,7 @@ impl Launcher {
 
 /// "Nightly · c9d474d", "Imported · 2026-10-30", or the tag.
 fn version_label(tag: &str) -> String {
-    horizon_launcher::nightly::label(tag)
+    industrial_era_launcher::nightly::label(tag)
         .or_else(|| build_import::label(tag))
         .unwrap_or_else(|| tag.to_string())
 }
@@ -557,7 +557,7 @@ impl Launcher {
         let (busy, copy, error) = (d.busy, d.copy, d.error.clone());
         let title = match (editing, kind) {
             (Some(i), _) => trf("Edit {name}", &[("name", &i.name)]),
-            (None, NewKind::Horizon) => tr("A new Horizon instance").into(),
+            (None, NewKind::Industrial Era) => tr("A new Industrial Era instance").into(),
             (None, NewKind::Vanilla) => tr("A new vanilla instance").into(),
             (None, NewKind::Modded) => tr("A new modded instance").into(),
         };
@@ -584,7 +584,7 @@ impl Launcher {
                     .child(
                         div()
                             .truncate()
-                            .font_family(horizon_theme::glass::DISPLAY_FONT)
+                            .font_family(industrial_era_theme::glass::DISPLAY_FONT)
                             .font_weight(FontWeight::SEMIBOLD)
                             .text_size(px(size))
                             .line_height(px(size * 1.25))
@@ -625,8 +625,8 @@ impl Launcher {
             .pb(px(32.))
             .overflow_y_scroll();
         match (editing, kind) {
-            (_, NewKind::Horizon) => {
-                body = body.child(self.horizon_versions(cx));
+            (_, NewKind::Industrial Era) => {
+                body = body.child(self.industrial_era_versions(cx));
                 if editing.is_none() {
                     body = body.child(self.start_from(copy, cx));
                 }
@@ -690,7 +690,7 @@ impl Launcher {
                 .px(px(20.))
                 .rounded(px(radius::ROW))
                 .cursor_pointer()
-                .font_family(horizon_theme::glass::FONT)
+                .font_family(industrial_era_theme::glass::FONT)
                 .text_size(px(15.))
                 .font_weight(FontWeight::MEDIUM)
                 .text_color(white(ink::BODY))
@@ -717,7 +717,7 @@ impl Launcher {
                 .bg(accent)
                 .cursor_pointer()
                 .hover(move |s| s.bg(lit))
-                .font_family(horizon_theme::glass::FONT)
+                .font_family(industrial_era_theme::glass::FONT)
                 .text_size(px(15.))
                 .font_weight(FontWeight::SEMIBOLD)
                 .text_color(ui::color(self.look.on_accent))
@@ -758,7 +758,7 @@ impl Launcher {
             .child(match error {
                 Some(e) => ui::text(13., FontWeight::NORMAL, ink::FULL)
                     .min_w_0()
-                    .text_color(ui::color(horizon_theme::glass::DANGER))
+                    .text_color(ui::color(industrial_era_theme::glass::DANGER))
                     .child(e),
                 None => ui::text(13., FontWeight::NORMAL, ink::FAINT)
                     .min_w_0()
@@ -768,9 +768,9 @@ impl Launcher {
             .child(buttons.flex_none())
     }
 
-    /// Horizon's installed versions; the launcher's is the newest, and the one an instance
+    /// Industrial Era's installed versions; the launcher's is the newest, and the one an instance
     /// that keeps none follows.
-    fn horizon_versions(&mut self, cx: &mut Context<Self>) -> Div {
+    fn industrial_era_versions(&mut self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let soft = self.look.accent_soft;
         let follows = self.launcher_version().cloned();
@@ -782,9 +782,9 @@ impl Launcher {
             .map(|tag| {
                 let latest = follows.as_ref() == Some(&tag);
                 let on = chosen.as_ref() == Some(&tag);
-                let date = horizon_launcher::nightly::date_of(&tag).map(str::to_string);
+                let date = industrial_era_launcher::nightly::date_of(&tag).map(str::to_string);
                 let pick = tag.clone();
-                list_choice(format!("horizon-version-{tag}"), on, &t)
+                list_choice(format!("industrial-era-version-{tag}"), on, &t)
                     .py(px(12.))
                     .child(choice_text(version_label(&tag), date.unwrap_or_default()).flex_1())
                     .children(latest.then(|| {
@@ -802,14 +802,14 @@ impl Launcher {
             })
             .collect();
         let list = if rows.is_empty() {
-            list_box("horizon-versions", 248.).child(
+            list_box("industrial-era-versions", 248.).child(
                 ui::text(14., FontWeight::NORMAL, ink::QUIET)
                     .px(px(16.))
                     .py(px(24.))
                     .child(tr("No version installed")),
             )
         } else {
-            list_box("horizon-versions", 248.).children(rows)
+            list_box("industrial-era-versions", 248.).children(rows)
         };
         section(tr("Version").into(), None, list)
     }
@@ -820,7 +820,7 @@ impl Launcher {
         let selected = self.selected_instance().cloned();
         let from = selected
             .as_ref()
-            .map_or_else(|| "Horizon".into(), |i| i.name.clone());
+            .map_or_else(|| "Industrial Era".into(), |i| i.name.clone());
         let icon = match &selected {
             Some(i) => self.glass_instance_icon(i, 36.),
             None => ui::mark_tile(36., self.look.accent_soft).into_any_element(),

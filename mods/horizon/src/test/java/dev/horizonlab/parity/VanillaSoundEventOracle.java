@@ -47,7 +47,7 @@ public final class VanillaSoundEventOracle {
     /** The real registry, prepared from an asset root. */
     @SuppressWarnings("unchecked")
     static SoundManager load(Path root) throws Exception {
-        var info = new PackLocationInfo("horizon", Component.literal("horizon"), PackSource.BUILT_IN, Optional.empty());
+        var info = new PackLocationInfo("industrial-era", Component.literal("industrial-era"), PackSource.BUILT_IN, Optional.empty());
         ResourceManager resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(new PathPackResources(info, root)));
         var u = Class.forName("sun.misc.Unsafe");
         Object unsafe = field(u, "theUnsafe").get(null);

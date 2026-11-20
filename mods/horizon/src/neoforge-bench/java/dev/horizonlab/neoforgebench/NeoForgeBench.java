@@ -30,11 +30,11 @@ import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Dev-only benchmark driver for a NeoForge 1.21.1 client (tools/perf_bench.py
- * --game neoforge): the steps of mods/horizon/src/bench's VanillaBench, on
+ * --game neoforge): the steps of mods/industrial-era/src/bench's VanillaBench, on
  * NeoForge's events. From the title screen it creates a fresh creative world
  * with the script's seed, waits for the spawn area, then per scene teleports,
  * waits for the chunks, settles and flies a straight line at constant speed,
- * recording every frame time. Events go to horizon.bench.out as JSON lines;
+ * recording every frame time. Events go to industrial-era.bench.out as JSON lines;
  * the game quits after the last scene. Never shipped.
  */
 @Mod(value = "horizon_bench", dist = Dist.CLIENT)
@@ -54,8 +54,8 @@ public final class NeoForgeBench {
     private final List<Float> frames = new ArrayList<>();
 
     public NeoForgeBench() {
-        String scriptPath = System.getProperty("horizon.bench.script");
-        String outPath = System.getProperty("horizon.bench.out");
+        String scriptPath = System.getProperty("industrial-era.bench.script");
+        String outPath = System.getProperty("industrial-era.bench.out");
         if (scriptPath == null || outPath == null) {
             script = null;
             out = null;

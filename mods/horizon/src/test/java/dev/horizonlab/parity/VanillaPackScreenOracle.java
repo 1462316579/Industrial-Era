@@ -183,7 +183,7 @@ public final class VanillaPackScreenOracle {
                 @Override public void accept(TextAlignment alignment, int anchorX, int y, Parameters p, FormattedCharSequence text) {
                     int left = alignment.calculateLeft(anchorX, font, text);
                     // A scrolling label's own scissor (defaultScrollingHelper's withScissor),
-                    // recorded around it as Horizon draws it.
+                    // recorded around it as Industrial Era draws it.
                     var scissor = p.scissor();
                     if (scissor != null) self.enableScissor(scissor.left(), scissor.top(), scissor.right(), scissor.bottom());
                     if (net.minecraft.util.ARGB.as8BitChannel(p.opacity()) != 0) self.text(text, left, y, net.minecraft.util.ARGB.white(p.opacity()), true);

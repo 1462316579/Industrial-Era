@@ -1,0 +1,81 @@
+[package]
+name = "industrial-era-client-render"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version = "1.90"
+description = "The client's world data, rendering and screens: chunks, meshing, light, streaming, the renderer, the HUD, menus and settings; no gameplay"
+
+[dependencies]
+industrial-era-cosmetics = { path = "../industrial-era-cosmetics" }
+# The GUI atlas's pixels, kept compressed once uploaded (hud.rs `pack_pixels`).
+lz4_flex = { version = "0.14", default-features = false, features = ["std", "safe-encode", "safe-decode", "checked-decode"] }
+industrial-era-assets = { path = "../industrial-era-assets" }
+industrial-era-bench = { path = "../industrial-era-bench" }
+industrial-era-client-core = { path = "../industrial-era-client-core" }
+industrial-era-client-input = { path = "../industrial-era-client-input" }
+industrial-era-command = { path = "../industrial-era-command" }
+industrial-era-core = { path = "../industrial-era-core" }
+industrial-era-hdr = { path = "../industrial-era-hdr" }
+industrial-era-items = { path = "../industrial-era-items" }
+# The narrator option's status and whether the narrator is there (Options.narrator).
+industrial-era-narrator = { path = "../industrial-era-narrator" }
+# OptiFine-format pack files: random entity textures (hud.rs), connected textures
+# (connected.rs) and custom item texture rules (cit.rs).
+industrial-era-optifine = { path = "../industrial-era-optifine" }
+industrial-era-protocol = { path = "../industrial-era-protocol" }
+industrial-era-shader-api = { path = "../industrial-era-shader-api" }
+industrial-era-shaders = { path = "../industrial-era-shaders" }
+industrial-era-telemetry = { path = "../industrial-era-telemetry", default-features = false, features = ["live"] }
+industrial-era-theme = { path = "../industrial-era-theme" }
+industrial-era-threads = { path = "../industrial-era-threads" }
+industrial-era-world = { path = "../industrial-era-world" }
+ab_glyph = "0.2.32"
+base64 = "0.22"
+bytemuck = { version = "1.24", features = ["derive"] }
+# Sound (ALSA on Linux); the `audio` feature.
+cpal = { version = "0.16", optional = true }
+chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
+flate2 = { version = "1.1.10", default-features = false, features = ["zlib-rs", "runtime_detection"] }
+glam = "0.30"
+log = "0.4"
+miniz_oxide = "0.8"
+naga = { version = "30.0.1", features = ["wgsl-in", "glsl-in", "hlsl-out"] }
+half = "2"
+png = "0.18"
+pollster = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1.0.151", features = ["raw_value"] }
+sha1 = "0.10"
+sha2 = "0.10.9"
+smallvec = { version = "1", features = ["const_new"] }
+symphonia = { version = "0.5", default-features = false, features = ["ogg", "vorbis"] }
+unicode-bidi = "0.3.18"
+ureq = { version = "2", default-features = false, features = ["tls"] }
+wgpu = { version = "30.0.1", default-features = false, features = ["std", "parking_lot", "vulkan", "metal", "wgsl", "naga-ir"] }
+winit = "0.30.13"
+zip = { version = "9.1.3", default-features = false, features = ["deflate"] }
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "1", default-features = false, features = ["std", "time"] }
+
+[target.'cfg(windows)'.dependencies]
+# Resource pack overlays link vanilla's untouched folders (no admin rights, unlike symlinks).
+junction = "1"
+wgpu = { version = "30.0.1", default-features = false, features = ["dx12"] }
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+wgpu = { version = "30.0.1", default-features = false, features = ["gles"] }
+
+[features]
+# Sound output: industrial-era-client's `audio` feature.
+audio = ["dep:cpal"]
+# Helpers industrial-era-client's tests build their fixtures with.
+test-support = []
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+industrial-era-items = { path = "../industrial-era-items", features = ["test-support"] }
+naga = { version = "30.0.1", features = ["wgsl-in", "hlsl-out", "glsl-out", "msl-out", "spv-out"] }

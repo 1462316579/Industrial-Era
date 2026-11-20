@@ -91,7 +91,7 @@ def main():
     if run.returncode:
         print(run.stderr[-4000:])
         sys.exit('oracle failed')
-    lib.cargo_example('horizon-client', 'screen_layout_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.jsonl')
+    lib.cargo_example('industrial-era-client', 'screen_layout_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.jsonl')
     native = [json.loads(l) for l in (work / 'native.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (work / 'rust.jsonl').read_text().splitlines()]
     assert len(native) == len(rust) == len(chosen)

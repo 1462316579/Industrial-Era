@@ -1,35 +1,35 @@
-# Horizon shader packs
+# Industrial Era shader packs
 
-Horizon has its own shader packs: WGSL written against stages of Horizon's renderer, checked before they run. This page
+Industrial Era has its own shader packs: WGSL written against stages of Industrial Era's renderer, checked before they run. This page
 is the guide for pack authors. The design and the pack format are in [api/shaders.md](api/shaders.md); every stage's
 signature, input, resource and limit is in the generated [api/shaders-reference.md](api/shaders-reference.md).
 
 Shader packs in the Iris/OptiFine format are a separate feature with its own loader; this page is only about
-Horizon's own format.
+Industrial Era's own format.
 
 | Part | Where | State |
 |---|---|---|
-| Format, stages, check | `crates/horizon-shader-api` | API 0.1, experimental |
-| Authoring tool | `horizon-shader` (same crate) | `new`, `check`, `pack` |
-| Templates | `crates/horizon-shader-api/templates/` | post, sky, material |
-| Example pack | `crates/horizon-shader-api/packs/golden_hour` | a warm sky and two post passes |
-| In the game: every stage | Options > Horizon Settings > Shader Packs | sky, material, post passes, hot reload |
+| Format, stages, check | `crates/industrial-era-shader-api` | API 0.1, experimental |
+| Authoring tool | `industrial-era-shader` (same crate) | `new`, `check`, `pack` |
+| Templates | `crates/industrial-era-shader-api/templates/` | post, sky, material |
+| Example pack | `crates/industrial-era-shader-api/packs/golden_hour` | a warm sky and two post passes |
+| In the game: every stage | Options > Industrial Era Settings > Shader Packs | sky, material, post passes, hot reload |
 | The registry and the launcher | `shader` kind ([api/mod-index.md](api/mod-index.md)); the Mods page's Shader packs tab | checked, then installed into `shaderpacks/` |
 
 ## Quick start
 
 ```sh
-cargo install --path crates/horizon-shader-api      # or: cargo run -p horizon-shader-api --bin horizon-shader -- <command>
-horizon-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
-horizon-shader check my_pack                        # what the game, the launcher and the registry will check
-horizon-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
+cargo install --path crates/industrial-era-shader-api      # or: cargo run -p industrial-era-shader-api --bin industrial-era-shader -- <command>
+industrial-era-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
+industrial-era-shader check my_pack                        # what the game, the launcher and the registry will check
+industrial-era-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
 ```
 
 `check` prints each stage with its cost, and the pack's SHA-256:
 
 ```
 golden_hour 1.0.0 (shader API 0.1): ok
-  sky       Warm horizon                     99 expressions, 0 texture reads
+  sky       Warm industrial-era                     99 expressions, 0 texture reads
   post      Glow                            192 expressions, 3 texture reads
   post      Colour grade                    201 expressions, 2 texture reads
   sha256 b5e0d98c...
@@ -47,7 +47,7 @@ my_pack 0.1.0 (shader API 0.1): FAILED
 ## Trying a pack in the game
 
 Put the pack folder (or its `.hshader`) in `shaderpacks/` beside `options.txt` (Open Pack Folder opens it) and pick
-it on Options > Horizon Settings > Shader Packs, which lists Horizon's packs, marked (Horizon), beside packs in the
+it on Options > Industrial Era Settings > Shader Packs, which lists Industrial Era's packs, marked (Industrial Era), beside packs in the
 `shaders/` format; one runs at a time, and clicking it again turns it off. `HORIZON_SHADER_PACK=<its folder or file
 name>` runs a pack whatever the page says, for development. The game checks the pack first, and refuses one that
 fails, with its problems in the chat. While it runs, the game looks at the pack twice a second: save a file
@@ -63,7 +63,7 @@ and the whole label when its name was shortened to fit. Leaving the page saves t
 
 ## A pack
 
-A folder (or the same files zipped as a `.hshader`) with `horizon-shaders.toml` and WGSL files:
+A folder (or the same files zipped as a `.hshader`) with `industrial-era-shaders.toml` and WGSL files:
 
 ```toml
 schema = 1
@@ -88,15 +88,15 @@ Every key is in [api/shaders.md](api/shaders.md#the-pack-format-schema-1).
 
 ## Stages
 
-A stage is one function your file defines. Horizon puts its prelude (the structs, `frame`, the stage's resources and
+A stage is one function your file defines. Industrial Era puts its prelude (the structs, `frame`, the stage's resources and
 helpers) before your file and calls the function from its own pass, so the world is still culled, batched and meshed
-by Horizon: a pack changes how things look, not how they are drawn.
+by Industrial Era: a pack changes how things look, not how they are drawn.
 
 | Stage | Your function | What it does |
 | --- | --- | --- |
 | `[sky]` | `fn sky(input: SkyInput) -> vec4<f32>` | the sky's colour along each view ray, opaque (alpha is ignored), drawn where vanilla draws its sky dome (the Overworld's sky; not the Nether's or the End's); the sun, moon, stars and clouds are drawn over it |
 | `[material]` | `fn material(input: MaterialInput) -> Surface` | the lit colour of each point of a block's surface, before the alpha test and fog: every terrain section and distant tile, solid, cutout and translucent (not entities, block entities or particles) |
-| `[weather]` | `fn weather(input: WeatherInput) -> vec4<f32>` | the colour of each point of a rain or snow streak, blended over the world with its alpha; Horizon's light and fog aren't applied, so the pack applies its own |
+| `[weather]` | `fn weather(input: WeatherInput) -> vec4<f32>` | the colour of each point of a rain or snow streak, blended over the world with its alpha; Industrial Era's light and fog aren't applied, so the pack applies its own |
 | `[[post]]` | `fn post(input: PostInput) -> vec4<f32>` | a full-screen pass over the world's picture (up to 8, in order), under the hand and HUD. Return `input.color.a` as your alpha: HDR output reads it to find light sources |
 
 A pack has at least one stage; a stage it leaves out keeps vanilla's look. Each input says what vanilla would draw

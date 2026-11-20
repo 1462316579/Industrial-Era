@@ -10,7 +10,7 @@ name: android
 # branch and v* tags reach (a ruleset lets only admins push those tags); JuanLuci/starling held it before. Every other
 # build, and every build elsewhere, is Starling Preview (io.github.juanluci.starling.preview, build_apk.py --preview),
 # installed beside the release and signed with the repository's own test key in STARLING_DEBUG_KEYSTORE_BASE64 (alias
-# horizon-debug, password android); a tag elsewhere publishes nothing.
+# industrial-era-debug, password android); a tag elsewhere publishes nothing.
 on:
   push:
     branches: [android, starling, integration]
@@ -100,7 +100,7 @@ jobs:
           sudo swapon "$where/release.swap"
           free -h
           echo "CARGO_BUILD_JOBS=3" >> "$GITHUB_ENV"
-      # Where build_apk.py keeps its debug key (alias horizon-debug, password android).
+      # Where build_apk.py keeps its debug key (alias industrial-era-debug, password android).
       - name: Unpack the debug key
         if: env.RELEASE_BUILD != 'true'
         env:
@@ -112,7 +112,7 @@ jobs:
       - name: Build the APK
         env:
           ABI: ${{ matrix.abi }}
-          HORIZON_ANDROID_KEY_ALIAS: ${{ env.RELEASE_BUILD == 'true' && secrets.STARLING_KEY_ALIAS || 'horizon-debug' }}
+          HORIZON_ANDROID_KEY_ALIAS: ${{ env.RELEASE_BUILD == 'true' && secrets.STARLING_KEY_ALIAS || 'industrial-era-debug' }}
           HORIZON_ANDROID_STORE_PASSWORD: ${{ secrets.STARLING_STORE_PASSWORD }}
           HORIZON_ANDROID_KEY_PASSWORD: ${{ secrets.STARLING_KEY_PASSWORD }}
           MODS: ${{ inputs.native_mods }}
@@ -127,7 +127,7 @@ jobs:
           fi
           bundles=()
           for id in $MODS; do
-            [[ "$id" =~ ^[a-z0-9][a-z0-9_-]*$ && -f "native-mods/$id/mixins/$id/horizon-mixin.toml" ]] || \
+            [[ "$id" =~ ^[a-z0-9][a-z0-9_-]*$ && -f "native-mods/$id/mixins/$id/industrial-era-mixin.toml" ]] || \
               { echo "$id is not a mod of native-mods/"; exit 1; }
             bundles+=("native-mods/$id/mixins/$id")
           done

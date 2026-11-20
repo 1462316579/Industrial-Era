@@ -31,14 +31,14 @@ def corpus():
                   {'display': {'thirdperson_lefthand': {}, 'thirdperson_righthand': {'scale': [3, 2, 1]}}},
                   {'textures': {'all': 'block/dirt'}}, {'textures': {'all': '#side'}},
                   {'textures': {'side': '#absent'}}, {'textures': {'all': {'sprite': 'block/glass', 'force_translucent': True}}}]:
-        yield bundle({'horizon:parent': parent, 'horizon:child': {'parent': 'horizon:parent', **child}})
-    yield bundle({}, ['horizon:missing', 'minecraft:builtin/missing'])
-    yield bundle({'minecraft:builtin/missing': {'elements': []}, 'horizon:child': {'parent': 'builtin/missing'}})
+        yield bundle({'industrial-era:parent': parent, 'industrial-era:child': {'parent': 'industrial-era:parent', **child}})
+    yield bundle({}, ['industrial-era:missing', 'minecraft:builtin/missing'])
+    yield bundle({'minecraft:builtin/missing': {'elements': []}, 'industrial-era:child': {'parent': 'builtin/missing'}})
     for chain in [
-        {'horizon:a': {'parent': 'horizon:absent'}},
-        {'horizon:a': {'parent': 'horizon:a'}},
-        {'horizon:a': {'parent': 'horizon:b'}, 'horizon:b': {'parent': 'horizon:a'}},
-        {'horizon:a': {'parent': 'horizon:b'}, 'horizon:b': {'parent': 'horizon:b'}, 'horizon:c': {'parent': 'horizon:a', 'elements': []}},
+        {'industrial-era:a': {'parent': 'industrial-era:absent'}},
+        {'industrial-era:a': {'parent': 'industrial-era:a'}},
+        {'industrial-era:a': {'parent': 'industrial-era:b'}, 'industrial-era:b': {'parent': 'industrial-era:a'}},
+        {'industrial-era:a': {'parent': 'industrial-era:b'}, 'industrial-era:b': {'parent': 'industrial-era:b'}, 'industrial-era:c': {'parent': 'industrial-era:a', 'elements': []}},
     ]:
         yield bundle(chain)
     for tail in ['block/stone', '#absent', '#s0000', '#s0040']:
@@ -46,19 +46,19 @@ def corpus():
             textures = {f's{i:04}': f'#s{i+1:04}' for i in range(length - 1)}
             textures[f's{length-1:04}'] = tail
             textures.update({'all': '#s0000', 'side': '#all', 'particle': '#side', '': 'block/dirt', '#all': '#'})
-            yield bundle({'horizon:chain': {'textures': textures}})
+            yield bundle({'industrial-era:chain': {'textures': textures}})
     # Deep parent chains use iterative traversal, including descendant cycles.
-    for final in [{}, {'parent': 'horizon:n0'}, {'parent': 'horizon:missing'}]:
-        models = {f'horizon:n{i}': {'parent': f'horizon:n{i+1}'} for i in range(1023)}
-        models['horizon:n1023'] = final
-        yield bundle(models, ['horizon:n0', 'horizon:n512', 'horizon:n1023'])
+    for final in [{}, {'parent': 'industrial-era:n0'}, {'parent': 'industrial-era:missing'}]:
+        models = {f'industrial-era:n{i}': {'parent': f'industrial-era:n{i+1}'} for i in range(1023)}
+        models['industrial-era:n1023'] = final
+        yield bundle(models, ['industrial-era:n0', 'industrial-era:n512', 'industrial-era:n1023'])
     rng = random.Random(0x5245534f4c5645)
     for _ in range(400):
         count = rng.randrange(1, 13)
         models = {}
         for i in range(count):
             model = {}
-            if rng.randrange(4): model['parent'] = f'horizon:n{rng.randrange(count+2)}'
+            if rng.randrange(4): model['parent'] = f'industrial-era:n{rng.randrange(count+2)}'
             if rng.randrange(3) == 0: model['ambientocclusion'] = rng.choice([True, False])
             if rng.randrange(3) == 0: model['gui_light'] = rng.choice(['front', 'side'])
             if rng.randrange(3) == 0: model['elements'] = rng.choice([[], [None], parent['elements']])
@@ -68,7 +68,7 @@ def corpus():
             model['textures'] = {key: rng.choice(['block/stone', '#all', '#side', '#missingno', '#', '#absent',
                                                 {'sprite': 'block/glass', 'force_translucent': True}])
                                  for key in rng.sample(['all', 'side', 'particle', '', 'missingno'], rng.randrange(6))}
-            models[f'horizon:n{i}'] = model
+            models[f'industrial-era:n{i}'] = model
         yield bundle(models)
 
 
@@ -78,9 +78,9 @@ def main():
     lock, jars, libraries = base.verify_artifacts()
     build = lab.LOCAL / 'rust-model-resolution-parity'; build.mkdir(parents=True, exist_ok=True)
     report_path = build / 'report.json'; report_path.unlink(missing_ok=True)
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaModelResolutionOracle.java'
+    oracle = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaModelResolutionOracle.java'
     helper = oracle.with_name('VanillaCuboidModelOracle.java')
-    crate = lab.ROOT / 'crates/horizon-assets'
+    crate = lab.ROOT / 'crates/industrial-era-assets'
     sources = [oracle, helper, Path(__file__), lab.ROOT / 'tools/test_cuboid_model_parity.py',
                lab.ROOT / 'tools/lab.py', lab.ROOT / 'tools/test_rust_parity.py', lab.ROOT / 'Cargo.toml',
                lab.ROOT / 'Cargo.lock', crate / 'Cargo.toml', *sorted(crate.rglob('*.rs'))]
@@ -88,7 +88,7 @@ def main():
     with zipfile.ZipFile(jars['client']) as archive:
         names = sorted(name for name in archive.namelist() if name.startswith('assets/minecraft/models/block/') and name.endswith('.json'))
         models = {'minecraft:' + name.removeprefix('assets/minecraft/models/').removesuffix('.json'): archive.read(name).decode() for name in names}
-    rows = [{'models': models, 'roots': list(models) + ['minecraft:builtin/missing', 'horizon:missing'],
+    rows = [{'models': models, 'roots': list(models) + ['minecraft:builtin/missing', 'industrial-era:missing'],
              'queries': ['particle', '#particle', 'all', '#all', 'missingno', 'unknown', '', '#']}, *corpus()]
     inputs = build / 'inputs.jsonl'; inputs.write_text(''.join(json.dumps(row) + '\n' for row in rows)); fixtures = base.source_hashes([inputs])
     classes = build / 'classes'; classes.mkdir(exist_ok=True)
@@ -96,8 +96,8 @@ def main():
         with (build / (name + '.log')).open('w') as log:
             subprocess.run(list(map(str, command)), cwd=lab.ROOT, check=True, timeout=3600, stdout=log, stderr=subprocess.STDOUT)
     dependencies = os.pathsep.join(map(str, [jars['client'], *libraries]))
-    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'), '-cp', dependencies, '-d', classes, oracle, helper], 'compile-java')
-    run(['cargo', 'build', '--locked', '-p', 'horizon-assets', '--example', 'model_resolution_fixture'], 'compile-rust')
+    run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none','-sourcepath',str(lab.ROOT/'mods/industrial-era/src/test/java'), '-cp', dependencies, '-d', classes, oracle, helper], 'compile-java')
+    run(['cargo', 'build', '--locked', '-p', 'industrial-era-assets', '--example', 'model_resolution_fixture'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--locked', '--no-deps', '--format-version', '1'], cwd=lab.ROOT))
     binary = Path(metadata['target_directory']) / 'debug/examples' / ('model_resolution_fixture.exe' if os.name == 'nt' else 'model_resolution_fixture')
     run([binary, inputs, build / 'rust.jsonl'], 'rust')

@@ -1,10 +1,10 @@
-//! Settings' accent colour and Home background rows (`horizon_launcher::themes`).
+//! Settings' accent colour and Home background rows (`industrial_era_launcher::themes`).
 use super::*;
 use gpui::{
     canvas, fill, point, size, Bounds, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent,
     Pixels, Point,
 };
-use horizon_launcher::themes::{self, Accent};
+use industrial_era_launcher::themes::{self, Accent};
 use std::path::PathBuf;
 
 /// Each accent's swatch, in points.
@@ -72,7 +72,7 @@ impl Launcher {
             Some(
                 div()
                     .child(tr(
-                        "Horizon's violet by default. Every colour keeps text as easy to read.",
+                        "Industrial Era's violet by default. Every colour keeps text as easy to read.",
                     ))
                     .into_any_element(),
             ),
@@ -257,7 +257,7 @@ impl Launcher {
         let said = if custom {
             tr("Your picture, behind Home, cropped to fill it.")
         } else {
-            tr("Horizon's landscape. Pick a PNG, JPEG or WebP picture of your own.")
+            tr("Industrial Era's landscape. Pick a PNG, JPEG or WebP picture of your own.")
         };
         let detail = div().flex().flex_col().child(said.to_string()).children(
             self.background_error

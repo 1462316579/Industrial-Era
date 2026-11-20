@@ -28,7 +28,7 @@ vec3 keyLightDir() {
     return normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 }
 
-// 0 at night, 1 by day, crossing over while the sun is near the horizon.
+// 0 at night, 1 by day, crossing over while the sun is near the industrial-era.
 float daylight(vec3 s) {
     return smoothstep(-0.12, 0.10, s.y);
 }
@@ -49,16 +49,16 @@ vec3 skyRadiance(vec3 d, vec3 s) {
     float day = daylight(s);
     float lowSun = 1.0 - smoothstep(0.0, 0.4, abs(s.y));
     float up = clamp(d.y, 0.0, 1.0);
-    float horizon = pow(1.0 - up, 5.0);
+    float industrial-era = pow(1.0 - up, 5.0);
     vec3 zenith = mix(vec3(0.002, 0.004, 0.010), vec3(0.045, 0.13, 0.48), day);
-    // With the sun low, the long way through the air takes the blue out of the horizon too.
+    // With the sun low, the long way through the air takes the blue out of the industrial-era too.
     vec3 rim = mix(vec3(0.006, 0.008, 0.016), vec3(0.30, 0.46, 0.78) * (1.0 - 0.4 * lowSun), day);
-    vec3 color = mix(zenith, rim, horizon);
+    vec3 color = mix(zenith, rim, industrial-era);
     float toward = max(dot(d, s), 0.0);
-    // A low sun warms the horizon around it; a halo surrounds it all day.
-    color += vec3(1.0, 0.38, 0.10) * lowSun * day * pow(toward, 4.0) * horizon * 2.2;
+    // A low sun warms the industrial-era around it; a halo surrounds it all day.
+    color += vec3(1.0, 0.38, 0.10) * lowSun * day * pow(toward, 4.0) * industrial-era * 2.2;
     color += sunlight(s) * (0.5 / SUN_STRENGTH) * pow(toward, 32.0);
-    // Under the horizon, hazy land as far as the horizon's colour, darker looking further down.
+    // Under the industrial-era, hazy land as far as the industrial-era's colour, darker looking further down.
     color *= mix(1.0, 0.5, smoothstep(0.1, 0.7, -d.y));
     color = mix(color, vec3(luma(color) * 0.8), rainStrength * 0.85);
     return color * SKY_BRIGHTNESS;
@@ -83,7 +83,7 @@ vec3 keyLightAt(vec3 n, float wrap) {
 // readable.
 vec3 fillLightAt(vec3 n, vec2 levels) {
     vec3 s = sunDir();
-    // The sky's light is about the average of the zenith and a horizon away from the sun, and
+    // The sky's light is about the average of the zenith and a industrial-era away from the sun, and
     // nearer white than either.
     vec3 sky = 0.5 * (skyRadiance(vec3(0.0, 1.0, 0.0), s) + skyRadiance(normalize(vec3(-s.x, 0.1, -s.z)), s));
     vec3 ambient = mix(vec3(luma(sky)), sky, 0.4) * 1.6 * (0.75 + 0.25 * n.y);

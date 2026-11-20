@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class MouseScrollingHookTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("rustc"), "requires Rust")
     def test_axes_accumulation_context_gates_and_cancellation(self):
-        source = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
+        source = (ROOT / "crates/industrial-era-client/src/game.rs").read_text(encoding="utf-8")
         start = source.index("                    let (raw_x, raw_y) = match delta")
         normalize = source[start:source.index("                    // ScreenEvent.MouseScrolled.Pre", start)]
         start = source.index("                    if self.screen == Screen::Playing", start)
@@ -105,7 +105,7 @@ fn source_and_legacy_gates() {
         assert_eq!(game.selected, if gate==5 {3} else {4});
     }
 }
-""".replace("MOUSE_PATH", (ROOT / "crates/horizon-client-input/src/mouse.rs").as_posix()).replace("NORMALIZE", normalize).replace("DISPATCH", dispatch)
+""".replace("MOUSE_PATH", (ROOT / "crates/industrial-era-client-input/src/mouse.rs").as_posix()).replace("NORMALIZE", normalize).replace("DISPATCH", dispatch)
         with tempfile.TemporaryDirectory() as folder:
             src, exe = Path(folder) / "scroll.rs", Path(folder) / "scroll.exe"
             src.write_text(fixture, encoding="utf-8")

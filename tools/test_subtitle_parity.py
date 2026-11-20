@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare Horizon's subtitle overlay with the vanilla 26.3 client's SubtitleOverlay.
+"""Compare Industrial Era's subtitle overlay with the vanilla 26.3 client's SubtitleOverlay.
 
 The Java oracle (VanillaSubtitleOracle) runs vanilla's own SubtitleOverlay with a
 stand-in client: sounds the sound engine reports to its listeners (subtitles from
@@ -32,7 +32,7 @@ except ImportError:
     import test_rust_parity as base
     import test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity'
 
 
 def subtitle_keys(resources):
@@ -64,7 +64,7 @@ def cases(count, keys):
     rng = random.Random(0x5355425449544c45)
     out = []
     for n in range(count):
-        pool = rng.sample(keys, rng.choice([1, 3, 8, 20])) + ['subtitles.horizon.unknown']
+        pool = rng.sample(keys, rng.choice([1, 3, 8, 20])) + ['subtitles.industrial-era.unknown']
         t = rng.randint(0, 10_000_000)
         pos = [rng.uniform(-100, 100), rng.uniform(-60, 300), rng.uniform(-100, 100)]
         here = listener(rng, pos)
@@ -133,7 +133,7 @@ def main():
          *(PARITY / f'{n}.java' for n in ('ParityFont', 'VanillaSubtitleOracle'))], 'compile-java')
     run(['java', '-Xmx1G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaSubtitleOracle',
          inputs, build / 'vanilla.jsonl'], 'vanilla')
-    run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client-lib', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client-lib', '--example', 'client_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
     binary = Path(metadata['target_directory']) / 'fast/examples' / ('client_probe.exe' if os.name=='nt' else 'client_probe')
     run([binary, 'subtitle_fixture',resources, inputs, build / 'rust.jsonl'], 'rust')
@@ -158,9 +158,9 @@ def main():
         print('ORACLE ERROR', v['case'], v['error'])
     for c, i, a, b in bad[:args.detail]:
         first = next((j for j, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
-        print(f'MISMATCH case {c["case"]} frame {i} at draw {first} ({len(a)} vanilla, {len(b)} Horizon draws)')
+        print(f'MISMATCH case {c["case"]} frame {i} at draw {first} ({len(a)} vanilla, {len(b)} Industrial Era draws)')
         print('   vanilla', json.dumps(a[first:first + 2], ensure_ascii=False))
-        print('   horizon', json.dumps(b[first:first + 2], ensure_ascii=False))
+        print('   industrial-era', json.dumps(b[first:first + 2], ensure_ascii=False))
     print(f'{len(chosen) - len(bad) - len(errors)}/{len(chosen)} subtitle cases match '
           f'({frames} frames, {drawn} with subtitles); {len(errors)} oracle errors')
     if bad or errors:

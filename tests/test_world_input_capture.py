@@ -41,8 +41,8 @@ def function(source, name):
 
 class WorldInputCaptureTests(unittest.TestCase):
     def test_loading_completion_wiring(self):
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
-        remote = (ROOT / "crates/horizon-client/src/game/remote.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/industrial-era-client/src/game.rs").read_text(encoding="utf-8")
+        remote = (ROOT / "crates/industrial-era-client/src/game/remote.rs").read_text(encoding="utf-8")
         spawn = method(game, "spawn_player")
         self.assertLess(spawn.index("self.player = Some(player)"),
                         spawn.index("self.capture_loaded_world()"))
@@ -57,8 +57,8 @@ class WorldInputCaptureTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("rustc"), "requires Rust")
     def test_capture_lifecycle(self):
-        source = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
-        mouse = (ROOT / "crates/horizon-client-input/src/mouse.rs").read_text(encoding="utf-8")
+        source = (ROOT / "crates/industrial-era-client/src/game.rs").read_text(encoding="utf-8")
+        mouse = (ROOT / "crates/industrial-era-client-input/src/mouse.rs").read_text(encoding="utf-8")
         fixture = r'''
 use std::cell::Cell;
 #[derive(Clone, Copy, PartialEq)]
@@ -349,7 +349,7 @@ fn main() {
         fixture = fixture.replace("METHODS", capture + "\n" +
                                   method(source, "capture_loaded_world") + "\n" +
                                   method(source, "regrab_on_refocus"))
-        with tempfile.TemporaryDirectory(prefix="horizon-input-") as folder:
+        with tempfile.TemporaryDirectory(prefix="industrial-era-input-") as folder:
             folder = Path(folder)
             rust = folder / "capture.rs"
             binary = folder / ("capture.exe" if os.name == "nt" else "capture")
@@ -361,7 +361,7 @@ fn main() {
 
     @unittest.skipUnless(shutil.which("rustc"), "requires Rust")
     def test_native_split_mouse_turns_only_its_owner(self):
-        source = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
+        source = (ROOT / "crates/industrial-era-client/src/game.rs").read_text(encoding="utf-8")
         fixture = r'''
 use std::time::Instant;
 #[path = "MOUSE_PATH"] mod mouse;
@@ -413,7 +413,7 @@ fn main() {
     }
 }
 '''
-        fixture = fixture.replace("MOUSE_PATH", (ROOT / "crates/horizon-client-input/src/mouse.rs").as_posix())
+        fixture = fixture.replace("MOUSE_PATH", (ROOT / "crates/industrial-era-client-input/src/mouse.rs").as_posix())
         # Starling's device_event hands the motion to grabbed_mouse_motion, which Android's input hook calls too.
         fixture = fixture.replace("METHOD", method(source, "device_event") + "\n" +
                                   method(source, "grabbed_mouse_motion"))
@@ -421,7 +421,7 @@ fn main() {
 
     @unittest.skipUnless(shutil.which("rustc"), "requires Rust")
     def test_split_layout_keeps_capture_in_the_same_window(self):
-        source = (ROOT / "crates/horizon-client/src/game/split/windows.rs").read_text(encoding="utf-8")
+        source = (ROOT / "crates/industrial-era-client/src/game/split/windows.rs").read_text(encoding="utf-8")
         body = function(source.replace("pub(super) fn", "pub fn"), "into_window").replace("Game<'_>", "Game")
         fixture = r'''
 use std::sync::Arc;
@@ -443,7 +443,7 @@ fn main() {
         self.run_fixture(fixture, "split-window")
 
     def run_fixture(self, fixture, name):
-        with tempfile.TemporaryDirectory(prefix="horizon-input-") as folder:
+        with tempfile.TemporaryDirectory(prefix="industrial-era-input-") as folder:
             folder = Path(folder)
             rust = folder / f"{name}.rs"
             binary = folder / (name + (".exe" if os.name == "nt" else ""))

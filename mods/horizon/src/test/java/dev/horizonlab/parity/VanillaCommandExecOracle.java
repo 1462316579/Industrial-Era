@@ -321,7 +321,7 @@ public final class VanillaCommandExecOracle {
             }
         }
 
-        /** Force-load the chunks around the player (Horizon waits for its streamed terrain). */
+        /** Force-load the chunks around the player (Industrial Era waits for its streamed terrain). */
         /**
          * Entity.handlePortal once the player's portal process finished in the
          * nether portal it stands in (the oracle does not tick the player).

@@ -274,7 +274,7 @@ public final class VanillaChunkGenerationOracle {
             field.set(generator, noFeatures);
         }
         var state = ChunkGeneratorStructureState.createForNormal(randomState, seed, new ChunkPos(0, 0), biomeSource, world.lookupOrThrow(Registries.STRUCTURE_SET));
-        Path tmp = Files.createTempDirectory("horizon-chunks");
+        Path tmp = Files.createTempDirectory("industrial-era-chunks");
         var storage = LevelStorageSource.createDefault(tmp).createAccess("oracle");
         var templates = new StructureTemplateManager(resources, storage, DataFixers.getDataFixer(), BuiltInRegistries.BLOCK);
         var dimensionType = world.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(switch (dimension) {
@@ -510,7 +510,7 @@ public final class VanillaChunkGenerationOracle {
                     var st = target.getBlockState(pos);
                     var block = (net.minecraft.world.level.block.EntityBlock) st.getBlock();
                     var fresh = block.newBlockEntity(pos, st).saveWithFullMetadata(registry);
-                    // The value of each key Horizon leaves out: what loading a tag without
+                    // The value of each key Industrial Era leaves out: what loading a tag without
                     // it gives (BrewingStandBlockEntity reads a missing total_brew_time as 400).
                     var empty = block.newBlockEntity(pos, st);
                     empty.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(

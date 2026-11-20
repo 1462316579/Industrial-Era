@@ -1,6 +1,6 @@
 # Launcher API
 
-What a player's agent, a script or a pack maker can do with `horizon-launcher`: install and run versions, manage
+What a player's agent, a script or a pack maker can do with `industrial-era-launcher`: install and run versions, manage
 accounts, settings, mods, modpacks and hosted servers, from a terminal or over MCP. The launcher itself:
 [launcher/README.md](../../launcher/README.md).
 
@@ -18,10 +18,10 @@ the MCP server is off.
 
 ## Guide
 
-1. `horizon-launcher versions`, `horizon-launcher install latest`, `horizon-launcher play`.
-2. Modpacks: `horizon-launcher modpack import <file>`, then `modpack port` and `modpack play`
+1. `industrial-era-launcher versions`, `industrial-era-launcher install latest`, `industrial-era-launcher play`.
+2. Modpacks: `industrial-era-launcher modpack import <file>`, then `modpack port` and `modpack play`
    ([modpacks.md](../modpacks.md)).
-3. For an agent: `horizon-launcher agent-config` prints how to connect a client to `horizon-launcher mcp`.
+3. For an agent: `industrial-era-launcher agent-config` prints how to connect a client to `industrial-era-launcher mcp`.
 
 ## Reference
 
@@ -31,9 +31,9 @@ and its MCP tool.
 ## Examples
 
 ```sh
-horizon-launcher versions --installed --json
-horizon-launcher mods search minimap --kind mod --json
-horizon-launcher servers create --name "Weekend" --player Alex --json
+industrial-era-launcher versions --installed --json
+industrial-era-launcher mods search minimap --kind mod --json
+industrial-era-launcher servers create --name "Weekend" --player Alex --json
 ```
 
 ## Stability
@@ -43,10 +43,10 @@ output shapes are not yet described in the reference.
 
 ## Not there yet
 
-- **A Horizon modpack manifest.** A pack made for Horizon (not a port of a Java pack) needs its own file: the pack's
-  id, name and version; the Horizon API lines and the release line it needs; its `.hmod` mods (id, version, SHA-256,
+- **A Industrial Era modpack manifest.** A pack made for Industrial Era (not a port of a Java pack) needs its own file: the pack's
+  id, name and version; the Industrial Era API lines and the release line it needs; its `.hmod` mods (id, version, SHA-256,
   where to download it, client, server or both); resource packs; default settings; and whether it has a server side.
-  One manifest serves the launcher, `horizon-server` (a server installs the server side of the same pack) and the mod
+  One manifest serves the launcher, `industrial-era-server` (a server installs the server side of the same pack) and the mod
   browser. Designed from what a pack maker does, versioned per [stability.md](stability.md), with a schema test.
 - **JSON output schemas** for every command, in the generated reference, so MCP tools declare their output.
 - **A version** in MCP `serverInfo` and `--json` output, as for agent control.

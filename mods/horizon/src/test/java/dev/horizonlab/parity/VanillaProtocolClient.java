@@ -92,7 +92,7 @@ import net.minecraft.world.phys.Vec3;
  * decodes every packet with the codecs of the pinned server JAR (the client
  * shares them), so any byte a server sends that vanilla would not read is
  * recorded as an error. tools/test_dedicated_server_parity.py points it at a
- * vanilla dedicated server and at Horizon's, with the same settings and
+ * vanilla dedicated server and at Industrial Era's, with the same settings and
  * world, and compares the transcripts.
  *
  * <p>{@code VanillaProtocolClient HOST PORT NAME OUT} pings the server (status
@@ -588,7 +588,7 @@ public final class VanillaProtocolClient {
                     send(new ServerboundChatCommandPacket("kill"));
                     step++;
                 } else if (packet instanceof net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket p && step > 0) {
-                    // The death message is left out: guests' death messages aren't Horizon's yet.
+                    // The death message is left out: guests' death messages aren't Industrial Era's yet.
                     record("play-death", "death screen");
                     send(new ServerboundChatCommandPacket("trigger nope"));
                     deadCommandAt = now;

@@ -1,15 +1,15 @@
 # Shader API reference (0.1)
 
-Generated from `crates/horizon-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p horizon-shader-api --test reference`
+Generated from `crates/industrial-era-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p industrial-era-shader-api --test reference`
 rewrites it; the test fails when it drifts). The API's design and pack format: [shaders.md](shaders.md).
 
-A stage is a function your WGSL defines, with the signature below; Horizon puts the prelude (these structs, the
+A stage is a function your WGSL defines, with the signature below; Industrial Era puts the prelude (these structs, the
 resources and helpers) before your files and calls the function from its own pass. Your files declare no
 bindings and no entry points, and no names starting with `horizon_`.
 
 ## Stages
 
-| Stage | In `horizon-shaders.toml` | Your function |
+| Stage | In `industrial-era-shaders.toml` | Your function |
 | --- | --- | --- |
 | sky | `[sky]` | `fn sky(input: SkyInput) -> vec4<f32>` |
 | vertex | `[vertex]` | `fn vertex(input: VertexInput) -> vec3<f32>` |
@@ -95,7 +95,7 @@ One point of a block's surface, for `fn material(input: MaterialInput) -> Surfac
 
 ### `Surface`
 
-What `material` returns. Vanilla's own is `albedo * tint * vec4(lightmap, 1.0)`; Horizon then applies the alpha test (cutout and translucent) and fog.
+What `material` returns. Vanilla's own is `albedo * tint * vec4(lightmap, 1.0)`; Industrial Era then applies the alpha test (cutout and translucent) and fog.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
@@ -221,7 +221,7 @@ The frame, as `frame` in every stage. Positions and directions are in world axes
 | `projection_inverse` | `mat4x4<f32>` | 192 | Clip to view space. |
 | `camera_position` | `vec3<f32>` | 256 | The camera's world position, in blocks (about a millimetre of precision 10 000 blocks out). |
 | `time` | `f32` | 268 | Seconds since the pack was loaded, wrapping to 0 every hour. |
-| `sun_direction` | `vec3<f32>` | 272 | Unit vector toward the sun (below the horizon at night). |
+| `sun_direction` | `vec3<f32>` | 272 | Unit vector toward the sun (below the industrial-era at night). |
 | `day_time` | `f32` | 284 | The time of day, 0..1: 0 sunrise, 0.25 noon, 0.5 sunset, 0.75 midnight. |
 | `moon_direction` | `vec3<f32>` | 288 | Unit vector toward the moon. |
 | `game_time` | `f32` | 300 | Vanilla's GameTime: (game time % 24000 + partial tick) / 24000, 0..1. |

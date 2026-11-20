@@ -1,45 +1,45 @@
 [workspace]
-exclude = ["launcher", "crates/horizon-telemetry-server", "crates/horizon-mod-registry", "third_party/wgpu-hal", "third_party/naga", "third_party/libmimalloc-sys", "third_party/winit"]
+exclude = ["launcher", "crates/industrial-era-telemetry-server", "crates/industrial-era-mod-registry", "third_party/wgpu-hal", "third_party/naga", "third_party/libmimalloc-sys", "third_party/winit"]
 members = [
     "crates/starling-catalog",
-    "crates/horizon-core",
-    "crates/horizon-dualsense",
-    "crates/horizon-narrator",
-    "crates/horizon-threads",
-    "crates/horizon-hdr",
-    "crates/horizon-world",
-    "crates/horizon-client",
+    "crates/industrial-era-core",
+    "crates/industrial-era-dualsense",
+    "crates/industrial-era-narrator",
+    "crates/industrial-era-threads",
+    "crates/industrial-era-hdr",
+    "crates/industrial-era-world",
+    "crates/industrial-era-client",
     # Starling: the game as a NativeActivity library; empty on other targets.
-    "crates/horizon-android",
-    "crates/horizon-client-lib",
-    "crates/horizon-client-core",
-    "crates/horizon-client-input",
-    "crates/horizon-client-render",
-    "crates/horizon-cosmetics",
-    "crates/horizon-command",
-    "crates/horizon-items",
-    "crates/horizon-server-files",
-    "crates/horizon-anticheat",
-    "crates/horizon-chat-filter",
-    # The Model Context Protocol, shared by horizon-ctl, horizon-server and the launcher.
-    "crates/horizon-mcp",
-    "crates/horizon-server",
-    "crates/horizon-bots",
-    "crates/horizon-assets",
-    "crates/horizon-protocol",
-    "crates/horizon-theme",
-    "crates/horizon-prepare",
-    "crates/horizon-telemetry",
-    "crates/horizon-bench",
-    "crates/horizon-friends",
-    "crates/horizon-relay",
-    "crates/horizon-mods",
-    "crates/cargo-horizon-mod",
-    "crates/horizon-port-pack",
-    "crates/horizon-shaders",
-    "crates/horizon-optifine",
-    "crates/horizon-shader-api",
-    "crates/horizon-release-sign",
+    "crates/industrial-era-android",
+    "crates/industrial-era-client-lib",
+    "crates/industrial-era-client-core",
+    "crates/industrial-era-client-input",
+    "crates/industrial-era-client-render",
+    "crates/industrial-era-cosmetics",
+    "crates/industrial-era-command",
+    "crates/industrial-era-items",
+    "crates/industrial-era-server-files",
+    "crates/industrial-era-anticheat",
+    "crates/industrial-era-chat-filter",
+    # The Model Context Protocol, shared by industrial-era-ctl, industrial-era-server and the launcher.
+    "crates/industrial-era-mcp",
+    "crates/industrial-era-server",
+    "crates/industrial-era-bots",
+    "crates/industrial-era-assets",
+    "crates/industrial-era-protocol",
+    "crates/industrial-era-theme",
+    "crates/industrial-era-prepare",
+    "crates/industrial-era-telemetry",
+    "crates/industrial-era-bench",
+    "crates/industrial-era-friends",
+    "crates/industrial-era-relay",
+    "crates/industrial-era-mods",
+    "crates/cargo-industrial-era-mod",
+    "crates/industrial-era-port-pack",
+    "crates/industrial-era-shaders",
+    "crates/industrial-era-optifine",
+    "crates/industrial-era-shader-api",
+    "crates/industrial-era-release-sign",
     "crates/starling-account",
     "xtask",
 ]
@@ -72,8 +72,8 @@ large_enum_variant = "allow"
 # winit 0.30.13 with an input hook on Android (`winit::platform::android::set_input_hook`): its
 # Android backend makes touches of a controller's sticks and a mouse's buttons and drops the
 # rest (hover, the wheel, the buttons' own events), and the app never sees the raw events.
-# Starling takes those there (crates/horizon-client/src/android_lib.rs). A few lines in the
-# backend, marked "Horizon's patch"; nothing changes on the other platforms.
+# Starling takes those there (crates/industrial-era-client/src/android_lib.rs). A few lines in the
+# backend, marked "Industrial Era's patch"; nothing changes on the other platforms.
 [patch.crates-io]
 wgpu-hal = { path = "third_party/wgpu-hal" }
 winit = { path = "third_party/winit" }
@@ -111,11 +111,11 @@ codegen-units = 256
 lto = "off"
 
 # The crates edits land in, lightly optimized; the dependencies stay fully optimized.
-[profile.quick.package.horizon-client]
+[profile.quick.package.industrial-era-client]
 opt-level = 1
 
-[profile.quick.package.horizon-android]
+[profile.quick.package.industrial-era-android]
 opt-level = 1
 
-[profile.quick.package.horizon-client-lib]
+[profile.quick.package.industrial-era-client-lib]
 opt-level = 1

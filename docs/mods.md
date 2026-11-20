@@ -1,25 +1,25 @@
-# Horizon mods
+# Industrial Era mods
 
-Two kinds of mod run in Horizon:
+Two kinds of mod run in Industrial Era:
 
 | Kind | File | What it is | Where it runs |
 |---|---|---|---|
 | **Content mod** | `.hmod` | Data and assets: blocks, items, recipes, loot, tags, models, textures, structures. No code. | Read when the game starts |
-| **Native mod** | `.hnmod` | A [horizon-mixins](https://github.com/horizon-rust/horizon-mixins) bundle: Rust that changes the game's own source before it is compiled. | In a game the launcher builds for the player ([native-mods.md](native-mods.md)) |
+| **Native mod** | `.hnmod` | A [industrial-era-mixins](https://github.com/industrial-era-rust/industrial-era-mixins) bundle: Rust that changes the game's own source before it is compiled. | In a game the launcher builds for the player ([native-mods.md](native-mods.md)) |
 
 Fabric and NeoForge jars do **not** run as they are: their code calls and patches Minecraft's Java classes, and
-Horizon has none. What carries over is the data and assets inside a jar ([modpacks.md](modpacks.md)).
+Industrial Era has none. What carries over is the data and assets inside a jar ([modpacks.md](modpacks.md)).
 
-Mods are **off by default**. A fresh install has no `horizon-mods` folder and plays exactly like vanilla 26.3.
+Mods are **off by default**. A fresh install has no `industrial-era-mods` folder and plays exactly like vanilla 26.3.
 
 ## Playing with mods
 
 1. Install a mod from the launcher's Mods page ([mod-browser.md](mod-browser.md)), or put its files by hand in the
-   game folder (the one holding `options.txt`): a content mod's `.hmod` (or a folder holding `horizon-mod.toml`) in
-   `horizon-mods/`. Native mods go in `horizon-native-mods/`, and the launcher builds them
+   game folder (the one holding `options.txt`): a content mod's `.hmod` (or a folder holding `industrial-era-mod.toml`) in
+   `industrial-era-mods/`. Native mods go in `industrial-era-native-mods/`, and the launcher builds them
    ([native-mods.md](native-mods.md)).
 2. Options > **Mods** lists them with what each may do ("May add blocks, items, mob effects and entity types to your
-   worlds") and a switch. They start off. The choice is kept in `horizon-mods.txt` (`mod.<id>:true`).
+   worlds") and a switch. They start off. The choice is kept in `industrial-era-mods.txt` (`mod.<id>:true`).
 3. A content mod's blocks, items, mob effects and entity types load once, when the game starts: restart the game after
    a switch.
 4. A mod that can't load shows why, in red, on its row.
@@ -32,23 +32,23 @@ Benchmarks (`--benchmark`) never load mods.
 ## Making a content mod
 
 ```sh
-cargo install --git https://github.com/horizon-rust/horizon cargo-horizon-mod
-cargo horizon-mod new my-mod        # a content mod: manifest, one block with its model, loot and recipe
+cargo install --git https://github.com/industrial-era-rust/industrial-era cargo-industrial-era-mod
+cargo industrial-era-mod new my-mod        # a content mod: manifest, one block with its model, loot and recipe
 cd my-mod
-cargo horizon-mod run               # build my-mod.hmod, then start the game with it turned on
-cargo horizon-mod build             # only build: target/horizon-mod/my_mod.hmod
-cargo horizon-mod check target/horizon-mod/my_mod.hmod   # the registry's checks; --json for JSON
+cargo industrial-era-mod run               # build my-mod.hmod, then start the game with it turned on
+cargo industrial-era-mod build             # only build: target/industrial-era-mod/my_mod.hmod
+cargo industrial-era-mod check target/industrial-era-mod/my_mod.hmod   # the registry's checks; --json for JSON
 ```
 
-- `new <path> [--name "Name"]` writes the template. `--template native [--horizon <commit>]` writes a native trait
-  mod's bundle instead: `horizon-mixin.toml` (pinned to that Horizon commit, else unpinned) and an `[api]` crate with
-  one hook, built with `horizon-launcher native-build <path> --trust-native-code`
+- `new <path> [--name "Name"]` writes the template. `--template native [--industrial-era <commit>]` writes a native trait
+  mod's bundle instead: `industrial-era-mixin.toml` (pinned to that Industrial Era commit, else unpinned) and an `[api]` crate with
+  one hook, built with `industrial-era-launcher native-build <path> --trust-native-code`
   ([native-mods.md](native-mods.md#trait-mods-draft)). Any other `--template` is refused.
-- `build` packs `horizon-mod.toml`, `assets/` and `data/` into `target/horizon-mod/<id>.hmod`, with the same checks
+- `build` packs `industrial-era-mod.toml`, `assets/` and `data/` into `target/industrial-era-mod/<id>.hmod`, with the same checks
   the game makes when it reads the content. It refuses a folder with a `Cargo.toml` (code is native now) and a
   manifest without capability `registries`.
-- `run` builds, then starts `horizon-client` (on `PATH`, or `--game PATH`, or `HORIZON_CLIENT`) with
-  `--dev-mod target/horizon-mod/<id>.hmod`, always on. Arguments after `--` go to the game. The game reads content once
+- `run` builds, then starts `industrial-era-client` (on `PATH`, or `--game PATH`, or `HORIZON_CLIENT`) with
+  `--dev-mod target/industrial-era-mod/<id>.hmod`, always on. Arguments after `--` go to the game. The game reads content once
   at start, so rebuild and run again after an edit.
 - `check <file>` runs what the registry runs: the file's size and SHA-256, its manifest and content, and a signature
   with `--key <public key> --signature <file>.minisig`. It reads `.hmod`, `.hnmod`, `.hpack`, resource pack `.zip`
@@ -74,14 +74,14 @@ Unknown keys are refused, so a typo is an error, not a silently ignored permissi
 ### Content mods (API 0.2)
 
 A content mod has capability `registries` and carries `assets/` and `data/` in the `.hmod`. It adds blocks and items
-by declaring them in `data/<id>/horizon/block/*.json` and `data/<id>/horizon/item/*.json`, each copying a vanilla
+by declaring them in `data/<id>/industrial-era/block/*.json` and `data/<id>/industrial-era/item/*.json`, each copying a vanilla
 template ([modpacks.md](modpacks.md#registries-02-data-driven-blocks-items-and-mob-effects)), and creative tabs, mob
 effects, entity types and menu types (each below) in `creative_tab/`, `mob_effect/`, `entity_type/` and `menu/` beside
 them. LAN and dedicated server players play with them when they run the same mods: a client whose mods add different
 content is refused when it joins, with the reason.
 
 A server that has content mods on also checks them one by one (`horizon_protocol::mod_list`, channel
-`horizon:mod_list`): in the configuration phase it sends the id, version and SHA-256 of each `.hmod` with
+`industrial-era:mod_list`): in the configuration phase it sends the id, version and SHA-256 of each `.hmod` with
 `side = "both"`, the client answers with its own, and a client that differs is refused with the mods named: missing,
 not on this server, or another version or file. Only `side = "both"` mods are compared and sent: a `client` mod (a
 HUD, a minimap) never blocks a join and is never told to a server, and a `server` mod stays private to it. A manifest
@@ -207,8 +207,8 @@ Native mods can register component types before content loads. A content item
 can set a registered type with a JSON value, such as `"sample:charge": {"charge": 42}`.
 JSON values become NBT values. Values must fit the network NBT limits and
 round-trip through saved NBT; negative zero is not supported. A key such as
-`"!sample:charge": {}` removes the template's default. Unknown types fail when Horizon builds the content root;
-`cargo horizon-mod check` cannot check native registrations.
+`"!sample:charge": {}` removes the template's default. Unknown types fail when Industrial Era builds the content root;
+`cargo industrial-era-mod check` cannot check native registrations.
 
 `crafting_remainder` names what the item leaves in the crafting grid when a
 recipe uses it, as a milk bucket leaves a bucket (vanilla's
@@ -249,7 +249,7 @@ chorus plant's (10 pixels across) unless it sets `"thickness"`, 2 to 14
 pixels: its outline and collision are then built as `PipeBlock` builds its
 own, a core and an arm to each joined side.
 
-A mod's creative inventory tabs are `data/<id>/horizon/creative_tab/*.json`:
+A mod's creative inventory tabs are `data/<id>/industrial-era/creative_tab/*.json`:
 a title, the item on the tab's button, and its items in order (items the game
 doesn't have are left out):
 
@@ -267,9 +267,9 @@ under their names.
 A component type no vanilla item has is refused, so a misspelt one fails
 the load instead of doing nothing. Behaviour the game ties to a vanilla
 item's id doesn't come along yet: a copy of the trident doesn't throw
-([#3305](https://github.com/horizon-rust/horizon/issues/3305)).
+([#3305](https://github.com/industrial-era-rust/industrial-era/issues/3305)).
 
-A mod effect is declared in `data/<id>/horizon/mob_effect/<name>.json` with what vanilla's `MobEffect` takes: its
+A mod effect is declared in `data/<id>/industrial-era/mob_effect/<name>.json` with what vanilla's `MobEffect` takes: its
 category (`beneficial`, `harmful` or `neutral`) and its RGB colour (0 to `0xFFFFFF`), which its particles take:
 
 ```json
@@ -283,7 +283,7 @@ as vanilla's; without one it draws as the missing texture). It does nothing on i
 attribute modifiers. A world opened without the mod drops the effect from its players and mobs. Clients join a server
 only with the same mods' effects, as with its blocks.
 
-A mod entity type is declared in `data/<id>/horizon/entity_type/<name>.json`. It copies a vanilla type: for now only
+A mod entity type is declared in `data/<id>/industrial-era/entity_type/<name>.json`. It copies a vanilla type: for now only
 `minecraft:snowball`, a thrown item projectile. `item` is one of the mod's own items (one type per item), and `damage`
 (0 by default) is what a hit deals to anything it hits, as `thrown` damage from the thrower (the snowball's 3 to blazes
 is not copied):
@@ -303,7 +303,7 @@ server with it may be disconnected when one spawns.
 
 #### Menu types
 
-A mod menu type (vanilla's `MenuType`) is declared in `data/<id>/horizon/menu/<name>.json`: its container's slot count
+A mod menu type (vanilla's `MenuType`) is declared in `data/<id>/industrial-era/menu/<name>.json`: its container's slot count
 (1 to 256), the data slots its menu syncs (`ContainerData`, 0 to 256, 0 by default), and the slots players only take
 from (`results`, as a furnace's result slot):
 
@@ -316,9 +316,9 @@ It is the menu type `<id>:<name>`, with its network id after vanilla's. A mod bl
 its slots, then the player's 36. A shift-click from the inventory goes to the first slots with room, never a result
 slot, and one on the container goes to the inventory, as a chest's does. `results` fence players only: hoppers follow the
 container's faces and `inputs`, so leave result slots out of `inputs`. The data slots are the block entity's `data`
-(16-bit on the network, as vanilla's), all sent when it opens, then each change. A Horizon client shows it through the
+(16-bit on the network, as vanilla's), all sent when it opens, then each change. A Industrial Era client shows it through the
 mod's own screen (`native_screen`); without one it closes again. Clients join a server only with the same mods' menu
-types, as with its blocks, and a client that isn't Horizon's is never sent one: the block opens nothing for it. Its
+types, as with its blocks, and a client that isn't Industrial Era's is never sent one: the block opens nothing for it. Its
 clicks run on the server's vanilla menu engine (`menu::Kind::Mod`), shift-clicks routed as `ChestMenu`'s, and a native
 mod can decide what a slot takes in code with `native_menu_slot_rules` ([native-mods.md](native-mods.md#menu-slot-rules)).
 Not yet: declared per-slot rules beyond `results`, hooks for shift-click routing and `stillValid`, opening with extra
@@ -344,8 +344,8 @@ namespaces = ["kaisyn", "towns_and_towers"]
 
 A listed namespace is the mod's as its id is: its `assets/` and `data/` files load, and the game reads its tags,
 recipes, names and loot. Blocks, items, creative tabs, mob effects, entity types and menu types are declared in
-`data/<id>/horizon/` only. `minecraft`, `c` and
-`horizon` cannot be listed. Two mods that are on may not own the same namespace (one's id or listed namespace being
+`data/<id>/industrial-era/` only. `minecraft`, `c` and
+`industrial-era` cannot be listed. Two mods that are on may not own the same namespace (one's id or listed namespace being
 the other's): the game keeps the first in load order and leaves the other's content out, with "mods A and B both use
 the namespace N; turn one of them off" in the log. Paths use vanilla's resource characters, at most 65,536 files, 16
 MiB each and 512 MiB in all. A mod whose content is refused is left out, with the reason in the log. The game reads
@@ -362,19 +362,19 @@ of adds are left out, ...". Tags are the only `minecraft` files a mod may hold: 
 namespaces.
 
 A mod adds to structure sets, template pools and processor lists that are not its own (vanilla's villages, another
-mod's houses) with a set, pool or processor list file in its own namespace holding `horizon:add_to`, a key vanilla data
+mod's houses) with a set, pool or processor list file in its own namespace holding `industrial-era:add_to`, a key vanilla data
 never has. Its entries are appended to each set, pool or list named, after every mod's own files, by
-`horizon:priority` (lower first, 1000 when it has none), then in mod and file order; the file is no set, pool or list
+`industrial-era:priority` (lower first, 1000 when it has none), then in mod and file order; the file is no set, pool or list
 itself. A name nobody defines is skipped.
 
 ```json
-{ "horizon:add_to": "minecraft:villages",
+{ "industrial-era:add_to": "minecraft:villages",
   "structures": [ { "structure": "mymod:village_beach", "weight": 10 } ] }
 ```
 
 A pool addition holds `"elements"` as a pool does, a processor list addition `"processors"`. This is what
 Lithostitched's `add_structure_set_entries`, `add_template_pool_elements` and `add_processor_list_processors` modifiers
-do on NeoForge and Fabric, and `horizon-port-pack carry` writes the last two from those.
+do on NeoForge and Fabric, and `industrial-era-port-pack carry` writes the last two from those.
 
 A mod's own configured and placed features (`data/<ns>/worldgen/configured_feature/`, `placed_feature/`) generate in
 biomes it does not own (vanilla's) through NeoForge's biome modifiers, files in `data/<ns>/neoforge/biome_modifier/`
@@ -405,7 +405,7 @@ A pool element may be one of Lithostitched's: `lithostitched:limited` (`delegate
 until `count` are placed. Neither goes below a piece shallower than `min_depth` (the start is at depth 0).
 
 A structure (and any of its pool elements, in place of the structure's) may hold
-`horizon:enhanced_terrain_adaptation`: MoogsStructureLib's terrain kernel, which carves or buries terrain around the
+`industrial-era:enhanced_terrain_adaptation`: MoogsStructureLib's terrain kernel, which carves or buries terrain around the
 pieces on top of vanilla's `terrain_adaptation`. `kernel_size` and `kernel_distance` shape the kernel; `top` and
 `bottom` (`carve`, `bury` or `none`) act above and below a piece's floor; `bottom_offset`, `padding` (`x`, `top`,
 `bottom`, `z`) and MoogsStructureLib's `band` (`bottom`, `top`, `piece_heights`) move the box it measures from. On a
@@ -413,37 +413,37 @@ structure, `rigid_junctions` adds rigid pieces' junctions as well and `inflate` 
 radius. `kernel_size` 0 is none.
 
 ```json
-{ "horizon:enhanced_terrain_adaptation": { "kernel_size": 24, "kernel_distance": 24,
+{ "industrial-era:enhanced_terrain_adaptation": { "kernel_size": 24, "kernel_distance": 24,
     "top": "carve", "bottom": "none", "rigid_junctions": true, "inflate": true } }
 ```
 
 ## Native mods
 
 Behaviour that needs code (a new key, a HUD, a tool that changes how mining works) is a native mod. It is a bundle of
-a `horizon-mixin.toml` and a few `.rs` helpers that hook into named functions of the game. Start from
-[horizon-native-mod-template](https://github.com/horizon-rust/horizon-native-mod-template). How the launcher builds
+a `industrial-era-mixin.toml` and a few `.rs` helpers that hook into named functions of the game. Start from
+[industrial-era-native-mod-template](https://github.com/industrial-era-rust/industrial-era-native-mod-template). How the launcher builds
 one, what it pins and why it is not sandboxed: [native-mods.md](native-mods.md).
 
 A native mod's config files go in the game's shared `config/` folder, beside `options.txt` (on a dedicated server,
 beside `server.properties`), as Fabric and NeoForge mods' do: the mod picks its own file names, such as
 `config/<mod id>.json`. It asks for the folder with `Game::native_config_dir()` (hook points API 26), which needs no
-game, so it works from any hook, and makes the folder when missing. Settings kept with `native_set_setting` stay where they were, in `horizon-mods/.horizon-mod-data/<id>/`.
+game, so it works from any hook, and makes the folder when missing. Settings kept with `native_set_setting` stay where they were, in `industrial-era-mods/.industrial-era-mod-data/<id>/`.
 
 ## Publish your mod
 
-Horizon's registry lists mods, modpacks (`.hpack`) and resource packs made for Horizon. **A project is reviewed
+Industrial Era's registry lists mods, modpacks (`.hpack`) and resource packs made for Industrial Era. **A project is reviewed
 once, when it is listed; its later releases are checked by machine, not read by a person.** Players find them at
-[playhorizon.dev/mods](https://playhorizon.dev/mods) and in the launcher (Mods, then **Horizon** beside Modrinth),
+[playhorizon.dev/mods](https://playhorizon.dev/mods) and in the launcher (Mods, then **Industrial Era** beside Modrinth),
 which checks every file before it installs it.
 
-1. Run `cargo horizon-mod check` on the file (above): the registry runs the same checks.
+1. Run `cargo industrial-era-mod check` on the file (above): the registry runs the same checks.
 2. Put the source in a public GitHub repository, under a licence that lets players run it. A native mod's `.hnmod` is
    its source.
 3. Publish a **GitHub release** in it with the file as an asset (`.hmod`, `.hnmod`, `.hpack`, `.hshader`, or a resource
    pack's `.zip`), and its `.minisig` beside it if you sign. The release notes are the changelog.
 4. List the project once: open [playhorizon.dev/mods/submit](https://playhorizon.dev/mods/submit), sign in with GitHub
    and give the repository and the page (name, summary, licence, optionally a minisign public key). It opens a pull
-   request in [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods) adding `mods/<id>.toml`, with
+   request in [industrial-era-rust/industrial-era-mods](https://github.com/industrial-era-rust/industrial-era-mods) adding `mods/<id>.toml`, with
    you as owner. A reviewer reads the repository and its source and merges it.
 
 **Releasing a version is only step 3.** Publish a GitHub release (not a draft or a pre-release); within the hour the
@@ -458,7 +458,7 @@ Once it is published, its page and its card in the launcher show its rating: pla
 page give it 1 to 5 stars, one rating per account, which they can change. Its owners can't rate it, and nobody sees
 who rated.
 
-Your page can live in your repository too: a `horizon-registry.toml` at its root (on the newest release's tag) with
+Your page can live in your repository too: a `industrial-era-registry.toml` at its root (on the newest release's tag) with
 `name`, `summary`, `description`, `authors` and `license` fills what the registry's entry leaves out; the entry's own
 words win. Its owners, key, kind and icon are the registry's, changed by a pull request. Projects listed before this
 (`versions` in their entry) keep their hosted versions. The formats: [api/mod-index.md](api/mod-index.md).
@@ -473,10 +473,10 @@ words win. Its owners, key, kind and icon are the registry's, changed by a pull 
 - **Takedowns.** A file the registry takes down (`revoked.toml`) is refused by the launcher and turned off where
   installed.
 
-## Horizon's official mods
+## Industrial Era's official mods
 
-Horizon's own mods are native. They live in
-[horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods) under `native/<name>/`:
+Industrial Era's own mods are native. They live in
+[industrial-era-rust/industrial-era-mods](https://github.com/industrial-era-rust/industrial-era-mods) under `native/<name>/`:
 
 | Mod | Folder | Replaces |
 |---|---|---|

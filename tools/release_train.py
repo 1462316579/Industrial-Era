@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decides when Horizon releases, names the release and writes its notes (.github/workflows/release.yml).
+"""Decides when Industrial Era releases, names the release and writes its notes (.github/workflows/release.yml).
 
     python3 tools/release_train.py decide --kind game [--head SHA] [--force]
     python3 tools/release_train.py decide --kind launcher
@@ -42,8 +42,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO = os.environ.get("GITHUB_REPOSITORY", "horizon-rust/horizon")
-# The maintainer, left out of the notes' thanks (the repository's owner is the horizon-rust organization).
+REPO = os.environ.get("GITHUB_REPOSITORY", "industrial-era-rust/industrial-era")
+# The maintainer, left out of the notes' thanks (the repository's owner is the industrial-era-rust organization).
 MAINTAINER = "ludovic111"
 # Releases ship in batches, so players get a few releases a day rather than one per merge: BATCH player-facing pull
 # requests, settled for DEBOUNCE, or whatever is waiting once the oldest has waited MAX_WAIT.
@@ -51,9 +51,9 @@ BATCH = 5
 DEBOUNCE = dt.timedelta(minutes=5)
 MAX_WAIT = dt.timedelta(hours=6)
 # Kept as typed in release titles, where the clauses after the first are lowercased.
-PROPER = {"Horizon", "Horizon's", "Minecraft", "Mojang", "Microsoft", "Java", "Xbox", "PlayStation", "Steam", "Windows",
+PROPER = {"Industrial Era", "Industrial Era's", "Minecraft", "Mojang", "Microsoft", "Java", "Xbox", "PlayStation", "Steam", "Windows",
           "Linux", "LAN", "Kira", "Discord", "Wayland", "Hyprland", "F3", "GUI", "UI"}
-EXPORTERS = "mods/horizon/src/test/java/dev/horizonlab/parity/"
+EXPORTERS = "mods/industrial-era/src/test/java/dev/horizonlab/parity/"
 # The release line (docs/versioning.md): MAJOR.MINOR. Without the file, releases keep the tags from before 0.2.
 LINE_FILE = ROOT / ".github" / "release-line.txt"
 SEMVER = r"(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
@@ -68,15 +68,15 @@ GAME_PATHS = ["crates/", "xtask/", "packaging/", "Cargo.toml", "Cargo.lock", "re
 # Every crate the launcher builds in (cargo metadata --manifest-path launcher/Cargo.toml: the path packages).
 LAUNCHER_PATHS = [
     "launcher/",
-    "crates/horizon-bench/",
-    "crates/horizon-friends/",
-    "crates/horizon-mcp/",
-    "crates/horizon-mods/",
-    "crates/horizon-port-pack/",
-    "crates/horizon-prepare/",
-    "crates/horizon-release-sign/",
-    "crates/horizon-telemetry/",
-    "crates/horizon-theme/",
+    "crates/industrial-era-bench/",
+    "crates/industrial-era-friends/",
+    "crates/industrial-era-mcp/",
+    "crates/industrial-era-mods/",
+    "crates/industrial-era-port-pack/",
+    "crates/industrial-era-prepare/",
+    "crates/industrial-era-release-sign/",
+    "crates/industrial-era-telemetry/",
+    "crates/industrial-era-theme/",
     # Its icon, its menu entries and its AppImage are compiled or packaged into a release
     # (launcher/build.rs, src/desktop.rs, packaging/linux/appimage.sh).
     "packaging/icons/",
@@ -89,14 +89,14 @@ LAUNCHER_IGNORED = ["launcher/links.json", "launcher/docs/", "launcher/tests/"]
 # notes view and one-line summary skip (pulldown-cmark's HTML events), so launchers never tell players to get
 # themselves. The site's Releases page leaves it out too.
 # The same warning closes the notes, above the disclaimer, for whoever scrolls past the changes to the files.
-PLAYERS_FOOTER = ('<h1>Want to play? Download the <a href="https://playhorizon.dev">Horizon launcher</a>.</h1>'
+PLAYERS_FOOTER = ('<h1>Want to play? Download the <a href="https://playhorizon.dev">Industrial Era launcher</a>.</h1>'
                   '<h1>Do NOT run the files below. They will not work on their own.</h1>')
 PLAYERS = (PLAYERS_FOOTER + '<p>The launcher installs this version and keeps it up to date. You need your own copy of '
            'Minecraft: Java Edition. The files below are what the launcher installs, and the dedicated server for '
            'people who host one.</p>')
 LAUNCHER_FOOTER = ("Your launcher updates itself. New here? On Linux take the .AppImage below, make it executable "
-                   "and run it; on Windows and macOS download the archive, extract it and run `horizon-launcher` "
-                   "(Horizon.app on macOS). Website: https://playhorizon.dev")
+                   "and run it; on Windows and macOS download the archive, extract it and run `industrial-era-launcher` "
+                   "(Industrial Era.app on macOS). Website: https://playhorizon.dev")
 DISCLAIMER = "Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft."
 # An open issue with this label holds every game release (docs/release-flow.md). Only people who can triage the
 # repository can add it, and the issue's text is never read: its author could edit it afterwards.
@@ -115,9 +115,9 @@ def gh_json(*arguments):
 
 
 def exporters():
-    """The exporter and oracle sources horizon-prepare compiles: those its sources name."""
+    """The exporter and oracle sources industrial-era-prepare compiles: those its sources name."""
     names = set()
-    for source in (ROOT / "crates" / "horizon-prepare" / "src").glob("*.rs"):
+    for source in (ROOT / "crates" / "industrial-era-prepare" / "src").glob("*.rs"):
         names.update(re.findall(r'"([A-Z]\w+\.java)"', source.read_text()))
     return {EXPORTERS + name for name in names}
 
@@ -379,16 +379,16 @@ def line_intro(kind, version, previous):
         return None
     line = f"{found[0]}.{found[1]}"
     if previous and semver(previous, GAME_PREFIX if kind == "game" else LAUNCHER_PREFIX):
-        return f"The first release of Horizon {line}."
+        return f"The first release of Industrial Era {line}."
     if kind == "launcher":
         return (f"The launcher is numbered with the game from now on: this is launcher {line}.0, the release after "
                 f"launcher {(previous or '').removeprefix(OLD_LAUNCHER_PREFIX) or '0.16'}. Your launcher takes it by itself.")
     before = (previous or "").removeprefix(GAME_PREFIX)
-    return (f"Horizon is numbered from now on: this is Horizon {line}.0" + (f", the release after {before}" if before else "")
+    return (f"Industrial Era is numbered from now on: this is Industrial Era {line}.0" + (f", the release after {before}" if before else "")
             + ". Releases used to be named after the day they came out; from now on they count up from "
             f"{line}.0, and the launcher's too. The launcher installs it by itself once it has updated itself. A server "
             "installed with install.sh that still says it is up to date takes it with "
-            f"`horizon-server update --version {version}`.")
+            f"`industrial-era-server update --version {version}`.")
 
 
 def notes(kind, version, prs, issues, previous=None):
@@ -397,9 +397,9 @@ def notes(kind, version, prs, issues, previous=None):
     new = [pr for pr in shown if "feature" in pr["labels"]]
     fixed = [pr for pr in shown if "feature" not in pr["labels"]]
     if kind == "game":
-        title = f"Horizon {version.removeprefix(GAME_PREFIX)}" + (f": {summary(new, fixed)}" if shown else "")
+        title = f"Industrial Era {version.removeprefix(GAME_PREFIX)}" + (f": {summary(new, fixed)}" if shown else "")
     else:
-        title = f"Horizon launcher {version.removeprefix(OLD_LAUNCHER_PREFIX).removeprefix(LAUNCHER_PREFIX)}"
+        title = f"Industrial Era launcher {version.removeprefix(OLD_LAUNCHER_PREFIX).removeprefix(LAUNCHER_PREFIX)}"
     intro = line_intro(kind, version, previous)
     parts = [PLAYERS] if kind == "game" else []
     if intro:

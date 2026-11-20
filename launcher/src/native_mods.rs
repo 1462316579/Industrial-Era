@@ -1,13 +1,13 @@
 //! Native mods (docs/native-mods.md): mixin bundles that
-//! levzzz5154's horizon-mixins (MIT, <https://github.com/horizon-rust/horizon-mixins>) applies to
-//! Horizon's source, which the launcher then compiles into a game of its own with its portable Rust
+//! levzzz5154's industrial-era-mixins (MIT, <https://github.com/industrial-era-rust/industrial-era-mixins>) applies to
+//! Industrial Era's source, which the launcher then compiles into a game of its own with its portable Rust
 //! ([`rust_toolchain`]). Unlike `.hmod` mods they are not sandboxed: their code runs with the
 //! player's rights.
 //!
-//! A native mod pins the Horizon revision it was made for (a Nightly's or a release's commit).
+//! A native mod pins the Industrial Era revision it was made for (a Nightly's or a release's commit).
 //! Mods pinning different ones build on the newest of them, once the player agreed to try (they
-//! often still apply and compile). A mod that hooks only Horizon's native hook points
-//! (`game/native_hooks.rs`) names the version it needs instead (`hooks`): it builds on any Horizon
+//! often still apply and compile). A mod that hooks only Industrial Era's native hook points
+//! (`game/native_hooks.rs`) names the version it needs instead (`hooks`): it builds on any Industrial Era
 //! whose hook points have that version or a later one (they are only ever added to), the player's own
 //! by default, so such mods always build together. The build compiles that revision's source, from
 //! GitHub, never a checkout on this computer, and installs as its own version,
@@ -33,19 +33,19 @@ mod inject;
 mod inject_cache;
 
 const PREFIX: &str = "native-";
-/// horizon-mixins, for bundles that don't name the revision they were tested with.
-const MIXINS_GIT: &str = "https://github.com/horizon-rust/horizon-mixins";
+/// industrial-era-mixins, for bundles that don't name the revision they were tested with.
+const MIXINS_GIT: &str = "https://github.com/industrial-era-rust/industrial-era-mixins";
 pub const MIXINS_REV: &str = "ddd9700b21997c95d95ac6ee5ecafe3830cf622a";
 /// The features of the release's own game (game-build.yml).
-const FEATURES: &str = "horizon-client/mods";
+const FEATURES: &str = "industrial-era-client/mods";
 
 /// What a native build is compiled for. `Performance`, the default, is the workspace's `fast` (16
-/// codegen units, incremental, thin-local LTO only), so changing a mod recompiles only `horizon-client`'s
-/// changed parts; `Dev`, for developing a mod, is `fast` with `horizon-client` unoptimized: the
+/// codegen units, incremental, thin-local LTO only), so changing a mod recompiles only `industrial-era-client`'s
+/// changed parts; `Dev`, for developing a mod, is `fast` with `industrial-era-client` unoptimized: the
 /// quickest to rebuild after an edit, for a game about twice as slow; `Release` is the release's
 /// own (thin LTO, one codegen unit): slowest to build, slightly faster game. `Performance` and
 /// `Dev` share `native/target/fast/`: every other crate is built alike, so switching between them
-/// recompiles only `horizon-client`, and Cargo keeps both builds of it. Each profile has its own
+/// recompiles only `industrial-era-client`, and Cargo keeps both builds of it. Each profile has its own
 /// key, so their builds never mix.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -96,23 +96,23 @@ impl Profile {
     fn cargo(self) -> (&'static str, &'static [&'static str]) {
         match self {
             Self::Performance => ("fast", &[]),
-            Self::Dev => ("fast", &["profile.fast.package.horizon-client.opt-level=0"]),
+            Self::Dev => ("fast", &["profile.fast.package.industrial-era-client.opt-level=0"]),
             Self::Release => ("release", &[]),
         }
     }
 }
 
 /// What a native build compiles: the game the player plays, or the headless engine a dedicated
-/// server runs (`horizon-engine`, docs/server.md). Both build the same source with the same
+/// server runs (`industrial-era-engine`, docs/server.md). Both build the same source with the same
 /// mixins. The server uses `--no-default-features` (no audio or controllers), a separate cache,
 /// and a standalone runtime folder outside the managed versions.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Target {
-    /// The game: `horizon-client` as the release ships it.
+    /// The game: `industrial-era-client` as the release ships it.
     #[default]
     Client,
     /// The headless engine: the same binary without the default features, installed and
-    /// exported as `horizon-engine`.
+    /// exported as `industrial-era-engine`.
     Server,
 }
 
@@ -142,11 +142,11 @@ impl Target {
     }
 
     /// The name the built binary is installed under: the game's own, the engine's
-    /// (`horizon-engine`, docs/server.md).
+    /// (`industrial-era-engine`, docs/server.md).
     fn binary(self) -> String {
         match self {
             Self::Client => backend::CLIENT.into(),
-            Self::Server => format!("horizon-engine{}", std::env::consts::EXE_SUFFIX),
+            Self::Server => format!("industrial-era-engine{}", std::env::consts::EXE_SUFFIX),
         }
     }
 }
@@ -155,7 +155,7 @@ impl Target {
 /// what the next build is compared with to say what changed.
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Record {
-    pub horizon: String,
+    pub industrial-era: String,
     pub mixins: String,
     /// Each mod's id and the hash of its files.
     pub mods: std::collections::BTreeMap<String, String>,
@@ -205,12 +205,12 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
         return Plan::First;
     };
     let mut changes = Vec::new();
-    if before.horizon != now.horizon {
+    if before.industrial-era != now.industrial-era {
         let short = |r: &str| r.chars().take(7).collect::<String>();
         changes.push(format!(
-            "Horizon commit {} to {}",
-            short(&before.horizon),
-            short(&now.horizon)
+            "Industrial Era commit {} to {}",
+            short(&before.industrial-era),
+            short(&now.industrial-era)
         ));
     }
     let changed: Vec<&str> = now
@@ -230,7 +230,7 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
         changes.push(format!("mods {}", changed.join(", ")));
     }
     if before.mixins != now.mixins {
-        changes.push("horizon-mixins".into());
+        changes.push("industrial-era-mixins".into());
     }
     if changes.is_empty() {
         changes.push("the build settings".into());
@@ -416,12 +416,12 @@ fn logged<T>(build: impl FnOnce() -> Result<T, String>) -> Result<T, String> {
     result
 }
 
-const MANIFEST: &str = "horizon-mixin.toml";
-/// A registry download's manifest (`.hnmod`, `horizon_mods::index::native`), beside `mixins/<id>/`.
-const NATIVE_MANIFEST: &str = horizon_mods::index::native::MANIFEST;
+const MANIFEST: &str = "industrial-era-mixin.toml";
+/// A registry download's manifest (`.hnmod`, `industrial_era_mods::index::native`), beside `mixins/<id>/`.
+const NATIVE_MANIFEST: &str = industrial_era_mods::index::native::MANIFEST;
 /// Where an instance keeps the native mods installed from the registry, `<id>.hnmod`, each on or
-/// off in `horizon-mods.txt` like any mod.
-pub const INSTALLED: &str = "horizon-native-mods";
+/// off in `industrial-era-mods.txt` like any mod.
+pub const INSTALLED: &str = "industrial-era-native-mods";
 
 /// The native mods turned on in the game folder `home`, unpacked into a folder [`build`] takes.
 /// Each `.hnmod` is checked again as the registry checks it (Rust and TOML under
@@ -436,7 +436,7 @@ pub fn installed_mods(home: &Path) -> Result<PathBuf, String> {
     paths.sort();
     let mut count = 0;
     for path in paths {
-        let bundle = horizon_mods::index::native::Bundle::read(&path)
+        let bundle = industrial_era_mods::index::native::Bundle::read(&path)
             .map_err(|e| format!("{}: {e}", path.display()))?;
         if !crate::browser::java::is_enabled(home, &bundle.manifest.id) {
             continue;
@@ -458,25 +458,25 @@ pub fn installed_mods(home: &Path) -> Result<PathBuf, String> {
     Ok(out)
 }
 
-/// A mixin bundle: a folder with a `horizon-mixin.toml`, and the revisions it pins.
+/// A mixin bundle: a folder with a `industrial-era-mixin.toml`, and the revisions it pins.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bundle {
     pub id: String,
     pub version: String,
     pub dir: PathBuf,
-    /// The Horizon commit it builds on (`[compatibility] horizon_revision`, or its `.hnmod`'s).
-    pub horizon: Option<String>,
-    /// The horizon-mixins commit it was tested with (its `.hnmod`'s).
+    /// The Industrial Era commit it builds on (`[compatibility] industrial_era_revision`, or its `.hnmod`'s).
+    pub industrial-era: Option<String>,
+    /// The industrial-era-mixins commit it was tested with (its `.hnmod`'s).
     pub mixins: Option<String>,
-    /// The native hook points' version it needs (its `.hnmod`'s `hooks`): then `horizon` is the
+    /// The native hook points' version it needs (its `.hnmod`'s `hooks`): then `industrial-era` is the
     /// revision it was tested on, and it builds on any with these hook points or later ones.
     pub hooks: Option<u32>,
     /// The bundle-relative trait package folder (`[api] path`).
     pub api: Option<String>,
-    /// True when the manifest has content for horizon-mixins.
+    /// True when the manifest has content for industrial-era-mixins.
     pub mixins_content: bool,
     /// Its `[[injection]]` entries, for the build's warnings. Read leniently:
-    /// an entry the launcher cannot make sense of is left out, horizon-mixins
+    /// an entry the launcher cannot make sense of is left out, industrial-era-mixins
     /// refuses it when it applies.
     pub injections: Vec<Injection>,
 }
@@ -494,7 +494,7 @@ pub struct Injection {
     /// sites of one function apart.
     pub selector: Option<String>,
     pub ordinal: Option<i64>,
-    /// The `[mod]` `priority` unless the entry overrides it. horizon-mixins
+    /// The `[mod]` `priority` unless the entry overrides it. industrial-era-mixins
     /// defaults it to 0 (`#[serde(default)] priority: i32`).
     pub priority: i64,
     /// `cancellable = true` (a `HEAD`, `BEFORE_CALL`, `AFTER_CALL` or
@@ -522,7 +522,7 @@ impl InjectionSite {
 
 impl Injection {
     /// The place it sits at, as the manifest tells it: the function, the
-    /// kind, and the selector and ordinal of interior hooks. horizon-mixins
+    /// kind, and the selector and ordinal of interior hooks. industrial-era-mixins
     /// resolves the same place against the source (`plan.rs` sorts by file,
     /// node, call site, constant site, then priority descending, mod id
     /// ascending, injection id ascending): same manifest place, and its
@@ -552,8 +552,8 @@ impl Injection {
     }
 }
 
-/// The bundles in `folder`: the folder itself when it is one (a `horizon-mixin.toml`, or an
-/// unpacked `.hnmod`: `horizon-native.json` and `mixins/<id>/`), else each of its subfolders that is.
+/// The bundles in `folder`: the folder itself when it is one (a `industrial-era-mixin.toml`, or an
+/// unpacked `.hnmod`: `industrial-era-native.json` and `mixins/<id>/`), else each of its subfolders that is.
 pub fn bundles(folder: &Path) -> Result<Vec<Bundle>, String> {
     if let Some(found) = bundle_in(folder)? {
         return Ok(vec![found]);
@@ -595,12 +595,12 @@ pub(crate) fn bundle_in(dir: &Path) -> Result<Option<Bundle>, String> {
         return Err(format!("{}: invalid mod id {id:?}", path.display()));
     }
     let found = bundle(&dir.join("mixins").join(&id), field("mixins"))?;
-    match (&found.horizon, field("horizon")) {
+    match (&found.industrial-era, field("industrial-era")) {
         (Some(pinned), Some(native)) if *pinned != native => Err(format!(
-            "{id}: {NATIVE_MANIFEST} pins Horizon {native}, its {MANIFEST} {pinned}."
+            "{id}: {NATIVE_MANIFEST} pins Industrial Era {native}, its {MANIFEST} {pinned}."
         )),
         (_, native) => Ok(Some(Bundle {
-            horizon: found.horizon.clone().or(native),
+            industrial-era: found.industrial-era.clone().or(native),
             hooks: native_json["hooks"]
                 .as_u64()
                 .and_then(|v| u32::try_from(v).ok()),
@@ -625,7 +625,7 @@ fn bundle(dir: &Path, mixins: Option<String>) -> Result<Bundle, String> {
     let need = |name: &str| {
         field("mod", name).ok_or_else(|| format!("{} has no [mod] {name}.", path.display()))
     };
-    // The `[mod]` `priority` the injections fall back to. horizon-mixins
+    // The `[mod]` `priority` the injections fall back to. industrial-era-mixins
     // defaults it to 0 (`#[serde(default)] priority: i32`), not to a README
     // example's 100.
     let mod_priority = value
@@ -634,7 +634,7 @@ fn bundle(dir: &Path, mixins: Option<String>) -> Result<Bundle, String> {
         .and_then(|v| v.as_integer())
         .unwrap_or(0);
     // Read leniently: an entry without an id and a site (`hook` or `target`)
-    // is left out — horizon-mixins refuses it when it applies.
+    // is left out — industrial-era-mixins refuses it when it applies.
     let injections = value
         .get("injection")
         .and_then(|v| v.as_array())
@@ -679,7 +679,7 @@ fn bundle(dir: &Path, mixins: Option<String>) -> Result<Bundle, String> {
         id,
         version: need("version")?,
         dir: dir.to_owned(),
-        horizon: field("compatibility", "horizon_revision"),
+        industrial-era: field("compatibility", "industrial_era_revision"),
         mixins,
         hooks: None,
         injections,
@@ -697,12 +697,12 @@ fn is_revision(text: &str) -> bool {
 /// cancelling injection on a native hook point. Neither stops the build —
 /// they say what the player and the author could not otherwise see. The
 /// places are the manifest's: whether two selectors pick the same call, or
-/// a raw `target` names a hook point's function, only horizon-mixins
+/// a raw `target` names a hook point's function, only industrial-era-mixins
 /// resolves, so the warnings stay to what the manifest says for sure.
 fn warn_conflicts(mods: &[Bundle]) -> Vec<String> {
     let mut out = Vec::new();
     // One place (the function, the kind, the selector, the ordinal), the
-    // injections of at least two mods on it, ordered as horizon-mixins runs
+    // injections of at least two mods on it, ordered as industrial-era-mixins runs
     // same-place injections: priority descending, mod id ascending,
     // injection id ascending — the tail of its own sort, which the place
     // prefixes already fixed.
@@ -844,7 +844,7 @@ fn agreed(
 }
 
 /// The revision `bundles` build on for `which` when their pins differ: the newest of the pins and
-/// `also` (the launcher's own horizon-mixins), by its commit's time (`date`), so no mod gets an
+/// `also` (the launcher's own industrial-era-mixins), by its commit's time (`date`), so no mod gets an
 /// older one than it was made for. With one pin or none, it is [`agreed`]'s.
 fn newest(
     bundles: &[Bundle],
@@ -923,16 +923,16 @@ fn ask_github(repo: &str, revision: &str) -> Result<String, String> {
         .ok_or_else(|| format!("GitHub doesn't know {repo} commit {revision}."))
 }
 
-/// How [`build`] starts its error when mods pin other Horizon revisions than the one it would
+/// How [`build`] starts its error when mods pin other Industrial Era revisions than the one it would
 /// use and the player hasn't agreed to try (`anyway`); the rest lists them.
-pub const MISMATCH: &str = "Made for other Horizon versions: ";
+pub const MISMATCH: &str = "Made for other Industrial Era versions: ";
 
-/// Each pinned mod whose Horizon revision isn't `revision`, as `id → pin`, and the build's.
+/// Each pinned mod whose Industrial Era revision isn't `revision`, as `id → pin`, and the build's.
 fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     let list: Vec<String> = mods
         .iter()
         .filter(|b| b.hooks.is_none())
-        .filter_map(|b| b.horizon.as_ref().map(|r| (b, r)))
+        .filter_map(|b| b.industrial-era.as_ref().map(|r| (b, r)))
         .filter(|(_, r)| *r != revision)
         .map(|(b, r)| format!("{} → {}", b.id, &r[..r.len().min(7)]))
         .collect();
@@ -945,8 +945,8 @@ fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     })
 }
 
-/// Where Horizon declares its native hook points' version, and the line that does.
-const HOOKS_FILE: &str = "crates/horizon-client/src/game/native_hooks.rs";
+/// Where Industrial Era declares its native hook points' version, and the line that does.
+const HOOKS_FILE: &str = "crates/industrial-era-client/src/game/native_hooks.rs";
 const HOOKS_LINE: &str = "pub(crate) const NATIVE_HOOKS_API: u32 = ";
 
 /// The native hook points' version in `HOOKS_FILE`'s text.
@@ -955,7 +955,7 @@ fn hooks_in(source: &str) -> Option<u32> {
     line.trim_end().strip_suffix(';')?.parse().ok()
 }
 
-/// The native hook points' version of Horizon at `revision`, from GitHub (None: it has none).
+/// The native hook points' version of Industrial Era at `revision`, from GitHub (None: it has none).
 fn hooks_at(revision: &str) -> Option<u32> {
     let url = format!(
         "https://raw.githubusercontent.com/{}/{revision}/{HOOKS_FILE}",
@@ -969,7 +969,7 @@ fn hooks_at(revision: &str) -> Option<u32> {
 /// when every mod naming a hook points' version finds it or a later one there (`at` reads a
 /// revision's). Else, when nothing pins it, the revision those mods were tested on. Else the
 /// revision of the release or Nightly the build starts from (`game`), when they find theirs
-/// there: a rebuild that stayed on an older Horizon, or mods pinning one, then move to the game
+/// there: a rebuild that stayed on an older Industrial Era, or mods pinning one, then move to the game
 /// the player installed, and pinned mods wait for the player's Build anyway ([`mismatch`]).
 fn with_hooks(
     mods: &[Bundle],
@@ -989,8 +989,8 @@ fn with_hooks(
     let tested: Vec<Bundle> = hooked.iter().map(|b| (*b).clone()).collect();
     let fallback = agreed(
         &tested,
-        "Horizon",
-        |b| b.horizon.as_ref(),
+        "Industrial Era",
+        |b| b.industrial-era.as_ref(),
         || Err(String::new()),
     );
     if let (true, Ok(revision)) = (free, fallback) {
@@ -1009,14 +1009,14 @@ fn with_hooks(
         .map(|b| format!("{} (hook points v{})", b.id, b.hooks.unwrap_or_default()))
         .collect();
     Err(format!(
-        "Horizon {} doesn't have the native hook points these mods use: {}. Update Horizon or the mods.",
+        "Industrial Era {} doesn't have the native hook points these mods use: {}. Update Industrial Era or the mods.",
         &pinned[..pinned.len().min(7)],
         list.join(", ")
     ))
 }
 
 /// A bundle that names a hook points' version builds on another revision than the one it was
-/// tested on: its `horizon_revision` (which horizon-mixins checks) becomes the build's.
+/// tested on: its `industrial_era_revision` (which industrial-era-mixins checks) becomes the build's.
 fn repin(bundle: &Bundle, revision: &str) -> Result<(), String> {
     let path = bundle.dir.join(MANIFEST);
     let text = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -1024,16 +1024,16 @@ fn repin(bundle: &Bundle, revision: &str) -> Result<(), String> {
         .parse()
         .map_err(|e| format!("{}: {e}", path.display()))?;
     if let Some(toml::Value::Table(compat)) = value.get_mut("compatibility") {
-        compat.insert("horizon_revision".into(), revision.into());
+        compat.insert("industrial_era_revision".into(), revision.into());
     }
     let text = toml::to_string(&value).map_err(|e| e.to_string())?;
     fs::write(&path, text).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Whether Horizon's source at `source` has the `mods` feature (the WebAssembly mods' runtime,
+/// Whether Industrial Era's source at `source` has the `mods` feature (the WebAssembly mods' runtime,
 /// gone from later revisions).
 fn has_mods_feature(source: &Path) -> bool {
-    let path = source.join("crates/horizon-client/Cargo.toml");
+    let path = source.join("crates/industrial-era-client/Cargo.toml");
     let text = fs::read_to_string(path).unwrap_or_default();
     let value: toml::Table = text.parse().unwrap_or_default();
     value.get("features").and_then(|f| f.get("mods")).is_some()
@@ -1053,7 +1053,7 @@ fn profile_of(source: &Path, chosen: Profile) -> Profile {
     }
 }
 
-/// The Horizon commit `version` (an installed release or Nightly) was built from, from GitHub.
+/// The Industrial Era commit `version` (an installed release or Nightly) was built from, from GitHub.
 pub fn revision_of(version: &str) -> Result<String, String> {
     let reference = match version.strip_prefix("nightly-") {
         // nightly-2026-10-28-0c02067: the commit is its last word.
@@ -1077,8 +1077,8 @@ pub fn revision_of(version: &str) -> Result<String, String> {
 pub struct About {
     /// The release or Nightly it started from.
     pub base: String,
-    /// The Horizon commit it compiled.
-    pub horizon: String,
+    /// The Industrial Era commit it compiled.
+    pub industrial-era: String,
     /// What it compiles: the game the player plays (also the only kind a `native-mods.json`
     /// from before the target was recorded builds), or the headless engine a server runs.
     pub target: Target,
@@ -1100,7 +1100,7 @@ fn about_in(dir: &Path) -> Option<About> {
     let field = |name: &str| json[name].as_str().map(str::to_owned);
     Some(About {
         base: field("base")?,
-        horizon: field("horizon").filter(|r| is_revision(r))?,
+        industrial-era: field("industrial-era").filter(|r| is_revision(r))?,
         target: match field("target").as_deref() {
             Some("server") => Target::Server,
             _ => Target::Client,
@@ -1116,7 +1116,7 @@ pub(crate) fn newest_installed(installed: &[String]) -> Option<&String> {
 }
 
 /// The installed version a build for an instance that plays `current` starts from: `current`
-/// itself, so a rebuild stays on the Horizon it plays (a native build's own revision, [`about`]).
+/// itself, so a rebuild stays on the Industrial Era it plays (a native build's own revision, [`about`]).
 /// With `update`, or when it plays nothing installed, the newest installed release or Nightly.
 /// An imported build is no commit to build on: its game files' version is.
 pub fn base_for(current: Option<&str>, installed: &[String], update: bool) -> Option<String> {
@@ -1127,7 +1127,7 @@ pub fn base_for(current: Option<&str>, installed: &[String], update: bool) -> Op
     }
 }
 
-/// The newer Horizon a build with `update` would move native build `version` to: the newest
+/// The newer Industrial Era a build with `update` would move native build `version` to: the newest
 /// installed release or Nightly, when it is newer than the one the build started from.
 pub fn update_for(version: &str, installed: &[String]) -> Option<String> {
     newer_than(&about(version)?.base, installed)
@@ -1140,7 +1140,7 @@ pub fn newer_than(base: &str, installed: &[String]) -> Option<String> {
 }
 
 /// Every file under `dir`, by its path relative to `dir` (with `/`), sorted. A symlink is refused:
-/// horizon-mixins refuses them too.
+/// industrial-era-mixins refuses them too.
 fn files(dir: &Path) -> Result<Vec<(String, PathBuf)>, String> {
     files_with_api(dir, None)
 }
@@ -1192,7 +1192,7 @@ fn files_with_api(dir: &Path, api: Option<&str>) -> Result<Vec<(String, PathBuf)
     Ok(out)
 }
 
-/// The installed version `bundles` built on Horizon `revision` with horizon-mixins `mixins`
+/// The installed version `bundles` built on Industrial Era `revision` with industrial-era-mixins `mixins`
 /// become: `native-<7 digits of the revision>-<12 hex digits>`. The two targets' keys never mix:
 /// a server build salts its hash, so it is another version than the client build of the same
 /// mods, and the client key is unchanged.
@@ -1249,7 +1249,7 @@ pub fn digest<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> String {
 }
 
 /// The digest of a bundle's files as the Mods page reads it (`native_status::enabled`): an
-/// unpacked `.hnmod`'s whole folder, its `horizon-native.json` included, else the bundle's own
+/// unpacked `.hnmod`'s whole folder, its `industrial-era-native.json` included, else the bundle's own
 /// folder. A build records it, so a build of the mods turned on reads as up to date.
 fn source_digest(bundle: &Bundle) -> Option<String> {
     let root = bundle
@@ -1293,7 +1293,7 @@ pub enum Step {
         name: String,
         profile: Profile,
     },
-    /// The mods' own crates checked against Horizon's `Cargo.lock`.
+    /// The mods' own crates checked against Industrial Era's `Cargo.lock`.
     Crates,
     /// A mod's post-build step being built.
     PostBuildCompile(String),
@@ -1318,14 +1318,14 @@ impl Step {
                     ("done", &format!("{:.0}", done * 100.0)),
                 ],
             ),
-            Self::Tool => tr("Building horizon-mixins (once)").into(),
+            Self::Tool => tr("Building industrial-era-mixins (once)").into(),
             Self::Source(revision) => trf(
-                "Downloading Horizon's source at {revision}",
+                "Downloading Industrial Era's source at {revision}",
                 &[("revision", &revision[..7])],
             ),
             Self::Mixins => tr("Applying the mixins").into(),
             Self::CachedMixins => tr("Reusing patched game source").into(),
-            Self::Crates => tr("Checking the mods' crates against Horizon's Cargo.lock").into(),
+            Self::Crates => tr("Checking the mods' crates against Industrial Era's Cargo.lock").into(),
             Self::Plan(plan, profile) => format!("{} ({})", plan.label(), profile.name()),
             Self::Compile {
                 done,
@@ -1434,7 +1434,7 @@ fn failure(what: &str, status: &str, errors: &[String], tail: &[String]) -> Stri
     )
 }
 
-/// A horizon-mixins diagnostic (`{"code", "message", "file"}`) in one line.
+/// A industrial-era-mixins diagnostic (`{"code", "message", "file"}`) in one line.
 fn diagnostic(text: &str) -> Option<String> {
     let start = text.find('{')?;
     let value: serde_json::Value = serde_json::from_str(&text[start..]).ok()?;
@@ -1449,13 +1449,13 @@ fn diagnostic(text: &str) -> Option<String> {
     Some(line)
 }
 
-/// horizon-mixins at commit `rev`, built once with the launcher's cargo (`cargo install --locked`);
+/// industrial-era-mixins at commit `rev`, built once with the launcher's cargo (`cargo install --locked`);
 /// `progress` hears [`Step::Tool`] only when it is built.
 fn tool(rust: &Toolchain, rev: &str, progress: &impl Fn(Step)) -> Result<PathBuf, String> {
     let dir = root().join("tools").join(&rev[..12]);
     let bin = dir
         .join("bin")
-        .join(format!("horizon-mixins{}", std::env::consts::EXE_SUFFIX));
+        .join(format!("industrial-era-mixins{}", std::env::consts::EXE_SUFFIX));
     if !bin.is_file() {
         progress(Step::Tool);
         let mut cmd = rust.command(&rust.cargo());
@@ -1464,13 +1464,13 @@ fn tool(rust: &Toolchain, rev: &str, progress: &impl Fn(Step)) -> Result<PathBuf
             "install", "--locked", "--git", MIXINS_GIT, "--rev", rev, "--root",
         ])
         .arg(&dir)
-        .arg("horizon-mixins-cli");
-        run(cmd, "Building horizon-mixins", |_| {})?;
+        .arg("industrial-era-mixins-cli");
+        run(cmd, "Building industrial-era-mixins", |_| {})?;
     }
     Ok(bin)
 }
 
-/// `horizon-mixins apply`: the mods in `mods` applied to `source`, into `out`. It runs
+/// `industrial-era-mixins apply`: the mods in `mods` applied to `source`, into `out`. It runs
 /// `cargo metadata`, so it gets the launcher's toolchain like a build does: on a computer with no
 /// Rust of its own, a plain command found no cargo (E_METADATA).
 fn apply(rust: &Toolchain, tool: &Path, source: &Path, mods: &Path, out: &Path) -> Command {
@@ -1510,7 +1510,7 @@ fn compile(
     if has_mods_feature(stage) {
         cmd.args(["--features", FEATURES]);
     }
-    cmd.args(["-p", package, "--bin", "horizon-client"]);
+    cmd.args(["-p", package, "--bin", "industrial-era-client"]);
     cmd
 }
 
@@ -1528,10 +1528,10 @@ fn cargo(rust: &Toolchain, dir: &Path, subcommand: &str) -> Command {
     cmd
 }
 
-/// Checks the mods' crates (`native-crates/`) against `source`'s `Cargo.lock`, Horizon's own.
-/// horizon-mixins already wrote them into `stage`'s lock (and refused a crate the lock lacks,
+/// Checks the mods' crates (`native-crates/`) against `source`'s `Cargo.lock`, Industrial Era's own.
+/// industrial-era-mixins already wrote them into `stage`'s lock (and refused a crate the lock lacks,
 /// `E_CRATE_DEPENDENCY`), leaving every other package as it was: this checks that again, a crate
-/// they name must be in Horizon's lock and every package downloaded exactly as there. Then the
+/// they name must be in Industrial Era's lock and every package downloaded exactly as there. Then the
 /// crates are fetched, so a feature turning on a dependency the lock lacks fails here, readably.
 fn lock_crates(
     rust: &Toolchain,
@@ -1543,7 +1543,7 @@ fn lock_crates(
         let path = dir.join("Cargo.lock");
         fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
     };
-    let horizon = crates::downloaded(&read(source)?)?;
+    let industrial-era = crates::downloaded(&read(source)?)?;
     let staged = crates::downloaded(&read(stage)?)?;
     // `wanted` reads native-crates, which API-only stages do not have.
     let wanted = if crates::any(stage) {
@@ -1556,7 +1556,7 @@ fn lock_crates(
         .filter(|m| m.api.is_some())
         .map(|m| m.id.as_str())
         .collect();
-    if let Some(why) = crates::refused(&horizon, Some(&staged), &wanted, &api_ids) {
+    if let Some(why) = crates::refused(&industrial-era, Some(&staged), &wanted, &api_ids) {
         return Err(why);
     }
     // Only this computer's crates: the build needs no others.
@@ -1571,8 +1571,8 @@ fn lock_crates(
 /// Builds the mods' post-build programs with the game's profile in `target`; each step and its
 /// program, in mod order. A bin's file name doesn't include its package, so two mods' bins of the
 /// same name (or one named like the game) are the same file in `target`: each program is copied
-/// to `programs/<step>/` as soon as it is built. horizon-mixins refuses such names too
-/// (`E_POST_BUILD`, horizon-mixins#8); this keeps a bundle built by an older one safe.
+/// to `programs/<step>/` as soon as it is built. industrial-era-mixins refuses such names too
+/// (`E_POST_BUILD`, industrial-era-mixins#8); this keeps a bundle built by an older one safe.
 fn post_build_programs(
     rust: &Toolchain,
     stage: &Path,
@@ -1613,13 +1613,13 @@ fn post_build_programs(
     Ok(out)
 }
 
-/// Horizon's source at commit `revision`: GitHub's archive of it, unpacked once, with the commit in
-/// `.horizon-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
+/// Industrial Era's source at commit `revision`: GitHub's archive of it, unpacked once, with the commit in
+/// `.industrial-era-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
 /// is gone: its `nightly-source/…` tag keeps it (docs/release-flow.md). Links are left out:
-/// horizon-mixins refuses them, and none is needed to build.
+/// industrial-era-mixins refuses them, and none is needed to build.
 fn source(revision: &str) -> Result<PathBuf, String> {
     let dir = root().join("source").join(revision);
-    if dir.join(".horizon-revision").is_file() {
+    if dir.join(".industrial-era-revision").is_file() {
         return Ok(dir);
     }
     let archive = format!(
@@ -1628,7 +1628,7 @@ fn source(revision: &str) -> Result<PathBuf, String> {
     );
     let partial = root().join("source").join(format!(".{revision}.partial"));
     let top = unpack_archive(&archive, &partial, u64::MAX)?;
-    fs::write(top.join(".horizon-revision"), revision).map_err(|e| e.to_string())?;
+    fs::write(top.join(".industrial-era-revision"), revision).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&dir);
     fs::rename(&top, &dir).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&partial);
@@ -1689,7 +1689,7 @@ fn copy_bundle(bundle: &Bundle, to: &Path) -> Result<(), String> {
     backend::copy_dir_except(&root, to, skip.as_deref()).map_err(|e| e.to_string())
 }
 
-/// Stage only manifests horizon-mixins can apply, after trait injections are prepared.
+/// Stage only manifests industrial-era-mixins can apply, after trait injections are prepared.
 fn stage_mixins(mods: &[Bundle], to: &Path) -> Result<(), String> {
     if to.exists() {
         fs::remove_dir_all(to).map_err(|e| e.to_string())?;
@@ -1701,7 +1701,7 @@ fn stage_mixins(mods: &[Bundle], to: &Path) -> Result<(), String> {
     Ok(())
 }
 
-/// The `data/` of the bundles horizon-mixins doesn't apply, staged in `stage` where it stages the
+/// The `data/` of the bundles industrial-era-mixins doesn't apply, staged in `stage` where it stages the
 /// others' (`native-data/<mod id>/`), for `native_data!` and the mods' build steps.
 fn stage_trait_data(mods: &[Bundle], stage: &Path) -> Result<(), String> {
     for bundle in mods.iter().filter(|b| !b.mixins_content) {
@@ -1727,12 +1727,12 @@ struct Built {
 }
 
 /// The pipeline both targets build with ([`build`], [`build_server`]): `folder`'s mods on the
-/// Horizon revision they pin (else `base`'s, the installed version whose game files the build
+/// Industrial Era revision they pin (else `base`'s, the installed version whose game files the build
 /// reuses: a native build's own revision when it is one, [`base_for`]), compiled as `target`
 /// (the game, or the headless engine) and installed as its own version,
 /// `native-<revision>-<key>` (the key hashes the revision, the mods' files, the tool's commit,
 /// the profile and the target). A build already made is used again. Mods pinning different
-/// revisions build on the newest one, with the newest horizon-mixins they name, only when the
+/// revisions build on the newest one, with the newest industrial-era-mixins they name, only when the
 /// player agreed to try (`anyway`): else the error starts with [`MISMATCH`] and says which.
 /// Nothing of the player's outside the launcher's data is touched: no instance is edited and
 /// no version selected here.
@@ -1804,13 +1804,13 @@ fn pipeline(
     let ordered: Vec<Bundle> = resolution.order.iter().map(|&i| mods[i].clone()).collect();
     // A mod naming a hook points' version doesn't pin: it follows the others, else the game.
     let pins: Vec<Bundle> = mods.iter().filter(|b| b.hooks.is_none()).cloned().collect();
-    let free = pins.iter().all(|b| b.horizon.is_none());
+    let free = pins.iter().all(|b| b.industrial-era.is_none());
     let pinned = newest(
         &pins,
-        "Horizon",
-        |b| b.horizon.as_ref(),
+        "Industrial Era",
+        |b| b.industrial-era.as_ref(),
         || match &built_on {
-            Some(about) => Ok(about.horizon.clone()),
+            Some(about) => Ok(about.industrial-era.clone()),
             None => revision_of(base),
         },
         None,
@@ -1824,7 +1824,7 @@ fn pipeline(
     }
     for b in mods
         .iter()
-        .filter(|b| b.hooks.is_some() || b.horizon.as_ref().is_some_and(|r| *r != revision))
+        .filter(|b| b.hooks.is_some() || b.industrial-era.as_ref().is_some_and(|r| *r != revision))
     {
         repin(b, &revision)?;
     }
@@ -1832,22 +1832,22 @@ fn pipeline(
     let blame = |e: String| {
         match &other {
         Some(list) => format!(
-            "{e}\n\nSome mods were made for other Horizon versions ({list}), which may be why. Install versions made for the same Nightly."
+            "{e}\n\nSome mods were made for other Industrial Era versions ({list}), which may be why. Install versions made for the same Nightly."
         ),
         None => e,
     }
     };
     let mixins = newest(
         &mods,
-        "horizon-mixins",
+        "industrial-era-mixins",
         |b| b.mixins.as_ref(),
         || Ok(MIXINS_REV.into()),
         Some(MIXINS_REV),
-        |r| committed("horizon-rust/horizon-mixins", r),
+        |r| committed("industrial-era-rust/industrial-era-mixins", r),
     )?;
     let version = version_for(&revision, &mixins, profile, target, &mods)?;
     let now = Record {
-        horizon: revision.clone(),
+        industrial-era: revision.clone(),
         mixins: mixins.clone(),
         mods: mods
             .iter()
@@ -1874,7 +1874,7 @@ fn pipeline(
         let needs_mixins = mods.iter().any(|m| m.mixins_content);
         progress(Step::Source(revision.clone()));
         let source = source(&revision)?;
-        // `root()` is already the form horizon-mixins and MinGW take: resolved (no link, which
+        // `root()` is already the form industrial-era-mixins and MinGW take: resolved (no link, which
         // it refuses) and, on Windows, ASCII (which they can't read past), both by build_dir.
         let real = root();
         let fresh = real.join("stage.new");
@@ -1893,7 +1893,7 @@ fn pipeline(
                 progress(Step::Mixins);
                 let result = run(
                     apply(&rust, &tool, &source, &mixin_input, &fresh),
-                    "horizon-mixins",
+                    "industrial-era-mixins",
                     |_| {},
                 );
                 let _ = fs::remove_dir_all(&mixin_input);
@@ -1915,7 +1915,7 @@ fn pipeline(
             // Offline metadata resolves all targets, including packages not fetched for this host.
             let mut fetch = cargo(&rust, &source, "fetch");
             fetch.arg("--locked");
-            run(fetch, "Downloading Horizon's crates", |_| {})?;
+            run(fetch, "Downloading Industrial Era's crates", |_| {})?;
         }
         let has_api = api::stage(&fresh, &mods, &declared, &resolution)?;
         if has_api {
@@ -1947,7 +1947,7 @@ fn pipeline(
                 if has_api {
                     api::PACKAGE
                 } else {
-                    "horizon-client"
+                    "industrial-era-client"
                 },
             ),
             "Compiling the game",
@@ -1993,8 +1993,8 @@ fn pipeline(
         progress(Step::Install);
         let about = serde_json::json!({
             "base": origin,
-            "horizon": revision,
-            "horizon_mixins": mixins,
+            "industrial-era": revision,
+            "industrial_era_mixins": mixins,
             "hooks": mods.iter().find_map(|m| m.hooks),
             "rust": rust_toolchain::VERSION,
             "profile": compiled.name(),
@@ -2023,11 +2023,11 @@ fn pipeline(
     Ok(built)
 }
 
-/// Builds `folder`'s mods on the Horizon revision they pin (else `base`'s, the installed version
+/// Builds `folder`'s mods on the Industrial Era revision they pin (else `base`'s, the installed version
 /// whose game files the build reuses: a native build's own revision when it is one, [`base_for`])
 /// and points `instance` at the build, the default one included. Returns the build's version; a
 /// build already made is used again. Mods pinning different revisions build on the newest one,
-/// with the newest horizon-mixins they name, only when the player agreed to try (`anyway`): else
+/// with the newest industrial-era-mixins they name, only when the player agreed to try (`anyway`): else
 /// the error starts with [`MISMATCH`] and says which.
 pub fn build(
     base: &str,
@@ -2054,7 +2054,7 @@ pub fn build(
     })
 }
 
-/// Builds `folder`'s mods as the headless engine a dedicated server runs (`horizon-engine`,
+/// Builds `folder`'s mods as the headless engine a dedicated server runs (`industrial-era-engine`,
 /// docs/server.md): the same pipeline as [`build`] on the same revision, compiled with
 /// `--no-default-features`, installed as its own version (its key distinct from the game's, so
 /// the two never stand in for each other) and exported into `output` as a standalone runtime
@@ -2182,7 +2182,7 @@ fn copy_runtime(from: &Path, to: &Path) -> std::io::Result<()> {
         if entry.file_type()?.is_dir() {
             copy_runtime(&entry.path(), &destination)?;
         } else {
-            horizon_prepare::clone_or_copy(&entry.path(), &destination)?;
+            industrial_era_prepare::clone_or_copy(&entry.path(), &destination)?;
             fs::set_permissions(&destination, entry.metadata()?.permissions())?;
         }
     }
@@ -2241,8 +2241,8 @@ pub(crate) fn copy_base(from: &Path, to: &Path, target: Target) -> Result<(), St
         let copied = if entry.path().is_dir() {
             backend::copy_dir(&entry.path(), &to)
         } else {
-            // A clone is a new file: horizon-ctl and horizon-server keep their permissions.
-            horizon_prepare::clone_or_copy(&entry.path(), &to)
+            // A clone is a new file: industrial-era-ctl and industrial-era-server keep their permissions.
+            industrial_era_prepare::clone_or_copy(&entry.path(), &to)
                 .and_then(|()| fs::set_permissions(&to, entry.metadata()?.permissions()))
         };
         copied.map_err(|e| format!("Could not copy {}: {e}", entry.path().display()))?;
@@ -2254,16 +2254,16 @@ pub(crate) fn copy_base(from: &Path, to: &Path, target: Target) -> Result<(), St
 /// target's own binary), its record, and the mods' post-build data (`native-data/`, which the
 /// new build's steps write again) are the new build's own: a mod turned off leaves none of its
 /// data behind. A server build is the headless engine: it keeps neither the game's own binary
-/// nor any `horizon-engine` the base shipped, which would run unmodded beside its own.
+/// nor any `industrial-era-engine` the base shipped, which would run unmodded beside its own.
 fn carried_over(name: &std::ffi::OsStr, target: Target) -> bool {
-    let mut own: Vec<String> = ["Horizon.app", "native-mods.json", "native-data"]
+    let mut own: Vec<String> = ["Industrial Era.app", "native-mods.json", "native-data"]
         .iter()
         .map(|s| s.to_string())
         .collect();
     own.push(backend::CLIENT.to_string());
     own.push(".installed".to_string());
     if target == Target::Server {
-        own.push("horizon-engine".to_string());
+        own.push("industrial-era-engine".to_string());
     }
     let named = |n: &str| name == std::ffi::OsStr::new(n);
     !own.iter()
@@ -2329,10 +2329,10 @@ mod tests {
         ] {
             assert!(!carried_over(OsStr::new(own), Target::Client), "{own}");
         }
-        for kept in ["horizon-ctl", "resources", "LICENSE"] {
+        for kept in ["industrial-era-ctl", "resources", "LICENSE"] {
             assert!(carried_over(OsStr::new(kept), Target::Client), "{kept}");
         }
-        // A server build keeps neither the game's own binary nor a stale `horizon-engine` the
+        // A server build keeps neither the game's own binary nor a stale `industrial-era-engine` the
         // base shipped, which would run unmodded beside the built one.
         let engine = Target::Server.binary();
         assert!(
@@ -2344,7 +2344,7 @@ mod tests {
     }
 
     pub(super) fn dir(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("horizon-native-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("industrial-era-native-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d
@@ -2358,13 +2358,13 @@ mod tests {
     }
 
     #[test]
-    fn horizon_mixins_finds_the_launchers_cargo() {
+    fn industrial_era_mixins_finds_the_launchers_cargo() {
         let rust = Toolchain {
             dir: PathBuf::from("/rust/1.99.1-x"),
         };
         let cmd = apply(
             &rust,
-            Path::new("/tools/horizon-mixins"),
+            Path::new("/tools/industrial-era-mixins"),
             Path::new("/src"),
             Path::new("/mods"),
             Path::new("/out"),
@@ -2429,7 +2429,7 @@ mod tests {
         );
     }
 
-    /// horizon-mixins defaults a mod's priority to 0, not to the README
+    /// industrial-era-mixins defaults a mod's priority to 0, not to the README
     /// example's 100: a mod without one runs after `priority = 50`.
     #[test]
     fn the_default_priority_is_zero() {
@@ -2525,7 +2525,7 @@ mod tests {
     }
 
     /// Two interior injections of one function with different selectors are
-    /// different places: horizon-mixins resolves the selector against the
+    /// different places: industrial-era-mixins resolves the selector against the
     /// source, the launcher does not guess it.
     #[test]
     fn different_selectors_are_different_places() {
@@ -2666,7 +2666,7 @@ mod tests {
         for (id, injection) in [
             ("plain", ""),
             ("ordinary", "[[injection]]\nid = 'ordinary'\n"),
-            ("trait_injection", "[[injection]]\nid = 'hook'\ntarget = 'horizon_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\n"),
+            ("trait_injection", "[[injection]]\nid = 'hook'\ntarget = 'industrial_era_client::game::tick'\nkind = 'HEAD'\ntrait_method = 'tick'\n"),
         ] {
             let bundle = incoming.join(id);
             fs::create_dir_all(bundle.join("engine")).unwrap();
@@ -2691,10 +2691,10 @@ mod tests {
         assert!(input.join("ordinary").join(MANIFEST).is_file());
         assert!(input
             .join("trait_injection")
-            .join("horizon-trait-injection-0.rs")
+            .join("industrial-era-trait-injection-0.rs")
             .is_file());
         let manifest = fs::read_to_string(input.join("trait_injection").join(MANIFEST)).unwrap();
-        assert!(manifest.contains("horizon-trait-injection-0.rs"));
+        assert!(manifest.contains("industrial-era-trait-injection-0.rs"));
         assert!(!manifest.contains("trait_method"));
 
         for id in ["plain", "ordinary"] {
@@ -2706,21 +2706,21 @@ mod tests {
         let read =
             |id: &str| fs::read_to_string(stage.join("native-data").join(id).join("table.txt"));
         assert_eq!(read("plain").unwrap(), "plain");
-        assert!(read("ordinary").is_err(), "horizon-mixins stages it");
+        assert!(read("ordinary").is_err(), "industrial-era-mixins stages it");
         fs::remove_dir_all(root).unwrap();
     }
 
     const A: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     const B: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
-    /// An unpacked `.hnmod`, as the registry ships one (horizon_mods::index::native).
-    fn write_native(at: &Path, id: &str, horizon: &str, mixins: &str) {
+    /// An unpacked `.hnmod`, as the registry ships one (industrial_era_mods::index::native).
+    fn write_native(at: &Path, id: &str, industrial-era: &str, mixins: &str) {
         let manifest = serde_json::json!({"schema": 1, "id": id, "version": "0.3.0", "game": "26.3",
-            "horizon": horizon, "mixins": mixins});
+            "industrial-era": industrial-era, "mixins": mixins});
         fs::create_dir_all(at.join("mixins").join(id)).unwrap();
         fs::write(at.join(NATIVE_MANIFEST), manifest.to_string()).unwrap();
         let toml = format!(
-            "[mod]\nid = \"{id}\"\nversion = \"0.3.0\"\n[compatibility]\nhorizon_revision = \"{horizon}\"\n"
+            "[mod]\nid = \"{id}\"\nversion = \"0.3.0\"\n[compatibility]\nindustrial_era_revision = \"{industrial-era}\"\n"
         );
         fs::write(at.join("mixins").join(id).join(MANIFEST), toml).unwrap();
     }
@@ -2734,10 +2734,10 @@ mod tests {
         assert_eq!(found.len(), 2);
         assert_eq!(found[1].id, "veinminer");
         assert_eq!(found[1].dir, d.join("veinminer/mixins/veinminer"));
-        assert_eq!(found[1].horizon.as_deref(), Some(A));
+        assert_eq!(found[1].industrial-era.as_deref(), Some(A));
         assert_eq!(found[1].mixins.as_deref(), Some(B));
         assert_eq!(
-            (found[0].horizon.as_ref(), found[0].mixins.as_ref()),
+            (found[0].industrial-era.as_ref(), found[0].mixins.as_ref()),
             (None, None)
         );
     }
@@ -2752,7 +2752,7 @@ mod tests {
             let mut zip =
                 zip::ZipWriter::new(fs::File::create(home.join(INSTALLED).join(name)).unwrap());
             let options = zip::write::SimpleFileOptions::default();
-            for file in [NATIVE_MANIFEST, "mixins/veinminer/horizon-mixin.toml"] {
+            for file in [NATIVE_MANIFEST, "mixins/veinminer/industrial-era-mixin.toml"] {
                 zip.start_file(file, options).unwrap();
                 zip.write_all(&fs::read(d.join(file)).unwrap()).unwrap();
             }
@@ -2768,7 +2768,7 @@ mod tests {
         let out = installed_mods(&home).unwrap();
         let found = bundles(&out).unwrap();
         assert_eq!(
-            (found[0].id.as_str(), found[0].horizon.as_deref()),
+            (found[0].id.as_str(), found[0].industrial-era.as_deref()),
             ("veinminer", Some(A))
         );
         // What a build records of it is what the Mods page compares: up to date, not Needs rebuild.
@@ -2819,11 +2819,11 @@ mod tests {
 
     #[test]
     fn the_mods_of_one_build_pin_one_revision() {
-        let pinned = |id: &str, horizon: Option<&str>| Bundle {
+        let pinned = |id: &str, industrial-era: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: horizon.map(str::to_owned),
+            industrial-era: industrial-era.map(str::to_owned),
             mixins: None,
             hooks: None,
             injections: Vec::new(),
@@ -2832,33 +2832,33 @@ mod tests {
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
         fn get(b: &Bundle) -> Option<&String> {
-            b.horizon.as_ref()
+            b.industrial-era.as_ref()
         }
         let same = [
             pinned("a", Some(A)),
             pinned("b", None),
             pinned("c", Some(A)),
         ];
-        assert_eq!(agreed(&same, "Horizon", get, never).unwrap(), A);
+        assert_eq!(agreed(&same, "Industrial Era", get, never).unwrap(), A);
         let none = [pinned("a", None)];
-        assert_eq!(agreed(&none, "Horizon", get, || Ok(B.into())).unwrap(), B);
+        assert_eq!(agreed(&none, "Industrial Era", get, || Ok(B.into())).unwrap(), B);
         let split = [pinned("veinminer", Some(A)), pinned("minimap", Some(B))];
-        let err = agreed(&split, "Horizon", get, never).unwrap_err();
+        let err = agreed(&split, "Industrial Era", get, never).unwrap_err();
         assert!(
             err.contains("veinminer → aaaaaaa") && err.contains("minimap → bbbbbbb"),
             "{err}"
         );
         let bad = [pinned("a", Some("nightly"))];
-        assert!(agreed(&bad, "Horizon", get, never).is_err());
+        assert!(agreed(&bad, "Industrial Era", get, never).is_err());
     }
 
     #[test]
     fn mods_made_for_different_revisions_build_on_the_newest() {
-        let pinned = |id: &str, horizon: Option<&str>, mixins: Option<&str>| Bundle {
+        let pinned = |id: &str, industrial-era: Option<&str>, mixins: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: horizon.map(str::to_owned),
+            industrial-era: industrial-era.map(str::to_owned),
             mixins: mixins.map(str::to_owned),
             hooks: None,
             injections: Vec::new(),
@@ -2876,8 +2876,8 @@ mod tests {
             .into())
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
-        fn horizon(b: &Bundle) -> Option<&String> {
-            b.horizon.as_ref()
+        fn industrial-era(b: &Bundle) -> Option<&String> {
+            b.industrial-era.as_ref()
         }
         fn mixins(b: &Bundle) -> Option<&String> {
             b.mixins.as_ref()
@@ -2888,28 +2888,28 @@ mod tests {
             pinned("zoom", None, None),
         ];
         assert_eq!(
-            newest(&split, "Horizon", horizon, never, None, date).unwrap(),
+            newest(&split, "Industrial Era", industrial-era, never, None, date).unwrap(),
             B
         );
-        // horizon-mixins: never older than a pin, and the launcher's own when it is newer.
+        // industrial-era-mixins: never older than a pin, and the launcher's own when it is newer.
         assert_eq!(
-            newest(&split, "horizon-mixins", mixins, never, Some(B), date).unwrap(),
+            newest(&split, "industrial-era-mixins", mixins, never, Some(B), date).unwrap(),
             c
         );
         let older = [pinned("a", None, Some(A)), pinned("b", None, Some(B))];
         assert_eq!(
-            newest(&older, "horizon-mixins", mixins, never, Some(&c), date).unwrap(),
+            newest(&older, "industrial-era-mixins", mixins, never, Some(&c), date).unwrap(),
             c
         );
         // One pin, or the same one everywhere: that pin, and no date is asked for.
         let no_date = |_: &str| -> Result<String, String> { panic!("no date needed") };
         let same = [pinned("a", Some(A), None), pinned("b", Some(A), None)];
         assert_eq!(
-            newest(&same, "Horizon", horizon, never, None, no_date).unwrap(),
+            newest(&same, "Industrial Era", industrial-era, never, None, no_date).unwrap(),
             A
         );
         let offline = |_: &str| -> Result<String, String> { Err("offline".into()) };
-        let err = newest(&split, "Horizon", horizon, never, None, offline).unwrap_err();
+        let err = newest(&split, "Industrial Era", industrial-era, never, None, offline).unwrap_err();
         assert!(err.contains("offline"), "{err}");
         // What the player is shown: each mod made for another revision, and the build's.
         assert_eq!(
@@ -2960,11 +2960,11 @@ mod tests {
             Some(3)
         );
         assert_eq!(hooks_in("const NATIVE_HOOKS_API: u32 = 3;"), None);
-        let mod_ = |id: &str, horizon: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, industrial-era: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: Some(horizon.into()),
+            industrial-era: Some(industrial-era.into()),
             mixins: None,
             hooks,
             injections: Vec::new(),
@@ -3014,16 +3014,16 @@ mod tests {
         );
     }
 
-    /// Players on launcher 0.2.31 (#5352): a rebuild that stayed on an older Horizon (A, hook
+    /// Players on launcher 0.2.31 (#5352): a rebuild that stayed on an older Industrial Era (A, hook
     /// points v1), or a mod pinning it, met mods needing newer hook points, tested on different
     /// commits, and the build was refused although the installed game (B) has them all.
     #[test]
     fn mods_needing_newer_hook_points_move_the_build_to_the_installed_game() {
-        let mod_ = |id: &str, horizon: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, industrial-era: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: Some(horizon.into()),
+            industrial-era: Some(industrial-era.into()),
             mixins: None,
             hooks,
             injections: Vec::new(),
@@ -3046,7 +3046,7 @@ mod tests {
         assert_eq!(
             with_hooks(&hooked, A.into(), true, game, at).unwrap(),
             B,
-            "a rebuild that stayed on an older Horizon moves to the game"
+            "a rebuild that stayed on an older Industrial Era moves to the game"
         );
         let with_pin = [mod_("carryblock", A, None), mod_("recipes", &d, Some(2))];
         let revision = with_hooks(&with_pin, A.into(), false, game, at).unwrap();
@@ -3072,13 +3072,13 @@ mod tests {
         fs::write(d.join(NATIVE_MANIFEST), json).unwrap();
         let found = bundles(&d).unwrap();
         assert_eq!(
-            (found[0].hooks, found[0].horizon.as_deref()),
+            (found[0].hooks, found[0].industrial-era.as_deref()),
             (Some(1), Some(A))
         );
         repin(&found[0], B).unwrap();
         let again = bundle(&found[0].dir, None).unwrap();
         assert_eq!(
-            (again.id.as_str(), again.horizon.as_deref()),
+            (again.id.as_str(), again.industrial-era.as_deref()),
             ("zoom", Some(B))
         );
     }
@@ -3247,7 +3247,7 @@ mod tests {
                 target,
                 Path::new("/native/target"),
                 Profile::Performance,
-                "horizon-client",
+                "industrial-era-client",
             )
             .get_args()
             .map(|a| a.to_string_lossy().into_owned())
@@ -3262,9 +3262,9 @@ mod tests {
         let client = flags(&d, Target::Client);
         assert!(!client.contains(&"--no-default-features".into()));
         // A source with the `mods` feature keeps it in both builds.
-        fs::create_dir_all(d.join("crates/horizon-client")).unwrap();
+        fs::create_dir_all(d.join("crates/industrial-era-client")).unwrap();
         fs::write(
-            d.join("crates/horizon-client/Cargo.toml"),
+            d.join("crates/industrial-era-client/Cargo.toml"),
             "[features]\nmods = []\n",
         )
         .unwrap();
@@ -3287,9 +3287,9 @@ mod tests {
         let record = |target: Option<&str>| {
             let json = match target {
                 Some(target) => {
-                    format!(r#"{{"base":"v2026.10.13","horizon":"{A}","target":"{target}"}}"#)
+                    format!(r#"{{"base":"v2026.10.13","industrial-era":"{A}","target":"{target}"}}"#)
                 }
-                None => format!(r#"{{"base":"v2026.10.13","horizon":"{A}"}}"#),
+                None => format!(r#"{{"base":"v2026.10.13","industrial-era":"{A}"}}"#),
             };
             fs::write(d.join("native-mods.json"), json).unwrap();
             about_in(&d).unwrap()
@@ -3302,7 +3302,7 @@ mod tests {
         assert_eq!(record(Some("client")).target, Target::Client);
         assert_eq!(record(Some("server")).target, Target::Server);
         assert_eq!(record(Some("anything-else")).target, Target::Client);
-        assert_eq!(record(None).horizon, A);
+        assert_eq!(record(None).industrial-era, A);
     }
 
     /// The export ([`build_server`]): a standalone runtime folder with the engine, the mods'
@@ -3368,9 +3368,9 @@ mod tests {
         let base = "native-test-server-base";
         let version = "native-test-server-cache";
         let source = backend::version_dir(base);
-        fs::create_dir_all(source.join(".local/horizon-client/26.3")).unwrap();
+        fs::create_dir_all(source.join(".local/industrial-era-client/26.3")).unwrap();
         fs::write(
-            source.join(".local/horizon-client/26.3/facts.json"),
+            source.join(".local/industrial-era-client/26.3/facts.json"),
             b"facts",
         )
         .unwrap();
@@ -3401,7 +3401,7 @@ mod tests {
         );
         assert_eq!(fs::read(output.join("native-data/test")).unwrap(), b"baked");
         assert_eq!(
-            fs::read(output.join(".local/horizon-client/26.3/facts.json")).unwrap(),
+            fs::read(output.join(".local/industrial-era-client/26.3/facts.json")).unwrap(),
             b"facts"
         );
         assert!(output.join("native-mods.json").is_file());
@@ -3520,9 +3520,9 @@ mod tests {
         );
     }
 
-    fn record(horizon: &str, mods: &[(&str, &str)]) -> Record {
+    fn record(industrial-era: &str, mods: &[(&str, &str)]) -> Record {
         Record {
-            horizon: horizon.into(),
+            industrial-era: industrial-era.into(),
             mixins: "m1".into(),
             mods: mods
                 .iter()
@@ -3549,7 +3549,7 @@ mod tests {
         let plan = classify(false, Some(&before), &next);
         assert_eq!(
             plan.label(),
-            "Incremental rebuild: Horizon commit aaaaaaa to bbbbbbb; mods keys, zoom"
+            "Incremental rebuild: Industrial Era commit aaaaaaa to bbbbbbb; mods keys, zoom"
         );
         // A removed mod counts as a change too.
         next = record("aaaaaaa1111", &[("zoom", "1")]);
@@ -3665,10 +3665,10 @@ mod tests {
         assert!(!to.join("gone.rs").exists());
     }
 
-    /// levzzz5154's decision (2026-10-29): a rebuild stays on the Horizon the instance plays;
-    /// only "Rebuild on Horizon {version}" moves it to a newer one.
+    /// levzzz5154's decision (2026-10-29): a rebuild stays on the Industrial Era the instance plays;
+    /// only "Rebuild on Industrial Era {version}" moves it to a newer one.
     #[test]
-    fn a_rebuild_stays_on_the_instances_horizon_until_an_update() {
+    fn a_rebuild_stays_on_the_instances_industrial_era_until_an_update() {
         let installed: Vec<String> = [
             "nightly-2026-10-29-4baa571",
             "v2026.10.20",
@@ -3733,7 +3733,7 @@ mod tests {
             Target::Client,
             Path::new("/native/target"),
             Profile::Performance,
-            "horizon-client",
+            "industrial-era-client",
         );
         let args: Vec<String> = cmd
             .get_args()
@@ -3748,7 +3748,7 @@ mod tests {
             ]
         );
         assert!(
-            args.ends_with(&["-p", "horizon-client", "--bin", "horizon-client"].map(String::from))
+            args.ends_with(&["-p", "industrial-era-client", "--bin", "industrial-era-client"].map(String::from))
         );
         let dir = cmd.get_current_dir().expect("a folder of its own");
         assert!(
@@ -3765,7 +3765,7 @@ mod tests {
             Target::Client,
             Path::new("/native/target"),
             Profile::Performance,
-            "horizon-client",
+            "industrial-era-client",
         );
         let args: Vec<_> = cmd.get_args().collect();
         assert_eq!(args[1], "--config");
@@ -3799,7 +3799,7 @@ mod tests {
                 Target::Client,
                 Path::new("/native/target"),
                 profile,
-                "horizon-client",
+                "industrial-era-client",
             )
             .get_args()
             .map(|a| a.to_string_lossy().into_owned())
@@ -3813,7 +3813,7 @@ mod tests {
         assert!(dev.windows(2).any(|w| w
             == [
                 "--config",
-                "profile.fast.package.horizon-client.opt-level=0"
+                "profile.fast.package.industrial-era-client.opt-level=0"
             ]));
         let release = args(Profile::Release);
         assert!(release.windows(2).any(|w| w == ["--profile", "release"]));
@@ -3825,10 +3825,10 @@ mod tests {
 
     #[test]
     fn tool_errors_read_in_one_line() {
-        let err = "{\n  \"code\": \"E_REVISION\",\n  \"message\": \"requires exact Horizon revision a\",\n  \"file\": \"m.toml\"\n}";
+        let err = "{\n  \"code\": \"E_REVISION\",\n  \"message\": \"requires exact Industrial Era revision a\",\n  \"file\": \"m.toml\"\n}";
         assert_eq!(
             diagnostic(err).as_deref(),
-            Some("E_REVISION: requires exact Horizon revision a (m.toml)")
+            Some("E_REVISION: requires exact Industrial Era revision a (m.toml)")
         );
     }
 
@@ -3851,7 +3851,7 @@ mod tests {
             "{e}"
         );
         // An error still among the last lines isn't said twice.
-        let e = failure("horizon-mixins", "exit status: 1", &errors, &errors);
+        let e = failure("industrial-era-mixins", "exit status: 1", &errors, &errors);
         assert!(e.contains("The end of its output") && e.matches("alsa-sys").count() == 1);
     }
 }

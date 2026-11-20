@@ -24,7 +24,7 @@ change: `mi_popcount` in `include/mimalloc/bits.h` uses mimalloc's portable bit 
 x86/x64 instead of the POPCNT instruction, which CPUs before Nehalem lack (#7264).
 ## Create
 
-`crates/horizon-client/src/game/kinetic_machines.rs` ports
+`crates/industrial-era-client/src/game/kinetic_machines.rs` ports
 [Create](https://github.com/Creators-of-Create/Create) 6.0.10's mechanical drill and crushing
 wheels (BlockBreakingKineticBlockEntity, DrillBlockEntity, CrushingWheelBlock and
 CrushingWheelControllerBlockEntity) and the recipes Create makes as the game loads
@@ -44,37 +44,37 @@ repository: a shared port fetches them from Modrinth on the player's device.
 
 ## Iris Features
 
-The shape of the horizon a shader pack's sky draws (`gfx/pack_sky.rs`) comes from
-[Iris Features](https://github.com/FatulDev/Horizon-Iris-Compatibility-Mod), a native mod for
-Horizon, Copyright (c) 2026 Riley-Neeb, under the MIT license (`licenses/iris-features-MIT.txt`).
+The shape of the industrial-era a shader pack's sky draws (`gfx/pack_sky.rs`) comes from
+[Iris Features](https://github.com/FatulDev/Industrial Era-Iris-Compatibility-Mod), a native mod for
+Industrial Era, Copyright (c) 2026 Riley-Neeb, under the MIT license (`licenses/iris-features-MIT.txt`).
 
 ## Pixelify Sans
 
-`crates/horizon-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
+`crates/industrial-era-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
 by The Pixelify Sans Project Authors, licensed under the SIL Open Font License 1.1
-(`crates/horizon-theme/fonts/OFL-PixelifySans.txt`).
+(`crates/industrial-era-theme/fonts/OFL-PixelifySans.txt`).
 
 ## Pixelarticons
 
-`crates/horizon-theme/icons/pixel/*.svg` are icons from
+`crates/industrial-era-theme/icons/pixel/*.svg` are icons from
 [Pixelarticons](https://github.com/halfmage/pixelarticons) by Gerrit Halfmann, under the MIT
-license (`crates/horizon-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Horizon's own, drawn on
+license (`crates/industrial-era-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Industrial Era's own, drawn on
 the same grid.
 
 ## Hugeicons
 
-`crates/horizon-theme/icons/glass/*.svg` are icons from the free set of
+`crates/industrial-era-theme/icons/glass/*.svg` are icons from the free set of
 [Hugeicons](https://github.com/hugeicons/hugeicons) (`@hugeicons/core-free-icons` 4.4.0), under
-the MIT license (`crates/horizon-theme/icons/glass/LICENSE-hugeicons.txt`), exported with a 1.6
+the MIT license (`crates/industrial-era-theme/icons/glass/LICENSE-hugeicons.txt`), exported with a 1.6
 stroke in `currentColor`.
 
-`crates/horizon-theme/icons/glass/discord.svg` is Discord's logo as drawn by
+`crates/industrial-era-theme/icons/glass/discord.svg` is Discord's logo as drawn by
 [Simple Icons](https://github.com/simple-icons/simple-icons) 13.21.0 (CC0 1.0). The logo is Discord's
-trademark, used only on the button that opens Horizon's Discord server.
+trademark, used only on the button that opens Industrial Era's Discord server.
 
 ## AMD FidelityFX SDK (FSR 3.1 frame generation)
 
-`crates/horizon-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
+`crates/industrial-era-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
 ports to WGSL of the optical flow and frame interpolation shaders of the
 [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) 1.1.4
 (`sdk/include/FidelityFX/gpu/{opticalflow,frameinterpolation}`, at commit
@@ -82,7 +82,7 @@ ports to WGSL of the optical flow and frame interpolation shaders of the
 and `optical_flow.rs` follows the SDK's `sdk/src/components/opticalflow/ffx_opticalflow.cpp`
 (its passes, their order and their dispatch sizes). Copyright (C) 2024 Advanced Micro Devices,
 Inc., under the MIT license, whose text heads each file. AMD and FidelityFX are AMD's
-trademarks; Horizon is not affiliated with AMD.
+trademarks; Industrial Era is not affiliated with AMD.
 
 ## Mod loader logos
 
@@ -90,7 +90,7 @@ The launcher shows the logo of the mod loader an instance plays with, and offers
 instance icons.
 
 - `launcher/assets/logos/{fabric,quilt,neoforge,forge}.png` are the loaders' logos as the launcher
-  mockup on [playhorizon.dev/launcher](https://playhorizon.dev/launcher) shows them (horizon-site
+  mockup on [playhorizon.dev/launcher](https://playhorizon.dev/launcher) shows them (industrial-era-site
   `public/media/launcher/*.webp`, converted to PNG), each its project's own mark:
   [Fabric](https://fabricmc.net/), [Quilt](https://quiltmc.org/) (its art is
   [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)),
@@ -99,7 +99,7 @@ instance icons.
   [Minecraft Forge](https://minecraftforge.net/). They name the loader an instance runs.
 
 Each logo belongs to its project. Showing it says which loader an instance runs; it does not mean
-the project endorses Horizon.
+the project endorses Industrial Era.
 
 ## Sign in with Microsoft
 
@@ -108,11 +108,11 @@ with Microsoft accounts
 ([Sign in with Microsoft branding](https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps)).
 The four-square Microsoft symbol in `launcher/src/microsoft.rs` reproduces the squares, positions and
 colours of Microsoft's official `ms-symbollockup_mssymbol_19.svg` from that page, unmodified. Microsoft
-and its logo are trademarks of the Microsoft group of companies; Horizon is not endorsed by Microsoft.
+and its logo are trademarks of the Microsoft group of companies; Industrial Era is not endorsed by Microsoft.
 
 ## CIT Resewn
 
-`crates/horizon-optifine/src/cit.rs` and `crates/horizon-client-render/src/cit.rs` follow the
+`crates/industrial-era-optifine/src/cit.rs` and `crates/industrial-era-client-render/src/cit.rs` follow the
 condition semantics of [CIT Resewn Continuation](https://github.com/EthanVisagie/CIT-Resewn-Continuation-1.21.11)
 (at `b792f9a`), a continuation of [CIT Resewn](https://github.com/SHsuperCM/CITResewn) by SHsuperCM: the
 1.21 component paths, enchantment levels, percent damage, text matching and rule ordering. It is
@@ -137,7 +137,7 @@ licensed under the MIT license:
 
 ## FusionExamples
 
-The tile tables in `crates/horizon-optifine/src/fusion/layout.rs` were read off the connecting
+The tile tables in `crates/industrial-era-optifine/src/fusion/layout.rs` were read off the connecting
 texture templates (`templates/template <layout>.png`) of
 [FusionExamples](https://github.com/SuperMartijn642/FusionExamples) (at `8c9c56e`), which is
 licensed under the MIT license:
@@ -161,7 +161,7 @@ licensed under the MIT license:
 
 ## BlueMap
 
-`crates/horizon-client-render/src/bluemap.rs` reads the lowres tiles of a server's
+`crates/industrial-era-client-render/src/bluemap.rs` reads the lowres tiles of a server's
 [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) web map. It follows three of BlueMap's files:
 `core/src/main/java/de/bluecolored/bluemap/core/map/lowres/LowresLayer.java` (`saveTile`) for the
 tiles' pixel layout, `common/webapp/src/js/util/Utils.js` (`pathFromCoords`) for their paths, and
@@ -210,18 +210,18 @@ no JDK source is copied into Starling. Starling's launcher for it
 
 The touch controls wear Minecraft: Bedrock Edition's own buttons, which Starling downloads on the
 phone from Mojang's [bedrock-samples](https://github.com/Mojang/bedrock-samples) repository (the
-revision and each file's git blob SHA-1 in `crates/horizon-client/assets/bedrock-touch.json`, which
+revision and each file's git blob SHA-1 in `crates/industrial-era-client/assets/bedrock-touch.json`, which
 `tools/bedrock_touch_manifest.py` writes) into the player's resources, Mojang's `LICENSE.md` beside
 them. They are © Mojang AB, under the Minecraft End User License Agreement the download is subject
 to; Starling carries none of them. Where they are missing, Starling's own buttons
-(`crates/horizon-client/assets/touch`, drawn by `packaging/touch/make.py`) are MIT.
+(`crates/industrial-era-client/assets/touch`, drawn by `packaging/touch/make.py`) are MIT.
 
-## Horizon Android legacy GLES compatibility
+## Industrial Era Android legacy GLES compatibility
 
 The GLES-only terrain texture selection, RGSS unrolling, varying packing,
 emissive lookup and entity overlay lowering, and HDR texture selection are
-adapted from [Vasysik/horizon-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/horizon-client-render/src/gfx).
-The source is MIT, copyright (c) 2026 Ludovic Marie and the Horizon contributors;
+adapted from [Vasysik/industrial-era-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/industrial-era-client-render/src/gfx).
+The source is MIT, copyright (c) 2026 Ludovic Marie and the Industrial Era contributors;
 the repository LICENSE retains its license text.
 
 The explicit panorama cube vertex buffer and preservation of GUI sprites while
@@ -233,23 +233,23 @@ The adaptation preserves Starling's RGSS tiled-face argument, HDR scene varying
 and all 128 emissive entries. The emissive search uses flat early returns to keep
 shader parser/validator stack depth bounded. Vulkan terrain WGSL remains unchanged.
 
-## Horizon Android diagnostics
+## Industrial Era Android diagnostics
 
 The diagnostic session/export, Android exit history, native tombstone summary and
-performance recording code is adapted from [Vasysik/horizon-android at
-fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/horizon-client/src/android),
+performance recording code is adapted from [Vasysik/industrial-era-android at
+fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/industrial-era-client/src/android),
 under the MIT license (the same [LICENSE](LICENSE) as this repository).
-Copyright (c) 2026 Ludovic Marie and the Horizon contributors.
+Copyright (c) 2026 Ludovic Marie and the Industrial Era contributors.
 The port uses Starling's existing logger, crash hook and GPU timers and exposes
 reports through the game's Diagnostics settings and an Android launcher shortcut,
 with a renderer-independent recovery window for interrupted startup.
 
-## Horizon Android renderer paths
+## Industrial Era Android renderer paths
 
 What only Adreno on Android's Vulkan takes here is adapted from
-[Vasysik/horizon-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/horizon-client-render/src),
+[Vasysik/industrial-era-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/crates/industrial-era-client-render/src),
 under the MIT license (the same [LICENSE](LICENSE) as this repository).
-Copyright (c) 2026 Ludovic Marie and the Horizon contributors. That covers `gfx/adreno.rs`, the sky
+Copyright (c) 2026 Ludovic Marie and the Industrial Era contributors. That covers `gfx/adreno.rs`, the sky
 after solid terrain (`gfx/late_sky.rs` and the far-plane vertex entries in `terrain.wgsl`,
 `entity.wgsl` and `gfx/stars.wgsl`; its commit 60211b4e8a), flat draws from 512 sections
 (`gfx/flat.rs`; its commit 1a115395f8) and the cheaper terrain shaders (`gfx/solid_paths.rs`,
@@ -262,26 +262,26 @@ fork's two specialization constants are one here, which also leaves out the dist
 and its terrain shaders also cover flat frames. The indirect offset fix in 1a115395f8 doesn't apply:
 Starling's solid passes don't rebase the indirect buffer.
 
-## Horizon Android documents provider
+## Industrial Era Android documents provider
 
 The game folder's place in Android's Files app (`packaging/android/java/io/github/juanluci/starling/GameFolderProvider.java`
-and `GameFolder.java`) is adapted from the documents provider in [Vasysik/horizon-android at
-fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/packaging/android/java/dev/horizon/android)
-and its `crates/horizon-client/src/android/document_store.rs`, under the MIT license (the same
-[LICENSE](LICENSE) as this repository). Copyright (c) 2026 Ludovic Marie and the Horizon contributors.
+and `GameFolder.java`) is adapted from the documents provider in [Vasysik/industrial-era-android at
+fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606/packaging/android/java/dev/industrial-era/android)
+and its `crates/industrial-era-client/src/android/document_store.rs`, under the MIT license (the same
+[LICENSE](LICENSE) as this repository). Copyright (c) 2026 Ludovic Marie and the Industrial Era contributors.
 The port is plain Java over Starling's one game folder, in place of the fork's Rust store of
 profiles and fixed folders that its launcher screens share.
 
-## Horizon Android control system and editor
+## Industrial Era Android control system and editor
 
 The Android control engine, MCPE/GoyControl layouts and presets, visual editor,
 control hub, virtual pointer and auxiliary keyboard are adapted from
-[Vasysik/horizon-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606),
-MIT, copyright (c) 2026 Ludovic Marie and the Horizon contributors (see [LICENSE](LICENSE)).
-Source: `crates/horizon-client-render/src/touch.rs`, `touch/{layout,editor,custom}.rs`,
-`crates/horizon-client/src/{touch_ui,ui_theme,osk,ui_text}.rs`, and Android input
+[Vasysik/industrial-era-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606),
+MIT, copyright (c) 2026 Ludovic Marie and the Industrial Era contributors (see [LICENSE](LICENSE)).
+Source: `crates/industrial-era-client-render/src/touch.rs`, `touch/{layout,editor,custom}.rs`,
+`crates/industrial-era-client/src/{touch_ui,ui_theme,osk,ui_text}.rs`, and Android input
 integration in `game/android_input.rs`, `game/pad.rs` and `game.rs`. The
-physical D-pad/keypad profile is from `horizon-client-render/src/keypad.rs`
+physical D-pad/keypad profile is from `industrial-era-client-render/src/keypad.rs`
 and its editable bindings in `options_ui.rs`.
 
 The port uses Starling's input, IME, inventory, controller and renderer interfaces.
@@ -289,11 +289,11 @@ Its UI rasterization shares Starling's existing runtime atlas allocator; it does
 not add a second font texture. Starling's chat shortcuts and slot gestures are
 retained. No Minecraft textures or prepared resources are included by this port.
 
-## Horizon Android account profiles and Ely.by
+## Industrial Era Android account profiles and Ely.by
 
-Provider-aware profile selection and Ely.by authentication, refresh, 2FA and session routing are adapted from [Vasysik/horizon-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606), specifically `launcher/src/account.rs`, `launcher/src/account/ely.rs`, `crates/horizon-client/src/android/login.rs` (behavior reference) and `crates/horizon-client-render/src/auth.rs`. MIT, copyright (c) 2026 Ludovic Marie and the Horizon contributors; the repository LICENSE retains the license text. The integration preserves Starling's Microsoft public client and sealed secret store, adds provider-separated keys and offline profile metadata, and uses Starling's existing title widgets rather than the Android launcher's panel.
-## Horizon Android wardrobe
+Provider-aware profile selection and Ely.by authentication, refresh, 2FA and session routing are adapted from [Vasysik/industrial-era-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606), specifically `launcher/src/account.rs`, `launcher/src/account/ely.rs`, `crates/industrial-era-client/src/android/login.rs` (behavior reference) and `crates/industrial-era-client-render/src/auth.rs`. MIT, copyright (c) 2026 Ludovic Marie and the Industrial Era contributors; the repository LICENSE retains the license text. The integration preserves Starling's Microsoft public client and sealed secret store, adds provider-separated keys and offline profile metadata, and uses Starling's existing title widgets rather than the Android launcher's panel.
+## Industrial Era Android wardrobe
 
-Per-account skin selection and the Microsoft profile skin upload are adapted from [Vasysik/horizon-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/horizon-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606), specifically `launcher/src/skins.rs`, `launcher/src/skins/library.rs`, `launcher/src/skins/cloud.rs` and `crates/horizon-client/src/android/wardrobe.rs` (behavior reference). MIT, copyright (c) 2026 Ludovic Marie and the Horizon contributors; the repository LICENSE retains the license text. Starling keeps its `skins/` folder and Skin Customization page in place of the wardrobe's image store and launcher panel, keys each choice by the profile, uploads through its own sealed session, and sends Ely.by accounts to ely.by as Horizon Android does.
+Per-account skin selection and the Microsoft profile skin upload are adapted from [Vasysik/industrial-era-android at fa548eb7abe91c194d3780e4580b9746323cd606](https://github.com/Vasysik/industrial-era-android/tree/fa548eb7abe91c194d3780e4580b9746323cd606), specifically `launcher/src/skins.rs`, `launcher/src/skins/library.rs`, `launcher/src/skins/cloud.rs` and `crates/industrial-era-client/src/android/wardrobe.rs` (behavior reference). MIT, copyright (c) 2026 Ludovic Marie and the Industrial Era contributors; the repository LICENSE retains the license text. Starling keeps its `skins/` folder and Skin Customization page in place of the wardrobe's image store and launcher panel, keys each choice by the profile, uploads through its own sealed session, and sends Ely.by accounts to ely.by as Industrial Era Android does.
 
-The mobile attack gauge side and offhand spacing in `crates/horizon-client-render/src/hud_layout.rs` are adapted from the same Horizon Android commit fa548eb7abe91c194d3780e4580b9746323cd606 under MIT.
+The mobile attack gauge side and offhand spacing in `crates/industrial-era-client-render/src/hud_layout.rs` are adapted from the same Industrial Era Android commit fa548eb7abe91c194d3780e4580b9746323cd606 under MIT.

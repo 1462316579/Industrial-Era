@@ -139,7 +139,7 @@ def main():
     all_cases = cases()
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in all_cases))
     vanilla.run('VanillaPickBlockDataOracle', work / 'cases.jsonl', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'pick_block_data_fixture', work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'pick_block_data_fixture', work / 'cases.jsonl', work / 'rust.txt')
     errors = sum(line == 'error' for line in (work / 'native.txt').read_text().split('\n'))
     if errors:
         print(f'{errors} cases fail in vanilla')

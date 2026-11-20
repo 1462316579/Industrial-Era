@@ -23,7 +23,7 @@ import static dev.horizonlab.parity.VanillaCuboidModelOracle.map;
 public final class VanillaModelBakingOracle {
     private static final Gson JSON = new GsonBuilder().serializeNulls().create();
     private static final class Sprite extends TextureAtlasSprite {
-        Sprite(SpriteContents contents) { super(Identifier.parse("horizon:atlas"),contents,16,16,0,0,0); }
+        Sprite(SpriteContents contents) { super(Identifier.parse("industrial-era:atlas"),contents,16,16,0,0,0); }
     }
     private static final ModelBaker.Interner INTERNER = new ModelBaker.Interner() {
         public Vector3fc vector(Vector3fc vector) { return vector; }
@@ -74,7 +74,7 @@ public final class VanillaModelBakingOracle {
         net.minecraft.SharedConstants.tryDetectVersion();
         if(org.joml.Options.FASTMATH || org.joml.Options.USE_MATH_FMA)throw new AssertionError("Expected default JOML math options");
         var image=new NativeImage(16,16,true);
-        var contents=new SpriteContents(Identifier.parse("horizon:probe"),new FrameSize(16,16),image);
+        var contents=new SpriteContents(Identifier.parse("industrial-era:probe"),new FrameSize(16,16),image);
         var sprite=new Sprite(contents);
         try (contents; var input=Files.newBufferedReader(Path.of(args[0])); var output=Files.newBufferedWriter(Path.of(args[1]))) {
             int index=0;

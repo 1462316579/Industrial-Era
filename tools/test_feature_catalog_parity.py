@@ -16,53 +16,53 @@ except ImportError:
 
 def catalog():
     encode=lambda value:json.dumps(value,separators=(',',':'))
-    features={'horizon:no_op':{'type':'no_op'},'horizon:island':{'type':'end_island'},'horizon:platform':{'type':'end_platform'},'horizon:void':{'type':'void_start_platform'},'minecraft:noop':{'type':'no_op'}}
-    features['horizon:fill']={'type':'fill_layer','height':1,'state':{'id':'oak_log','properties':{'axis':'x'}}}
-    features['horizon:replace']={'type':'replace_single_block','targets':[{'target':{'predicate_type':'random_block_match','block':'stone','probability':0.5},'state':'gold_ore'},{'target':{'predicate_type':'block_match','block':'oak_log'},'state':{'id':'water','properties':{'level':'1'}}}]}
-    features['horizon:scatter']={'type':'scattered_ore','targets':[{'target':{'predicate_type':'block_match','block':'stone'},'state':'iron_ore'}],'size':8,'discard_chance_on_air_exposure':0.5}
+    features={'industrial-era:no_op':{'type':'no_op'},'industrial-era:island':{'type':'end_island'},'industrial-era:platform':{'type':'end_platform'},'industrial-era:void':{'type':'void_start_platform'},'minecraft:noop':{'type':'no_op'}}
+    features['industrial-era:fill']={'type':'fill_layer','height':1,'state':{'id':'oak_log','properties':{'axis':'x'}}}
+    features['industrial-era:replace']={'type':'replace_single_block','targets':[{'target':{'predicate_type':'random_block_match','block':'stone','probability':0.5},'state':'gold_ore'},{'target':{'predicate_type':'block_match','block':'oak_log'},'state':{'id':'water','properties':{'level':'1'}}}]}
+    features['industrial-era:scatter']={'type':'scattered_ore','targets':[{'target':{'predicate_type':'block_match','block':'stone'},'state':'iron_ore'}],'size':8,'discard_chance_on_air_exposure':0.5}
     placed={
-        'horizon:a_noop':{'feature':'horizon:no_op','placement':[]},
-        'horizon:b_false':{'feature':'horizon:no_op','placement':[{'type':'count','count':0}]},
-        'horizon:c_island':{'feature':'horizon:island','placement':[{'type':'in_square'}]},
-        'horizon:d_platform':{'feature':'horizon:platform','placement':[{'type':'offset','x':1,'y':2,'z':-1}]},
-        'horizon:e_nested':{'feature':{'type':'simple_random_selector','features':['horizon:c_island','horizon:d_platform','horizon:b_false']},'placement':[{'type':'count','count':2}]},
+        'industrial-era:a_noop':{'feature':'industrial-era:no_op','placement':[]},
+        'industrial-era:b_false':{'feature':'industrial-era:no_op','placement':[{'type':'count','count':0}]},
+        'industrial-era:c_island':{'feature':'industrial-era:island','placement':[{'type':'in_square'}]},
+        'industrial-era:d_platform':{'feature':'industrial-era:platform','placement':[{'type':'offset','x':1,'y':2,'z':-1}]},
+        'industrial-era:e_nested':{'feature':{'type':'simple_random_selector','features':['industrial-era:c_island','industrial-era:d_platform','industrial-era:b_false']},'placement':[{'type':'count','count':2}]},
         'minecraft:noop':{'feature':'minecraft:noop','placement':[]},
-        'horizon:h_scatter':{'feature':'horizon:scatter','placement':[]},
-        'horizon:f_fill':{'feature':'horizon:fill','placement':[{'type':'in_square'}]},
-        'horizon:g_replace':{'feature':'horizon:replace','placement':[{'type':'count','count':2},{'type':'in_square'},{'type':'height_range','height':{'absolute':-63}}]},
+        'industrial-era:h_scatter':{'feature':'industrial-era:scatter','placement':[]},
+        'industrial-era:f_fill':{'feature':'industrial-era:fill','placement':[{'type':'in_square'}]},
+        'industrial-era:g_replace':{'feature':'industrial-era:replace','placement':[{'type':'count','count':2},{'type':'in_square'},{'type':'height_range','height':{'absolute':-63}}]},
     }
-    placed['horizon:i_filtered']={'feature':'horizon:replace','placement':[{'type':'count','count':3},{'type':'block_predicate_filter','predicate':{'type':'matching_blocks','blocks':['stone','oak_log']}}]}
-    placed['horizon:j_scan']={'feature':'horizon:replace','placement':[{'type':'environment_scan','direction_of_search':'down','target_condition':{'type':'matching_blocks','blocks':'stone'},'allowed_search_condition':{'type':'not','predicate':{'type':'matching_blocks','blocks':'obsidian'}},'max_steps':8}]}
-    placed['horizon:k_volume']={'feature':'horizon:no_op','placement':[{'type':'block_predicate_filter','predicate':{'type':'volume_match','min':[-1,0,-1],'max':[1,1,1],'match':{'type':'not','predicate':{'type':'matching_blocks','blocks':'air'}}}}]}
-    placed['horizon:l_fluids']={'feature':{'type':'replace_single_block','targets':[{'target':{'predicate_type':'block_match','block':'water'},'state':'stone'}]},'placement':[{'type':'count','count':3},{'type':'block_predicate_filter','predicate':{'type':'matching_fluids','fluids':['flowing_water']}}]}
-    placed['horizon:m_fluid_sequence']={'feature':{'type':'sequence','features':[{'feature':{'type':'fill_layer','height':128,'state':{'id':'water','properties':{'level':'1'}}},'placement':[]},'horizon:l_fluids']},'placement':[]}
+    placed['industrial-era:i_filtered']={'feature':'industrial-era:replace','placement':[{'type':'count','count':3},{'type':'block_predicate_filter','predicate':{'type':'matching_blocks','blocks':['stone','oak_log']}}]}
+    placed['industrial-era:j_scan']={'feature':'industrial-era:replace','placement':[{'type':'environment_scan','direction_of_search':'down','target_condition':{'type':'matching_blocks','blocks':'stone'},'allowed_search_condition':{'type':'not','predicate':{'type':'matching_blocks','blocks':'obsidian'}},'max_steps':8}]}
+    placed['industrial-era:k_volume']={'feature':'industrial-era:no_op','placement':[{'type':'block_predicate_filter','predicate':{'type':'volume_match','min':[-1,0,-1],'max':[1,1,1],'match':{'type':'not','predicate':{'type':'matching_blocks','blocks':'air'}}}}]}
+    placed['industrial-era:l_fluids']={'feature':{'type':'replace_single_block','targets':[{'target':{'predicate_type':'block_match','block':'water'},'state':'stone'}]},'placement':[{'type':'count','count':3},{'type':'block_predicate_filter','predicate':{'type':'matching_fluids','fluids':['flowing_water']}}]}
+    placed['industrial-era:m_fluid_sequence']={'feature':{'type':'sequence','features':[{'feature':{'type':'fill_layer','height':128,'state':{'id':'water','properties':{'level':'1'}}},'placement':[]},'industrial-era:l_fluids']},'placement':[]}
     tags={
-        'horizon:nonempty':{'values':['horizon:a_noop','horizon:c_island','horizon:d_platform','horizon:c_island']},
-        'horizon:empty':{'values':[]},
-        'horizon:nested':{'values':['#horizon:nonempty','horizon:e_nested','horizon:f_fill','horizon:g_replace','horizon:h_scatter','horizon:i_filtered','horizon:j_scan','horizon:k_volume','horizon:m_fluid_sequence']},
-        'horizon:optional':{'values':[{'id':'horizon:missing','required':False},'horizon:a_noop']},
-        'horizon:invalid':{'values':['horizon:missing']},
+        'industrial-era:nonempty':{'values':['industrial-era:a_noop','industrial-era:c_island','industrial-era:d_platform','industrial-era:c_island']},
+        'industrial-era:empty':{'values':[]},
+        'industrial-era:nested':{'values':['#industrial-era:nonempty','industrial-era:e_nested','industrial-era:f_fill','industrial-era:g_replace','industrial-era:h_scatter','industrial-era:i_filtered','industrial-era:j_scan','industrial-era:k_volume','industrial-era:m_fluid_sequence']},
+        'industrial-era:optional':{'values':[{'id':'industrial-era:missing','required':False},'industrial-era:a_noop']},
+        'industrial-era:invalid':{'values':['industrial-era:missing']},
     }
-    features['horizon:overlay']={'type':'overlay','features':[{'feature':{'type':'no_op'},'placement':[{'type':'count','count':0}]},{'feature':{'type':'end_island'},'placement':[{'type':'in_square'}]},{'feature':{'type':'end_platform'},'placement':[]}]}
-    placed['horizon:n_overlay']={'feature':'horizon:overlay','placement':[{'type':'count','count':2}]}
-    features['horizon:composite']={'type':'sequence','features':'#horizon:nested'}
+    features['industrial-era:overlay']={'type':'overlay','features':[{'feature':{'type':'no_op'},'placement':[{'type':'count','count':0}]},{'feature':{'type':'end_island'},'placement':[{'type':'in_square'}]},{'feature':{'type':'end_platform'},'placement':[]}]}
+    placed['industrial-era:n_overlay']={'feature':'industrial-era:overlay','placement':[{'type':'count','count':2}]}
+    features['industrial-era:composite']={'type':'sequence','features':'#industrial-era:nested'}
     return {key:{name:encode(value) for name,value in values.items()} for key,values in [('features',features),('placed',placed),('tags',tags)]}
 
 
 def definitions():
-    inline={'feature':'horizon:island','placement':[]}
-    for root in [*catalog()['features'],'noop',':noop','horizon:missing','#horizon:no_op','HORIZON:no_op',None,False,[]]:yield False,root
-    for root in [*catalog()['placed'],'noop',':noop','horizon:missing','#horizon:nonempty',inline,{'feature':'horizon:composite','placement':[{'type':'count','count':2}]}]:yield True,root
-    for values in ['horizon:c_island','#horizon:nonempty','#horizon:empty','#horizon:nested','#horizon:optional','#horizon:invalid','#horizon:missing',[],['horizon:c_island','horizon:c_island'],['horizon:a_noop','horizon:b_false','horizon:c_island'],['horizon:c_island',inline],[inline,'horizon:c_island'],inline]:
+    inline={'feature':'industrial-era:island','placement':[]}
+    for root in [*catalog()['features'],'noop',':noop','industrial-era:missing','#industrial-era:no_op','INDUSTRIAL_ERA:no_op',None,False,[]]:yield False,root
+    for root in [*catalog()['placed'],'noop',':noop','industrial-era:missing','#industrial-era:nonempty',inline,{'feature':'industrial-era:composite','placement':[{'type':'count','count':2}]}]:yield True,root
+    for values in ['industrial-era:c_island','#industrial-era:nonempty','#industrial-era:empty','#industrial-era:nested','#industrial-era:optional','#industrial-era:invalid','#industrial-era:missing',[],['industrial-era:c_island','industrial-era:c_island'],['industrial-era:a_noop','industrial-era:b_false','industrial-era:c_island'],['industrial-era:c_island',inline],[inline,'industrial-era:c_island'],inline]:
         for kind in ['sequence','overlay','simple_random_selector']:yield False,{'type':kind,'features':values}
-    for name in ['horizon:e_nested','horizon:b_false','horizon:missing']:
+    for name in ['industrial-era:e_nested','industrial-era:b_false','industrial-era:missing']:
         yield False,{'type':'random_boolean_selector','feature_true':name,'feature_false':inline}
-        yield False,{'type':'random_selector','features':[{'feature':name,'chance':0.5}],'default':'horizon:d_platform'}
-        yield False,{'type':'weighted_random_selector','features':[{'data':name,'weight':0},{'data':'horizon:d_platform','weight':1}]}
+        yield False,{'type':'random_selector','features':[{'feature':name,'chance':0.5}],'default':'industrial-era:d_platform'}
+        yield False,{'type':'weighted_random_selector','features':[{'data':name,'weight':0},{'data':'industrial-era:d_platform','weight':1}]}
     for blocks in [[],['stone','stone','water'],['missing'],'missing','#missing',['#tag'],None]:
-        yield True,{'feature':'horizon:replace','placement':[{'type':'block_predicate_filter','predicate':{'type':'matching_blocks','blocks':blocks}}]}
+        yield True,{'feature':'industrial-era:replace','placement':[{'type':'block_predicate_filter','predicate':{'type':'matching_blocks','blocks':blocks}}]}
     for fluids in ['empty','water','flowing_water','lava',[],['water','flowing_water'],'missing','#missing',['#water'],None]:
-        yield True,{'feature':'horizon:replace','placement':[{'type':'block_predicate_filter','predicate':{'type':'matching_fluids','fluids':fluids}}]}
+        yield True,{'feature':'industrial-era:replace','placement':[{'type':'block_predicate_filter','predicate':{'type':'matching_fluids','fluids':fluids}}]}
 
 
 def corpus():
@@ -81,11 +81,11 @@ def main():
     report_path=build/"report.json";report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaFeatureCatalogOracle.java"
+    oracle=lab.ROOT/"mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaFeatureCatalogOracle.java"
     helper=oracle.with_name("VanillaPlacementOracle.java")
     state_helper=oracle.with_name("VanillaBlockStateCodecOracle.java")
-    sources=[oracle,helper,state_helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/horizon-core/Cargo.toml",lab.ROOT/"crates/horizon-world/Cargo.toml",
-             *sorted((lab.ROOT/"crates/horizon-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/horizon-world/src").rglob("*.rs")),lab.ROOT/"crates/horizon-world/examples/probe/feature_catalog_fixture.rs"]
+    sources=[oracle,helper,state_helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/industrial-era-core/Cargo.toml",lab.ROOT/"crates/industrial-era-world/Cargo.toml",
+             *sorted((lab.ROOT/"crates/industrial-era-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/industrial-era-world/src").rglob("*.rs")),lab.ROOT/"crates/industrial-era-world/examples/probe/feature_catalog_fixture.rs"]
     tested_sources=base.source_hashes(sources)
     fixtures=list(corpus());inputs=build/"inputs.txt";inputs.write_text("".join(json.dumps(f,separators=(",",":"))+"\n" for f in fixtures),encoding="utf-8")
     resources=build/"catalog.json";resources.write_text(json.dumps(catalog(),separators=(",",":")),encoding="utf-8")
@@ -100,7 +100,7 @@ def main():
         fixture_paths.append(path)
     if json.loads((build/"facts-client.json").read_text())!=json.loads((build/"facts-server.json").read_text()):raise ValueError("reference feature block states differ")
     tested_fixtures=base.source_hashes(fixture_paths)
-    run(["cargo","build","--release","-p","horizon-world","--example","world_probe"],"compile-rust")
+    run(["cargo","build","--release","-p","industrial-era-world","--example","world_probe"],"compile-rust")
     metadata=json.loads(subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"],cwd=lab.ROOT,text=True))
     binary=Path(metadata["target_directory"])/"release/examples"/("world_probe.exe" if os.name=="nt" else "world_probe")
     run([binary,"feature_catalog_fixture",build],"rust")

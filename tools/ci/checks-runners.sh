@@ -7,21 +7,21 @@
 #   bash tools/ci/checks-runners.sh uninstall < token  # stop and unregister (a remove-token)
 #
 # The token is made on a machine whose gh has admin on the repository, never printed or stored here:
-#   gh api -X POST repos/horizon-rust/horizon/actions/runners/registration-token --jq .token |
-#     ssh ludovic@playhorizon 'bash ~/horizon-install/checks-runners.sh install'
+#   gh api -X POST repos/industrial-era-rust/industrial-era/actions/runners/registration-token --jq .token |
+#     ssh ludovic@playhorizon 'bash ~/industrial-era-install/checks-runners.sh install'
 #
 # Two kinds of runner, each a systemd user service in ~/.actions-runners/<name>:
-# - horizon-ci-<n> (label playhorizon-ci, CI_RUNNERS of them, default 2): ci.yml's verify and launcher jobs. Each has
+# - industrial-era-ci-<n> (label playhorizon-ci, CI_RUNNERS of them, default 2): ci.yml's verify and launcher jobs. Each has
 #   its own work folder, rustup home and cargo target folder (outside the checkout, so the checkout's clean leaves it),
 #   and they share one cargo home (registry and git sources).
-# - horizon-light-<n> (label playhorizon-light, LIGHT_RUNNERS, default 2): the bots that run main's own scripts on
+# - industrial-era-light-<n> (label playhorizon-light, LIGHT_RUNNERS, default 2): the bots that run main's own scripts on
 #   pull_request_target and comment events (pr labels, overlap note, cancel-on-close, claim command). No Rust.
-# All of them run nice, pinned to CPUs 4-7 inside horizon-ci.slice (linux-runner.sh: CPU quota and memory cap for
+# All of them run nice, pinned to CPUs 4-7 inside industrial-era-ci.slice (linux-runner.sh: CPU quota and memory cap for
 # all CI on the machine), so CPUs 0-3 stay for tools/remote.sh runs, benchmarks and the servers.
 # Before every job, ci-shared/job-started.sh fails a job from a fork's pull request (whatever its workflow file says)
 # and empties a cargo target folder grown past MAX_TARGET_GB.
 set -euo pipefail
-repo=horizon-rust/horizon
+repo=industrial-era-rust/industrial-era
 base=$HOME/.actions-runners
 shared=$base/ci-shared
 units=${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user
@@ -32,8 +32,8 @@ packages="build-essential pkg-config git curl jq gh libasound2-dev libudev-dev l
   libx11-xcb-dev libfontconfig-dev libvulkan-dev"
 
 runners() {
-  for i in $(seq 1 "$ci"); do echo "horizon-ci-$i playhorizon-ci"; done
-  for i in $(seq 1 "$light"); do echo "horizon-light-$i playhorizon-light"; done
+  for i in $(seq 1 "$ci"); do echo "industrial-era-ci-$i playhorizon-ci"; done
+  for i in $(seq 1 "$light"); do echo "industrial-era-light-$i playhorizon-light"; done
 }
 
 shared_files() {
@@ -101,13 +101,13 @@ install() {
   if [ -n "${missing// /}" ]; then
     sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $missing > /dev/null
   fi
-  [ -f "$units/horizon-ci.slice" ] || { echo "No horizon-ci.slice: install tools/ci/linux-runner.sh first"; exit 1; }
+  [ -f "$units/industrial-era-ci.slice" ] || { echo "No industrial-era-ci.slice: install tools/ci/linux-runner.sh first"; exit 1; }
   shared_files
   cp "$0" "$shared/checks-runners.sh"
   # The checks' share of the CI slice's memory: a build that runs out stops there, not the parity runner's jobs.
-  cat > "$units/horizon-ci-checks.slice" <<EOF
+  cat > "$units/industrial-era-ci-checks.slice" <<EOF
 [Unit]
-Description=Horizon CI: the checks runners' jobs (tools/ci/checks-runners.sh)
+Description=Industrial Era CI: the checks runners' jobs (tools/ci/checks-runners.sh)
 [Slice]
 MemoryHigh=12G
 MemoryMax=16G
@@ -117,7 +117,7 @@ EOF
     if [ ! -f "$dir/.runner" ]; then
       unpack "$dir"
       (cd "$dir" && ./config.sh --unattended --replace --url "https://github.com/$repo" --token "$token" \
-        --name "playhorizon-${name#horizon-}" --labels "$label" --work _work > /dev/null)
+        --name "playhorizon-${name#industrial-era-}" --labels "$label" --work _work > /dev/null)
     fi
     mkdir -p "$dir/home"
     {
@@ -139,11 +139,11 @@ EOF
       fi
     } > "$dir/.env"
     echo "$shared/bin:$shared/cargo/bin:/usr/local/bin:/usr/bin:/bin" > "$dir/.path"
-    slice=horizon-ci.slice
-    [ "$label" = playhorizon-ci ] && slice=horizon-ci-checks.slice
-    cat > "$units/horizon-runner-${name#horizon-}.service" <<EOF
+    slice=industrial-era-ci.slice
+    [ "$label" = playhorizon-ci ] && slice=industrial-era-ci-checks.slice
+    cat > "$units/industrial-era-runner-${name#industrial-era-}.service" <<EOF
 [Unit]
-Description=GitHub Actions runner playhorizon-${name#horizon-} for $repo ($label, tools/ci/checks-runners.sh)
+Description=GitHub Actions runner playhorizon-${name#industrial-era-} for $repo ($label, tools/ci/checks-runners.sh)
 After=network-online.target
 [Service]
 Slice=$slice
@@ -164,7 +164,7 @@ EOF
   done < <(runners)
   systemctl --user daemon-reload
   while read -r name label; do
-    local unit=horizon-runner-${name#horizon-}.service
+    local unit=industrial-era-runner-${name#industrial-era-}.service
     systemctl --user enable "$unit" > /dev/null 2>&1
     # The runner reads .env when it starts: restart only an idle one (a restart cancels its job).
     if pgrep -f "$base/$name/bin/Runner.Worker" > /dev/null; then echo "$name in a job: restart $unit after it"
@@ -174,9 +174,9 @@ EOF
 }
 
 status() {
-  systemctl --user --no-pager list-units 'horizon-runner-ci-*' 'horizon-runner-light-*'
+  systemctl --user --no-pager list-units 'industrial-era-runner-ci-*' 'industrial-era-runner-light-*'
   local dir
-  for dir in "$base"/horizon-ci-* "$base"/horizon-light-*; do
+  for dir in "$base"/industrial-era-ci-* "$base"/industrial-era-light-*; do
     [ -d "$dir" ] || continue
     printf '%-16s %s, target %s\n' "$(basename "$dir")" \
       "$(pgrep -f "$dir/bin/Runner.Worker" > /dev/null && echo busy || echo idle)" \
@@ -188,11 +188,11 @@ uninstall() {
   local token name label
   token=$(cat)
   while read -r name label; do
-    systemctl --user disable --now "horizon-runner-${name#horizon-}.service" 2>/dev/null || true
+    systemctl --user disable --now "industrial-era-runner-${name#industrial-era-}.service" 2>/dev/null || true
     [ -f "$base/$name/.runner" ] && (cd "$base/$name" && ./config.sh remove --token "$token" > /dev/null)
-    rm -f "$units/horizon-runner-${name#horizon-}.service"
+    rm -f "$units/industrial-era-runner-${name#industrial-era-}.service"
   done < <(runners)
-  rm -f "$units/horizon-ci-checks.slice"
+  rm -f "$units/industrial-era-ci-checks.slice"
   systemctl --user daemon-reload
 }
 

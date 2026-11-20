@@ -499,7 +499,7 @@ def main():
                       'ops': g.ops(size, menu, slots)})
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
     vanilla.run('VanillaMenuOracle', work / 'cases.jsonl', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'menu_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'menu_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
     native = (work / 'native.txt').read_text().split('\n')
     rust = (work / 'rust.txt').read_text().split('\n')
 

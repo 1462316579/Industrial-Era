@@ -57,7 +57,7 @@ public final class VanillaStructureStartOracle {
         var levelKey=switch(dimension){case "the_nether"->Level.NETHER;case "the_end"->Level.END;default->Level.OVERWORLD;};
         var generator=new NoiseBasedChunkGenerator(biomeSource,settings);
         var state=ChunkGeneratorStructureState.createForNormal(randomState,seed,new ChunkPos(0,0),biomeSource,world.lookupOrThrow(Registries.STRUCTURE_SET));
-        Path tmp=Files.createTempDirectory("horizon-structures");
+        Path tmp=Files.createTempDirectory("industrial-era-structures");
         var storage=LevelStorageSource.createDefault(tmp).createAccess("oracle");
         var templates=new StructureTemplateManager(resources,storage,DataFixers.getDataFixer(),BuiltInRegistries.BLOCK);
         LevelHeightAccessor height=dimension.equals("overworld")?LevelHeightAccessor.create(-64,384):LevelHeightAccessor.create(0,256);

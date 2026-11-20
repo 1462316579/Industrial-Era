@@ -15,14 +15,14 @@ from integration_env import suite_lock
 
 
 if __name__ == '__main__':
-    subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'horizon-client', '-p', 'horizon-client-lib',
-                    '-p', 'horizon-relay', '--bin', 'horizon-client', '--bin', 'horizon-ctl',
-                    '--bin', 'horizon-relay'], cwd=lab.ROOT, check=True)
+    subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'industrial-era-client', '-p', 'industrial-era-client-lib',
+                    '-p', 'industrial-era-relay', '--bin', 'industrial-era-client', '--bin', 'industrial-era-ctl',
+                    '--bin', 'industrial-era-relay'], cwd=lab.ROOT, check=True)
     metadata = json.loads(subprocess.check_output(
         ['cargo', 'metadata', '--format-version', '1', '--no-deps'], cwd=lab.ROOT, text=True))
     bins = Path(metadata['target_directory']) / 'fast'
-    sys.argv = [sys.argv[0], '--client', str(bins / 'horizon-client'),
-                '--relay', str(bins / 'horizon-relay'), '--baseline',
+    sys.argv = [sys.argv[0], '--client', str(bins / 'industrial-era-client'),
+                '--relay', str(bins / 'industrial-era-relay'), '--baseline',
                 *(['--offscreen'] if sys.platform == 'darwin' else [])]
     with suite_lock():
         # The wrapper only selects binaries; test_friends isolates each game

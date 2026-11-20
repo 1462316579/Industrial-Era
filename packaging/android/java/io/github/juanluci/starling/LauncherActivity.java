@@ -25,7 +25,7 @@ import java.io.OutputStream;
  * What runs before the game (StarlingActivity) when it is handed something, in a process and a
  * task of its own: a file opened with Starling or shared to it (a resource pack, a world, a mod,
  * the prepared resources) is copied into the game's import inbox, which the game installs from
- * (crates/horizon-client/src/import.rs); and a restart the game asked for starts it again once
+ * (crates/industrial-era-client/src/import.rs); and a restart the game asked for starts it again once
  * its old process has ended.
  */
 public final class LauncherActivity extends Activity {
@@ -131,7 +131,7 @@ public final class LauncherActivity extends Activity {
         }
     }
 
-    /** The file an "Open with" or a share hands to Horizon, if any. */
+    /** The file an "Open with" or a share hands to Industrial Era, if any. */
     @SuppressWarnings("deprecation")
     private static Uri handedFile(Intent intent) {
         if (intent == null) {

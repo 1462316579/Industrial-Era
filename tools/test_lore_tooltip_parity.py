@@ -2,7 +2,7 @@
 """Compare item lore tooltip styles with the pinned vanilla client.
 
 Vanilla prints what ``ItemLore.addToTooltip`` adds after ``ComponentUtils.mergeStyles``
-with dark purple italic (VanillaLoreTooltipOracle). Horizon prints what
+with dark purple italic (VanillaLoreTooltipOracle). Industrial Era prints what
 ``item_tooltip::lore_texts`` gives (examples/probe/lore_tooltip_fixture).
 """
 try:
@@ -42,9 +42,9 @@ if __name__ == '__main__':
         'Item lore tooltip lines: dark purple italic, child colours, explicit non-italic, a line with no text of its own,'
         ' plain-string children and packed colours, and tooltip_display',
         sources=[
-            lab.ROOT / 'crates/horizon-client/src/item_tooltip.rs',
-            lab.ROOT / 'crates/horizon-items/src/item_data.rs',
-            lab.ROOT / 'crates/horizon-client-core/src/text.rs',
-            lab.ROOT / 'crates/horizon-client-core/src/component.rs',
+            lab.ROOT / 'crates/industrial-era-client/src/item_tooltip.rs',
+            lab.ROOT / 'crates/industrial-era-items/src/item_data.rs',
+            lab.ROOT / 'crates/industrial-era-client-core/src/text.rs',
+            lab.ROOT / 'crates/industrial-era-client-core/src/component.rs',
         ],
         expected_lines=len(CASES))

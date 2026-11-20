@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """A dedicated server that panics in a tick still saves its world, and keeps what the panic left unsure.
 
-`MinecraftServer.runServer` catches what the tick throws and still stops the server. Horizon's
+`MinecraftServer.runServer` catches what the tick throws and still stops the server. Industrial Era's
 `stop_after_crash` does the same, but a panic can interrupt a guest's turn (the game holds that
 player's state swapped in) or a tick that has the hub out. `HORIZON_CRASH_FIXTURE` makes the tick
-panic at one of those points. Each run below joins a real Horizon client, panics the server, and
+panic at one of those points. Each run below joins a real Industrial Era client, panics the server, and
 checks, from the files the server leaves:
 
 - `guest`: the panic comes in the joined player's turn (which runs with the hub out of the game,
@@ -38,7 +38,7 @@ PLAYER = 'Tester'
 def binary():
     metadata = subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True)
     import json
-    return Path(json.loads(metadata)['target_directory']) / 'fast' / 'horizon-client'
+    return Path(json.loads(metadata)['target_directory']) / 'fast' / 'industrial-era-client'
 
 
 def start(directory, fixture=None):
@@ -113,7 +113,7 @@ def crash(directory, fixture, port, out, trigger):
 
 
 def main():
-    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], cwd=lab.ROOT, check=True)
+    subprocess.run(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client', '--bin', 'industrial-era-client'], cwd=lab.ROOT, check=True)
     build = lab.LOCAL / 'dedicated-crash-save'
     shutil.rmtree(build, ignore_errors=True)
     build.mkdir(parents=True)

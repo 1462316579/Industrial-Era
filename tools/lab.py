@@ -38,9 +38,9 @@ def pinned_version():
 
 VERSION = pinned_version()
 # The pinned version's imported jars, libraries and sources (tools/lab.py prepare), and the resources
-# horizon-prepare made from them.
+# industrial-era-prepare made from them.
 GAME = LOCAL / "minecraft" / VERSION
-RESOURCES = LOCAL / "horizon-client" / VERSION
+RESOURCES = LOCAL / "industrial-era-client" / VERSION
 
 
 def version_info(client_jar=None):
@@ -71,7 +71,7 @@ def _remove_scratch_dirs():
 
 
 def game_env(base=None, **extra):
-    """The environment for every run of the game, the launcher or horizon-ctl from a tool or a harness: no audio,
+    """The environment for every run of the game, the launcher or industrial-era-ctl from a tool or a harness: no audio,
     no Discord presence, and fresh scratch folders for the game's home (logs, saves, options), the launcher's home and the XDG folders,
     so a run never writes into a real player's folders (the game falls back to them when HORIZON_HOME is unset).
     A folder the caller already has in `base` (default os.environ) or passes in `extra` is kept. The scratch folders
@@ -83,8 +83,8 @@ def game_env(base=None, **extra):
     # Never a real Discord's Rich Presence; tools/discord_presence_e2e.py points the game at a fake one.
     if not env.get("HORIZON_DISCORD_IPC_DIR"):
         env["HORIZON_NO_DISCORD"] = "1"
-    for key, prefix in (("HORIZON_HOME", "horizon-home-"), ("HORIZON_LAUNCHER_HOME", "horizon-launcher-home-"),
-                        ("XDG_DATA_HOME", "horizon-xdg-data-"), ("XDG_CONFIG_HOME", "horizon-xdg-config-")):
+    for key, prefix in (("HORIZON_HOME", "industrial-era-home-"), ("HORIZON_LAUNCHER_HOME", "industrial-era-launcher-home-"),
+                        ("XDG_DATA_HOME", "industrial-era-xdg-data-"), ("XDG_CONFIG_HOME", "industrial-era-xdg-config-")):
         if not env.get(key):
             env[key] = _scratch_dir(prefix)
     return env
@@ -182,7 +182,7 @@ def download(url, destination, checksum, algorithm="sha1"):
     try:
         with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as stream:
             temporary = Path(stream.name)
-            request = urllib.request.Request(url, headers={"User-Agent": "horizon/0.1"})
+            request = urllib.request.Request(url, headers={"User-Agent": "industrial-era/0.1"})
             with urllib.request.urlopen(request, timeout=120) as response:
                 shutil.copyfileobj(response, stream)
         actual = digest(temporary, algorithm)
@@ -195,10 +195,10 @@ def download(url, destination, checksum, algorithm="sha1"):
     return destination
 
 
-LAUNCHER_HINT = ("Horizon does not download the game: install Minecraft Java Edition with the official "
+LAUNCHER_HINT = ("Industrial Era does not download the game: install Minecraft Java Edition with the official "
                  "launcher, play {version} once, then rerun. If the launcher uses another game directory, "
                  "pass --minecraft-dir or set HORIZON_MINECRAFT_DIR.")
-SERVER_HINT = ("Horizon does not download the game: download the {version} server jar yourself (minecraft.net/download/server "
+SERVER_HINT = ("Industrial Era does not download the game: download the {version} server jar yourself (minecraft.net/download/server "
                "while {version} is the current release, otherwise the downloads.server.url in your launcher's "
                "versions/{version}/{version}.json), then pass --server-jar PATH or set HORIZON_SERVER_JAR.")
 
@@ -258,8 +258,8 @@ def import_manifest(lock, directory, minecraft=None):
             raise ValueError(f"{source} does not describe the pinned {version} release")
         checksum = digest(source, "sha1")
         if not manifest_accepted(lock, checksum):
-            raise ValueError(f"{source} is a {version} version file Horizon does not know yet (sha1 {checksum}); "
-                             f"Mojang may have republished it. Update Horizon, or report it if this is the latest release.")
+            raise ValueError(f"{source} is a {version} version file Industrial Era does not know yet (sha1 {checksum}); "
+                             f"Mojang may have republished it. Update Industrial Era, or report it if this is the latest release.")
         if not (destination.exists() and digest(destination, "sha1") == checksum):
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, destination)
@@ -381,7 +381,7 @@ def launcher_assets(manifest, minecraft=None):
     known = json.loads(LOCK.read_text(encoding="utf-8"))["minecraft"].get("accepted_asset_index_sha1", [])
     if checksum != info["sha1"] and checksum not in known:
         # Mojang republishes an index under the same id (#1076); each object is still verified.
-        print(f"{index} is an asset index Horizon does not know yet (sha1 {checksum}); "
+        print(f"{index} is an asset index Industrial Era does not know yet (sha1 {checksum}); "
               "using it, every file is still checked against its own SHA-1", file=sys.stderr)
     return assets, index
 

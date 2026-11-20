@@ -1,13 +1,13 @@
 # Pregeneration: `/pregen`
 
 `/pregen` generates every chunk of a square or a circle ahead of the players, lights it and saves it, as
-Chunky does on a Java server. It is Horizon's own command (vanilla has none), available in single player
+Chunky does on a Java server. It is Industrial Era's own command (vanilla has none), available in single player
 with cheats on and to operators (level 2) on a server, from the chat or the server console
-(`horizon-server cmd pregen start 2500`).
+(`industrial-era-server cmd pregen start 2500`).
 
 It is off until you turn it on, so `/help` and the command tree stay vanilla's:
 
-- a server: `horizon-pregen = true` under `[properties]` in `server.toml` (or `horizon-pregen=true` in a
+- a server: `industrial-era-pregen = true` under `[properties]` in `server.toml` (or `industrial-era-pregen=true` in a
   vanilla folder's `server.properties`), then restart it;
 - single player and LAN: start the game with `--pregen`.
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Compare Horizon's command execution with vanilla's real command implementations.
+"""Compare Industrial Era's command execution with vanilla's real command implementations.
 
 Java (VanillaCommandExecOracle) starts a stand-in integrated server: a real
 MinecraftServer with a generated world, Commands.CommandSelection.INTEGRATED
 and one single-player owner named Player. Rust runs the same script through
-Horizon's integrated server with a connected headless client (HORIZON_COMMAND_SCRIPT). Both run each command as
+Industrial Era's integrated server with a connected headless client (HORIZON_COMMAND_SCRIPT). Both run each command as
 the player through Commands.performPrefixedCommand and record every system or
 chat message the player receives (text and resolved style: colour, bold,
 italic, underlined, strikethrough, obfuscated) together with the results the
@@ -44,7 +44,7 @@ def main():
     parser.add_argument('--limit', type=int, default=40, help='print at most this many mismatches')
     parser.add_argument('--allow-gaps', action='store_true', help='report mismatches without failing')
     parser.add_argument('--only', help='run only corpus groups whose name contains this')
-    parser.add_argument('--binary', type=Path, help='use an already built Horizon game instead of building it')
+    parser.add_argument('--binary', type=Path, help='use an already built Industrial Era game instead of building it')
     args = parser.parse_args()
     build = lab.LOCAL / 'command-exec-parity'
     build.mkdir(parents=True, exist_ok=True)
@@ -53,7 +53,7 @@ def main():
     if args.prepare:
         lab.prepare()
     lock, jars, libraries = base.verify_artifacts()
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
+    oracle = lab.ROOT / 'mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaCommandExecOracle.java'
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
     dependency_path = os.pathsep.join(map(str, libraries))
@@ -85,9 +85,9 @@ def main():
     if args.binary:
         binary = args.binary.resolve(strict=True)
     else:
-        run(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client'], 'compile-rust', cwd=lab.ROOT)
+        run(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client', '--bin', 'industrial-era-client'], 'compile-rust', cwd=lab.ROOT)
         metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--no-deps', '--format-version', '1'], cwd=lab.ROOT, text=True))
-        binary = Path(metadata['target_directory']) / 'fast' / ('horizon-client.exe' if os.name == 'nt' else 'horizon-client')
+        binary = Path(metadata['target_directory']) / 'fast' / ('industrial-era-client.exe' if os.name == 'nt' else 'industrial-era-client')
     rust_dir = build / 'rust'
     shutil.rmtree(rust_dir, ignore_errors=True)
     rust_dir.mkdir()

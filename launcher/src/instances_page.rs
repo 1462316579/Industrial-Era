@@ -1,9 +1,9 @@
-//! Instances in the window (`horizon_launcher::instances`): the sidebar's list, by group, and the
+//! Instances in the window (`industrial_era_launcher::instances`): the sidebar's list, by group, and the
 //! dialog that makes one (empty, or a copy of the selected one) or changes its name, group and
 //! icon.
 use super::*;
 use gpui::RenderImage;
-use horizon_launcher::instances::{self, Icon, Instance, Kind as InstanceKind};
+use industrial_era_launcher::instances::{self, Icon, Instance, Kind as InstanceKind};
 use servers_page::Field;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -37,7 +37,7 @@ pub(super) const TEXTURES: [&str; 24] = [
     "book",
 ];
 
-/// Colours offered as icons: Horizon's accent and a few that sit beside it in both themes.
+/// Colours offered as icons: Industrial Era's accent and a few that sit beside it in both themes.
 const COLOURS: [&str; 8] = [
     "#5b3fd6", "#3f7fd6", "#2f9e8f", "#4f9e2f", "#c9a227", "#d9732f", "#c4405a", "#7d7591",
 ];
@@ -53,9 +53,9 @@ pub(super) struct InstanceDialog {
     pub(super) picture: Option<Option<instance_icons::Chosen>>,
     pub(super) error: Option<String>,
     pub(super) busy: bool,
-    /// Horizon, or the Java game it plays.
+    /// Industrial Era, or the Java game it plays.
     pub(super) java: new_instance::JavaChoice,
-    /// The Horizon version it keeps (`Instance::version`); None follows the launcher's.
+    /// The Industrial Era version it keeps (`Instance::version`); None follows the launcher's.
     pub(super) pin: Option<String>,
     /// The loader logo `picture` was made from, when it was one.
     pub(super) logo: Option<&'static str>,
@@ -217,7 +217,7 @@ impl Launcher {
                             let build = self.native_build_of(tag).unwrap_or_default();
                             trf(
                                 "Native build · {version}",
-                                &[("version", &build.horizon_short())],
+                                &[("version", &build.industrial_era_short())],
                             )
                         }
                         (None, Some(tag), Some(_)) => format!("{} · {tag}", tr("Ready")),
@@ -232,9 +232,9 @@ impl Launcher {
                         summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
                     )
                 }
-                InstanceKind::Pack => (false, tr("From Horizon's registry").into()),
+                InstanceKind::Pack => (false, tr("From Industrial Era's registry").into()),
             };
-            // Java instances have nothing of Horizon's to prepare: no state square.
+            // Java instances have nothing of Industrial Era's to prepare: no state square.
             let state = (matches!(i.kind, InstanceKind::Default | InstanceKind::Own)
                 && i.java.is_none())
             .then_some(if prepared { t.success } else { t.warn });
@@ -326,17 +326,17 @@ impl Launcher {
             .map(|p| p.as_ref().map(|c| c.png.clone()));
         let editing = d.editing.clone();
         let copy = selected.filter(|_| d.copy);
-        // The Horizon version is Horizon's instances' alone: a Java one plays its own game.
+        // The Industrial Era version is Industrial Era's instances' alone: a Java one plays its own game.
         let plays_horizon = match &editing {
             Some(id) => self
                 .instances
                 .list
                 .iter()
                 .any(|i| &i.id == id && i.java.is_none()),
-            None => d.java.kind == new_instance::NewKind::Horizon,
+            None => d.java.kind == new_instance::NewKind::Industrial Era,
         };
         // A new Java instance: what it plays, and its name when none is typed.
-        let java = (editing.is_none() && d.java.kind != new_instance::NewKind::Horizon)
+        let java = (editing.is_none() && d.java.kind != new_instance::NewKind::Industrial Era)
             .then(|| d.java.clone());
         let minecraft = java.as_ref().map(|j| {
             j.minecraft(match &self.instances.versions {
@@ -382,7 +382,7 @@ impl Launcher {
                 instances::set_picture(
                     &instance.home,
                     png.as_deref(),
-                    &horizon_launcher::desktop_seams::to_trash,
+                    &industrial_era_launcher::desktop_seams::to_trash,
                 )?;
             }
             Ok(instance)
@@ -431,11 +431,11 @@ impl Launcher {
             d.busy,
             d.java.kind,
         );
-        let java = !editing && kind != new_instance::NewKind::Horizon;
+        let java = !editing && kind != new_instance::NewKind::Industrial Era;
         let n = t.night;
         let from = self
             .selected_instance()
-            .map_or_else(|| "Horizon".into(), |i| i.name.clone());
+            .map_or_else(|| "Industrial Era".into(), |i| i.name.clone());
         let row = |label: &'static str, control: AnyElement| {
             div()
                 .flex()
@@ -539,7 +539,7 @@ impl Launcher {
                     .into_any_element(),
             );
         }
-        // Nothing chosen: the instance's mark (its loader's, Horizon's), when it has one.
+        // Nothing chosen: the instance's mark (its loader's, Industrial Era's), when it has one.
         let mark = instance.as_ref().and_then(|i| self.instance_mark(i, 28.));
         tiles.push(
             tile("instance-icon-none".into(), icon.is_none() && !pictured)
@@ -809,7 +809,7 @@ impl Launcher {
 }
 
 impl Launcher {
-    /// Delete…, for every instance but Horizon's own (the game's home); not while a game runs.
+    /// Delete…, for every instance but Industrial Era's own (the game's home); not while a game runs.
     fn delete_button(&self, instance: &Instance, cx: &mut Context<Self>) -> Option<Stateful<Div>> {
         if instance.kind == InstanceKind::Default {
             return None;
@@ -879,7 +879,7 @@ impl Launcher {
             Ok((_, saved)) => {
                 self.instances.confirm_delete = None;
                 self.instances.delete_error = None;
-                // Play starts Horizon again; the window's copy of the settings says so too.
+                // Play starts Industrial Era again; the window's copy of the settings says so too.
                 if self.settings.instance.as_deref() == Some(id) {
                     self.settings.instance = None;
                     self.save_settings();

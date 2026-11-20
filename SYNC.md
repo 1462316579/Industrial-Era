@@ -1,10 +1,10 @@
-# Sync with Horizon (temporary, delete after the merge lands)
+# Sync with Industrial Era (temporary, delete after the merge lands)
 
-Upstream commit merged: `31f83499b` (2026-11-02, horizon-rust/horizon#7585). Base `f8988d5a7`.
+Upstream commit merged: `31f83499b` (2026-11-02, industrial-era-rust/industrial-era#7585). Base `f8988d5a7`.
 Android before the merge: `73fb969be`. Wasm removal, files only: `30344a60b` (does not build).
 
 The merge commit `212b96cb7` holds its conflict markers on purpose; each group below was resolved in
-a commit of its own. Part of the conflicts came resolved from the older `sync-horizon-3` worktree,
+a commit of its own. Part of the conflicts came resolved from the older `sync-industrial-era-3` worktree,
 read only and carried forward with 3-way merges (the mod crates were left out).
 
 How to work and tools: `sync4/` in the session notes folder
@@ -25,7 +25,7 @@ clippy-android, fmt, test, raw CMD). On the VM: `~/sync4`, `~/sync4-target`, `~/
 - [ ] Owner tests the APK; merge into android
 
 ## What fell
-- Wasm mods and their API: horizon-mod-sdk, starling-mod-sdk, starling-mod-cli, mods/official
+- Wasm mods and their API: industrial-era-mod-sdk, starling-mod-sdk, starling-mod-cli, mods/official
   (far-view, fps-overlay, keystrokes, minimap, recipes, zoom) and the SDK examples.
 - Create: own block states (`states`, `own-states.json`) and so placement orientation and belt
   funnels (`belt_funnel_for`); `fuel` on items; the support and occlusion part of `properties.shape`.

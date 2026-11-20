@@ -1,12 +1,12 @@
 # Survival multiplayer (SMP): the official server's mod
 
-The official Horizon server (play.playhorizon.dev) wants an organised survival game: a currency players earn in
+The official Industrial Era server (play.playhorizon.dev) wants an organised survival game: a currency players earn in
 game, a server market, safe player-to-player trades, small games of chance with that currency, and spawn, homes,
 teleport requests, warps, land claims and rules.
 
-**None of it is in Horizon.** The server people download stays a plain server, like vanilla's server jar: no SMP
+**None of it is in Industrial Era.** The server people download stays a plain server, like vanilla's server jar: no SMP
 command, no SMP setting in `server.toml`, nothing in the release build. The SMP is a **native mod**, `smp`, that
-only the official server builds into its engine. What Horizon gains are general **server hook points** any native
+only the official server builds into its engine. What Industrial Era gains are general **server hook points** any native
 mod can use (commands, players, messages, inventories, the world folder, then interactions, damage, menus): the
 mod API grows, and a server owner who wants their own SMP, shop or claims mod can write it on the same points.
 
@@ -14,28 +14,28 @@ Status: design (this page); built in phases below.
 
 ## Players install nothing
 
-Everything works with a stock Horizon client: no mod, no resource pack, nothing on the player's side. The SMP speaks
-only what vanilla's protocol already carries and the Horizon client already renders:
+Everything works with a stock Industrial Era client: no mod, no resource pack, nothing on the player's side. The SMP speaks
+only what vanilla's protocol already carries and the Industrial Era client already renders:
 
 - chat commands with completions (the server's command tree), and chat lines;
 - menus the server opens with vanilla menu types (a 6-row chest, `generic_9x6`) and fills with ordinary items as
   buttons and displays; the server rules every click, the client only shows them;
 - vanilla sounds, titles, the action bar, boss bars and the scoreboard sidebar for what a player should notice.
 
-Only the Horizon client may join the official server; that gate is anticheat-1's work, not the SMP's. The SMP may rely
+Only the Industrial Era client may join the official server; that gate is anticheat-1's work, not the SMP's. The SMP may rely
 on what the stock client renders, never on a client mod.
 
 ## Architecture
 
 | Part | Where | What |
 |---|---|---|
-| Server hook points | this repository, `crates/horizon-client/src/game/native_hooks.rs` ([native-mods.md](native-mods.md)) | stable, versioned (`NATIVE_HOOKS_API`), empty when no mod hooks them |
-| The `smp` mod | [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods), `native/smp/` | a horizon-mixins bundle: `smp_store.rs`, `smp_economy.rs`, `smp_market.rs`... hold the rules and data (also the mod's own crate, with its tests, no game types), `glue.rs` and small helpers hook the points |
-| The official server's engine | built from a Horizon release's commit with the bundle applied | `horizon-server`'s `[engine] path` points at it; the rest of the server is unchanged |
+| Server hook points | this repository, `crates/industrial-era-client/src/game/native_hooks.rs` ([native-mods.md](native-mods.md)) | stable, versioned (`NATIVE_HOOKS_API`), empty when no mod hooks them |
+| The `smp` mod | [industrial-era-rust/industrial-era-mods](https://github.com/industrial-era-rust/industrial-era-mods), `native/smp/` | a industrial-era-mixins bundle: `smp_store.rs`, `smp_economy.rs`, `smp_market.rs`... hold the rules and data (also the mod's own crate, with its tests, no game types), `glue.rs` and small helpers hook the points |
+| The official server's engine | built from a Industrial Era release's commit with the bundle applied | `industrial-era-server`'s `[engine] path` points at it; the rest of the server is unchanged |
 
-Why a native mod: it is the mod system Horizon has now, it runs on the server
+Why a native mod: it is the mod system Industrial Era has now, it runs on the server
 that simulates the world, and it keeps the SMP out of everyone else's game. Why hook points rather than reaching into
-the game's private code: a mod on the hook points builds on any later Horizon (`"hooks": N`), so the official server
+the game's private code: a mod on the hook points builds on any later Industrial Era (`"hooks": N`), so the official server
 updates with each release without the mod being ported again.
 
 Why not a datapack: no command arguments, no inventory transactions, no trade window, no way to refuse an action in a
@@ -115,7 +115,7 @@ claim from outside.
 
 ## Configuration and data
 
-Everything is in the world's folder, `world/horizon-smp/`, so a backup of the world carries it, and a world without
+Everything is in the world's folder, `world/industrial-era-smp/`, so a backup of the world carries it, and a world without
 that folder is untouched: the mod creates it the first time it runs.
 
 | File | Holds |
@@ -152,8 +152,8 @@ with. The coin is a fresh random key from the system, never the world's random.
 ## Building the official server's engine
 
 A native mod is built into the game it runs in ([native-mods.md](native-mods.md)). For the server: the source of the
-release the server runs, `horizon-mixins apply` with the `smp` bundle, then the server build
-(`cargo build --release --no-default-features -p horizon-client`), and `horizon-server`'s `[engine] path` set to
+release the server runs, `industrial-era-mixins apply` with the `smp` bundle, then the server build
+(`cargo build --release --no-default-features -p industrial-era-client`), and `industrial-era-server`'s `[engine] path` set to
 the result. When to deploy it on the official server is the owners' decision; the mod's README holds the exact
 commands.
 
@@ -166,8 +166,8 @@ made only when a player acts on a block. Each phase measures a server tick with 
 ## Phases
 
 Each is pull requests under ~500 lines, each tested: the hook points here (unit tests, a game test that hooks
-them), the mod in horizon-mods (its crate's tests, and a proof: a dedicated server built with the bundle and real
-clients driven by `horizon-ctl`, in fresh folders).
+them), the mod in industrial-era-mods (its crate's tests, and a proof: a dedicated server built with the bundle and real
+clients driven by `industrial-era-ctl`, in fresh folders).
 
 1. **Economy**: command and player hook points; the mod's ledger, data files and audit log, `/balance`, `/pay`,
    `/baltop`, `/eco`; then the items helpers and the market (`/sell`, `/buy`, `/worth`).

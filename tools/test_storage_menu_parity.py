@@ -37,7 +37,7 @@ def main():
     cases = ['minecraft:' + b for b in BLOCKS]
     (work / 'cases.txt').write_text(''.join(c + '\n' for c in cases), encoding='utf-8')
     vanilla.run('VanillaStorageMenuOracle', work / 'cases.txt', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'storage_menu_fixture', work / 'cases.txt', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'storage_menu_fixture', work / 'cases.txt', work / 'rust.txt')
     errors = sum(line == 'error' for line in (work / 'native.txt').read_text(encoding='utf-8').split('\n'))
     if errors:
         print(f'{errors} cases fail in vanilla')

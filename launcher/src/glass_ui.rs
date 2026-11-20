@@ -6,7 +6,7 @@ use gpui::{
     div, prelude::*, px, rgb, rgba, svg, App, Div, FontWeight, Hsla, SharedString, Stateful, Svg,
     Window,
 };
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_theme::glass::{fill, ink, radius};
 
 /// White at `a`.
 pub fn white(a: f32) -> Hsla {
@@ -21,7 +21,7 @@ pub fn color(c: u32) -> Hsla {
 /// Text at `size` px in Geist, white at `a`, at `weight`.
 pub fn text(size: f32, weight: FontWeight, a: f32) -> Div {
     div()
-        .font_family(horizon_theme::glass::FONT)
+        .font_family(industrial_era_theme::glass::FONT)
         .text_size(px(size))
         .line_height(px((size * 1.4).round()))
         .font_weight(weight)
@@ -62,8 +62,8 @@ pub enum Tone {
 
 pub fn dot(tone: Tone) -> Div {
     let c = match tone {
-        Tone::Live => color(horizon_theme::glass::LIVE),
-        Tone::Busy | Tone::Warn => color(horizon_theme::glass::WARN),
+        Tone::Live => color(industrial_era_theme::glass::LIVE),
+        Tone::Busy | Tone::Warn => color(industrial_era_theme::glass::WARN),
         Tone::Accent(soft) => color(soft),
         Tone::Off => white(0.35),
     };
@@ -200,7 +200,7 @@ pub fn tab(
         .px(px(14.))
         .rounded(px(radius::CONTROL))
         .cursor_pointer()
-        .font_family(horizon_theme::glass::FONT)
+        .font_family(industrial_era_theme::glass::FONT)
         .text_size(px(15.))
         .line_height(px(20.));
     let d = if open {
@@ -244,13 +244,13 @@ pub fn menu_row(
 ) -> Stateful<Div> {
     let id = id.into();
     let (fg, icon_color) = if danger {
-        let c = color(horizon_theme::glass::DANGER);
+        let c = color(industrial_era_theme::glass::DANGER);
         (c, c)
     } else {
         (white(ink::FULL), white(ink::NOTE))
     };
     let hover_color = if danger {
-        rgba(horizon_theme::glass::DANGER_HOVER << 8 | 0x1f).into()
+        rgba(industrial_era_theme::glass::DANGER_HOVER << 8 | 0x1f).into()
     } else {
         white(0.07)
     };
@@ -310,17 +310,17 @@ pub fn solid(
             .bg(gpui::white())
             .cursor_pointer()
             .hover(|s| s.opacity(0.9))
-            .font_family(horizon_theme::glass::FONT)
+            .font_family(industrial_era_theme::glass::FONT)
             .text_size(px(size))
             .font_weight(FontWeight::MEDIUM)
-            .text_color(color(horizon_theme::glass::ON_LIGHT))
+            .text_color(color(industrial_era_theme::glass::ON_LIGHT))
             .child(label.into()),
         t,
     )
 }
 
-/// Horizon's mark on its dark tile (`MarkTile`): the mark 64 % of the tile, round at 26 %; the
-/// stems white, their reflection white at 40 %, the horizon in the accent's soft shade.
+/// Industrial Era's mark on its dark tile (`MarkTile`): the mark 64 % of the tile, round at 26 %; the
+/// stems white, their reflection white at 40 %, the industrial-era in the accent's soft shade.
 pub fn mark_tile(size: f32, accent_soft: u32) -> Div {
     let inner = size * 0.64;
     let u = inner / 16.;
@@ -462,7 +462,7 @@ pub fn quiet_icon(
             .bg(white(fill::BUTTON))
             .hover(|s| s.bg(white(0.14)))
             .cursor_pointer()
-            .font_family(horizon_theme::glass::FONT)
+            .font_family(industrial_era_theme::glass::FONT)
             .text_size(px(14.))
             .font_weight(FontWeight::MEDIUM)
             .text_color(white(ink::FULL))
@@ -572,7 +572,7 @@ pub fn link(id: impl Into<SharedString>, label: impl Into<SharedString>) -> Stat
 /// 12 % while what it holds is refused.
 pub fn field(focused: bool, invalid: bool) -> Div {
     let bg: Hsla = if invalid {
-        rgba(horizon_theme::glass::DANGER_HOVER << 8 | 0x1f).into()
+        rgba(industrial_era_theme::glass::DANGER_HOVER << 8 | 0x1f).into()
     } else {
         white(if focused {
             fill::FIELD_FOCUS
@@ -588,7 +588,7 @@ pub fn field(focused: bool, invalid: bool) -> Div {
         .overflow_hidden()
         .rounded(px(radius::ROW))
         .bg(bg)
-        .font_family(horizon_theme::glass::FONT)
+        .font_family(industrial_era_theme::glass::FONT)
         .text_size(px(14.))
 }
 

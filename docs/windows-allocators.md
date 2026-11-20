@@ -18,11 +18,11 @@ mimalloc. No frame-rate improvement is guaranteed.
 
 ```sh
 # Current mimalloc baseline, then add Segment Heap. Keep the same profile.
-cargo build --profile fast -p horizon-client --bin horizon-client
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-segment-heap
+cargo build --profile fast -p industrial-era-client --bin industrial-era-client
+cargo build --profile fast -p industrial-era-client --bin industrial-era-client --features windows-segment-heap
 # Older commands still build, but these repeat the two variants above.
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-mimalloc
-cargo build --profile fast -p horizon-client --bin horizon-client --features windows-segment-heap,windows-mimalloc
+cargo build --profile fast -p industrial-era-client --bin industrial-era-client --features windows-mimalloc
+cargo build --profile fast -p industrial-era-client --bin industrial-era-client --features windows-segment-heap,windows-mimalloc
 ```
 
 Copy each executable to a separate experiment directory before building the next
@@ -44,13 +44,13 @@ On Windows, extract the manifest from a built executable using the Windows SDK's
 `mt.exe` (PowerShell syntax):
 
 ```powershell
-mt.exe '-inputresource:target/fast/horizon-client.exe;#1' '-out:client.manifest'
+mt.exe '-inputresource:target/fast/industrial-era-client.exe;#1' '-out:client.manifest'
 mt.exe -manifest client.manifest -validate_manifest
 ```
 
 Check that the feature build contains `SegmentHeap` in the
 `http://schemas.microsoft.com/SMI/2020/WindowsSettings` namespace. The baseline
-must not contain this element. Confirm Explorer still shows Horizon's icon for
+must not contain this element. Confirm Explorer still shows Industrial Era's icon for
 both builds. Inspecting the final executable matters: a valid source XML file
 alone does not prove that the linker embedded it.
 

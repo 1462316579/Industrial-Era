@@ -128,7 +128,7 @@ def main():
     if run.returncode:
         print(run.stderr[-4000:])
         sys.exit('oracle failed')
-    lib.cargo_example('horizon-client', 'recipe_book_view_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'recipe_book_view_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
 
     def describe(case):
         return json.dumps({k: (v if k != 'history' else [(h['op'], len(h['ids'])) for h in v]) for k, v in case.items()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Horizon's original exporter bundle for the APK, never package Minecraft files.
+"""Build Industrial Era's original exporter bundle for the APK, never package Minecraft files.
 
 Requires a host JDK of the pinned major. HORIZON_MINECRAFT_DIR can supply the
 already downloaded input files; otherwise fetch the pinned jars and libraries
@@ -93,7 +93,7 @@ def copy_bundle(source, destination):
         if (path.is_absolute() or '..' in path.parts or '\\' in name
                 or not name.startswith(('server/dev/horizonlab/parity/', 'client/dev/horizonlab/parity/'))
                 or not name.endswith('.class')):
-            raise ValueError('Non-Horizon class in exporter bundle')
+            raise ValueError('Non-Industrial Era class in exporter bundle')
         if hashlib.sha256((source / path).read_bytes()).hexdigest() != checksum:
             raise ValueError('Damaged exporter class')
     if source.resolve() == destination.resolve():
@@ -118,7 +118,7 @@ def main():
         env.pop(name, None)
     result = subprocess.run([
         'cargo', 'run', '--manifest-path', str(ROOT / 'Cargo.toml'), '--profile', 'quick',
-        '-p', 'horizon-prepare', '--', 'compile-exporters', '--root', str(ROOT),
+        '-p', 'industrial-era-prepare', '--', 'compile-exporters', '--root', str(ROOT),
         '--prepare', '--minecraft-dir', str(home), '--server-jar', str(server),
     ], cwd=ROOT, env=env, text=True, encoding='utf-8', stdout=subprocess.PIPE, check=True)
     print(result.stdout, end='')

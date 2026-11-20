@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Vanilla's server management protocol (JSON-RPC over a WebSocket), Horizon's against vanilla's.
+"""Vanilla's server management protocol (JSON-RPC over a WebSocket), Industrial Era's against vanilla's.
 
-The pinned vanilla server (`net.minecraft.server.Main nogui`) and Horizon's (`horizon-server run`, which
+The pinned vanilla server (`net.minecraft.server.Main nogui`) and Industrial Era's (`industrial-era-server run`, which
 serves the protocol beside the game it supervises) start in folders with the same lists (ops.json,
 whitelist.json, banned-players.json, banned-ips.json) and the same `management-server-*` settings (a fixed
 secret, one allowed origin, and TLS, vanilla's default, with a PKCS12 keystore `keytool` makes). Each is then
@@ -23,9 +23,9 @@ sent the same things over TLS, and every answer is compared exactly:
   `server/stop`;
 - the TLS version each server agrees on.
 
-A parse error's `data` is Gson's message in vanilla and serde's in Horizon: left out. The notifications the
+A parse error's `data` is Gson's message in vanilla and serde's in Industrial Era: left out. The notifications the
 servers send meanwhile (`server/stopping`...) are set aside, and their names are kept in each side's report
-(`notifications`); Horizon sends `server/started` and `server/stopping` so far, not yet the rest.
+(`notifications`); Industrial Era sends `server/started` and `server/stopping` so far, not yet the rest.
 """
 import base64
 import json
@@ -200,7 +200,7 @@ MESSAGES = [
     '{"jsonrpc":"2.0","id":207,"method":"minecraft:gamerules/update","params":[{"value":true}]}',
     '{"jsonrpc":"2.0","id":208,"method":"minecraft:gamerules"}',
 ]
-# The notifications Horizon sends so far, which both servers must send for the same messages the same number of
+# The notifications Industrial Era sends so far, which both servers must send for the same messages the same number of
 # times (the others, `server/saving`... depend on timing, or aren't sent yet).
 COMPARED_NOTIFICATIONS = {
     f'minecraft:notification/{name}' for name in (
@@ -386,15 +386,15 @@ def main():
     build = lab.LOCAL / NAME
     shutil.rmtree(build, ignore_errors=True)
     build.mkdir(parents=True)
-    oh.run_logged(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client',
-                   '-p', 'horizon-server', '--bin', 'horizon-server'], build, 'compile-rust')
+    oh.run_logged(['cargo', 'build', '--profile', 'fast', '-p', 'industrial-era-client', '--bin', 'industrial-era-client',
+                   '-p', 'industrial-era-server', '--bin', 'industrial-era-server'], build, 'compile-rust')
     target = lab.cargo_target() / 'fast'
     work = Path(tempfile.mkdtemp(prefix='hz-management-'))
     os.environ['HORIZON_API_DISCOVERY'] = NO_SERVICES
     try:
         keystore, context = make_keystore(work)
         sides = {}
-        for side in ('vanilla', 'horizon'):
+        for side in ('vanilla', 'industrial-era'):
             folder = work / side
             folder.mkdir()
             write_lists(folder)
@@ -414,10 +414,10 @@ def main():
                 (folder / 'server.toml').write_text(
                     f'[server]\nport = {port}\nonline_mode = false\nview_distance = 3\nsimulation_distance = 3\n\n'
                     f'[properties]\n{toml}\n'
-                    f'[engine]\npath = {json.dumps(str(target / f"horizon-client{EXE}"))}\n'
+                    f'[engine]\npath = {json.dumps(str(target / f"industrial-era-client{EXE}"))}\n'
                     f'resources = {json.dumps(str(lab.RESOURCES.resolve()))}\nrestart_on_crash = false\n\n'
                     '[backups]\nevery = "0"\n\n[panel]\nbind = ""\n')
-                command = [target / f'horizon-server{EXE}', '--dir', folder, 'run']
+                command = [target / f'industrial-era-server{EXE}', '--dir', folder, 'run']
             server = Server(command, folder, build / f'{side}.log')
             try:
                 server.wait_for(DONE, 600)
@@ -443,7 +443,7 @@ def main():
                 sides[side]['saved_max_players'] = next(
                     (line.partition('=')[2] for line in properties.splitlines()
                      if line.startswith('max-players=')), None)
-                if side == 'horizon':
+                if side == 'industrial-era':
                     world = (folder / 'server.toml').read_text().partition('[world]')[2].split('\n[', 1)[0]
                     sides[side]['saved_config_difficulty'] = 'difficulty = "peaceful"' in world
                     sides[side]['saved_config_game_mode'] = 'game_mode = "spectator"' in world
@@ -496,62 +496,62 @@ def main():
                     ws.sock.close()
             finally:
                 restarted.stop()
-        vanilla, horizon = sides['vanilla'], sides['horizon']
+        vanilla, industrial-era = sides['vanilla'], sides['industrial-era']
         failures = []
         for key in ('no secret', 'wrong secret', 'origin not allowed', 'subprotocol', 'tls', 'stop'):
-            if vanilla[key] != horizon[key]:
-                failures.append(f'{key}: vanilla {vanilla[key]!r}, Horizon {horizon[key]!r}')
-        for message, v, h in zip(MESSAGES, vanilla['answers'], horizon['answers']):
+            if vanilla[key] != industrial-era[key]:
+                failures.append(f'{key}: vanilla {vanilla[key]!r}, Industrial Era {industrial-era[key]!r}')
+        for message, v, h in zip(MESSAGES, vanilla['answers'], industrial-era['answers']):
             if v != h:
-                failures.append(f'{message}\n  vanilla {json.dumps(v)[:400]}\n  Horizon {json.dumps(h)[:400]}')
+                failures.append(f'{message}\n  vanilla {json.dumps(v)[:400]}\n  Industrial Era {json.dumps(h)[:400]}')
         told = {side: sorted(n for n in sides[side]['notifications'] if n in COMPARED_NOTIFICATIONS)
-                for side in ('vanilla', 'horizon')}
-        if told['vanilla'] != told['horizon']:
-            failures.append(f"notifications: vanilla {told['vanilla']}\n  Horizon {told['horizon']}")
-        if vanilla['saved_difficulty'] != horizon['saved_difficulty'] or vanilla['saved_difficulty'] != 'peaceful':
-            failures.append(f"saved difficulty: vanilla {vanilla['saved_difficulty']!r}, Horizon {horizon['saved_difficulty']!r}")
-        if not horizon['saved_config_difficulty']:
-            failures.append('Horizon did not save peaceful difficulty in server.toml')
-        if vanilla['saved_game_mode'] != horizon['saved_game_mode'] or vanilla['saved_game_mode'] != 'spectator':
-            failures.append(f"saved game mode: vanilla {vanilla['saved_game_mode']!r}, Horizon {horizon['saved_game_mode']!r}")
-        if not horizon['saved_config_game_mode']:
-            failures.append('Horizon did not save spectator game mode in server.toml')
-        if vanilla['saved_force_game_mode'] != horizon['saved_force_game_mode'] or vanilla['saved_force_game_mode'] != 'true':
-            failures.append(f"saved forced game mode: vanilla {vanilla['saved_force_game_mode']!r}, Horizon {horizon['saved_force_game_mode']!r}")
-        if not horizon['saved_config_force_game_mode']:
-            failures.append('Horizon did not save forced game mode in server.toml')
-        if vanilla['saved_use_allowlist'] != horizon['saved_use_allowlist'] or vanilla['saved_use_allowlist'] != 'true':
-            failures.append(f"saved allowlist use: vanilla {vanilla['saved_use_allowlist']!r}, Horizon {horizon['saved_use_allowlist']!r}")
-        if vanilla['saved_enforce_allowlist'] != horizon['saved_enforce_allowlist'] or vanilla['saved_enforce_allowlist'] != 'true':
-            failures.append(f"saved allowlist enforcement: vanilla {vanilla['saved_enforce_allowlist']!r}, Horizon {horizon['saved_enforce_allowlist']!r}")
-        if not horizon['saved_config_use_allowlist']:
-            failures.append('Horizon did not save allowlist use in server.toml')
-        if not horizon['saved_config_enforce_allowlist']:
-            failures.append('Horizon did not save allowlist enforcement in server.toml')
-        if vanilla['restarted_force_game_mode'] != horizon['restarted_force_game_mode'] or \
+                for side in ('vanilla', 'industrial-era')}
+        if told['vanilla'] != told['industrial-era']:
+            failures.append(f"notifications: vanilla {told['vanilla']}\n  Industrial Era {told['industrial-era']}")
+        if vanilla['saved_difficulty'] != industrial-era['saved_difficulty'] or vanilla['saved_difficulty'] != 'peaceful':
+            failures.append(f"saved difficulty: vanilla {vanilla['saved_difficulty']!r}, Industrial Era {industrial-era['saved_difficulty']!r}")
+        if not industrial-era['saved_config_difficulty']:
+            failures.append('Industrial Era did not save peaceful difficulty in server.toml')
+        if vanilla['saved_game_mode'] != industrial-era['saved_game_mode'] or vanilla['saved_game_mode'] != 'spectator':
+            failures.append(f"saved game mode: vanilla {vanilla['saved_game_mode']!r}, Industrial Era {industrial-era['saved_game_mode']!r}")
+        if not industrial-era['saved_config_game_mode']:
+            failures.append('Industrial Era did not save spectator game mode in server.toml')
+        if vanilla['saved_force_game_mode'] != industrial-era['saved_force_game_mode'] or vanilla['saved_force_game_mode'] != 'true':
+            failures.append(f"saved forced game mode: vanilla {vanilla['saved_force_game_mode']!r}, Industrial Era {industrial-era['saved_force_game_mode']!r}")
+        if not industrial-era['saved_config_force_game_mode']:
+            failures.append('Industrial Era did not save forced game mode in server.toml')
+        if vanilla['saved_use_allowlist'] != industrial-era['saved_use_allowlist'] or vanilla['saved_use_allowlist'] != 'true':
+            failures.append(f"saved allowlist use: vanilla {vanilla['saved_use_allowlist']!r}, Industrial Era {industrial-era['saved_use_allowlist']!r}")
+        if vanilla['saved_enforce_allowlist'] != industrial-era['saved_enforce_allowlist'] or vanilla['saved_enforce_allowlist'] != 'true':
+            failures.append(f"saved allowlist enforcement: vanilla {vanilla['saved_enforce_allowlist']!r}, Industrial Era {industrial-era['saved_enforce_allowlist']!r}")
+        if not industrial-era['saved_config_use_allowlist']:
+            failures.append('Industrial Era did not save allowlist use in server.toml')
+        if not industrial-era['saved_config_enforce_allowlist']:
+            failures.append('Industrial Era did not save allowlist enforcement in server.toml')
+        if vanilla['restarted_force_game_mode'] != industrial-era['restarted_force_game_mode'] or \
                 vanilla['restarted_force_game_mode'] != {'jsonrpc': '2.0', 'id': 64, 'result': True}:
-            failures.append(f"restarted forced game mode: vanilla {vanilla['restarted_force_game_mode']!r}, Horizon {horizon['restarted_force_game_mode']!r}")
-        if vanilla['restarted_autosave'] != horizon['restarted_autosave'] or \
+            failures.append(f"restarted forced game mode: vanilla {vanilla['restarted_force_game_mode']!r}, Industrial Era {industrial-era['restarted_force_game_mode']!r}")
+        if vanilla['restarted_autosave'] != industrial-era['restarted_autosave'] or \
                 vanilla['restarted_autosave'] != {'jsonrpc': '2.0', 'id': 74, 'result': True}:
-            failures.append(f"restarted autosave: vanilla {vanilla['restarted_autosave']!r}, Horizon {horizon['restarted_autosave']!r}")
-        if vanilla['restarted_use_allowlist'] != horizon['restarted_use_allowlist'] or \
+            failures.append(f"restarted autosave: vanilla {vanilla['restarted_autosave']!r}, Industrial Era {industrial-era['restarted_autosave']!r}")
+        if vanilla['restarted_use_allowlist'] != industrial-era['restarted_use_allowlist'] or \
                 vanilla['restarted_use_allowlist'] != {'jsonrpc': '2.0', 'id': 93, 'result': True}:
-            failures.append(f"restarted allowlist use: vanilla {vanilla['restarted_use_allowlist']!r}, Horizon {horizon['restarted_use_allowlist']!r}")
-        if vanilla['restarted_enforce_allowlist'] != horizon['restarted_enforce_allowlist'] or \
+            failures.append(f"restarted allowlist use: vanilla {vanilla['restarted_use_allowlist']!r}, Industrial Era {industrial-era['restarted_use_allowlist']!r}")
+        if vanilla['restarted_enforce_allowlist'] != industrial-era['restarted_enforce_allowlist'] or \
                 vanilla['restarted_enforce_allowlist'] != {'jsonrpc': '2.0', 'id': 94, 'result': True}:
-            failures.append(f"restarted allowlist enforcement: vanilla {vanilla['restarted_enforce_allowlist']!r}, Horizon {horizon['restarted_enforce_allowlist']!r}")
-        if vanilla['saved_max_players'] != horizon['saved_max_players'] or vanilla['saved_max_players'] != '30':
-            failures.append(f"saved max players: vanilla {vanilla['saved_max_players']!r}, Horizon {horizon['saved_max_players']!r}")
-        if not horizon['saved_config_max_players']:
-            failures.append('Horizon did not save max players in server.toml')
-        if vanilla['restarted_max_players'] != horizon['restarted_max_players'] or \
+            failures.append(f"restarted allowlist enforcement: vanilla {vanilla['restarted_enforce_allowlist']!r}, Industrial Era {industrial-era['restarted_enforce_allowlist']!r}")
+        if vanilla['saved_max_players'] != industrial-era['saved_max_players'] or vanilla['saved_max_players'] != '30':
+            failures.append(f"saved max players: vanilla {vanilla['saved_max_players']!r}, Industrial Era {industrial-era['saved_max_players']!r}")
+        if not industrial-era['saved_config_max_players']:
+            failures.append('Industrial Era did not save max players in server.toml')
+        if vanilla['restarted_max_players'] != industrial-era['restarted_max_players'] or \
                 vanilla['restarted_max_players'] != {'jsonrpc': '2.0', 'id': 109, 'result': 30}:
-            failures.append(f"restarted max players: vanilla {vanilla['restarted_max_players']!r}, Horizon {horizon['restarted_max_players']!r}")
+            failures.append(f"restarted max players: vanilla {vanilla['restarted_max_players']!r}, Industrial Era {industrial-era['restarted_max_players']!r}")
         (build / 'report.json').write_text(json.dumps(sides, indent=1))
         if failures:
             sys.exit(f'{NAME}: {len(failures)} differences (logs in {build}):\n' + '\n'.join(failures))
         report = lab.LOCAL / 'datagen/out/reports/json-rpc-api-schema.json'
-        discovered = horizon['answers'][MESSAGES.index('{"jsonrpc":"2.0","id":12,"method":"rpc.discover"}')]
+        discovered = industrial-era['answers'][MESSAGES.index('{"jsonrpc":"2.0","id":12,"method":"rpc.discover"}')]
         if json.loads(report.read_text()) != discovered.get('result'):
             failures.append(f'rpc.discover differs from {report}')
         if failures:

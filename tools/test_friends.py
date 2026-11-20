@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Play with friends end to end, without the internet.
 
-(a) The code alone: a host Horizon opens a world and shares it (`friends
-host`) with no relay anywhere; a guest Horizon joins with the full invite
+(a) The code alone: a host Industrial Era opens a world and shares it (`friends
+host`) with no relay anywhere; a guest Industrial Era joins with the full invite
 code (`connect friend:CODE`) by dialling the endpoints in it. (b) A
-self-hosted relay run locally (`horizon-relay`): the host also gets a short
+self-hosted relay run locally (`industrial-era-relay`): the host also gets a short
 code from it, and a guest started with HORIZON_FRIENDS_PATH=relay joins with
 the short code through it. Each time both sides must see the other's chat
 line, the other moving, a block the host places and the block the guest
@@ -13,7 +13,7 @@ why it can't join. `--baseline` first runs the same checks over plain LAN.
 The router is never asked to open a port (HORIZON_FRIENDS_UPNP=0) and STUN
 is off: nothing leaves the machine.
 
-    python3 tools/test_friends.py --client target/fast/horizon-client --relay target/fast/horizon-relay
+    python3 tools/test_friends.py --client target/fast/industrial-era-client --relay target/fast/industrial-era-relay
 
 The host runs on its integrated server thread (the window is a client of it).
 
@@ -80,7 +80,7 @@ def health(relay_url):
 
 
 class Game:
-    """A Horizon client with a control socket in its own home."""
+    """A Industrial Era client with a control socket in its own home."""
 
     # Extra words before and after the client (`--xvfb`, `--offscreen`).
     prefix = []
@@ -235,8 +235,8 @@ def start_relay(args, work):
 
 
 def set_relay(game, url):
-    """What typing the relay on Join a friend saves (horizon.txt)."""
-    path = game.home / 'horizon.txt'
+    """What typing the relay on Join a friend saves (industrial-era.txt)."""
+    path = game.home / 'industrial-era.txt'
     lines = [l for l in (path.read_text().splitlines() if path.exists() else []) if not l.startswith('friendsRelay:')]
     path.write_text('\n'.join(lines + [f'friendsRelay:{url}']) + '\n')
 
@@ -367,7 +367,7 @@ def one_side(args, work):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--client', type=Path, required=True)
-    parser.add_argument('--relay', type=Path, help='horizon-relay binary (started on a free local port)')
+    parser.add_argument('--relay', type=Path, help='industrial-era-relay binary (started on a free local port)')
     parser.add_argument('--relay-url', help='--role: a relay already running elsewhere, HOST:PORT')
     parser.add_argument('--resources', type=Path, default=lab.RESOURCES)
     parser.add_argument('--role', choices=['host', 'guest'])

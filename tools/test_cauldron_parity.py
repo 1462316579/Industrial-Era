@@ -70,7 +70,7 @@ def main():
                           'inventory': inventory})
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
     vanilla.run('VanillaCauldronOracle', work / 'cases.jsonl', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'cauldron_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'cauldron_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
     total = lib.compare(cases, work / 'native.txt', work / 'rust.txt',
                         lambda case, line: case['state'].split('|')[0] + ' ' + line.split('\t')[0],
                         lambda case: json.dumps(case)[:700], args.limit)

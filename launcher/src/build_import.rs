@@ -1,4 +1,4 @@
-//! Game builds the player imports: a `horizon-client` they already have (one built on their
+//! Game builds the player imports: a `industrial-era-client` they already have (one built on their
 //! fork's Actions, to try a merged change before the next Nightly), installed as its own
 //! version beside the releases. The program alone can't start: it needs a version folder's
 //! game files. So an import is a copy of an installed release or Nightly's folder (its
@@ -57,13 +57,13 @@ pub fn about(version: &str) -> Option<About> {
     })
 }
 
-/// A version Horizon published and signed: a release or a Nightly.
+/// A version Industrial Era published and signed: a release or a Nightly.
 fn official(version: &str) -> bool {
     backend::is_game_tag(version) || crate::nightly::date_of(version).is_some()
 }
 
 /// The installed version an import takes its game files from: `requested` (`--version`), else
-/// `selected` when Horizon published it, else the newest installed release or Nightly.
+/// `selected` when Industrial Era published it, else the newest installed release or Nightly.
 fn base_for(
     installed: &[String],
     requested: Option<&str>,
@@ -120,16 +120,16 @@ pub fn import(path: &Path, requested: Option<&str>) -> Result<String, String> {
 
 fn not_a_game(file: &str) -> String {
     trf(
-        "{file} is not a Horizon game for this computer.",
+        "{file} is not a Industrial Era game for this computer.",
         &[("file", file)],
     )
 }
 
-/// The program at `path`: the file itself when it is named as the game is (`horizon-client`,
-/// "horizon-client (1).exe" as a browser saves a second copy), or from a zip or a .tar.gz, its
+/// The program at `path`: the file itself when it is named as the game is (`industrial-era-client`,
+/// "industrial-era-client (1).exe" as a browser saves a second copy), or from a zip or a .tar.gz, its
 /// entry named as the game is on this platform (`CLIENT`), in any folder. A GitHub Actions
 /// artifact is a zip around the release's own archive: one archive inside is looked into too.
-/// The launcher and horizon-ctl carry the mod API mark too: the name tells them apart.
+/// The launcher and industrial-era-ctl carry the mod API mark too: the name tells them apart.
 fn read_program(path: &Path, file: &str) -> Result<Vec<u8>, String> {
     let open = || fs::File::open(path).map_err(|e| format!("{file}: {e}"));
     let lower = file.to_ascii_lowercase();
@@ -140,7 +140,7 @@ fn read_program(path: &Path, file: &str) -> Result<Vec<u8>, String> {
         Ok(zip) => zip,
         // A download cut short, say.
         Err(e) if lower.ends_with(".zip") => return Err(format!("{file}: {e}")),
-        Err(_) if !lower.starts_with("horizon-client") => return Err(not_a_game(file)),
+        Err(_) if !lower.starts_with("industrial-era-client") => return Err(not_a_game(file)),
         Err(_) => return read_at_most(open()?, file),
     };
     from_zip(zip, file, true)
@@ -220,7 +220,7 @@ fn read_at_most(from: impl Read, file: &str) -> Result<Vec<u8>, String> {
     Ok(program)
 }
 
-/// Whether `program` is a Horizon game for this computer: it starts as this platform's programs
+/// Whether `program` is a Industrial Era game for this computer: it starts as this platform's programs
 /// do (PE on Windows, Mach-O on macOS, ELF elsewhere: a Linux build picked on Windows would
 /// only fail to start) and carries the mod API mark every game since 0.2.69 does.
 fn is_game(program: &[u8]) -> bool {
@@ -233,7 +233,7 @@ fn is_game(program: &[u8]) -> bool {
         &[b"\x7fELF"]
     };
     magic.iter().any(|m| program.starts_with(m))
-        && horizon_mods::api_level::read_mark(program).is_some()
+        && industrial_era_mods::api_level::read_mark(program).is_some()
 }
 
 /// Installs `program` in `versions` as a copy of installed version `base` with it in place of
@@ -342,7 +342,7 @@ mod tests {
     use super::*;
 
     fn dir(name: &str) -> std::path::PathBuf {
-        let d = std::env::temp_dir().join(format!("horizon-import-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("industrial-era-import-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d
@@ -366,23 +366,23 @@ mod tests {
         } else {
             b"\x7fELF"
         };
-        [magic, body, &horizon_mods::api_level::MARK[..]].concat()
+        [magic, body, &industrial_era_mods::api_level::MARK[..]].concat()
     }
 
     #[test]
     fn an_import_is_its_own_version_on_its_bases_game_files() {
         let versions = dir("install");
         let base = versions.join("nightly-2026-11-01-c9d474d");
-        fs::create_dir_all(base.join(".local/horizon-client/26.3")).unwrap();
+        fs::create_dir_all(base.join(".local/industrial-era-client/26.3")).unwrap();
         fs::write(
-            base.join(".local/horizon-client/26.3/horizon-resources.json"),
+            base.join(".local/industrial-era-client/26.3/industrial-era-resources.json"),
             b"{}",
         )
         .unwrap();
         fs::write(base.join("research-lock.json"), b"lock").unwrap();
         fs::write(base.join(CLIENT), b"signed").unwrap();
         fs::write(base.join(".installed"), b"").unwrap();
-        fs::create_dir_all(base.join("Horizon.app")).unwrap();
+        fs::create_dir_all(base.join("Industrial Era.app")).unwrap();
         let built = program(b"fork build");
         let tag = install_in(
             &versions,
@@ -403,11 +403,11 @@ mod tests {
         assert_eq!(fs::read(base.join(CLIENT)).unwrap(), b"signed");
         assert!(dir.join(".installed").is_file());
         assert!(dir
-            .join(".local/horizon-client/26.3/horizon-resources.json")
+            .join(".local/industrial-era-client/26.3/industrial-era-resources.json")
             .is_file());
         assert_eq!(fs::read(dir.join("research-lock.json")).unwrap(), b"lock");
         // The macOS app is made again from the imported program (game_app.rs).
-        assert!(!dir.join("Horizon.app").exists());
+        assert!(!dir.join("Industrial Era.app").exists());
         let record: serde_json::Value =
             serde_json::from_str(&fs::read_to_string(dir.join(RECORD)).unwrap()).unwrap();
         assert_eq!(record["base"], "nightly-2026-11-01-c9d474d");
@@ -452,7 +452,7 @@ mod tests {
     }
 
     #[test]
-    fn only_a_horizon_game_for_this_computer_is_imported() {
+    fn only_a_industrial_era_game_for_this_computer_is_imported() {
         assert!(is_game(&program(b"")));
         // Another program of this platform, without the game's mark.
         assert!(!is_game(&program(b"")[..program(b"").len() - 27]));
@@ -462,15 +462,15 @@ mod tests {
             &b"MZ"[..]
         };
         assert!(!is_game(
-            &[other, &horizon_mods::api_level::MARK[..]].concat()
+            &[other, &industrial_era_mods::api_level::MARK[..]].concat()
         ));
         let d = dir("zip");
-        let zip_path = d.join("horizon-client-windows-x86_64.zip");
+        let zip_path = d.join("industrial-era-client-windows-x86_64.zip");
         let mut zip = zip::ZipWriter::new(fs::File::create(&zip_path).unwrap());
         let options = zip::write::SimpleFileOptions::default();
         zip.start_file("README.md", options).unwrap();
         std::io::Write::write_all(&mut zip, b"notes").unwrap();
-        zip.start_file(format!("horizon/{CLIENT}"), options)
+        zip.start_file(format!("industrial-era/{CLIENT}"), options)
             .unwrap();
         std::io::Write::write_all(&mut zip, &program(b"zipped")).unwrap();
         zip.finish().unwrap();
@@ -478,14 +478,14 @@ mod tests {
             read_program(&zip_path, "a.zip").unwrap(),
             program(b"zipped")
         );
-        let name = "horizon-client (1)";
+        let name = "industrial-era-client (1)";
         let plain = d.join(name);
         fs::write(&plain, program(b"plain")).unwrap();
         assert_eq!(read_program(&plain, name).unwrap(), program(b"plain"));
         // The launcher carries the mark too.
-        let launcher = d.join("horizon-launcher");
+        let launcher = d.join("industrial-era-launcher");
         fs::write(&launcher, program(b"launcher")).unwrap();
-        assert!(read_program(&launcher, "horizon-launcher").is_err());
+        assert!(read_program(&launcher, "industrial-era-launcher").is_err());
         let empty = d.join("empty.zip");
         let mut zip = zip::ZipWriter::new(fs::File::create(&empty).unwrap());
         zip.start_file("README.md", options).unwrap();
@@ -503,7 +503,7 @@ mod tests {
         let options = zip::write::SimpleFileOptions::default();
         let mut inner = zip::ZipWriter::new(Cursor::new(Vec::new()));
         inner
-            .start_file(format!("horizon-windows-x64/{CLIENT}"), options)
+            .start_file(format!("industrial-era-windows-x64/{CLIENT}"), options)
             .unwrap();
         inner.write_all(&program(b"inner zip")).unwrap();
         let inner = inner.finish().unwrap().into_inner();
@@ -518,15 +518,15 @@ mod tests {
         header.set_cksum();
         tar.append_data(
             &mut header,
-            format!("horizon-linux-x86_64/{CLIENT}"),
+            format!("industrial-era-linux-x86_64/{CLIENT}"),
             &game[..],
         )
         .unwrap();
         let tar = tar.into_inner().unwrap().finish().unwrap();
         for (archive, bytes, body) in [
-            ("horizon-windows-x64.zip", inner, &b"inner zip"[..]),
+            ("industrial-era-windows-x64.zip", inner, &b"inner zip"[..]),
             (
-                "horizon-linux-x86_64.tar.gz",
+                "industrial-era-linux-x86_64.tar.gz",
                 tar.clone(),
                 &b"inner tar"[..],
             ),
@@ -541,9 +541,9 @@ mod tests {
                 program(body)
             );
         }
-        let plain_tar = d.join("horizon-linux-x86_64.tar.gz");
+        let plain_tar = d.join("industrial-era-linux-x86_64.tar.gz");
         fs::write(&plain_tar, &tar).unwrap();
-        let name = "horizon-linux-x86_64.tar.gz";
+        let name = "industrial-era-linux-x86_64.tar.gz";
         assert_eq!(read_program(&plain_tar, name).unwrap(), game);
         let _ = fs::remove_dir_all(d);
     }

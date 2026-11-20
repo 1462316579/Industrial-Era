@@ -121,7 +121,7 @@ def main():
             os.environ.clear()
             os.environ.update(saved)
         for line in stderr.splitlines()[:3]:
-            print('  horizon:', line)
+            print('  industrial-era:', line)
         vanilla, rust = cg.parse(vanilla_path), cg.parse(rust_path)
         counts = cg.compare(vanilla, rust, names, f'{label} ({seed})', limit=args.limit)
         totals.update(dict(zip(['chunks', 'blocks', 'biomes', 'entities'], counts)))

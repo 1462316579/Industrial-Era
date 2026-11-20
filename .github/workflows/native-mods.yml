@@ -76,7 +76,7 @@ jobs:
               if not tag:
                   problems.append(f"Starling {version} has no release tag")
               unknown = [i for i in ids if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,40}", i)
-                         or not pathlib.Path(f"native-mods/{i}/mixins/{i}/horizon-mixin.toml").is_file()]
+                         or not pathlib.Path(f"native-mods/{i}/mixins/{i}/industrial-era-mixin.toml").is_file()]
               if not ids:
                   problems.append("no mods named")
               if unknown:

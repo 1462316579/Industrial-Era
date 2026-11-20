@@ -1,12 +1,12 @@
 # Opt-in data collection
 
-Horizon collects nothing unless the player says yes. The launcher asks once, with four separate switches that are all off until the player turns one on, and the same switches stay in Settings. The game and the launcher obey the same answer. The code is in `crates/horizon-telemetry`.
+Industrial Era collects nothing unless the player says yes. The launcher asks once, with four separate switches that are all off until the player turns one on, and the same switches stay in Settings. The game and the launcher obey the same answer. The code is in `crates/industrial-era-telemetry`.
 
 The one exception is the anonymous ["I'm playing" ping](#the-im-playing-ping) behind the launcher's "N playing now": it holds nothing about the player, and the launcher says so next to the switches.
 
 ## Consent
 
-`telemetry/consent.json` in the game folder (`HORIZON_HOME`, else `horizon` in the platform data folder):
+`telemetry/consent.json` in the game folder (`HORIZON_HOME`, else `industrial-era` in the platform data folder):
 
 ```json
 { "version": 2, "answered": 1792060800, "choices": { "performance": true, "crashes": true, "bugs": false, "benchmarks": false }, "install_id": "3f2c…" }
@@ -49,9 +49,9 @@ Every item has `day` (days since 1970, UTC: no finer time), `source` (`launcher`
 | `display` | the screen the window opened on: `width`, `height` (physical pixels), `refresh_hz`, `scale` | 2560, 1440, 165, 1.0 |
 | `power`, `form` | on mains or battery (`ac`, `battery`), `laptop` or `desktop` | `ac`, `desktop` |
 
-The launcher's own items (bug reports sent from it) have no GPU or screen: only the game knows them. The memory given to the game is not a setting in Horizon (no Java heap): `peak_ram_mb` is what it used. Benchmark reports carry the same facts in their `hardware` (`docs/benchmark-report.md`).
+The launcher's own items (bug reports sent from it) have no GPU or screen: only the game knows them. The memory given to the game is not a setting in Industrial Era (no Java heap): `peak_ram_mb` is what it used. Benchmark reports carry the same facts in their `hardware` (`docs/benchmark-report.md`).
 
-No serial number, host name, user name, MAC address or path is read. Settings → Data collection → "View what would be sent" and `horizon-launcher data show` print every field as it would leave this machine.
+No serial number, host name, user name, MAC address or path is read. Settings → Data collection → "View what would be sent" and `industrial-era-launcher data show` print every field as it would leave this machine.
 
 A summary (`frames`, `ticks`) is the count, the 50th, 95th and 99th percentile and the maximum in milliseconds (to the tenth), and 14 bucket counts: under 4 ms, 4–6, 6–8, 8–10, 10–12, 12–14, 14–16.7, 16.7–20, 20–25, 25–33.3, 33.3–50, 50–100, 100–250, and 250 ms and more. Raw frame times never leave: `Timings` records them in tenths of a millisecond (20 KB however long the session) and only its summary is kept. A perf item is under 1 KiB.
 
@@ -72,7 +72,7 @@ Never sent: account names or UUIDs, world names, server or LAN addresses, chat, 
 
 Ludovic decided on 2026-10-22 to count every player, with or without consent, and to tell them. The launcher's first-run question and Settings → Data collection show it as an "Always on" row next to the switches. Players who answered the question before the ping existed see the same text once on the Play page. The privacy page on playhorizon.dev says the same.
 
-While the game runs (not a dedicated server, a benchmark or a run that quits by itself), a thread of its own (`crates/horizon-client/src/heartbeat.rs`) sends `POST /v1/live` once a minute. It also sends one at once when a world is opened to or closed from LAN or friends:
+While the game runs (not a dedicated server, a benchmark or a run that quits by itself), a thread of its own (`crates/industrial-era-client/src/heartbeat.rs`) sends `POST /v1/live` once a minute. It also sends one at once when a world is opened to or closed from LAN or friends:
 
 ```json
 { "session": "9b1c…", "version": "v2026.10.22", "platform": "macos", "lan": false }
@@ -114,7 +114,7 @@ The launcher reads the count when it opens and every minute after, and shows "N 
 - `POST /v1/live` and `GET /v1/live`: the "I'm playing" ping and the live count.
 - `GET /v1/live/history?range=24h|7d|30d|all&series=players|official`: the live count, or the official server's, over time (above).
 
-Public output never holds a raw hardware value, only these classes (`src/classes.rs`, the same in the website's `scripts/benchmarks.mjs`, horizon-rust/horizon-site), and a class is published only with at least 3 different installs:
+Public output never holds a raw hardware value, only these classes (`src/classes.rs`, the same in the website's `scripts/benchmarks.mjs`, industrial-era-rust/industrial-era-site), and a class is published only with at least 3 different installs:
 
 | Breakdown | Classes |
 |---|---|
@@ -126,4 +126,4 @@ Public output never holds a raw hardware value, only these classes (`src/classes
 
 The driver, OS version, clocks, screen and power are kept raw for the 180 days of retention, to explain a slow group, and never published.
 
-`crates/horizon-telemetry-server` is the server, at `https://telemetry.playhorizon.dev` on Railway (one SQLite file on a volume, region `europe-west4`). Its [README](../crates/horizon-telemetry-server/README.md) covers storage (about 190 bytes per play session), retention (180 days of raw rows, anonymous daily totals kept), rate limits and hosting.
+`crates/industrial-era-telemetry-server` is the server, at `https://telemetry.playhorizon.dev` on Railway (one SQLite file on a volume, region `europe-west4`). Its [README](../crates/industrial-era-telemetry-server/README.md) covers storage (about 190 bytes per play session), retention (180 days of raw rows, anonymous daily totals kept), rate limits and hosting.

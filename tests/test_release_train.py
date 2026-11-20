@@ -9,28 +9,28 @@ from tools import release_train as train
 NOW = dt.datetime(2026, 10, 15, 12, 0, tzinfo=dt.timezone.utc)
 
 
-def pr(number, title="Fix a thing", labels=(), paths=("crates/horizon-client/src/game.rs",), issues=(), author="ludovic111",
+def pr(number, title="Fix a thing", labels=(), paths=("crates/industrial-era-client/src/game.rs",), issues=(), author="ludovic111",
        merged=dt.timedelta(hours=9)):
     return {"number": number, "title": title, "labels": list(labels), "paths": list(paths), "issues": list(issues),
-            "author": author, "url": f"https://github.com/horizon-rust/horizon/pull/{number}", "merged_at": NOW - merged}
+            "author": author, "url": f"https://github.com/industrial-era-rust/industrial-era/pull/{number}", "merged_at": NOW - merged}
 
 
 class ReleaseTrainTests(unittest.TestCase):
     def test_player_facing_paths(self):
-        exporters = {"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaMobDataExporter.java"}
-        self.assertTrue(train.player_facing("crates/horizon-client/src/game.rs", "game"))
+        exporters = {"mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaMobDataExporter.java"}
+        self.assertTrue(train.player_facing("crates/industrial-era-client/src/game.rs", "game"))
         self.assertTrue(train.player_facing("Cargo.lock", "game"))
         self.assertTrue(train.player_facing("xtask/src/main.rs", "game"))
         self.assertTrue(train.player_facing(next(iter(exporters)), "game", exporters))
-        self.assertFalse(train.player_facing("mods/horizon/src/test/java/dev/horizonlab/parity/VanillaFoodOracle.java", "game", exporters))
-        self.assertFalse(train.player_facing("crates/horizon-world/examples/probe.rs", "game"))
-        self.assertFalse(train.player_facing("crates/horizon-client/README.md", "game"))
+        self.assertFalse(train.player_facing("mods/industrial-era/src/test/java/dev/horizonlab/parity/VanillaFoodOracle.java", "game", exporters))
+        self.assertFalse(train.player_facing("crates/industrial-era-world/examples/probe.rs", "game"))
+        self.assertFalse(train.player_facing("crates/industrial-era-client/README.md", "game"))
         self.assertFalse(train.player_facing("tools/test_food_parity.py", "game"))
         self.assertFalse(train.player_facing("launcher/src/main.rs", "game"))
         self.assertTrue(train.player_facing("launcher/src/main.rs", "launcher"))
-        self.assertTrue(train.player_facing("crates/horizon-prepare/src/lib.rs", "launcher"))
+        self.assertTrue(train.player_facing("crates/industrial-era-prepare/src/lib.rs", "launcher"))
         self.assertFalse(train.player_facing("launcher/links.json", "launcher"))
-        self.assertFalse(train.player_facing("crates/horizon-client/src/game.rs", "launcher"))
+        self.assertFalse(train.player_facing("crates/industrial-era-client/src/game.rs", "launcher"))
 
     def test_the_exporters_are_those_horizon_prepare_names(self):
         found = train.exporters()
@@ -106,16 +106,16 @@ class ReleaseTrainTests(unittest.TestCase):
 
     def test_the_first_release_of_0_2_says_what_changed(self):
         title, body = train.notes("game", "v0.2.0", [pr(1)], [], previous="v2026.10.21")
-        self.assertTrue(title.startswith("Horizon 0.2.0: "), title)
+        self.assertTrue(title.startswith("Industrial Era 0.2.0: "), title)
         body = body.removeprefix(train.PLAYERS + "\n\n")
-        self.assertTrue(body.startswith("Horizon is numbered from now on: this is Horizon 0.2.0, the release after 2026.10.21."))
-        self.assertIn("`horizon-server update --version v0.2.0`", body)
+        self.assertTrue(body.startswith("Industrial Era is numbered from now on: this is Industrial Era 0.2.0, the release after 2026.10.21."))
+        self.assertIn("`industrial-era-server update --version v0.2.0`", body)
         title, body = train.notes("launcher", "launcher@0.2.0", [], [], previous="launcher-v0.17.0")
-        self.assertEqual(title, "Horizon launcher 0.2.0")
+        self.assertEqual(title, "Industrial Era launcher 0.2.0")
         self.assertIn("the release after launcher 0.17.0", body)
         self.assertIn("Rebuilt from the latest main.", body)
         body = train.notes("game", "v0.3.0", [pr(1)], [], previous="v0.2.14")[1]
-        self.assertTrue(body.startswith(train.PLAYERS + "\n\nThe first release of Horizon 0.3."))
+        self.assertTrue(body.startswith(train.PLAYERS + "\n\nThe first release of Industrial Era 0.3."))
         for version, previous in [("v0.2.1", "v0.2.0"), ("v0.3.0-rc.1", "v0.2.9"), ("v2026.10.23", "v2026.10.21")]:
             body = train.notes("game", version, [pr(1)], [], previous=previous)[1]
             self.assertTrue(body.startswith(train.PLAYERS + "\n\n### Fixed"), (version, body))
@@ -188,14 +188,14 @@ class ReleaseTrainTests(unittest.TestCase):
 
     # Thanks go to everyone but the repository's owner (GITHUB_REPOSITORY in CI, a fork's own
     # there); these pull requests are upstream's, ludovic111's.
-    @mock.patch.object(train, "REPO", "ludovic111/horizon")
+    @mock.patch.object(train, "REPO", "ludovic111/industrial-era")
     def test_notes(self):
         prs = [pr(5, "Nether portals: vanilla timing and linking (fixes #94)", issues=[94]),
                pr(6, "Controllers: gilrs input layer and gameplay", labels=["feature"], author="cosmic"),
                pr(7, "Release folder in Rust", labels=["skip-release"]),
                pr(8, "Website footer", paths=[])]
         title, body = train.notes("game", "v2026.10.15.1", prs, ["- Sound cuts out after an hour."])
-        self.assertEqual(title, "Horizon 2026.10.15.1: Controllers, nether portals")
+        self.assertEqual(title, "Industrial Era 2026.10.15.1: Controllers, nether portals")
         self.assertIn("### New\n- Controllers: gilrs input layer and gameplay (#6)", body)
         self.assertIn("### Fixed\n- Nether portals: vanilla timing and linking (#5, fixes #94)", body)
         self.assertIn("### Known issues\n- Sound cuts out after an hour.", body)
@@ -204,14 +204,14 @@ class ReleaseTrainTests(unittest.TestCase):
         self.assertIn("### Contributors\nThanks to @cosmic.", body)
         self.assertTrue(body.endswith("---\n" + train.DISCLAIMER + "\n"), body)
         self.assertLess(body.index("### New"), body.index("### Fixed"))
-        title, _ = train.notes("game", "v2026.10.15.2", [pr(9, "Horizon's mark", labels=["feature"]),
+        title, _ = train.notes("game", "v2026.10.15.2", [pr(9, "Industrial Era's mark", labels=["feature"]),
                                                          pr(10, "Game menus", labels=["feature"])], [])
-        self.assertEqual(title, "Horizon 2026.10.15.2: Game menus, Horizon's mark", "proper nouns keep their capital")
+        self.assertEqual(title, "Industrial Era 2026.10.15.2: Game menus, Industrial Era's mark", "proper nouns keep their capital")
 
     def test_a_long_release_is_named_after_its_first_titles(self):
         prs = [pr(n, f"Change number {n} with a fairly long title") for n in range(1, 10)]
         title, _ = train.notes("game", "v2026.10.15", prs, [])
-        self.assertTrue(title.startswith("Horizon 2026.10.15: Change number 9"), title)
+        self.assertTrue(title.startswith("Industrial Era 2026.10.15: Change number 9"), title)
         self.assertTrue(title.endswith("more fixes"), title)
         self.assertLess(len(title), 100)
 
@@ -219,13 +219,13 @@ class ReleaseTrainTests(unittest.TestCase):
         prs = [pr(1, "Controllers: rumble", labels=["feature"]), pr(2, "Controllers: menus", labels=["feature"]),
                pr(3, "Maces: smash attacks"), pr(4, "Fix stuck keys when opening Options")]
         title, _ = train.notes("game", "v2026.10.15", prs, [])
-        self.assertEqual(title, "Horizon 2026.10.15: Controllers, stuck keys when opening Options, maces")
+        self.assertEqual(title, "Industrial Era 2026.10.15: Controllers, stuck keys when opening Options, maces")
         self.assertEqual(train.summary([], [pr(n, f"Change number {n} with a fairly long title") for n in range(4)]),
                          "Change number 3 with a fairly long title and 3 more fixes")
 
     def test_launcher_notes(self):
         title, body = train.notes("launcher", "launcher-v0.2.0", [pr(3, "Launcher: say the self-update succeeded")], [])
-        self.assertEqual(title, "Horizon launcher 0.2.0")
+        self.assertEqual(title, "Industrial Era launcher 0.2.0")
         self.assertIn("### Fixed\n- Launcher: say the self-update succeeded (#3)", body)
         self.assertNotIn("Known issues", body)
         self.assertNotIn(train.PLAYERS, body)

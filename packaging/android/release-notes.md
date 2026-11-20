@@ -1,17 +1,17 @@
-**Starling 0.8.0: the first release of Starling and Horizon Android together.**
+**Starling 0.8.0: the first release of Starling and Industrial Era Android together.**
 
-Horizon Android and Starling are now one app, in [starling-client/starling](https://github.com/starling-client/starling). Starling, formerly Horizon Android, is co-founded by [JuanLuci](https://github.com/JuanLuci), founder of Starling, and [Vasysik](https://github.com/Vasysik), founder of Horizon Android. Thanks to Vasysik for the support for older phones, Diagnostics, account profiles with Ely.by, the terrain work on Adreno and the game folder in the Files app in this release.
+Industrial Era Android and Starling are now one app, in [starling-client/starling](https://github.com/starling-client/starling). Starling, formerly Industrial Era Android, is co-founded by [JuanLuci](https://github.com/JuanLuci), founder of Starling, and [Vasysik](https://github.com/Vasysik), founder of Industrial Era Android. Thanks to Vasysik for the support for older phones, Diagnostics, account profiles with Ely.by, the terrain work on Adreno and the game folder in the Files app in this release.
 
 ## Install
 
 - **Already have Starling:** tap **Update** inside the game.
-- **New here, or coming from Horizon Android:** download the APK for your phone below and open it. Almost every phone takes **`starling-0.8.0-arm64-v8a.apk`**. Older 32-bit phones take `armeabi-v7a`, and x86 tablets and emulators take `x86_64` or `x86`.
+- **New here, or coming from Industrial Era Android:** download the APK for your phone below and open it. Almost every phone takes **`starling-0.8.0-arm64-v8a.apk`**. Older 32-bit phones take `armeabi-v7a`, and x86 tablets and emulators take `x86_64` or `x86`.
 
 ## What's new in 0.8.0
 
 ### New
 
-- **Horizon Android's controls:** the touch controls, their MCPE and GoyControl layouts and the layout editor now come from Horizon Android: open **H > Controls > Customize Controls**, or **Options > Controls > Customize Layout**, for presets, undo and button sizes. **Options > Controls** picks Auto, Touch, Keyboard & Mouse or Controller. Starling's chat shortcuts and inventory gestures stay.
+- **Industrial Era Android's controls:** the touch controls, their MCPE and GoyControl layouts and the layout editor now come from Industrial Era Android: open **H > Controls > Customize Controls**, or **Options > Controls > Customize Layout**, for presets, undo and button sizes. **Options > Controls** picks Auto, Touch, Keyboard & Mouse or Controller. Starling's chat shortcuts and inventory gestures stay.
 - **Accounts:** the account button on the title screen keeps Microsoft, Ely.by and offline profiles, and switches between them. The one you pick is the one you play worlds and servers with, and it stays picked after a restart. Ely.by takes your password and, if you use it, a 2FA code. The setup on the first start offers Ely.by and named offline profiles too.
 - **Skins for each profile:** Skin Customization keeps a skin for each profile. A Microsoft account can send its skin to its Minecraft profile, so others see it on servers, and an Ely.by account wears its Ely.by skin, with a button to change it on ely.by.
 - **A catalog inside the game:** the **Catalog** button on the Mods, Resource Packs and Shader Packs pages finds, installs and removes them. Java shader packs like Complementary, BSL and Photon install with a tap and run as they are.
@@ -45,7 +45,7 @@ Horizon Android and Starling are now one app, in [starling-client/starling](http
 
 ## New in 0.2.3
 
-- **Coming from Horizon Android?** Starling offers to bring its worlds and resource packs over: in the setup on the first start, or over the title screen if Starling is already set up. Close Horizon Android, tap **Bring them over**, then **Use this folder** and **Allow**. They are copied: Horizon Android keeps its own.
+- **Coming from Industrial Era Android?** Starling offers to bring its worlds and resource packs over: in the setup on the first start, or over the title screen if Starling is already set up. Close Industrial Era Android, tap **Bring them over**, then **Use this folder** and **Allow**. They are copied: Industrial Era Android keeps its own.
 - **A new note for what you import:** a banner drops in across the top of the screen, with a sound, and says what each file you open with Starling added, or what went wrong.
 - **Native mods that record sound ask for the microphone:** when the game starts with one, Starling says which mod wants it and Android asks you. **Not now** stops asking for that build.
 - **The first start goes on to the title screen** once the game is prepared. It used to stay on **Starting Starling** until Starling was opened again.
@@ -72,7 +72,7 @@ Open either kind of file with Starling, from your file manager or your downloads
 - **`.hnmod`, native mods:** tap **Compile**. Starling tells you the risks, builds the game with your mods while you fish or mine, and restarts with them. It takes a few minutes and needs a connection.
 - **`.hmod`, content mods:** data-only mods, with nothing to compile. A dropped download of a mod's assets goes on from where it stopped.
 
-The old Starling mods (Far View, FPS Overlay, Keystrokes, Minimap, Recipes, Zoom) and the wasm mod format are gone: mods now use Horizon's formats.
+The old Starling mods (Far View, FPS Overlay, Keystrokes, Minimap, Recipes, Zoom) and the wasm mod format are gone: mods now use Industrial Era's formats.
 
 ### Controls
 
@@ -88,12 +88,12 @@ The old Starling mods (Far View, FPS Overlay, Keystrokes, Minimap, Recipes, Zoom
 - **Auto profile:** fits a pack to the phone by what its profiles ask of it, and draws terrain's depth first.
 - **Shader Options** for a finger, and **Resolution** and **FPS Limit** on the Shader Packs page.
 - Water and terrain came back in Photon, Sildur's and Bliss, and superDuperVanilla lost its overlay.
-- Packs' own textures load, a block's cracks show, faces are no longer shaded twice, and the sky reaches the horizon.
+- Packs' own textures load, a block's cracks show, faces are no longer shaded twice, and the sky reaches the industrial-era.
 - A pack that loses the graphics device is turned off instead of closing the game.
 
-### Newest Horizon
+### Newest Industrial Era
 
-Starling now sits on the newest Horizon, about 4,800 commits ahead of the previous base:
+Starling now sits on the newest Industrial Era, about 4,800 commits ahead of the previous base:
 
 - Many more vanilla behaviours for mobs: piglins, dolphins, wolves, foxes, zombies with spears, mobs boarding minecarts and picking up gear.
 - Remote players' hands and shoulder parrots, the jeb_ sheep's colours, and the portal loading screen on a server's dimension change.
@@ -110,4 +110,4 @@ Take a screenshot of this page on your phone and send it to an AI assistant, lik
 
 ---
 
-Starling is unofficial: not an official Minecraft product, and not approved by or associated with Mojang or Microsoft. The game is [Horizon](https://github.com/ludovic111/horizon), by Ludovic Marie; Starling, the Android port, formerly Horizon Android, is by its co-founders [@JuanLuci](https://github.com/JuanLuci) and [@Vasysik](https://github.com/Vasysik). MIT licensed.
+Starling is unofficial: not an official Minecraft product, and not approved by or associated with Mojang or Microsoft. The game is [Industrial Era](https://github.com/ludovic111/industrial-era), by Ludovic Marie; Starling, the Android port, formerly Industrial Era Android, is by its co-founders [@JuanLuci](https://github.com/JuanLuci) and [@Vasysik](https://github.com/Vasysik). MIT licensed.

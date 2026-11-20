@@ -6,8 +6,8 @@ use super::*;
 use crate::glass_ui::{self as ui, white};
 use glass_home_lists::{danger_button, danger_line, picture};
 use gpui::ExternalPaths;
-use horizon_launcher::packs::{self, Kind as PackKind, Pack};
-use horizon_theme::glass::{fill, ink, radius};
+use industrial_era_launcher::packs::{self, Kind as PackKind, Pack};
+use industrial_era_theme::glass::{fill, ink, radius};
 
 impl Launcher {
     /// Home's Packs tab: the selected instance's resource packs, then its shader packs.
@@ -207,7 +207,7 @@ impl Launcher {
             1 => tr("1 screenshot").to_string(),
             n => trf("{count} screenshots", &[("count", &n.to_string())]),
         };
-        let folder = horizon_launcher::screenshots::folder(&home);
+        let folder = industrial_era_launcher::screenshots::folder(&home);
         // In place of the mockup's blur toggle (the launcher has none yet): the folder, the same
         // 32 px `ICON_BUTTON`.
         let head = div()
@@ -299,7 +299,7 @@ impl Launcher {
             (Some(Err(e)), None) => Some(
                 div().mt(px(8.)).child(
                     ui::text(13., FontWeight::NORMAL, ink::FULL)
-                        .text_color(ui::color(horizon_theme::glass::DANGER))
+                        .text_color(ui::color(industrial_era_theme::glass::DANGER))
                         .child(e.clone()),
                 ),
             ),

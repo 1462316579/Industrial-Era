@@ -83,25 +83,25 @@ def read_bundle(path):
             ):
                 raise Refused(f"Bad path in the native mod: {info.filename[:80]}")
         try:
-            manifest = json.loads(archive.read("horizon-native.json"))
+            manifest = json.loads(archive.read("industrial-era-native.json"))
             mod_id = manifest["id"]
         except (KeyError, ValueError, TypeError):
-            raise Refused("The native mod has no readable horizon-native.json.")
+            raise Refused("The native mod has no readable industrial-era-native.json.")
         if not isinstance(mod_id, str) or not ID.match(mod_id):
             raise Refused("The native mod's id is not valid.")
         prefix = f"mixins/{mod_id}/"
         entries = {}
         for info in infos:
             name = info.filename
-            if name == "horizon-native.json" or name == "horizon-mod.toml":
+            if name == "industrial-era-native.json" or name == "industrial-era-mod.toml":
                 continue
             if name.startswith(("assets/", "data/")):
                 continue
             if not name.startswith(prefix) or not allowed(name[len(prefix) :]):
                 raise Refused(f"Unexpected file in the native mod: {name[:80]}")
             entries[name[len(prefix) :]] = archive.read(info)
-        if "horizon-mixin.toml" not in entries:
-            raise Refused("The native mod has no horizon-mixin.toml.")
+        if "industrial-era-mixin.toml" not in entries:
+            raise Refused("The native mod has no industrial-era-mixin.toml.")
         return mod_id, entries
 
 

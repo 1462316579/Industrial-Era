@@ -5,10 +5,10 @@ API @API:compute_fov_modifier@ adds `native_compute_fov_modifier(player, base, m
 The client hook `native_render_name_tag(entity_id, kind, vanilla_visible, visible, text)` runs at player and mob, armor stand, and item frame name decisions before shared geometry. Set `visible` to override vanilla and `text` to `Some` literal replacement text (NeoForge `RenderNameTagEvent`). Distance and entity availability still apply; the local player's tag is considered only when its own camera and settings gates allow it. Bundles need "hooks": @API:render_name_tag@.
 
 Native mods are **mixin bundles** that change the game's own Rust source before it is compiled, with
-[horizon-mixins](https://github.com/horizon-rust/horizon-mixins) (MIT, by levzzz5154, made for Horizon). A bundle
-is a `horizon-mixin.toml` and a few `.rs` helpers that hook into named functions of the game (HEAD, BEFORE_CALL,
+[industrial-era-mixins](https://github.com/industrial-era-rust/industrial-era-mixins) (MIT, by levzzz5154, made for Industrial Era). A bundle
+is a `industrial-era-mixin.toml` and a few `.rs` helpers that hook into named functions of the game (HEAD, BEFORE_CALL,
 RETURN, MODIFY_ARG, OVERWRITE...; the tool's README lists them). A port such as Veinminer is three HEAD hooks and
-one module. Start a mod from [horizon-native-mod-template](https://github.com/horizon-rust/horizon-native-mod-template).
+one module. Start a mod from [industrial-era-native-mod-template](https://github.com/industrial-era-rust/industrial-era-native-mod-template).
 
 Native mods are native code with the player's rights, not sandboxed. They are always on in the launcher: there is no
 switch. The first install shows a trust notice, and every build waits behind a red warning; the registry lists one only
@@ -31,31 +31,31 @@ requires a farmer at work and `mob_griefing` enabled.
 
 ## Pinned to a Nightly
 
-A native mod builds on one exact Horizon commit: `[compatibility] horizon_revision` in its `horizon-mixin.toml`,
-and `horizon` in the `horizon-native.json` of its registry file (`.hnmod`, `horizon_mods::index::native`). Mods
+A native mod builds on one exact Industrial Era commit: `[compatibility] horizon_revision` in its `industrial-era-mixin.toml`,
+and `industrial-era` in the `industrial-era-native.json` of its registry file (`.hnmod`, `horizon_mods::index::native`). Mods
 pin a **Nightly's commit** (or a release's). Every Nightly ships its source and keeps its commit for good as the
 tag `nightly-source/<date>-<short>` ([release-flow.md](release-flow.md#nightly-channel)), so a pinned mod still
 builds after its Nightly is replaced. When the mods of one build pin different commits, the launcher says which
 mod pins which and the commit the build would use, the newest of them, and builds only after the player chooses
 **Build anyway** (`native-build --allow-version-mismatch`): such mods often still apply and compile. A failed build
-then says the mods were made for other versions. Their horizon-mixins pins may differ too: the build uses the
+then says the mods were made for other versions. Their industrial-era-mixins pins may differ too: the build uses the
 newest of them and the launcher's own, never one older than a mod was made with. A bundle with no pin builds on
 the commit of the installed version the build starts from.
 
 ### Mods on the hook points
 
-A mod that hooks only Horizon's native hook points (`crates/horizon-client/src/game/native_hooks.rs`, with a few
+A mod that hooks only Industrial Era's native hook points (`crates/industrial-era-client/src/game/native_hooks.rs`, with a few
 free functions in other crates: [render hook points](#render-hook-points), [items' default
 components](#items-default-components), `horizon_world::loot::native_loot_table_load`, [menu slot
 rules](#menu-slot-rules); empty functions the game
 calls at fixed places, plus helpers, kept stable across releases) can name the version it
-needs instead of pinning: `"hooks": 1` in its `.hnmod`'s `horizon-native.json`, the `NATIVE_HOOKS_API` of that
+needs instead of pinning: `"hooks": 1` in its `.hnmod`'s `industrial-era-native.json`, the `NATIVE_HOOKS_API` of that
 file when it was made. Hook points are only ever added: each addition raises `NATIVE_HOOKS_API`, and a mod builds
-on any Horizon whose version is the one it needs or a later one. Its `horizon` is then only the commit it was tested on. The launcher builds it on the commit the other mods
+on any Industrial Era whose version is the one it needs or a later one. Its `industrial-era` is then only the commit it was tested on. The launcher builds it on the commit the other mods
 pin, else on the installed version's commit (the game the player plays), after checking that commit's
 `NATIVE_HOOKS_API` (read from GitHub) is at least the mod's; when it isn't and nothing pins, it builds on the commit the
-mod was tested on. In its own copy of the mod it sets `horizon_revision` to the commit it builds on. Horizon's
-own native mods (Zoom, FPS counter, Keystrokes, Minimap; horizon-rust/horizon-mods, `native/<name>/`) are made this way, so any of them build together
+mod was tested on. In its own copy of the mod it sets `horizon_revision` to the commit it builds on. Industrial Era's
+own native mods (Zoom, FPS counter, Keystrokes, Minimap; industrial-era-rust/industrial-era-mods, `native/<name>/`) are made this way, so any of them build together
 with no re-release for each Nightly.
 
 Hook and helper authors use [API fragments](../tools/native-hook-fragments/README.md) to request a number.
@@ -143,7 +143,7 @@ neither hook, and an error skips the post hook. Bundles that use them need `"hoo
 
 API 24 adds `native_set_block`, a server-side `Game` helper that replaces a state in the current dimension through
 `Level.setBlock`. It accepts vanilla's neighbour and shape flags and returns whether a block changed; a block with a
-block entity gets one. Horizon sends every write to players whatever the flags: `UPDATE_CLIENTS`, `UPDATE_INVISIBLE`
+block entity gets one. Industrial Era sends every write to players whatever the flags: `UPDATE_CLIENTS`, `UPDATE_INVISIBLE`
 and `UPDATE_IMMEDIATE` change nothing yet. Hooks holding only `GameLevel` cannot call it yet. Bundles that use it need
 `"hooks": 24`.
 
@@ -160,7 +160,7 @@ it works from any hook ([mods.md](mods.md#native-mods)). Bundles that use it nee
 API 27 adds the player-health HUD rows through `native_health_hud`: every frame the HUD draws them, the
 hook hears the layout's inputs (`HealthInputs`) and the screen's GUI size, and a mod that answers with
 draws replaces all the rows — armour, hearts, food, air and the heights above the hotbar — for that
-frame. Nothing answered draws Horizon's own. Bundles that use it need `"hooks": 27`.
+frame. Nothing answered draws Industrial Era's own. Bundles that use it need `"hooks": 27`.
 
 API 28 adds `native_block_in_tag` and `native_item_in_tag` for server tick hooks. They read the world's merged block and item tags, including data packs and content mods. An unknown tag returns false. An empty item stack tests the `minecraft:air` item, as vanilla does. Calls with an inactive or stale tick context return an error. Bundles that use them need `"hooks": 28`.
 
@@ -205,7 +205,7 @@ draw that lands on one: it runs often, so keep it short. Bone meal's random tick
 mod crop grows its own way. Without `handled`, the block then takes its own random tick as it is now (if it still
 ticks randomly), and lava's fluid random tick runs either way. It needs the level mutably, which only `native_random_tick` and API 34's `native_tick_block` give. It is API 18's `Game::native_set_block_property` with `Level.setBlock`'s flags (`native_hooks::flags`): a
 vanilla crop grows with `flags::UPDATE_CLIENTS` (neighbours' shapes update, so an observer fires, but no neighbour
-gets `neighborChanged` and comparators aren't told), a furnace sets its `lit` with `flags::UPDATE_ALL` (both). Horizon
+gets `neighborChanged` and comparators aren't told), a furnace sets its `lit` with `flags::UPDATE_ALL` (both). Industrial Era
 sends every write to players whatever the flags: `UPDATE_CLIENTS` (2), `UPDATE_INVISIBLE` (4) and `UPDATE_IMMEDIATE`
 (8) change nothing yet. It writes at any loaded position, returns false off an authoritative server (the `Game` one too: a window that isn't a server), for a property or
 value the block doesn't have, a position that isn't loaded, or a property that already has the value (nothing is written:
@@ -295,19 +295,19 @@ base unchanged; opaque pixels are drawn full-bright without changing gameplay
 light or the surrounding rock. The source pack must supply the overlay texture
 under `assets/<namespace>/textures/emissive/`. When no mod requests overlays,
 the terrain shader skips the lookup. Bundles using these hooks need `"hooks": 46`.
-When a native mod bundles a Horizon shader pack, naming its folder
+When a native mod bundles a Industrial Era shader pack, naming its folder
 `native-<mod-id>` makes the Mods On/Off control pause that pack too (without
 changing the player's saved shader selection); other packs are unaffected.
 
 ## A bundle
 
-A bundle is a folder with a `horizon-mixin.toml`. Besides its helpers and modules (horizon-mixins' README) it can
-have its own crate, data files and a post-build step (horizon-mixins 0.6.0). The test bundle
+A bundle is a folder with a `industrial-era-mixin.toml`. Besides its helpers and modules (industrial-era-mixins' README) it can
+have its own crate, data files and a post-build step (industrial-era-mixins 0.6.0). The test bundle
 [`launcher/tests/fixtures/native-crate-demo`](../launcher/tests/fixtures/native-crate-demo) uses all of them:
 
 ```
 native-crate-demo/
-  horizon-mixin.toml
+  industrial-era-mixin.toml
   frame.rs                # helper, compiled into the game
   data/greeting.txt       # the bundle's data: native_data!("crate_demo", "greeting.txt")
   engine/                 # the mod's own crate
@@ -333,7 +333,7 @@ bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *s
 [[crate]]
 id = "engine"
 path = "engine"           # holds Cargo.toml
-# dependent = "horizon-client"   (the default: the workspace package that depends on it)
+# dependent = "industrial-era-client"   (the default: the workspace package that depends on it)
 
 [[post_build]]
 crate = "engine"
@@ -345,19 +345,19 @@ args = []
 
 `native-hooks.json` at the root of the source names each hook point and the version of its contract (signature,
 when it is called, what it does): `{"name": "hud", "version": 1, "target": "horizon_client::game::native_hooks::Game<'_>::native_hud"}`.
-An injection names `hook` and `hook_version` instead of `target`, and horizon-mixins resolves it from the catalog
+An injection names `hook` and `hook_version` instead of `target`, and industrial-era-mixins resolves it from the catalog
 of the source it applies to, so a hook point can move in the source without breaking the mods that use it. A name
 the catalog lacks is `E_HOOK_UNKNOWN` (the error lists the names it has), a version it lacks `E_HOOK_VERSION`. A
 contract is never changed, its `mod_api` entry (the trait method's contract) included: an incompatible change adds
 a version. Helpers (`native_text`, `native_player`…) have no hook entry; the catalog's `helpers` list names the ones
 the generated `Host` offers, and they are kept stable as the hook points are. A test (`catalog_matches_hook_points`) keeps the
-catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `horizon-world`'s `loot.rs`) in step.
+catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `industrial-era-world`'s `loot.rs`) in step.
 
 ### The build's warnings
 
 Before it builds, the launcher reads the mods' `[[injection]]` lists and says three things in `native/build.log` that
-horizon-mixins only implies by its order. Two mods injecting at one place — the same function, kind, selector and
-ordinal; the places are the manifest's, horizon-mixins is the one that resolves a selector against the source:
+industrial-era-mixins only implies by its order. Two mods injecting at one place — the same function, kind, selector and
+ordinal; the places are the manifest's, industrial-era-mixins is the one that resolves a selector against the source:
 
 ```
 warning: mods beta, alpha both inject at hook `frame` HEAD; beta runs first (priority descending, mod id ascending).
@@ -378,7 +378,7 @@ warning: alpha's `stop` can cancel at hook `frame` HEAD: a Break skips the later
 A raw `target` is not matched against the catalog — whether it names a hook point's function only the source knows —
 so the third warning names a `hook`, and `hook = "frame"` and `target = "…::native_frame"` are not told apart. Only
 `HEAD` is named: the interior kinds may carry `cancellable` too, but what a `Break` skips there is less than the body.
-A mod's `priority` defaults to 0, as horizon-mixins defaults it. Neither warning stops the build.
+A mod's `priority` defaults to 0, as industrial-era-mixins defaults it. Neither warning stops the build.
 
 ### A mod's own ingredient kinds, matching at craft time
 
@@ -393,23 +393,23 @@ The hook may be called many times a craft; the answer must be the same for the s
 A `[[crate]]` is a Cargo package of the bundle's, staged as `native-crates/<mod>/<crate>/` and added to the
 workspace's members and to the `[dependencies]` of its `dependent`, so helpers call it as
 `crate_demo_engine::checksum(…)`. Cargo compiles it once and keeps it: editing a helper, or switching another mod
-on or off, recompiles `horizon-client` but not the mod's crate, so the heavy code of a big mod belongs there and
-only the glue in helpers. A crate can't depend on `horizon-client` (Cargo forbids the cycle) or on any path or git
-crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Horizon's own crates (`horizon-core`…) are path
+on or off, recompiles `industrial-era-client` but not the mod's crate, so the heavy code of a big mod belongs there and
+only the glue in helpers. A crate can't depend on `industrial-era-client` (Cargo forbids the cycle) or on any path or git
+crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Industrial Era's own crates (`industrial-era-core`…) are path
 crates too, so they are refused the same way, on purpose for now: a mod names game types through its helpers, which
-are compiled into `horizon-client`; a stable API crate for mods' own crates is #3897.
+are compiled into `industrial-era-client`; a stable API crate for mods' own crates is #3897.
 
-**Dependencies come from Horizon's `Cargo.lock`.** A crate names registry crates by version requirement
-(`crc32fast = "1"`, `{ version, features, default-features, optional }`); each must already be in Horizon's lock
-file in a version that matches, and builds in exactly that version. The lock file is the allow list: horizon-mixins
+**Dependencies come from Industrial Era's `Cargo.lock`.** A crate names registry crates by version requirement
+(`crc32fast = "1"`, `{ version, features, default-features, optional }`); each must already be in Industrial Era's lock
+file in a version that matches, and builds in exactly that version. The lock file is the allow list: industrial-era-mixins
 refuses a crate the lock lacks (`E_CRATE_DEPENDENCY`) and writes the mod's crates into the staged lock without
 changing any other byte, so the game still builds with `--locked`. The launcher checks it again (every downloaded
-package of the staged lock as in Horizon's: name, version, source, checksum), and a feature that turns on a
+package of the staged lock as in Industrial Era's: name, version, source, checksum), and a feature that turns on a
 dependency the lock lacks fails at `cargo fetch --locked` with a message saying so. The build stops with:
 
 ```
-horizon-mixins failed (exit status: 1). The end of its output, the whole of it in …/native/build.log:
-E_CRATE_DEPENDENCY: crate_lock needs rand ^0.9, which isn't in Horizon's Cargo.lock (…/horizon-mixin.toml)
+industrial-era-mixins failed (exit status: 1). The end of its output, the whole of it in …/native/build.log:
+E_CRATE_DEPENDENCY: crate_lock needs rand ^0.9, which isn't in Industrial Era's Cargo.lock (…/industrial-era-mixin.toml)
 ```
 
 ### Conditional data
@@ -559,9 +559,9 @@ folder or a crate's), so a crate that compiles its README in builds the same fro
 most 512 files and 64 MiB unpacked; anything else refuses the bundle. A local folder build has no such limits.
 
 **One `.hmod` for content and code.** A mod's content and its native code ship as one `.hmod`, and what is inside
-decides what happens: only `horizon-mod.toml` with `assets/` and `data/` is a content mod, nothing compiles; with
-`horizon-native.json` and `mixins/<id>/` (a bundle as above) it is a native mod, built into the game. Both may be in
-one file: `horizon-mod.toml`, `assets/` and `data/` are its content, checked as a content mod's
+decides what happens: only `industrial-era-mod.toml` with `assets/` and `data/` is a content mod, nothing compiles; with
+`industrial-era-native.json` and `mixins/<id>/` (a bundle as above) it is a native mod, built into the game. Both may be in
+one file: `industrial-era-mod.toml`, `assets/` and `data/` are its content, checked as a content mod's
 (`horizon_mods::Content`) and left out of the build, and the two manifests name the same mod id. A `.hmod` with
 native code is never a WebAssembly mod: one carrying `mod.wasm` is refused with
 `horizon_mods::index::native::WASM_GONE`. An `.hnmod` (code only) keeps loading as before. The registry keeps
@@ -585,7 +585,7 @@ folder with:
 Its output goes to `native/build.log`. A `native-post-build.json` that can't be read, or names a mod id that isn't
 one, stops the build instead of skipping the steps. When a step fails, so does the build ("crate_demo's post-build
 step failed …") and the version folder is removed. It runs on the player's computer like the rest of the mod's code: only the
-launcher runs it, never horizon-mixins.
+launcher runs it, never industrial-era-mixins.
 
 API 47 adds `native_entity_join_level(dimension, entity, kind, pos, loaded_from_disk, canceled)`, an entity joining a
 server level (NeoForge's `EntityJoinLevelEvent`, vanilla's `PersistentEntitySectionManager.addEntity`):
@@ -611,11 +611,11 @@ use them need `"hooks": 49`.
 
 API 50 adds damage a mod can change or cancel through `native_living_incoming_damage` (NeoForge's
 `LivingIncomingDamageEvent`): where `LivingEntity.hurtServer` starts, once its guards passed (invulnerable, dead or
-dying, fire with fire resistance; Horizon's mobs don't check the fire resistance effect there yet), with the hurt
+dying, fire with fire resistance; Industrial Era's mobs don't check the fire resistance effect there yet), with the hurt
 entity's id and type (`minecraft:player` for a player), the damage type (`minecraft:fall`), the source's causing
 entity (`causing`, vanilla's `DamageSource.getEntity`: a skeleton for its arrow) and direct entity (`direct`,
 `getDirectEntity`: the arrow; the attacker itself in melee), and the amount. The entity ids are 0 for none, and for
-the sources listed below that Horizon doesn't track yet. A mod may change the amount, or set `canceled`: nothing of
+the sources listed below that Industrial Era doesn't track yet. A mod may change the amount, or set `canceled`: nothing of
 `hurtServer` itself happens then (no damage, hurt sound, knockback, invulnerable time, statistics or criteria), and
 the caller acts as on a refused hit, so a blast still pushes a mob whose hit was canceled, as vanilla pushes one that
 refused it. A canceled hit on the ender dragon still counts as landed, as vanilla's `EnderDragon.hurt` returns true
@@ -627,7 +627,7 @@ state a mod shares with its render thread hooks needs synchronising. `/kill` and
 `native_kill_mob` don't reach it yet: they set the health to 0 instead of hurting with `minecraft:generic_kill` as
 vanilla does.
 
-A player's damage type is the source's own. A mob's and the dragon's come from the kind of damage Horizon keeps for
+A player's damage type is the source's own. A mob's and the dragon's come from the kind of damage Industrial Era keeps for
 the hit, which doesn't tell every vanilla type apart yet:
 
 - A trident's hit on a mob is `minecraft:arrow`, not `minecraft:trident`
@@ -764,7 +764,7 @@ state's model, as `submitBlockModel`: a moving part is often a block of the mod'
 unless the mod widens them, or never culled when a bound is infinite. Both run every frame for every one in view: keep
 them cheap. Bundles that use them need `"hooks": 71`.
 
-API 72 adds bone meal on a mod block, the `BonemealableBlock` three questions a block nothing in Horizon knows one for
+API 72 adds bone meal on a mod block, the `BonemealableBlock` three questions a block nothing in Industrial Era knows one for
 answers itself: `native_is_valid_bonemeal_target(state, valid)` says whether the block takes bone meal (`Some(false)` refuses it even where its template takes it, `None` leaves the
 template's; asked on both sides, as vanilla asks it, so a client predicts the use); `native_is_bonemeal_success(state, success)` is
 `isBonemealSuccess`, drawn from `native_level_random()` to keep vanilla's order; and `native_perform_bonemeal(state)`
@@ -780,7 +780,7 @@ item is consumed, on the server thread, for the acting player. The kind and the 
 the game's own effects, sounds, teleports and drops are open to the hook. An unclaimed kind does nothing.
 The hook sees the item's own consumable component, not a patch on the stack; a bare vanilla name and an unknown `minecraft:` kind are the loader's, not the hook's. Bundles that use it need "hooks": 74.
 
-API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `horizon-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
+API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `industrial-era-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
 
 API 76 adds `native_state_for_placement(state, context, fluid, answer)`: the state a block is about to be placed in
 (`Block.getStateForPlacement(BlockPlaceContext)`), `state` the block's own default state. Answer only for your own
@@ -799,7 +799,7 @@ API 77 adds a `minecraft:post_attack` enchantment effect of a mod's own kind, on
 
 API 78 adds `native_screen_render_post`, the point of `ScreenEvent.Render.Post`: a native mod draws over the open screen after it and its tooltips, given its id, the server-opened menu's vanilla type (`menu`) and title, its container panel, its slot count, the mouse in GUI pixels and the partial tick (`NativeScreenView`). Every container, station and mod window draws on the inventory screen and so reports `inventory`: tell them apart by `menu` and `title` (None on a window the client opened) and by `slots`. It does not fire on the title screen, nor for the prompts, books and sign editors drawn over gameplay after it. Bundles that use it need "hooks": 78.
 
-API 79 adds `native_modify_default_components(item, components)`, in `horizon-world`'s `item_defaults.rs`: an item's default
+API 79 adds `native_modify_default_components(item, components)`, in `industrial-era-world`'s `item_defaults.rs`: an item's default
 components in `items.json`'s form, for any item, vanilla's included (NeoForge's `ModifyDefaultComponentsEvent`). Insert
 or replace a component to set it (`"minecraft:max_stack_size": 16`), remove it to take it away. The item table,
 loot, enchanting and item models all read the changed defaults, and stacks are saved and sent against them as
@@ -814,7 +814,7 @@ throws a block that flies, lands and places itself as sand does, for debris and 
 use it need `"hooks": 81`.
 
 API 82 adds camera shake for client mods: `native_camera_shake(partial, shake)` asks each frame for turns in degrees and an
-offset in blocks, which add up across mods and multiply into the view after its bobbing. Horizon scales the sum by
+offset in blocks, which add up across mods and multiply into the view after its bobbing. Industrial Era scales the sum by
 Distortion Effects and bounds it to 10 degrees and half a block on each axis. Bundles that use it need
 `"hooks": 82`.
 
@@ -823,11 +823,11 @@ the mod's own from its `assets/<id>/sounds.json`, for this player only and up to
 can time a blast's sound to its shock wave. Bundles that use it need `"hooks": 83`.
 
 API 84 adds values for a mod's own shader pack: `native_shader_params(partial, params)` asks each frame for eight `vec4`s that
-every stage of a Horizon shader pack reads as `frame.mods`, so a mod can tell the pack it bundles where and when
+every stage of a Industrial Era shader pack reads as `frame.mods`, so a mod can tell the pack it bundles where and when
 something happened (an explosion's centre and age for a cloud drawn in a post pass). Bundles that use it need
 `"hooks": 84`.
 
-API 85 adds menus of content mods' own menu types (vanilla's `MenuType`): a mod container's `menu` may name a menu type its content mod declares in `data/<id>/horizon/menu/` with as many slots ([mods.md](mods.md#menu-types)). It opens when the block is used, its data slots are the block entity's `data`, and a Horizon client shows it through the mod's `native_screen`. Bundles that use it need `"hooks": 85`.
+API 85 adds menus of content mods' own menu types (vanilla's `MenuType`): a mod container's `menu` may name a menu type its content mod declares in `data/<id>/industrial-era/menu/` with as many slots ([mods.md](mods.md#menu-types)). It opens when the block is used, its data slots are the block entity's `data`, and a Industrial Era client shows it through the mod's `native_screen`. Bundles that use it need `"hooks": 85`.
 
 API 86 adds `native_block_highlight(pos, state, partial, canceled)` runs before building the eligible targeted block's selection outline, after hidden-HUD and game-mode restrictions. Set `canceled` to suppress only that outline; default behavior is unchanged otherwise. Position is block coordinates and state is the current block state ID. No entity outlines are affected. Bundles need "hooks": 86.
 
@@ -853,7 +853,7 @@ no item slots: send the stacks you draw in `native_block_entity_update_tag` and 
 
 API 92 adds the world's clock for client mods: `native_clock()` is the shown world's game time and time of day in ticks (`i64`; the day time counts on past 24000), none on the title screen. Bundles need `"hooks": 92`.
 
-API 93 adds the open screen hears of the wheel (`native_screen_mouse_scrolled_pre`) before it scrolls, as vanilla's `ScreenEvent.MouseScrolled.Pre`: the screen, the scroll's x and y as the game's scroll handler scales them (a line times the wheel sensitivity: with Discrete Scrolling on, a notch is ±1, its sign only; a touchpad's pixels are divided by 30), GLFW's modifier bits (shift 1, control 2, alt 4, super 8) and the pointer in `screen.mouse`. A cancelled turn scrolls nothing: no bundle under the pointer, no list, slider or scrollbar, and no hotbar slot. It fires for the window's wheel (horizon-ctl's `scroll-at` included), never on the title screen itself (Options and the pack list opened from it do fire), the connect and loading screens, the prompts, books and sign editors drawn over gameplay, or while a world loads or saves, and never for a wheel a gamepad or the keyboard's focus sends. Bundles need "hooks": 93.
+API 93 adds the open screen hears of the wheel (`native_screen_mouse_scrolled_pre`) before it scrolls, as vanilla's `ScreenEvent.MouseScrolled.Pre`: the screen, the scroll's x and y as the game's scroll handler scales them (a line times the wheel sensitivity: with Discrete Scrolling on, a notch is ±1, its sign only; a touchpad's pixels are divided by 30), GLFW's modifier bits (shift 1, control 2, alt 4, super 8) and the pointer in `screen.mouse`. A cancelled turn scrolls nothing: no bundle under the pointer, no list, slider or scrollbar, and no hotbar slot. It fires for the window's wheel (industrial-era-ctl's `scroll-at` included), never on the title screen itself (Options and the pack list opened from it do fire), the connect and loading screens, the prompts, books and sign editors drawn over gameplay, or while a world loads or saves, and never for a wheel a gamepad or the keyboard's focus sends. Bundles need "hooks": 93.
 
 API 94 adds keeping a mod block entity's geometry: `draw.keep()` in `native_block_entity_submit` keeps what that call drew, and the
 block is drawn the same again without calling `native_block_entity_submit` or `native_block_entity_render_bounding_box`
@@ -866,7 +866,7 @@ API 95 adds any command a player types: `native_player_command(player, name, com
 
 API 96 adds `native_neighbor_signal(dimension, pos)`, the strongest redstone signal reaching a block from its neighbours (`SignalGetter.getBestNeighborSignal`, 0 to 15), as a dispenser or a piston reads it: what a mod's explosive, launcher or machine needs to go off or switch on from its block entity's tick. 0 on a client and for another dimension. Bundles that use it need "hooks": 96.
 
-API 97 adds `native_light(pos)` (block and sky light, 0 to 15, both 0 where the chunk isn't loaded), `native_weather()` (rain and thunder levels, 0 in the Nether and the End), `native_day_time()`, `native_world_height()` (min y and height) and `native_max_stack_size(item)`: what a mod's solar panel, wind turbine, quarry or own container needs without reaching into Horizon's internals. Bundles that use them need "hooks": 97.
+API 97 adds `native_light(pos)` (block and sky light, 0 to 15, both 0 where the chunk isn't loaded), `native_weather()` (rain and thunder levels, 0 in the Nether and the End), `native_day_time()`, `native_world_height()` (min y and height) and `native_max_stack_size(item)`: what a mod's solar panel, wind turbine, quarry or own container needs without reaching into Industrial Era's internals. Bundles that use them need "hooks": 97.
 
 API 98 adds `native_give_stack(uuid, stack)`: gives a whole stack (damage, name, enchantments kept) to any player from a server hook, as `Inventory.add` places it, and returns what did not fit. Bundles need "hooks": 98.
 
@@ -883,7 +883,7 @@ API 102 adds lead drops to `native_loot_drops`: untying a lead or cutting it wit
 player killed while leashed drops on its next tick, naming the killer. Bundles that rely on them need
 `"hooks": 102`.
 
-API 103 adds native mod particle types to `native_send_particles`: `ParticleOptions::named("mymod:spark")` sends a particle of the mod's own type, drawn by Horizon clients from the sprite set in the mod's `assets/<namespace>/particles/<path>.json` (`"textures": ["mymod:spark/1", ...]`, resolved as `particle/<texture>` in the atlas). The name must be namespaced; a client without that file draws nothing for it, vanilla clients (whose brand isn't Horizon's) aren't sent it, and the call still returns true. The type behaves as vanilla's `SimpleParticleType` with a sprite set: a plain billboard, no tint, 20 to 40 ticks, its motion the game's default spread (the speed sets its direction, not how fast it goes). Bundles that use it need `"hooks": 103`.
+API 103 adds native mod particle types to `native_send_particles`: `ParticleOptions::named("mymod:spark")` sends a particle of the mod's own type, drawn by Industrial Era clients from the sprite set in the mod's `assets/<namespace>/particles/<path>.json` (`"textures": ["mymod:spark/1", ...]`, resolved as `particle/<texture>` in the atlas). The name must be namespaced; a client without that file draws nothing for it, vanilla clients (whose brand isn't Industrial Era's) aren't sent it, and the call still returns true. The type behaves as vanilla's `SimpleParticleType` with a sprite set: a plain billboard, no tint, 20 to 40 ticks, its motion the game's default spread (the speed sets its direction, not how fast it goes). Bundles that use it need `"hooks": 103`.
 
 API 104 adds the open screen hears of a key press (`native_screen_key_pressed_pre`) and of each character it types (`native_screen_char_typed_pre`), as vanilla's `ScreenEvent.KeyPressed.Pre` and `.CharacterTyped.Pre`: the screen, vanilla's key name (`key.keyboard.e`, as `native_key` hands it over; a key with no name fires nothing), whether the press is an auto-repeat, the character, GLFW's modifier bits (shift 1, control 2, alt 4, super 8), and `screen.mouse` for the pointer. A cancelled press goes no further — no focus move, no Escape-close, no inventory or hotbar key, no typing by the key itself, no `native_key` — while its release still arrives, so a `native_key` listener sees that release without its press, and the characters no mod cancelled still reach the text box, as vanilla's separate `charTyped` comes for a cancelled `keyPressed` too. A cancelled character drops only that character and never reaches a text box; control characters (Enter, Backspace, Tab, Delete, Escape, a Control letter) are keys and fire nothing. A key's characters fire after the key has acted, as GLFW's char callback comes after its key callback, so a key that closes the screen (the inventory key) reports no character (the closed screen hears none) and one that moves the focus types into the box it moved to. The input method's committed text fires the character hook too. They fire for the window and the control socket's `key` and `type` (not its `\b` backspace), after the fullscreen, screenshot, debug and narrator keys, never on the title screen itself (Options and the pack list opened from it do fire), the connect and loading screens, the prompts, books and sign editors drawn over gameplay, or while a world loads or saves. Bundles need "hooks": 104.
 
@@ -918,7 +918,7 @@ API 115 adds a player respawning: `native_player_respawned(player, name)` is hea
 
 API 116 adds a client mod's view and items: `native_raycast(distance)` and `native_view_hit()` (the first block along the view, up to 1024 blocks, across the distant terrain past the loaded chunks), and `native_claim_items(mod_id, ids)`: a right-click with one of those items is the mod's alone, the server never hears of it, and `native_poll(mod_id)` gives `UseStart` and `UseStop` with the stack (its custom name and data as SNBT) and the ticks it was held. Bundles need `"hooks": 116`.
 
-API 117 adds `native_render_fog(partial, camera, fog_type, fog)` adjusts final FogData after normal environment/effect/render-distance calculation and Horizon's fog option, before GPU upload. Title panoramas skip it. The whole request is accepted only when color components are finite in 0..=1, all distances are finite, environmental and render-distance ends exceed their starts, and sky/cloud ends are nonnegative. Negative near planes remain valid (water/lava). Invalid requests retain the original whole fog. Bundles need "hooks": 117.
+API 117 adds `native_render_fog(partial, camera, fog_type, fog)` adjusts final FogData after normal environment/effect/render-distance calculation and Industrial Era's fog option, before GPU upload. Title panoramas skip it. The whole request is accepted only when color components are finite in 0..=1, all distances are finite, environmental and render-distance ends exceed their starts, and sky/cloud ends are nonnegative. Negative near planes remain valid (water/lava). Invalid requests retain the original whole fog. Bundles need "hooks": 117.
 
 API 118 adds `native_screen_key_released_pre(screen, key, modifiers, canceled)` runs before a named key's release reaches an open screen, with the same screen exclusions and GLFW modifier encoding as the existing key-press hook. It does not fire for presses/repeats or unnamed keys. Cancel bypasses screen handling and its legacy native_key notification, but physical key removal and mapped keyboard/toggle releases still happen to prevent stuck inputs. Mouse mappings retain their existing gameplay-only gate. Bundles need "hooks": 118.
 
@@ -926,7 +926,7 @@ API 119 adds music for client mods: `native_music(music, volume)` changes the tr
 tick, and `native_music_layers(layers)` lists looping tracks played over it, each easing to its own volume (stems that
 grow fuller). Bundles that use them need `"hooks": 119`.
 
-API 120 adds a server's recipes reach its Horizon clients, as NeoForge's `OnDatapackSyncEvent.sendRecipes` and `RecipesReceivedEvent`: on the server, `native_datapack_sync(recipe_types)` takes the recipe types (`minecraft:smelting`, `mymod:crusher`) a mod's client half needs, asked once per load, the same types for every player (NeoForge asks per joining player); Horizon sends their final recipes (data packs merged, load conditions held) to every Horizon client when it joins and after each `/reload`, in payloads within the clientbound cap, and nothing to a vanilla client. On the client the recipe helpers (`native_recipes`, `native_recipes_of_type`) then give the server's recipes of those types in place of the window's own, single player included, and `native_recipes_received(recipe_types)` says they came. No type asked: nothing is sent and nothing changes; none asked after a load that asked some: the clients go back to their own recipes and `native_recipes_received` comes with no types. Bundles need "hooks": 120.
+API 120 adds a server's recipes reach its Industrial Era clients, as NeoForge's `OnDatapackSyncEvent.sendRecipes` and `RecipesReceivedEvent`: on the server, `native_datapack_sync(recipe_types)` takes the recipe types (`minecraft:smelting`, `mymod:crusher`) a mod's client half needs, asked once per load, the same types for every player (NeoForge asks per joining player); Industrial Era sends their final recipes (data packs merged, load conditions held) to every Industrial Era client when it joins and after each `/reload`, in payloads within the clientbound cap, and nothing to a vanilla client. On the client the recipe helpers (`native_recipes`, `native_recipes_of_type`) then give the server's recipes of those types in place of the window's own, single player included, and `native_recipes_received(recipe_types)` says they came. No type asked: nothing is sent and nothing changes; none asked after a load that asked some: the clients go back to their own recipes and `native_recipes_received` comes with no types. Bundles need "hooks": 120.
 
 API 121 adds `native_input_key(event, modifiers)` runs after a real window keyboard event finishes handling, including shortcuts, screen consumption and repeats. event is the original winit::event::KeyEvent with physical/logical key, location, text, state and repeat; modifiers use the screen hooks' GLFW bits, captured before handling. Not cancellable. Foreign-window and OS synthetic focus events skip it. Window callback only: pad/focus/control-socket input retains its existing native_key route. The legacy native_key hook is unchanged. Bundles need "hooks": 121.
 
@@ -951,7 +951,7 @@ game knocks back: a hit's own push, a sprinting or Knockback hit, a sweep, a spe
 goat's ram. It does not fire for a sulfur cube with a block that a hit with a causing entity knocks back
 (`SulfurCube.knockback` does not call `super` there), for the pushes vanilla doesn't make with `LivingEntity.knockback` (the
 ender dragon's wings, Punch arrows, explosions, wind charges, a mace smash's area, a hoglin's throw), nor yet for the ones
-Horizon makes another way: a mob's melee push from its attack knockback or a Knockback weapon, an armor stand's and the
+Industrial Era makes another way: a mob's melee push from its attack knockback or a Knockback weapon, an armor stand's and the
 ender dragon's. It has no `self`: the game is in the middle of the hit. It runs on the thread that ticks the world (the
 server thread), so state a mod shares with its render thread hooks needs
 synchronising.
@@ -966,7 +966,7 @@ API 128 adds `native_experience_orb_can_merge(dimension, into, from, into_value,
 
 API 129 adds `native_block_entity` gives a block a block entity whatever its template: a mod's stone casing or thin part no longer needs a chest's or furnace's template. The engine removes it when its block is broken or replaced, no piston moves it, and a mod that draws it (`native_block_entity_submit`) is asked for it. Bundles need "hooks": 129.
 
-API 130 adds slot rules a mod decides in code for its content menu types: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, in `horizon-client`'s `menu.rs`, is given the type's own answer (false on one of its `results`, [mods.md](mods.md#menu-types), true elsewhere, and 99) and may change both, as a NeoForge mod overrides `Slot.mayPlace` and `Slot.getMaxStackSize`. A mod menu type's clicks run on the vanilla menu engine (`menu::Kind::Mod`). Bundles need `"hooks": 130`.
+API 130 adds slot rules a mod decides in code for its content menu types: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, in `industrial-era-client`'s `menu.rs`, is given the type's own answer (false on one of its `results`, [mods.md](mods.md#menu-types), true elsewhere, and 99) and may change both, as a NeoForge mod overrides `Slot.mayPlace` and `Slot.getMaxStackSize`. A mod menu type's clicks run on the vanilla menu engine (`menu::Kind::Mod`). Bundles need `"hooks": 130`.
 
 API 131 adds an item's use tick and release, as vanilla's `Item.onUseTick` and `releaseUsing` and NeoForge's `LivingEntityUseItemEvent.Tick` and `.Stop`. Each tick of a use, `native_living_entity_use_item_tick` may change the ticks left: at 0 or less, or on a cancel, the server finishes the use, as NeoForge's code does, and an item used on release stays frozen until let go. `native_on_use_tick` is what a mod's own item does then (cook, charge). When the player lets go early, `native_living_entity_use_item_stop` may skip the release, and `native_release_using` acts with the ticks left (a bow-like item shoots by its charge); setting `used` starts the item's cooldown. All four run on both sides, as vanilla's do, and take the using entity, None for a player; the tick and stop take the hand too. Change the world only where this game runs the world, not on a server's client. Bundles that use them need `"hooks": 131`.
 
@@ -980,11 +980,11 @@ API 135 adds the client's level made and dropped, on the window: `native_client_
 
 API 136 adds a projectile's impact, which a mod can cancel, through `native_projectile_impact` (NeoForge's `ProjectileImpactEvent`): it fires when a projectile has found what it meets, before the hit acts, with the projectile's id, type (`minecraft:arrow`) and owner, the level, and what it hit: an entity (its id and type) or a block (its position and the face's normal) and the point. Set `canceled` and the impact does not happen: no damage, knockback, sound or block reaction, an arrow does not stick, a pearl does not teleport, a potion or a fireball does not burst. The projectile flies on and is not discarded, so a mod that cancels decides what becomes of it. It covers arrows, tridents, thrown items, fireballs, wither skulls, wind charges, llama spit and shulker bullets, on the single player server thread and on a dedicated server. It does not fire for a breeze's deflection, a hit on a wind charge, fireworks or fishing bobbers. A mod hooks `native_hears_projectile_impacts(hears)` too and sets `hears`: without it the server keeps no copy of its flying projectiles and the impact hook is not called. Bundles that use it need "hooks": 136.
 
-API 137 adds an entity getting on or off a vehicle, which a mod can cancel, through `native_entity_mount` (NeoForge's `EntityMountEvent`): the rider's id and type (`minecraft:player`, `minecraft:zombie`), the vehicle's id and type (`minecraft:oak_boat`, `minecraft:horse`), whether it is mounting, and a `canceled` flag. Set `canceled` and the rider does not board, or keeps riding; a `/ride` that is canceled fails. It is told for a player boarding a boat, minecart, cushion or mount (pig, strider, horse and its kin, llama, nautilus, happy ghast) and getting off by their own input, `/ride`, a stab, a buck, a teleport or spectator mode, and for the mobs Horizon seats on a vehicle (jockeys, raiders on a ravager, `/ride`) and lets off one with `/ride` or a stab. It is not told for a rider whose vehicle is gone or dies, nor for riders loaded with a save. On the single player server thread and on a dedicated server. Bundles that use it need "hooks": 137.
+API 137 adds an entity getting on or off a vehicle, which a mod can cancel, through `native_entity_mount` (NeoForge's `EntityMountEvent`): the rider's id and type (`minecraft:player`, `minecraft:zombie`), the vehicle's id and type (`minecraft:oak_boat`, `minecraft:horse`), whether it is mounting, and a `canceled` flag. Set `canceled` and the rider does not board, or keeps riding; a `/ride` that is canceled fails. It is told for a player boarding a boat, minecart, cushion or mount (pig, strider, horse and its kin, llama, nautilus, happy ghast) and getting off by their own input, `/ride`, a stab, a buck, a teleport or spectator mode, and for the mobs Industrial Era seats on a vehicle (jockeys, raiders on a ravager, `/ride`) and lets off one with `/ride` or a stab. It is not told for a rider whose vehicle is gone or dies, nor for riders loaded with a save. On the single player server thread and on a dedicated server. Bundles that use it need "hooks": 137.
 
 API 138 adds `native_interaction_key(button, key_mapping, hand, swing_hand, canceled)` fires while playing when an interaction key is about to act on the crosshair: button 0 the attack key (`key.attack`; when an attack is allowed, and each tick a held key keeps digging a block), 1 the use key (`key.use`; once for each hand tried, main first, before the hand's target and item), 2 pick block (`key.pickItem`; only with a block or entity aimed at). Set `canceled` to skip the action; a cancelled use ends the click, so the other hand gets no turn. A cancelled attack or use still swings `hand` unless the mod clears `swing_hand` (true on entry). A single player's window and a server's player (any window that plays on a server). Bundles need "hooks": 138.
 
-API 139 adds `native_gui_layer_pre(layer, batch, canceled)` and `native_gui_layer_post(layer, batch)` fire around each vanilla HUD layer Horizon draws, in its paint order, so a mod places its own drawing below a layer (in `pre`) or above it (in `post`), NeoForge's `RegisterGuiLayersEvent` registerBelow/registerAbove, and hides a layer by setting `canceled` in `pre` (`RenderGuiLayerEvent.Pre`). Layer ids: `minecraft:crosshair`, `hotbar`, `effects`, `boss_overlay`, `vehicle_health` (riding a mount), `contextual_info_bar` (the jump bar, locator bar or experience bar with the level number), `player_health` (health, armor, food and air rows, one pass), `selected_item_name`, `sleep_overlay`, `overlay_message` (action bar), `title`, `scoreboard_sidebar`, `subtitle_overlay`, `chat` (the unfocused lines) and `tab_list`. F1 hides the layers it hides in vanilla, and then nothing fires for them. The camera overlays (drawn by the screen-effects pass) and the debug screen are not layers. A hidden layer still runs its game logic (the health rows' blink, the bubble pop sound) and `post` still fires. Bundles need "hooks": 139.
+API 139 adds `native_gui_layer_pre(layer, batch, canceled)` and `native_gui_layer_post(layer, batch)` fire around each vanilla HUD layer Industrial Era draws, in its paint order, so a mod places its own drawing below a layer (in `pre`) or above it (in `post`), NeoForge's `RegisterGuiLayersEvent` registerBelow/registerAbove, and hides a layer by setting `canceled` in `pre` (`RenderGuiLayerEvent.Pre`). Layer ids: `minecraft:crosshair`, `hotbar`, `effects`, `boss_overlay`, `vehicle_health` (riding a mount), `contextual_info_bar` (the jump bar, locator bar or experience bar with the level number), `player_health` (health, armor, food and air rows, one pass), `selected_item_name`, `sleep_overlay`, `overlay_message` (action bar), `title`, `scoreboard_sidebar`, `subtitle_overlay`, `chat` (the unfocused lines) and `tab_list`. F1 hides the layers it hides in vanilla, and then nothing fires for them. The camera overlays (drawn by the screen-effects pass) and the debug screen are not layers. A hidden layer still runs its game logic (the health rows' blink, the bubble pop sound) and `post` still fires. Bundles need "hooks": 139.
 
 API 140 adds `native_map_decorations(map, decorations)` is asked each time a map is drawn (held, in an item frame, or on the cartography table's screen) with `NativeMapInfo` (id, centre block, scale, dimension, locked, whether it is in a frame); push `NativeMapDecoration { sprite, x, y, rot, shown_on_frame }` (an atlas sprite, a position in half map pixels from -128 to 127, a rotation 0 to 15, and whether it shows in frames and on the screen like vanilla's markers) and it is drawn after the vanilla decorations with the same pose; a sprite the atlas lacks is left out. Nothing is saved in the map and vanilla's decorations are not passed in. This is the client half of NeoForge's `MapDecorationType`; types registered on the server and saved in map data need code-side registration. Bundles need "hooks": 140.
 
@@ -1002,13 +1002,13 @@ API 143 adds data maps (`RegisterDataMapTypesEvent`). `native_data_map_types(typ
 
 `native_living_drown(entity, kind, is_drowning, damage_amount, bubble_count, cancel)` asks on the server when a player or generic-air mob cannot breathe and has no air (NeoForge's `LivingDrownEvent`, `LivingEntity.baseTick`). Mods may change the drowning decision, damage and bubble count, or cancel. Damage at or below zero does not hurt. The normal eight bubbles use the entity event; other positive counts are sent in a particle packet, and nonpositive counts suppress bubbles. Bundles need "hooks": 356.
 
-API 144 adds a player's or mob's breathing, on the single player server thread and on a dedicated server: `native_living_breathe(entity, kind, can_breathe, consume, refill)` every tick for a player and for a mob with the generic air logic (NeoForge's `LivingBreatheEvent`, vanilla's `LivingEntity.baseTick`), with Horizon's answers as the defaults: set `can_breathe` and how much air `consume` takes or `refill` gives (up to 300); at -20 the entity is set to 0 air and takes 2 drowning damage. It is a free function in `horizon_client::breathing`, so it answers and cannot call helpers. Axolotls and `WaterAnimal`s keep their own air logic. Bundles that use it need "hooks": 144.
+API 144 adds a player's or mob's breathing, on the single player server thread and on a dedicated server: `native_living_breathe(entity, kind, can_breathe, consume, refill)` every tick for a player and for a mob with the generic air logic (NeoForge's `LivingBreatheEvent`, vanilla's `LivingEntity.baseTick`), with Industrial Era's answers as the defaults: set `can_breathe` and how much air `consume` takes or `refill` gives (up to 300); at -20 the entity is set to 0 air and takes 2 drowning damage. It is a free function in `horizon_client::breathing`, so it answers and cannot call helpers. Axolotls and `WaterAnimal`s keep their own air logic. Bundles that use it need "hooks": 144.
 
-API 145 adds blocks and items a native mod declares in code, as NeoForge's `DeferredRegister.Blocks` and `.Items` drained by `RegisterEvent`, instead of one content file each: `native_blocks(blocks)` and `native_items(items)`, asked once at start on every side, take `horizon_mods::content::Block` and `Item`, the declarations a content mod's `data/<id>/horizon/block/` and `item/` files hold (a vanilla template and what differs; `item: true` gives a block its item). Ids are in the mod's namespace. They join the content mods' blocks and items, inside the content mod whose id is that namespace when it is on (its models, textures, loot and recipes), else on their own with the template's look, so their network ids, saves and the joining client's content check are the files' (docs/mods.md). They pass the files' checks; a namespace whose declarations don't is logged and left out. Bundles that use them need `"hooks": 145`.
+API 145 adds blocks and items a native mod declares in code, as NeoForge's `DeferredRegister.Blocks` and `.Items` drained by `RegisterEvent`, instead of one content file each: `native_blocks(blocks)` and `native_items(items)`, asked once at start on every side, take `horizon_mods::content::Block` and `Item`, the declarations a content mod's `data/<id>/industrial-era/block/` and `item/` files hold (a vanilla template and what differs; `item: true` gives a block its item). Ids are in the mod's namespace. They join the content mods' blocks and items, inside the content mod whose id is that namespace when it is on (its models, textures, loot and recipes), else on their own with the template's look, so their network ids, saves and the joining client's content check are the files' (docs/mods.md). They pass the files' checks; a namespace whose declarations don't is logged and left out. Bundles that use them need `"hooks": 145`.
 
 API 146 adds entities ticking, through `native_entity_tick_pre` (NeoForge's `EntityTickEvent.Pre`) and `native_entity_tick_post` (`EntityTickEvent.Post`), with the entity's id and type (`minecraft:zombie`, `minecraft:item`) and the level. Set `canceled` in the Pre and the entity doesn't tick this tick (and its Post isn't told). Told for the mobs, item entities, minecarts and boats that tick in an entity-ticking chunk, on the single player server thread and on a dedicated server; not for a player's own boat or minecart, projectiles, orbs, primed TNT, falling blocks or armor stands yet (check `kind`: later APIs add kinds). Mobs and items hear every Pre before the family's first tick and every Post after its last; minecarts and boats hear theirs around each one's tick. A mod that hooks them also hooks `native_entity_tick_listened(listened)` and sets `*listened = true`: otherwise no entity's tick is told. It runs each tick for every ticking entity, so keep it cheap. Bundles that use them need "hooks": 146.
 
-API 147 adds a fluid handler on items (`Capabilities.FluidHandler.ITEM`). `native_item_fluid_tank(item, capacity)` makes a mod item a container with a capacity in millibuckets; what it holds lives in the stack's `minecraft:custom_data` under `horizon_fluid` (`Fluid`, `Amount`), so it is saved, sent to Horizon clients and stacks only with equal contents. `native_item_fluid(stack)` reads one item of a stack (vanilla's buckets are built in: empty, water and lava, a whole bucket or nothing); `native_item_fluid_fill(stack, fluid, amount)` and `native_item_fluid_drain(stack, max)` answer how much one item takes or gives and the single item it becomes, as `IFluidHandler.fill`/`drain` through an `ItemAccess`; the stack given is not changed, so the caller shrinks it by one and hands out the result. They work on any side. Bundles need "hooks": 147.
+API 147 adds a fluid handler on items (`Capabilities.FluidHandler.ITEM`). `native_item_fluid_tank(item, capacity)` makes a mod item a container with a capacity in millibuckets; what it holds lives in the stack's `minecraft:custom_data` under `horizon_fluid` (`Fluid`, `Amount`), so it is saved, sent to Industrial Era clients and stacks only with equal contents. `native_item_fluid(stack)` reads one item of a stack (vanilla's buckets are built in: empty, water and lava, a whole bucket or nothing); `native_item_fluid_fill(stack, fluid, amount)` and `native_item_fluid_drain(stack, max)` answer how much one item takes or gives and the single item it becomes, as `IFluidHandler.fill`/`drain` through an `ItemAccess`; the stack given is not changed, so the caller shrinks it by one and hands out the result. They work on any side. Bundles need "hooks": 147.
 
 API 148 adds a mob's or an armor stand's equipment changing, on the single player server thread and on a dedicated server: `native_living_equipment_change(entity, kind, slot, from, to)` once for each slot (`mainhand`, `offhand`, `feet`, `legs`, `chest`, `head`, `body`, `saddle`) that holds another stack than the mods last heard (NeoForge's `LivingEquipmentChangeEvent`, vanilla's `LivingEntity.collectEquipmentChanges`). A mob new to the level counts from empty on its first tick. A mod that hooks it also hooks `native_living_equipment_listened(listened)` and sets `*listened = true`: otherwise the game does not read every mob's equipment each tick, and only armor stands are told. Players keep `native_on_equip`. It only hears. Bundles that use it need "hooks": 148.
 
@@ -1055,7 +1055,7 @@ API 161 adds a player took a crafting grid's result, through `native_item_crafte
 
 API 162 adds a player's item losing durability: `native_item_damaged(player, name, item, amount, cancel)` is heard where `ItemStack.hurtAndBreak` wears the item of a player of a server (Bukkit's `PlayerItemDamageEvent`), after Unbreaking, with the points about to be lost. A mod changes `amount` or sets `cancel` for no wear. The player's state is swapped in. Bundles that use it need `"hooks": 162`.
 
-API 163 adds `native_server_event(name, uuid, message)` posts an `announce` event to a dedicated server's event stream (`GET /api/v1/events`); horizon-server's Discord bridge relays it, in gold, when `[discord] events` lists `announce` (off by default). False elsewhere and for an empty message. Bundles that use it need "hooks": 163.
+API 163 adds `native_server_event(name, uuid, message)` posts an `announce` event to a dedicated server's event stream (`GET /api/v1/events`); industrial-era-server's Discord bridge relays it, in gold, when `[discord] events` lists `announce` (off by default). False elsewhere and for an empty message. Bundles that use it need "hooks": 163.
 
 API 164 adds `native_state_block(state)` names the block a state belongs to (`BlockState.getBlock()`), on a server hook's level and on the game: `native_state_for_placement` is asked for every block placed, so a mod compares it with its own block to answer only for it. Bundles that use it need "hooks": 164.
 
@@ -1063,7 +1063,7 @@ API 165 adds the helper `native_physical_window_size()`, which returns the windo
 
 API 166 adds a recipe ingredient of a mod's own kind. The ingredient entry that names a type in a namespace outside minecraft: reaches native_ingredient(kind, data, items) at load time. Fill items with the item ids the ingredient matches (item ids only: components are not checked; a match-time hook follows separately). Duplicates are removed keeping first-seen order. An unclaimed kind leaves the list empty and the recipe fails. The hook may be called more than once per recipe; the answer must be the same. Bundles that use it need "hooks": 166.
 
-API 167 adds lowering the frame rate limit: `native_framerate_limit(focused, minimized, in_world, limit)` is asked each frame with the limit Horizon is about to use (Max Framerate after the inactivity throttle and Battery Mode, 260 for unlimited), whether the window has focus, whether it is minimised and whether a world is open. A mod may lower `limit`, for example to throttle a window in the background as Dynamic FPS does; Horizon keeps the lower of its own limit and the mod's and ignores values below 1. Bundles that use it need `"hooks": 167`.
+API 167 adds lowering the frame rate limit: `native_framerate_limit(focused, minimized, in_world, limit)` is asked each frame with the limit Industrial Era is about to use (Max Framerate after the inactivity throttle and Battery Mode, 260 for unlimited), whether the window has focus, whether it is minimised and whether a world is open. A mod may lower `limit`, for example to throttle a window in the background as Dynamic FPS does; Industrial Era keeps the lower of its own limit and the mod's and ignores values below 1. Bundles that use it need `"hooks": 167`.
 
 API 168 adds a player swapping their main and off hand items: `native_player_swap_hands(player, name, cancel)` is heard before the swap (Bukkit's `PlayerSwapHandItemsEvent`; a swap from an open inventory is not heard), for a player of a server who is not a spectator, with their state swapped in. A mod sets `cancel` to keep the items where they are; the player's client gets its slots back. Bundles that use it need `"hooks": 168`.
 
@@ -1175,7 +1175,7 @@ API 221 adds A server entity completed a same-level teleport command: `native_en
 
 API 222 adds A guest player's fall flying state changed after the server accepted or ended a glide: `native_entity_toggle_glide(player, name, gliding)`. Bundles need "hooks": 222.
 
-API 223 adds A mob conversion completed through Horizon’s shared `Mob.convertTo` path; the hook reports the removed entity and its replacement ids and kinds. Bundles need "hooks": 223.
+API 223 adds A mob conversion completed through Industrial Era’s shared `Mob.convertTo` path; the hook reports the removed entity and its replacement ids and kinds. Bundles need "hooks": 223.
 
 API 224 adds An experience bottle broke, after its water splash and experience orbs were created; the hook reports the impact position and awarded experience. Bundles need "hooks": 224.
 
@@ -1383,7 +1383,7 @@ API 324 adds a player saved to the world's store: `native_player_save_to_file(pl
 
 API 325 adds `native_item_expire(entity, stack, extra_life)`, a dropped item reaching its lifetime on the server (NeoForge's `ItemExpireEvent`, vanilla `ItemEntity.tick`): every mod may set or add to `extra_life`, in ticks from zero; a positive total keeps the item that much longer, zero or less lets it expire. Extensions are capped at 32766 ticks. Bundles need "hooks": 325.
 
-API 326 adds the title's own screens to the screen hooks. `NativeScreenView.id` gains one id per title state (`title`, `world_select`, `world_create`, `world_create_flat`, `world_create_buffet`, `world_edit`, `world_backup`, `world_backup_confirm`, `world_optimize_confirm`, `world_optimize`, `low_disk_space`, `world_delete`, `world_recover`, `world_recovered`, `error`, `multiplayer`, `add_server`, `edit_server`, `direct_connect`, `server_delete`, `friends_join`, `disconnected`, `multiplayer_warning`, `onboarding`, `ban_notice`), with no `menu`, no `title` and no `slots`, and the whole window as `rect`. `native_screen_render_post` fires after the title draws its screen (before its toasts), and the `_pre` input hooks — mouse buttons, drag, wheel, key press and release, character typed — fire on it and can cancel it as on any screen, so a mod draws its own button or browser over Create New World and takes the clicks. A dialog, a prompt or a server's pack prompt over the title keeps them away, and typing still goes to the title's own boxes (the key's text stays on the key there, as on Options, so `native_screen_char_typed_pre` does not fire from the keyboard on the title's own screens; the control socket's `type` now types into them too). `native_instance_dir()` is the instance folder, where `options.txt`, `saves/`, `resourcepacks/`, `shaderpacks/` and `horizon-mods/` are; a world's `datapacks/` is in that world's folder. Bundles that use them need `"hooks": 326`.
+API 326 adds the title's own screens to the screen hooks. `NativeScreenView.id` gains one id per title state (`title`, `world_select`, `world_create`, `world_create_flat`, `world_create_buffet`, `world_edit`, `world_backup`, `world_backup_confirm`, `world_optimize_confirm`, `world_optimize`, `low_disk_space`, `world_delete`, `world_recover`, `world_recovered`, `error`, `multiplayer`, `add_server`, `edit_server`, `direct_connect`, `server_delete`, `friends_join`, `disconnected`, `multiplayer_warning`, `onboarding`, `ban_notice`), with no `menu`, no `title` and no `slots`, and the whole window as `rect`. `native_screen_render_post` fires after the title draws its screen (before its toasts), and the `_pre` input hooks — mouse buttons, drag, wheel, key press and release, character typed — fire on it and can cancel it as on any screen, so a mod draws its own button or browser over Create New World and takes the clicks. A dialog, a prompt or a server's pack prompt over the title keeps them away, and typing still goes to the title's own boxes (the key's text stays on the key there, as on Options, so `native_screen_char_typed_pre` does not fire from the keyboard on the title's own screens; the control socket's `type` now types into them too). `native_instance_dir()` is the instance folder, where `options.txt`, `saves/`, `resourcepacks/`, `shaderpacks/` and `industrial-era-mods/` are; a world's `datapacks/` is in that world's folder. Bundles that use them need `"hooks": 326`.
 
 API 327 adds A player took an anvil's result: `native_anvil_craft_post(player, name, pos, craft)` (NeoForge's `AnvilCraftEvent.Post`) is heard after the levels, the inputs and the anvil wear are done, so a broken anvil is already air. `craft` holds the inputs and the result as they were before. Not heard when `native_anvil_craft_pre` cancelled. Bundles need "hooks": 327.
 
@@ -1441,7 +1441,7 @@ API 353 adds A vault is about to eject a loot item: `native_vault_loot(pos, item
 
 API 354 adds A timed world border size change finished: `native_world_border_bounds_change_finish()` fires after the border reaches its final size. Bundles need "hooks": 354.
 
-API 355 adds `Game::native_mod_image(width, height, rgba)`: a mod's own RGBA image, uploaded into the HUD atlas slot `horizon/modimage` (1024 by 1024) and drawn with `native_sprite`, whose source rectangle crops and stretches it, so a map or a schematic view needs no texture of its own. The slot is reserved only while a native mod is loaded, so a game without mods pays none of its 4 MiB. False for an image that is not `width * height` pixels of four bytes, is larger than the slot, or when there is no slot. Each upload is a texture patch of the image, so send one when the image changed, not every frame.
+API 355 adds `Game::native_mod_image(width, height, rgba)`: a mod's own RGBA image, uploaded into the HUD atlas slot `industrial-era/modimage` (1024 by 1024) and drawn with `native_sprite`, whose source rectangle crops and stretches it, so a map or a schematic view needs no texture of its own. The slot is reserved only while a native mod is loaded, so a game without mods pays none of its 4 MiB. False for an image that is not `width * height` pixels of four bytes, is larger than the slot, or when there is no slot. Each upload is a texture patch of the image, so send one when the image changed, not every frame.
 API 356 adds a living entity drowning (`native_living_drown`), with changeable drowning and damage, a read-only bubble count and cancellation. Bundles need "hooks": 356.
 
 API 357 adds a living entity's fall (`native_living_fall`), with changeable distance and multiplier and cancellation. Bundles need "hooks": 357.
@@ -1452,7 +1452,7 @@ API 359 adds a living entity jumping (`native_living_jump`). Bundles need "hooks
 
 ## What the launcher does
 
-**Developing a mod?** Run `horizon-launcher settings native-profile dev` once, or pick "Dev build" in the Mods page's
+**Developing a mod?** Run `industrial-era-launcher settings native-profile dev` once, or pick "Dev build" in the Mods page's
 "Native build" row. `dev` builds the game crate unoptimized: a mod edit rebuilds about 6× faster than with
 `performance`, while game logic runs up to about twice as slow. Use it while developing, not for playing;
 `performance` stays the default for players and releases (step 5 below).
@@ -1460,21 +1460,21 @@ API 359 adds a living entity jumping (`native_living_jump`). Bundles need "hooks
 In the window: install a native mod from the Mods page, into the instance picked on the left ("Installs into
 {instance}", shown even with one instance). The first one shows a trust notice once (native mods aren't sandboxed; the
 first build downloads Rust and can take 20 to 30 minutes; later builds are faster); `mods install` prints it too. Each
-installed native mod's row says "Installed in {instance}" and has **Open folder** (`<instance>/horizon-native-mods/`).
+installed native mod's row says "Installed in {instance}" and has **Open folder** (`<instance>/industrial-era-native-mods/`).
 The installed list has a **Native build of {instance}** row for the instance picked on the left, never another's:
 
 - a badge: **Not built** (the version it plays isn't a `native-*` build), **Needs rebuild** (the `mods` in its
   `native-mods.json` differ from those turned on, by id and version) or **Up to date**, with **Build** for the first
   two;
-- for a native build, "Plays native-…, built on Horizon {version}" (the `base` of its `native-mods.json`);
-- **Rebuild on Horizon {version}** when a newer release or Nightly is installed (`native_mods::update_for`). Build
-  stays on the Horizon the instance plays; only that button moves it, and its warning says the build starts from scratch
+- for a native build, "Plays native-…, built on Industrial Era {version}" (the `base` of its `native-mods.json`);
+- **Rebuild on Industrial Era {version}** when a newer release or Nightly is installed (`native_mods::update_for`). Build
+  stays on the Industrial Era the instance plays; only that button moves it, and its warning says the build starts from scratch
   and takes longer.
 
 The instance list on the left shows such an instance as "Native build · Nightly 10-28" (its base). The launcher names
 the mods, warns in red, and builds only from "I trust these mods: build"; the row shows each step and the error if
 one fails, on the instance being built only; one build runs at a time. From the command line:
-`horizon-launcher native-build [FOLDER] [--instance NAME] [--update] --trust-native-code`. FOLDER is a bundle, an
+`industrial-era-launcher native-build [FOLDER] [--instance NAME] [--update] --trust-native-code`. FOLDER is a bundle, an
 unpacked `.hnmod`, or a folder of them; without it, the native mods turned on in the instance. It is not an MCP tool:
 trusting native code is the player's decision, never an agent's.
 
@@ -1495,52 +1495,52 @@ trusting native code is the player's decision, never an agent's.
    `/etc/os-release` (Debian, Ubuntu and Mint:
    `sudo apt install build-essential pkg-config libasound2-dev libudev-dev`). SteamOS has GCC without the C
    library's headers, and a read-only system: native builds don't work there yet.
-   `horizon-launcher rust status|install|remove`.
-2. **horizon-mixins**, at the commit the mods name (their `.hnmod`'s `mixins`), else `native_mods::MIXINS_REV`,
+   `industrial-era-launcher rust status|install|remove`.
+2. **industrial-era-mixins**, at the commit the mods name (their `.hnmod`'s `mixins`), else `native_mods::MIXINS_REV`,
    built once with that cargo (`cargo install --locked --git … --rev …`) into `native/tools/<commit>/`.
 3. **The source** of the pinned commit: GitHub's archive of it, once per commit (`native/source/<commit>/`, about
-   63 MB unpacked), with the commit in `.horizon-revision`. Never the player's own checkout. Links in the
+   63 MB unpacked), with the commit in `.industrial-era-revision`. Never the player's own checkout. Links in the
    archive are left out: the tool refuses them and nothing needs them to build.
 4. **Mixins.** The bundles are copied first, so the build and its key use that copy whatever happens to the
-   folder meanwhile. `horizon-mixins apply` stages the modded source; the launcher copies only the files that
+   folder meanwhile. `industrial-era-mixins apply` stages the modded source; the launcher copies only the files that
    changed into `native/stage/`, so Cargo, which goes by file times, recompiles only the crates the mods touch.
-   With mods' crates, their dependencies are checked against Horizon's `Cargo.lock` ("The mod's crate").
-5. **Compile**: `cargo build --locked --profile <fast|release> [--config ...] [--features horizon-client/mods] -p
-   horizon-client`, into `native/target/`, with one of three build profiles:
+   With mods' crates, their dependencies are checked against Industrial Era's `Cargo.lock` ("The mod's crate").
+5. **Compile**: `cargo build --locked --profile <fast|release> [--config ...] [--features industrial-era-client/mods] -p
+   industrial-era-client`, into `native/target/`, with one of three build profiles:
 
    | Profile | Cargo profile | Use |
    |---|---|---|
    | `performance` (the default) | `fast`, the workspace's own: `codegen-units = 16`, incremental, and `lto = false`, Cargo's default, which is thin-local LTO across one crate's codegen units, none across crates | The everyday build for playing with mods: a rebuild recompiles and links only what changed |
-   | `dev` | `fast` with `horizon-client` at opt-level 0 (`--config profile.fast.package.horizon-client.opt-level=0`) | Developing a mod: the quickest rebuild after an edit, but the game runs about twice as slow, so iterate with it rather than play |
+   | `dev` | `fast` with `industrial-era-client` at opt-level 0 (`--config profile.fast.package.industrial-era-client.opt-level=0`) | Developing a mod: the quickest rebuild after an edit, but the game runs about twice as slow, so iterate with it rather than play |
    | `release` | `release`, the release's own (game-build.yml: thin LTO, one codegen unit) | Slowest to build, slightly faster game |
 
    With `dev`, an edit to a function the machine sample's mixin injects into `game/native_hooks.rs` compiled
-   about 6× faster than with `performance`, and a tick took up to about twice as long. `dev` lowers only `horizon-client`, so an edit in another workspace
-   crate (`horizon-client-lib`, `-render`, `-world`) still compiles at opt-level 3, as with `performance`. The
+   about 6× faster than with `performance`, and a tick took up to about twice as long. `dev` lowers only `industrial-era-client`, so an edit in another workspace
+   crate (`industrial-era-client-lib`, `-render`, `-world`) still compiles at opt-level 3, as with `performance`. The
    launcher sets it with `--config` (`native_mods::Profile`), so the workspace's own `[profile.fast]` builds stay
-   as they are. The Mods page's "Native build" row, `horizon-launcher settings native-profile performance|dev|release`
+   as they are. The Mods page's "Native build" row, `industrial-era-launcher settings native-profile performance|dev|release`
    or `native-build --profile ...` pick one (the setting's older value `fast` still means `performance`, and an older
    settings file's "Release build" switch still picks `release`).
 
    A revision whose `Cargo.toml` has no `fast` builds with `release`; `native-mods.json` says which (`profile`).
    Each profile is in the build's key, so their builds never mix and may all stay. `performance` and `dev` share
-   `native/target/fast/`: every crate but `horizon-client` is built with the same settings, so switching between
-   them recompiles only `horizon-client`, and Cargo keeps both builds of it, so switching back finds the other
+   `native/target/fast/`: every crate but `industrial-era-client` is built with the same settings, so switching between
+   them recompiles only `industrial-era-client`, and Cargo keeps both builds of it, so switching back finds the other
    still there. `release` has its own folder (`native/target/release/`). The first build in a folder builds every
    crate once (1½ to 3½ minutes measured through the launcher, depending on the machine); later builds reuse them.
    Post-build steps build with the same
-   profile, reusing its crates. The mods feature is passed while the revision still has it. Cargo downloads the locked crates from crates.io (Horizon has no git
-   dependencies). The compiler and the horizon-mixins build run at the lowest priority (`rust_toolchain::low_priority`:
+   profile, reusing its crates. The mods feature is passed while the revision still has it. Cargo downloads the locked crates from crates.io (Industrial Era has no git
+   dependencies). The compiler and the industrial-era-mixins build run at the lowest priority (`rust_toolchain::low_priority`:
    nice 19 and the idle I/O class on Linux, nice 19 on macOS, below-normal priority on Windows), so the desktop and a
    game in play stay smooth; on an otherwise idle computer they still use every core. The log is `native/build.log`;
-   a failure shows its last lines (a horizon-mixins diagnostic in one line).
+   a failure shows its last lines (a industrial-era-mixins diagnostic in one line).
 6. **Post-build**: each mod's post-build program is built; it runs in the new version folder once that is copied
    (next step), before the version counts as installed ("Post-build steps").
 7. **Install**: a new version, `native-<commit>-<key>`, a copy of the starting version's folder (resources
    included, cloned on APFS, Btrfs and ReFS) with the built game in place of its own, and a `native-mods.json`
-   saying which release or Nightly it started from (`base`) and which commit, mods, horizon-mixins and Rust made
+   saying which release or Nightly it started from (`base`) and which commit, mods, industrial-era-mixins and Rust made
    it. The game lists its `mods` with their versions in a crash report's details (`Native Mods: id version, …`;
-   they stay in the local report, not in crash telemetry). The instance the mods are installed in plays it, the default **Horizon** instance included: the build
+   they stay in the local report, not in crash telemetry). The instance the mods are installed in plays it, the default **Industrial Era** instance included: the build
    pins its version, as picking a version does. Updates of the launcher's version leave a pinned instance where
    it is, and their clean-up never removes a native build. An instance built before this (the **Native mods**
    instance the default home's mods used to go to) keeps its worlds and its build.
@@ -1559,11 +1559,11 @@ whole file, **Open full log** opens it outside the launcher, **Show in folder** 
 refresh, not a live stream: a running build's later output appears only on the next refresh. Nothing is
 uploaded; the log stays on the player's computer.
 
-## Rebuilds stay on the instance's Horizon
+## Rebuilds stay on the instance's Industrial Era
 
 A build starts from the version the instance plays (`native_mods::base_for`). When that is a native build, the
-next one compiles the same commit (its `native-mods.json`'s `horizon`) from the same game files, unless a mod pins
-another, so a rebuild after a mod changes or is switched off compiles only what changed. A newer Horizon is taken
+next one compiles the same commit (its `native-mods.json`'s `industrial-era`) from the same game files, unless a mod pins
+another, so a rebuild after a mod changes or is switched off compiles only what changed. A newer Industrial Era is taken
 only when the player asks: `native-build --update` starts from the newest installed release or Nightly (a full
 rebuild); `native_mods::update_for` says which one, if any, the window can offer.
 
@@ -1578,9 +1578,9 @@ has one, is passed with `--config`.
 
 Every path the build's tools see — the toolchain, the Cargo home, `native/` and the tools' temp dir (TMPDIR,
 TMP and TEMP, where gcc, the assembler, `ld` and `cargo install` put their scratch files) — comes from
-`backend::build_dir`: the launcher's data folder, resolved (never through a link, which horizon-mixins
+`backend::build_dir`: the launcher's data folder, resolved (never through a link, which industrial-era-mixins
 refuses). On Windows, when that path is not spelled in ASCII — a Cyrillic user name in `%APPDATA%`, which
-MinGW-w64's tools can't open — it is a real folder under `ProgramData` named for it (`horizon-launcher-<id>`),
+MinGW-w64's tools can't open — it is a real folder under `ProgramData` named for it (`industrial-era-launcher-<id>`),
 and only when that can't be created the data folder's short (8.3) name. A short name alone is not enough
 (#6009): rustc canonicalizes its own path to find its sysroot, which spells the long name again for the
 linker. A data folder that is itself a junction to a drive with an ASCII path resolves to that and needs
@@ -1589,7 +1589,7 @@ neither.
 ## Install from GitHub
 
 An author can ship a native mod without a registry pull request per version: the player installs it from a
-GitHub link, on the Mods page ("Add from GitHub") or with `horizon-launcher mods add-github <url>
+GitHub link, on the Mods page ("Add from GitHub") or with `industrial-era-launcher mods add-github <url>
 [--mod ID | --all] [--instance NAME] --trust-native-code`. The link is `https://github.com/<owner>/<repo>`
 (its latest release), `.../releases/tag/<tag>`, `.../tree/<ref>` or `.../commit/<sha>`.
 
@@ -1598,21 +1598,21 @@ GitHub link, on the Mods page ("Add from GitHub") or with `horizon-launcher mods
   branch that moves. A release with a `.hnmod` asset installs that file (its SHA-256 is compared with the one GitHub
   lists). With no release or no such asset, the launcher fetches
   `codeload.github.com/<owner>/<repo>/tar.gz/<sha>` and looks in it for mods by the rules of
-  `native-build <folder>`: a folder with `horizon-mixin.toml`, or an unpacked `.hnmod` (`horizon-native.json`).
-  Several mods: they are listed, and the player picks one or installs all. A source folder must pin the Horizon commit
+  `native-build <folder>`: a folder with `industrial-era-mixin.toml`, or an unpacked `.hnmod` (`industrial-era-native.json`).
+  Several mods: they are listed, and the player picks one or installs all. A source folder must pin the Industrial Era commit
   (`[compatibility] horizon_revision`); the launcher packs its Rust, TOML and `data/` files into a `.hnmod`.
   A release that ships only a content mod (`.hmod`) says "not supported yet": installing `.hmod` files from a link
   is not built.
 - **Checked like the registry's files.** The `.hnmod` is read as `horizon_mods::index::native::Bundle::read` reads a
   registry file (only Rust, TOML and data under `mixins/<id>/`, size limits, nothing run) before it is installed.
-- **Said first.** Before anything is downloaded: "not reviewed by the Horizon registry; native mods run with full
+- **Said first.** Before anything is downloaded: "not reviewed by the Industrial Era registry; native mods run with full
   access to this computer; read the source", with a link to the exact commit. The command needs
   `--trust-native-code`, as `native-build` does. It is not an MCP tool: trusting native code is the player's
   decision, never an agent's.
-- **Origin kept.** `horizon-native-mods/<id>.origin.json` beside the `.hnmod`: owner/repo, release tag (for a
+- **Origin kept.** `industrial-era-native-mods/<id>.origin.json` beside the `.hnmod`: owner/repo, release tag (for a
   release), commit, asset name and the SHA-256 of the installed file. `mods list` shows "from GitHub: owner/repo @
   tag" (or the commit's first 7 digits).
-- **Updates.** `horizon-launcher mods update-github [ID] [--check]` compares a mod from a release with the
+- **Updates.** `industrial-era-launcher mods update-github [ID] [--check]` compares a mod from a release with the
   repository's latest release, and a mod from a commit with the head of the default branch; a newer one is
   installed with the same warning and `--trust-native-code`. `mods remove <id>` removes it. A mod already
   installed from the registry (or by hand) is never replaced.
@@ -1621,11 +1621,11 @@ Installing turns Native mods on, as any native mod does; then build as usual.
 
 ## Cache and disk
 
-The key hashes the commit, the horizon-mixins commit, Rust's version, the profile and features, and every file of
+The key hashes the commit, the industrial-era-mixins commit, Rust's version, the profile and features, and every file of
 every bundle. The same set on the same commit is never built twice. A change gives a new build, and
-`native/target/` stays, so a rebuild compiles only `horizon-client` and what the mods touched.
+`native/target/` stays, so a rebuild compiles only `industrial-era-client` and what the mods touched.
 
-**Incremental rebuilds.** With `performance` and `dev`, Cargo recompiles only the changed parts of `horizon-client`, not the whole
+**Incremental rebuilds.** With `performance` and `dev`, Cargo recompiles only the changed parts of `industrial-era-client`, not the whole
 crate with LTO. Patched source is cached separately by its mixin inputs and pins (the three most
 recent snapshots are kept), so editing only a trait crate skips the mixins pass. This holds because
 the stage (`native/stage/`) is one folder for every build and the launcher writes
@@ -1634,7 +1634,7 @@ only the files whose content changed (Cargo goes by file times), switching mods 
 environment. `release` has no incremental compilation (the release profile's own).
 
 **Build status.** Before it starts, the build says which case it is, with the profile: "Up to date (no build needed)",
-"Incremental rebuild: mods X, Y" (or "Horizon commit a to b", "horizon-mixins"; compared with the last build in that
+"Incremental rebuild: mods X, Y" (or "Industrial Era commit a to b", "industrial-era-mixins"; compared with the last build in that
 profile's folder, kept in `native/built.json`) or "First build: the whole game (several minutes)". While compiling it shows the
 crate, crates done of the total (Cargo's own progress), and the time taken; afterwards "Built in 42 s (performance,
 incremental)". The window shows it in the Native mods row, `native-build` prints each step with its time on standard
@@ -1646,8 +1646,8 @@ source downloaded first):
 
 | What | Time |
 |---|---|
-| First build: Rust, horizon-mixins, the whole game (384 crates) | 4 min 29 s in all; 3 min 6 s of compiling the game; `native/target/` about 2 GB |
-| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `horizon-client`) |
+| First build: Rust, industrial-era-mixins, the whole game (384 crates) | 4 min 29 s in all; 3 min 6 s of compiling the game; `native/target/` about 2 GB |
+| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `industrial-era-client`) |
 | That mod switched on again | under 1 s: the kept build plays again |
 | Nothing changed, rebuild | 1 s, nothing compiled |
 
@@ -1656,13 +1656,13 @@ post-build step), measured the same way on 2026-10-30 (Rust already downloaded):
 
 | What | Time | Compiled |
 |---|---|---|
-| First build (horizon-mixins, the crates, the whole game) | 3 min 27 s; 2 min 24 s compiling the game | 343 crates |
-| A helper's code changed | 48 s (43 s compiling) | `horizon-client` only: the mod's crate is kept |
-| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `horizon-client` |
+| First build (industrial-era-mixins, the crates, the whole game) | 3 min 27 s; 2 min 24 s compiling the game | 343 crates |
+| A helper's code changed | 48 s (43 s compiling) | `industrial-era-client` only: the mod's crate is kept |
+| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `industrial-era-client` |
 | Nothing changed | under 1 s | nothing |
 
 The same set with the `release` profile took 7 min 6 s for the first build and 2 min 34 s per rebuild (2 min 28 s of
-compiling `horizon-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
+compiling `industrial-era-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
 second as the Nightly's own `release` build (vsync-bound, about 112 FPS at 120 Hz), with about 0.1 ms more CPU per
 frame (0.57 to 0.68 ms against 0.51 to 0.54 ms).
 
@@ -1672,15 +1672,15 @@ Measured before builds used `fast`, with the `release` profile, on 2026-10-28 on
 | What | Size, time |
 |---|---|
 | Rust 1.99.1 (`<launcher data>/rust/`) | 453 MB; 58 s to download and unpack |
-| horizon-mixins (`native/tools/`) | 7 MB; built once in 19 s |
+| industrial-era-mixins (`native/tools/`) | 7 MB; built once in 19 s |
 | Crates in the launcher's Cargo home (`<launcher data>/cargo/`) | 289 MB |
 | Source of one commit, and the stage | 64 MB each |
 | First build: the whole game | 9 min 10 s of compiling, 9 min 41 s in all; `native/target/` 1.5 GB |
-| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `horizon-client`), 2 min 53 s in all |
-| A change horizon-mixins ignores (a comment) | nothing compiled; 31 s, mostly the version folder's copy |
+| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `industrial-era-client`), 2 min 53 s in all |
+| A change industrial-era-mixins ignores (a comment) | nothing compiled; 31 s, mostly the version folder's copy |
 
 Measured 2026-10-29 on Windows 11 (Ryzen 7 9800X3D, 16 threads), the same mod and Nightly, an empty `native/target/`
-(horizon-mixins, the source and the crates were already downloaded):
+(industrial-era-mixins, the source and the crates were already downloaded):
 
 | What | Size, time |
 |---|---|
@@ -1688,7 +1688,7 @@ Measured 2026-10-29 on Windows 11 (Ryzen 7 9800X3D, 16 threads), the same mod an
 | Crates in the launcher's Cargo home | 657 MB |
 | First build: the whole game | 6 min 57 s of compiling, 8 min 3 s in all; `native/target/` 2.0 GB |
 
-Measured 2026-10-28 on Linux (an x86_64 server with no Rust of its own), Zoom on Horizon `1149c92`, 3 jobs while CI
+Measured 2026-10-28 on Linux (an x86_64 server with no Rust of its own), Zoom on Industrial Era `1149c92`, 3 jobs while CI
 ran: `rust install` in 11 s (592 MB), the first build in 12 min 9 s. The built game ran Zoom's proof (under `xvfb-run`:
 the game needs a display even with `--offscreen`).
 
@@ -1701,22 +1701,22 @@ each was built or last used): switching a mod off and on again plays the kept bu
 - **A notice, then a warning.** The first native install shows a trust notice once. The command needs
   `--trust-native-code`; the window
   shows a warning in red before every build: the mods run with full access to the computer, and their ids and
-  versions. The Mods page says who made each one, and "Not made or endorsed by the Horizon project" for any mod not
-  Horizon's own.
-- **The registry** (horizon-rust/horizon-mods) lists them as their own kind, `native-mod`, only after a maintainer
+  versions. The Mods page says who made each one, and "Not made or endorsed by the Industrial Era project" for any mod not
+  Industrial Era's own.
+- **The registry** (industrial-era-rust/industrial-era-mods) lists them as their own kind, `native-mod`, only after a maintainer
   has read the source and the repository they come from. Its entry names the GitHub repository (`repo`); each
   release of it with a `.hnmod` asset is a version once the bundle passes the registry's checks, with no further
   review (nothing is built or run by the registry; the player's launcher builds it behind its warning). The `.hnmod` contains `.rs` and `.toml` files and may contain data files under
   `mixins/<id>/data/` or a crate's `data/`. The launcher checks the bundle without running anything. Native code is trusted.
   The file is pinned by SHA-256 like every registry file, and the version, game and pins are the bundle's own
-  `horizon-native.json`. `revoked.toml` takes a bad release down.
+  `industrial-era-native.json`. `revoked.toml` takes a bad release down.
   A content mod's entry may turn `native-mod` once (never back): its `.hmod` versions stay published and
   are checked as `.hmod`s, the index lists only its versions with native code, and the launcher's update keeps the
   player's `.hmod` (the game runs it until a native build has the mod, then skips it); removing the mod removes both.
 - **Isolation of data.** Native mods run only in the instance they are installed in, with its worlds, options and
-  logs (the default Horizon instance's, when they are installed there); other instances play their own versions.
-- What this does not do: sandbox the compiled game. horizon-mixins' checks stop mistakes, not a malicious helper
-  ([security notes](https://github.com/horizon-rust/horizon-mixins/blob/main/docs/security.md)).
+  logs (the default Industrial Era instance's, when they are installed there); other instances play their own versions.
+- What this does not do: sandbox the compiled game. industrial-era-mixins' checks stop mistakes, not a malicious helper
+  ([security notes](https://github.com/industrial-era-rust/industrial-era-mixins/blob/main/docs/security.md)).
 
 ## Multiplayer
 
@@ -1729,21 +1729,21 @@ each was built or last used): switching a mod off and on again plays the kept bu
 
 ### Standalone server export
 
-`horizon-launcher native-build FOLDER --server-output DIR --version TAG --trust-native-code [--profile PROFILE] [--allow-version-mismatch]`
+`industrial-era-launcher native-build FOLDER --server-output DIR --version TAG --trust-native-code [--profile PROFILE] [--allow-version-mismatch]`
 
 Builds a standalone dedicated-server engine into `DIR`, which must not exist yet. `FOLDER` (a mod folder or a
 folder of them) is required; no instance is read, selected, edited or played, and no launcher config is written.
-It reuses the pinned toolchain, source and horizon-mixins and compiles `--no-default-features` (no audio or
-controllers), keeping the mods feature when the revision has it. `--version` pins the Horizon release/Nightly the
-export reuses (explicit for reproducibility). The export holds the built `horizon-engine` executable, prepared resources,
+It reuses the pinned toolchain, source and industrial-era-mixins and compiles `--no-default-features` (no audio or
+controllers), keeping the mods feature when the revision has it. `--version` pins the Industrial Era release/Nightly the
+export reuses (explicit for reproducibility). The export holds the built `industrial-era-engine` executable, prepared resources,
 `native-data/` and `native-mods.json`, and prints its absolute path. It runs on the same OS/architecture as the
 host only (no cross compilation), needs a prepared installed launcher base release, and survives cache pruning
-because it is copied outside the managed folders. On Windows use the printed `horizon-engine.exe` path.
+because it is copied outside the managed folders. On Windows use the printed `industrial-era-engine.exe` path.
 
 Point a server at it:
 
-    horizon-server --dir SERVER config set engine.path=/absolute/export/horizon-engine
-    horizon-server --dir SERVER restart
+    industrial-era-server --dir SERVER config set engine.path=/absolute/export/industrial-era-engine
+    industrial-era-server --dir SERVER restart
 
 Updates do not rebuild a pinned `engine.path`: build a new export folder, set `engine.path` to it, restart, and keep
 the old folder for manual rollback. The supervisor does not auto-update or rebuild a pinned engine path, and there
@@ -1767,16 +1767,16 @@ export HORIZON_LAUNCHER_DESKTOP="$SCRATCH/desktop"
 
 Install and prepare the base release in that scratch launcher home first, then test your own licensed bundle:
 
-1. `horizon-launcher native-build bundle/ --server-output $ENGINE --version TAG --trust-native-code` (scratch homes,
+1. `industrial-era-launcher native-build bundle/ --server-output $ENGINE --version TAG --trust-native-code` (scratch homes,
    `HORIZON_NO_AUDIO=1`, `HORIZON_LAUNCHER_NO_SELF_UPDATE=1`).
-2. `horizon-server --dir SERVER config set engine.path=$ENGINE/horizon-engine`; `horizon-server --dir SERVER run`.
+2. `industrial-era-server --dir SERVER config set engine.path=$ENGINE/industrial-era-engine`; `industrial-era-server --dir SERVER run`.
 3. Join with the same mod's client half where the hook needs one; test lifecycle, tick, command and net hooks.
 4. Headless compatibility: the mod's server code must not require an audio device; run the server audio-free (`HORIZON_NO_AUDIO=1`).
 
 ## Left to do
 
 - A list of every native build, to delete the ones no instance needs.
-- A prebuilt horizon-mixins from its CI instead of building it on the player's computer.
+- A prebuilt industrial-era-mixins from its CI instead of building it on the player's computer.
 
 ## Named hook catalog (draft)
 
@@ -1802,7 +1802,7 @@ A native server tick hook can call `native_server_block` with its context, a dim
 ### Server commands and players
 
 For mods that run where the world is simulated: a dedicated server, a LAN host, single player's server thread
-(`crates/horizon-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
+(`crates/industrial-era-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
 ([smp.md](smp.md)).
 
 - **`native_register_commands(commands)`**: push a `NativeCommand` per usage, asked once when a world opens to
@@ -1913,7 +1913,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 - **`native_perform_console_command(command, ran)`**: a registered command typed on the dedicated server's console
   (without its slash), run as the server at level 4: no player, so `native_acting_player()` is None and the player-only
   helpers give nothing. The mod parses the line and sets `ran`; `native_feedback` answers on the console. A name no mod
-  registered goes to vanilla's dispatcher as before. The single player owner's console (`horizon-ctl command`, the MCP
+  registered goes to vanilla's dispatcher as before. The single player owner's console (`industrial-era-ctl command`, the MCP
   command tool) is a player's: it reaches `native_perform_command` with the owner, at level 4.
 - **`native_player_respawned(player, name)`**: a dead player came back, once per respawn, on a server: after
   `PlayerList.respawn` reset their health, food and experience and placed them at their bed, anchor or the world spawn
@@ -2125,7 +2125,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 - **`native_world_game_rule_change(player, name, rule, value)`**: an operator changed a game rule through the server game rules screen; it is heard after the final value is applied. Bundles need `"hooks": 247`.
 - **`native_spawn_change(pos, angle)`**: `/setworldspawn` moved the world's spawn point, after its position and rotation are applied. Bundles need `"hooks": 244`.
 - **`native_portal_create(dimension, pos)`**: a Nether portal built for dimension travel or the End arrival platform was completed in `dimension`; `pos` is its lower corner or platform origin. Bundles need `"hooks": 286`.
-- **`native_raid_spawn_wave(raid, pos, wave, raiders)`**: a raid wave is about to be spawned at `pos`; `raiders` is the count Horizon will spawn.
+- **`native_raid_spawn_wave(raid, pos, wave, raiders)`**: a raid wave is about to be spawned at `pos`; `raiders` is the count Industrial Era will spawn.
 - **`native_raid_state_change(raid, pos, state)`**: a raid at `pos` was triggered or changed to `victory`, `loss`, or `stopped`.
 - **`native_world_saved(wait)`**: the server completed its world save cycle; `wait` is true when chunk writes were flushed before returning.
 - **`native_entities_load(dimension, chunk, count)`**: saved entity records for `chunk` finished loading into `dimension`.
@@ -2288,7 +2288,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 
 ### Mobs
 
-API 37, `crates/horizon-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
+API 37, `crates/industrial-era-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
 client they do nothing, and the readers give nothing). Each takes the `dimension` (`minecraft:overworld`) of the level it means, as
 `native_set_block` does, and is refused when another level is in place. The per-level tick hooks (API 23) run with a defined level in
 place; `native_server_tick` does not define one, so name the dimension and expect a refusal there.
@@ -2314,7 +2314,7 @@ Changing loot a mod didn't make, as NeoForge's `LootTableLoadEvent` and global l
   onto `table["pools"]` or an entry onto a pool's `entries`; chests, block and mob drops, fishing and the rest then roll the
   changed table. Keep a replaced table's `random_sequence`: a mob's table without one drops nothing. It runs wherever tables load,
   a client too, so make the same change each time; a `/reload` may keep the tables already loaded. It is a free function in
-  `crates/horizon-world/src/loot.rs`, so a helper injected there compiles inside `horizon-world`, without `crate::game`.
+  `crates/industrial-era-world/src/loot.rs`, so a helper injected there compiles inside `industrial-era-world`, without `crate::game`.
 - **`native_loot_drops(context, drops)`**: the items a broken block or a dead mob is about to drop, after its tables rolled (a
   mob's worn, held and carried items and inventory too, not an enderman's carried block or a copper golem's preserved equipment).
   Add, change or take out stacks; empty ones don't drop. `NativeLootDrops` says what dropped them: its own loot table (empty when
@@ -2344,13 +2344,13 @@ During a machine's own tick its block entity is out of the world, so these answe
 
 ### Entities
 
-`crates/horizon-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
+`crates/industrial-era-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_summon(dimension, kind, pos, nbt)` spawns an entity of `kind` from its compound, as `/summon <kind> <pos> <nbt>`
   does (passengers included), and returns its id. None on a client, for another dimension, a position outside `/summon`'s
-  bounds, a chunk that isn't loaded, a kind Horizon can't load, or one a mod kept out with `native_entity_join_level`.
-- `native_move_entity(dimension, id, pos, yaw, pitch)` moves an entity Horizon keeps without simulating it (a display, a
+  bounds, a chunk that isn't loaded, a kind Industrial Era can't load, or one a mod kept out with `native_entity_join_level`.
+- `native_move_entity(dimension, id, pos, yaw, pitch)` moves an entity Industrial Era keeps without simulating it (a display, a
   marker, an interaction); a display eases there over its teleport duration. Mobs move with `native_teleport_mob`.
 - `native_set_display(dimension, id, &NativeDisplay)` sets a `block_display`, `item_display` or `text_display`'s
   transformation (translation, left rotation, scale, right rotation; quaternions `[x, y, z, w]`), the ticks players see it
@@ -2363,7 +2363,7 @@ client, so a call a tick looks smooth.
 
 ### Entity and level handles
 
-`crates/horizon-client/src/game/native_entity_refs.rs` (#7387): an `EntityRef` names one entity of the open world and a
+`crates/industrial-era-client/src/game/native_entity_refs.rs` (#7387): an `EntityRef` names one entity of the open world and a
 `LevelRef` one level. They are small `Copy` values a mod keeps, and their methods take the host, so a mod can hold
 several at once: `host.entity(id)` makes one from the id an event carries, `host.level("minecraft:the_nether")` one from
 a dimension.
@@ -2380,7 +2380,7 @@ Each read is a `Host` method too (`host.entity_position(entity)`): a helper whos
 
 ### Mobs drawn by a mod
 
-`crates/horizon-client/src/game/native_mob_draw.rs`: `native_mob_submit(mob, draw, drawn)` (client) is asked once a frame for
+`crates/industrial-era-client/src/game/native_mob_draw.rs`: `native_mob_submit(mob, draw, drawn)` (client) is asked once a frame for
 every mob in view but players (vanilla's `EntityRenderer.submit`). Set `drawn` and the mob's vanilla model, armour and held
 items are left out (NeoForge's `RenderLivingEvent.Pre`, cancelled); its name tag, shadow, flames and glowing outline still draw.
 
@@ -2405,7 +2405,7 @@ items are left out (NeoForge's `RenderLivingEvent.Pre`, cancelled); its name tag
 
 ### Advancement triggers
 
-`crates/horizon-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
+`crates/industrial-era-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
 `CriterionTrigger` and calls its `SimpleCriterionTrigger.trigger`. The advancement is an ordinary file of a content mod
 or a world's data pack (`data/mymod/advancement/connect_a_pipe.json`) whose criterion names the mod's trigger and
 whatever conditions the mod reads:
@@ -2436,7 +2436,7 @@ whatever conditions the mod reads:
 
 ### Explosions
 
-`crates/horizon-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/industrial-era-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does, and is refused when another
 level is in place.
 
@@ -2452,14 +2452,14 @@ level is in place.
 
 `native_camera_shake(partial, shake)` (client) asks every frame for the camera shake a mod wants: `pitch`, `yaw` and `roll`
 in degrees and an `offset` in blocks along the camera's right, up and back. Add to `shake` rather than set it, so two
-mods' shakes add up. Horizon reads it only while playing, scales the sum by Distortion Effects (a player who turns
+mods' shakes add up. Industrial Era reads it only while playing, scales the sum by Distortion Effects (a player who turns
 that to 0% sees no shake), bounds it to 10 degrees and half a block on each axis, and multiplies it into the view
 after the hurt tilt and view bobbing. A mod keeps its own shake's time and decay, from `partial` and its tick hooks;
 it moves only what the player sees, not where they are or aim.
 
 ### A player's motion
 
-`crates/horizon-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
+`crates/industrial-era-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
 
 - `native_push_player([x, y, z])` (client) adds a push to the player's own velocity, in blocks a tick, as an
   explosion's knockback does: the player's own game moves them. The server didn't send it, so on a LAN or dedicated
@@ -2476,7 +2476,7 @@ it moves only what the player sees, not where they are or aim.
 
 ### Values for a mod's shader pack
 
-`native_shader_params(partial, params)` (client) asks every frame, while a Horizon shader pack is on, for eight
+`native_shader_params(partial, params)` (client) asks every frame, while a Industrial Era shader pack is on, for eight
 `[f32; 4]` that every stage of the pack reads as `frame.mods` (`array<vec4<f32>, 8>`, docs/api/shaders-reference.md). What
 they mean is the mod's own: a mod that bundles its pack as `native-<mod id>` writes the slots that pack reads, such as an
 explosion's centre (camera-relative, from `frame.camera_position`) and its age in seconds, for a cloud or a shock wave
@@ -2485,7 +2485,7 @@ them. The mod's server half can send what happened to each client half with mod 
 
 ### Biome colours
 
-`crates/horizon-client/src/game/native_biome_colors.rs`: the grass, leaf and water colours a client mod changes while the
+`crates/industrial-era-client/src/game/native_biome_colors.rs`: the grass, leaf and water colours a client mod changes while the
 game runs, for seasons (a golden autumn, a pale winter) or a world that greens as it heals.
 
 - `native_biome_colors(biome, colors)` (client) changes a biome's `BiomeColors`: `grass`, `foliage` (leaves, vines),
@@ -2511,7 +2511,7 @@ plays nothing.
 
 ### Falling blocks
 
-`crates/horizon-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/industrial-era-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_spawn_falling_block(dimension, state, pos, velocity, falling)` throws a falling block of `state` from `pos` (its
@@ -2525,7 +2525,7 @@ names the level it means by its `dimension` (`minecraft:overworld`), as `native_
 
 ### Bulk block edits
 
-`crates/horizon-client/src/game/native_world_edit.rs`: a helper for server mods, for the level in place, on a server only.
+`crates/industrial-era-client/src/game/native_world_edit.rs`: a helper for server mods, for the level in place, on a server only.
 It names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_edit_blocks(dimension, edit)` makes many blocks at once: `NativeBlockEdit` holds a `palette` of block states and
@@ -2545,7 +2545,7 @@ It names the level it means by its `dimension` (`minecraft:overworld`), as `nati
 
 ### Column reads
 
-`crates/horizon-client/src/game/native_world_columns.rs`: helpers for server mods, for the level in place, on a server
+`crates/industrial-era-client/src/game/native_world_columns.rs`: helpers for server mods, for the level in place, on a server
 only, that read many columns in one call. They name the level they mean by its `dimension` (`minecraft:overworld`), as
 `native_set_block` does, and answer `Err` with the reason, reading nothing, on a client, for another dimension or for
 a read too big, so a mod can tell "ask for less" from "wrong level". They run on the server tick: read a big area in
@@ -2564,12 +2564,12 @@ pieces.
 
 ### Mod messages
 
-API 40, `crates/horizon-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
-one custom payload channel `horizon:mod_net`. A vanilla client never gets them, and a vanilla server isn't sent any.
+API 40, `crates/industrial-era-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
+one custom payload channel `industrial-era:mod_net`. A vanilla client never gets them, and a vanilla server isn't sent any.
 
 - `native_net_send_to_player(player, channel, data)` on the server and `native_net_send_to_server(channel, data)` on the
   client send one. The channel is `mod_id:name`: the id `[a-z0-9_]`, the name `[a-z0-9_./-]`, each 1 to 64 characters;
-  `minecraft` and `horizon` are the game's. The data is at most 30 000 bytes, and 32 messages a tick go each way per
+  `minecraft` and `industrial-era` are the game's. The data is at most 30 000 bytes, and 32 messages a tick go each way per
   player. Ok means accepted: a player who left doesn't get it. Sending to the server is an error until the player has
   joined.
 - `native_net_from_client(player, channel, data)` and `native_net_from_server(channel, data)` hear them, all mods on every
@@ -2579,7 +2579,7 @@ one custom payload channel `horizon:mod_net`. A vanilla client never gets them, 
 
 ### Server menus
 
-API 10, `crates/horizon-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
+API 10, `crates/industrial-era-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
 stock client shows as a chest (`generic_9x1` to `generic_9x6`); nothing is installed on the player's side.
 
 - `native_open_menu(uuid, rows, title, items)` opens one in place of the player's open menu (its window id);
@@ -2600,7 +2600,7 @@ player whose state is (inside `native_perform_command`): call them from a menu h
 
 ### Render hook points
 
-`crates/horizon-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
+`crates/industrial-era-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
 `Game` methods, which a bundle targets as `horizon_client_render::gfx::native_render::native_<name>`. They run on the
 render thread with the frame's wgpu objects; what a mod draws there shows in that frame.
 
@@ -2625,7 +2625,7 @@ render thread with the frame's wgpu objects; what a mod draws there shows in tha
 
 ### Menu slot rules
 
-`crates/horizon-client/src/menu.rs`: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, a free function
+`crates/industrial-era-client/src/menu.rs`: `native_menu_slot_rules(menu, slot, stack, may_place, max_stack)`, a free function
 a bundle targets as `horizon_client::menu::native_menu_slot_rules`. A content mod menu type's container slot `slot`
 (from 0) is asked whether it takes `stack` (`Slot.mayPlace`) and how many it holds (`Slot.getMaxStackSize`), as a
 NeoForge mod's own `Slot` overrides them. `may_place` and `max_stack` come in with the type's own answer (false on one
@@ -2662,7 +2662,7 @@ clicks already.
 
 ### Items' default components
 
-`crates/horizon-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
+`crates/industrial-era-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
 bundle targets as `horizon_world::item_defaults::native_modify_default_components` (NeoForge's
 `ModifyDefaultComponentsEvent`). `components` is the item's entry in `items.json`, vanilla's default-component report:
 insert or replace a key to set a component (`"minecraft:max_stack_size": 16`), remove it to take the component away.
@@ -2678,14 +2678,14 @@ the mod: a vanilla client decodes the count with vanilla's 1 to 99 and cannot sh
 - It's asked for every item each time the defaults are read, from any thread, several times as resources load
   and again when a world's data packs load. Answer the same each time, from the item alone.
 - Client and server each apply their own mods, so both need the mod. A client without it (a vanilla Java client, or
-  Horizon without the mod) fills in vanilla's defaults for the same stacks: a stone stack the server caps at 16 still
+  Industrial Era without the mod) fills in vanilla's defaults for the same stacks: a stone stack the server caps at 16 still
   looks like it stacks to 64 there.
 - The creative search tab matches vanilla's exported tooltip text, so a changed `item_name` is not searchable yet.
 
 ## Trait mods (draft)
 
-`cargo horizon-mod new <path> --template native --horizon <commit>` writes a trait mod to start from: the bundle's
-`horizon-mixin.toml`, pinned to that Horizon commit, and an `[api]` crate whose `hooks()` greets each player who
+`cargo industrial-era-mod new <path> --template native --industrial-era <commit>` writes a trait mod to start from: the bundle's
+`industrial-era-mixin.toml`, pinned to that Industrial Era commit, and an `[api]` crate whose `hooks()` greets each player who
 joins. Its files are what a bundle may carry ([api/mod-files.md](api/mod-files.md)), so the launcher builds the folder
 as it is (`native-build <path>`) and packs it into a `.hnmod`.
 
@@ -2696,13 +2696,13 @@ A bundle declares its trait mod package by its path inside the bundle:
 path = "engine"
 ```
 
-The package may use only crates and versions in Horizon's `Cargo.lock`, like mixin crates.
-The folder contains a Rust package with a `horizon-client` dependency. Its library exports
+The package may use only crates and versions in Industrial Era's `Cargo.lock`, like mixin crates.
+The folder contains a Rust package with a `industrial-era-client` dependency. Its library exports
 `pub fn hooks() -> Box<dyn horizon_client::mod_api::Hooks>`. The launcher links this package
 into a generated game executable and calls `hooks()` in dependency order (a mod after the mods it
 depends on, else in bundle order). The package is not a
 `[[crate]]`: it depends on the game instead of the game depending on it. A bundle with no
-injections, state, bridges, modules, mixin crates or post-build steps skips horizon-mixins.
+injections, state, bridges, modules, mixin crates or post-build steps skips industrial-era-mixins.
 
 ### Dependencies between trait mods
 
@@ -2727,7 +2727,7 @@ Public statics must use appropriate synchronization for shared and reentrant hoo
 another mod's hook object is not exposed.
 
 Trait dispatch follows dependency order, with ties kept in bundle order. Mixin injection order remains
-horizon-mixins' priority, mod ID, then injection ID; dependency order does not change injection order.
+industrial-era-mixins' priority, mod ID, then injection ID; dependency order does not change injection order.
 
 A panic in a trait mod's hook adds `in native mod <id>, hook <hook>` to the panic's message, in the crash report
 and in the server thread's log line, with the bundle's `[mod] id` (the generated executable passes the ids to
@@ -2753,9 +2753,9 @@ public and available from both the target and `horizon_client::mod_api`. The kin
 or HEAD with `cancellable = true` for a unit-returning target (that method returns `Flow`, and
 `Flow::Cancel` returns early from the target), and RETURN, MODIFY_ARG and MODIFY_EXPRESSION_VALUE.
 For those three, the binding whose `value` is `$value` (its type is the returned, argument or
-expression type, as horizon-mixins requires) becomes a plain event field. The method changes it in
+expression type, as industrial-era-mixins requires) becomes a plain event field. The method changes it in
 place and returns nothing; the changed value is what the target returns, passes or uses. The selector,
-`require`, `ordinal` and `argument` are horizon-mixins' own fields. Before the mods are installed, the
+`require`, `ordinal` and `argument` are industrial-era-mixins' own fields. Before the mods are installed, the
 value passes through unchanged. A borrowed `$value` works only where Rust's elision ties the result to
 one input. `cancellable` is HEAD-only. Other kinds are rejected. Do not specify `helper` on these entries.
 
@@ -2778,7 +2778,7 @@ fn inject_example_points(&self, event: &mut InjectExamplePointsEvent) {
 }
 ```
 
-Trait injections can target only functions in `horizon-client`;
+Trait injections can target only functions in `industrial-era-client`;
 ordinary mixin helpers in other crates continue to work as before. The generated helper has the same priority and ordering as an
 ordinary helper of that mod: priority descending, mod id then injection id. It is not automatically
 ordered after other mixins. Catalog hooks retain the mixin-before-trait order below.
@@ -2855,7 +2855,7 @@ fn count(game: &mut crate::game::Game<'_>) {
 ```
 
 `COUNTER` is the `AttachmentType<i32>` of [Server attachments](#server-attachments), kept in a `[[module]]` of the
-bundle (horizon-mixins' README): one with `file = "crates/horizon-client/src/game.rs"` and `name = "example"` is
+bundle (industrial-era-mixins' README): one with `file = "crates/industrial-era-client/src/game.rs"` and `name = "example"` is
 `crate::game::example`. `Game` is not an `AttachmentHost` itself, so the `dyn Host` coercion is the step that matters;
 any `Host` helper works on `host` too.
 
@@ -2865,7 +2865,7 @@ for attachments and `random()`. Scheduling and `set_block_property` stay on the 
 hook points pass; `is_bonemeal_success` gets only a `LevelRandomHost`.
 
 A trait injection gives the mod's `[api]` crate the same `Host` at that method. The `[api]` crate depends on
-horizon-client's library, not on the game executable that helpers and modules are compiled into, so it declares its
+industrial-era-client's library, not on the game executable that helpers and modules are compiled into, so it declares its
 own `AttachmentType<i32>` with the same `namespace` and `name`: the pair is the key, so both statics read one value.
 
 ```toml
@@ -2883,7 +2883,7 @@ fn inject_example_count(&self, event: &mut InjectExampleCountEvent<'_>) {
 }
 ```
 
-The `[api]` crate reads `event.host` at any `Game` method horizon-mixins can inject into at HEAD (its README lists the
+The `[api]` crate reads `event.host` at any `Game` method industrial-era-mixins can inject into at HEAD (its README lists the
 limits). `hook` and `hook_version` work in place of `target`.
 
 The helper runs in every `Game` that calls its target, and attachments answer `MissingHolder` outside the server's game,
@@ -2892,7 +2892,7 @@ as they do in hooks.
 A catalog hook's trait method, event and return are part of its `hook_version` contract ([Named hook
 points](#named-hook-points), [Mods on the hook points](#mods-on-the-hook-points)). Later Horizons only add event fields
 (`#[non_exhaustive]`), trait methods with default bodies, and `Host` methods. So a mod whose `[api]` package uses only catalog
-hooks (trait methods, or injections by `hook`) and `Host` can set `"hooks"` in its `.hnmod`'s `horizon-native.json` to the
+hooks (trait methods, or injections by `hook`) and `Host` can set `"hooks"` in its `.hnmod`'s `industrial-era-native.json` to the
 `NATIVE_HOOKS_API` it was made on.
 A raw `target` like `tick_mobs` is not a hook point and may change in any commit: such a mod pins `horizon_revision` and
 leaves `hooks` out.
@@ -2929,7 +2929,7 @@ The generator adds the hook's trait method and replaces the placeholder with the
 Every hook needs a `mod_api` entry: the check fails naming any hook without one. A body that is neither the
 placeholder nor already calls the dispatch is an error, and the generator never changes it. Hooks that are
 free functions outside `Game` are wired by hand: those crates can't see the mod list, so each calls a callback
-the executable installs once, such as `NativeLoadHooks` in `horizon-world` and `NativeClientHooks` in the
+the executable installs once, such as `NativeLoadHooks` in `industrial-era-world` and `NativeClientHooks` in the
 client library (`menu_slot_rules`, `living_breathe`, `ingredient`). `cargo run -p xtask -- mod-api --check`
 and the `generated_output_is_current` test report a placeholder still to fill instead of filling it. Mixin
 injections go at the head of the body, before the dispatch, so they still run first.
@@ -2981,13 +2981,13 @@ server's `OtherEntity` records; projectiles, orbs and other ID-less save paths a
 not covered. Player UUIDs cover online guests and the acting player. Mutable level
 hosts can access their level, loaded chunks and block entities; read-only level hosts
 cannot access attachments. Unserialized values disappear on unload or restart. A saved
-value is stored under `horizon:attachments`, then the mod namespace and attachment name,
+value is stored under `industrial-era:attachments`, then the mod namespace and attachment name,
 as `{value: <compound>, copy_on_death: 1b, sync: 1b}` (a flag is omitted when false).
 Unknown mods' saved entries survive load and save without being decoded. Level
 attachments use the dimension's `data/minecraft/horizon_attachments.dat` SavedData
 file, not `level.dat`.
 
-A type with `sync: true` sends its value to Horizon clients when `get` creates the
+A type with `sync: true` sends its value to Industrial Era clients when `get` creates the
 default, on `set` and `remove`, and on demand with `AttachmentType::sync_data(host,
 holder)`; changes made in one tick are sent once, at its end. The recipients are the
 players who track the holder: guests who were sent a chunk for a chunk or block entity,
@@ -2998,7 +2998,7 @@ re-entered, an entity tracked, and its own player. With no native
 mod loaded nothing is sent. The wire form is the codec's compound, so `sync` requires
 a codec.
 
-Only Horizon clients are sent values. A message with a namespace or name over 256
+Only Industrial Era clients are sent values. A message with a namespace or name over 256
 characters, a value that cannot be written or a payload past 1 MiB is not sent.
 
 On a client, `Host::attachments` returns a copy of what the server synced, which `get`

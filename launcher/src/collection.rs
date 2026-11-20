@@ -1,8 +1,8 @@
 //! Data collection in the window: the question asked once (and again when what is collected
-//! changes), and its section in Settings. Everything goes through `horizon_launcher::telemetry`.
+//! changes), and its section in Settings. Everything goes through `industrial_era_launcher::telemetry`.
 use super::*;
-use horizon_launcher::telemetry;
-use horizon_telemetry::{Choices, Consent, Kind as DataKind};
+use industrial_era_launcher::telemetry;
+use industrial_era_telemetry::{Choices, Consent, Kind as DataKind};
 
 /// What the window keeps about data collection.
 pub(crate) struct Collection {
@@ -188,10 +188,10 @@ impl Launcher {
             .child(
                 text(theme::HEADING)
                     .text_color(t.ink)
-                    .child(tr("Help make Horizon faster and steadier?")),
+                    .child(tr("Help make Industrial Era faster and steadier?")),
             )
             .child(text(theme::UI).text_color(t.muted).child(tr(
-                "Horizon can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
+                "Industrial Era can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
             )))
             .child(
                 div()
@@ -302,7 +302,7 @@ impl Launcher {
             Some(always_on(&t).into_any_element()),
             &t,
         ));
-        let waiting = horizon_telemetry::outbox::pending(&telemetry::home()).len();
+        let waiting = industrial_era_telemetry::outbox::pending(&telemetry::home()).len();
         let id = match consent.install_id.as_str() {
             "" => tr("No install ID: nothing has been collected").to_string(),
             id => trf(
@@ -310,7 +310,7 @@ impl Launcher {
                 &[("prefix", &id[..4]), ("suffix", &id[id.len() - 4..])],
             ),
         };
-        let server = if horizon_telemetry::endpoint().is_some() {
+        let server = if industrial_era_telemetry::endpoint().is_some() {
             trf(
                 "{count} waiting to be sent",
                 &[("count", &waiting.to_string())],

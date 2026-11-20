@@ -131,7 +131,7 @@ def main():
     if run.returncode:
         print(run.stderr[-4000:])
         sys.exit('oracle failed')
-    lib.cargo_example('horizon-client', 'recipe_book_render_fixture', lib.RESOURCES, inputs, work / 'rust.jsonl')
+    lib.cargo_example('industrial-era-client', 'recipe_book_render_fixture', lib.RESOURCES, inputs, work / 'rust.jsonl')
     vanilla = [json.loads(l) for l in (work / 'vanilla.jsonl').read_text().splitlines()]
     rust = [json.loads(l) for l in (work / 'rust.jsonl').read_text().splitlines()]
     assert len(vanilla) == len(rust) == len(chosen), (len(vanilla), len(rust), len(chosen))
@@ -154,7 +154,7 @@ def main():
             brief = {k: v for k, v in case.items() if k not in ('collections',)}
             print(f'    {json.dumps(brief)[:700]}')
             print(f'      call {i}: vanilla {json.dumps(x)}')
-            print(f'      call {i}: horizon {json.dumps(y)}')
+            print(f'      call {i}: industrial-era {json.dumps(y)}')
     print(f'{passed}/{len(chosen)} cases match')
     if errors or failures:
         sys.exit(1)

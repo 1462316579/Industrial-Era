@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Compare the blocks Horizon's structure mods place with the blocks a real server saved.
+"""Compare the blocks Industrial Era's structure mods place with the blocks a real server saved.
 
 Expected side: the clean-room structure oracle (see test_structure_layout_parity.py), which kept, for every
 start of a mod world, its blocks (`blocks`, the start's box) and every position of the box grown by
 `diff_margin` where the mod world differs from the no-mod world of the same seed (`changed_vs_vanilla`).
 
-Horizon side: the chunk_dump probe generates the chunks around each start in full (terrain, structures,
+Industrial Era side: the chunk_dump probe generates the chunks around each start in full (terrain, structures,
 features) twice: from the 26.3 resources (the no-mod world) and from those resources with the mods carried
-by `horizon-port-pack carry` (the mod world), as test_structure_layout_parity.py builds them. In the mod
+by `industrial-era-port-pack carry` (the mod world), as test_structure_layout_parity.py builds them. In the mod
 world each start whose pieces are all jigsaw pieces is the oracle's own (HORIZON_SAVED_STARTS): the blocks
 are checked whatever the layout (Lithostitched lays out jigsaws its own way, spec-lithostitched OPEN-L5), and
 test_structure_layout_parity.py checks layouts apart.
 
-The oracle's game is 1.21.1 and Horizon's 26.3, so the worlds also differ where the versions do. A position
+The oracle's game is 1.21.1 and Industrial Era's 26.3, so the worlds also differ where the versions do. A position
 is compared only where the two no-mod worlds agree (the oracle's no-mod block is known inside the start's
-box and at the changed positions); elsewhere in the grown box, where the oracle saw no change, Horizon's mod
+box and at the changed positions); elsewhere in the grown box, where the oracle saw no change, Industrial Era's mod
 world must equal its no-mod world. Overlapping structures need no special case: both worlds have them.
 
-A mismatch is counted by the oracle's no-mod block, the expected block and Horizon's, so a processor's
+A mismatch is counted by the oracle's no-mod block, the expected block and Industrial Era's, so a processor's
 missing rule reads as one line. KNOWN names the mismatch classes the implementation does not cover yet, with
 the reason; they are reported, not failed.
 
@@ -158,7 +158,7 @@ REGIONS = ('pieces', 'around')
 
 def compare(start, vanilla, modded):
     """Per region (inside a piece's box, or around them: terrain adaptation and decoration), the compared
-    positions and the mismatches, as (no-mod, expected, Horizon) -> count."""
+    positions and the mismatches, as (no-mod, expected, Industrial Era) -> count."""
     mod, base = oracle_blocks(start)
     x0, y0, z0, x1, y1, z1 = start['diff_box']
     width, depth = x1 - x0 + 1, z1 - z0 + 1
@@ -238,7 +238,7 @@ def main():
               + (f' ({reason})' if any(wrong.values()) and reason else ''))
         for region in REGIONS:
             for (base, expected, got), n in mismatches[region].most_common(args.limit):
-                print(f'        {region:6} {n:6}  no-mod {base}  expected {expected}  Horizon {got}')
+                print(f'        {region:6} {n:6}  no-mod {base}  expected {expected}  Industrial Era {got}')
         report[structure] = {'starts': starts, 'compared': compared,
                              'mismatches': {r: [[*k, n] for k, n in mismatches[r].most_common()] for r in REGIONS}}
     # Every mismatch class, for a closer look than the summary.

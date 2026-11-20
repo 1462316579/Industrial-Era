@@ -114,7 +114,7 @@ public final class VanillaFeatureRegionOracle {
         var factory=new PalettedContainerFactory(Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY),Blocks.AIR.defaultBlockState(),null,Strategy.createForBiomes(ids),biome,null);
         VanillaHeightmapOracle.bindTags(JsonParser.parseString(Files.readString(dir.resolve("tags.json"))).getAsJsonObject());
         bindFluidTags(JsonParser.parseString(Files.readString(dir.resolve("fluid-tags.json"))).getAsJsonObject());
-        var queryTags=new ArrayList<>(new TreeSet<>(JsonParser.parseString(Files.readString(dir.resolve("tags.json"))).getAsJsonObject().keySet()));queryTags.add("horizon:absent");
+        var queryTags=new ArrayList<>(new TreeSet<>(JsonParser.parseString(Files.readString(dir.resolve("tags.json"))).getAsJsonObject().keySet()));queryTags.add("industrial-era:absent");
         var contextMethod=VanillaPlacementOracle.class.getDeclaredMethod("context",JsonObject.class);contextMethod.setAccessible(true);
         var bounds=new JsonObject();bounds.add("context",JsonParser.parseString("[-64,64,0]"));
         var generator=((PlacementContext)contextMethod.invoke(null,bounds)).generator();

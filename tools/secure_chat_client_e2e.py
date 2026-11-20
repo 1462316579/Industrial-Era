@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Horizon's client signing its chat for vanilla's dedicated server, with no real account.
+"""Industrial Era's client signing its chat for vanilla's dedicated server, with no real account.
 
 A mock of the Minecraft services stands in for Mojang's: its key set holds a key pair made here, its
 session service lets the player join, and its certificates endpoint (`player` / `getCertificates`) hands
 out a fresh chat key pair whose public key the mock signs (publicKeySignatureV2: SHA1withRSA over the
 profile id, the expiry and the key), as Mojang's does. Vanilla's server finds the mock through
-`-Dminecraft.api.discovery.host`, Horizon's client through `HORIZON_API_DISCOVERY`; the client signs in
+`-Dminecraft.api.discovery.host`, Industrial Era's client through `HORIZON_API_DISCOVERY`; the client signs in
 with a session file naming a made-up access token, as the launcher would hand it over.
 
-Horizon's headless client (`HORIZON_NET_REPORT`, the net harness) joins, sends two chat messages, a
+Industrial Era's headless client (`HORIZON_NET_REPORT`, the net harness) joins, sends two chat messages, a
 `/msg` to itself (a signed command argument) and `/list`, then leaves. Two servers:
 
 - online mode with enforce-secure-profile: the client sends its chat session, the server logs the chat
@@ -16,8 +16,8 @@ Horizon's headless client (`HORIZON_NET_REPORT`, the net harness) joins, sends t
 - offline mode: the server plays the account under its offline id, so the client keeps no session and
   chats unsigned as before ("[Not Secure]" in the log).
 
-    python3 tools/secure_chat_client_e2e.py --binary target/fast/horizon-client \\
-        --resources .local/horizon-client/26.3 --server-jar .local/minecraft/26.3/jars/server.jar \\
+    python3 tools/secure_chat_client_e2e.py --binary target/fast/industrial-era-client \\
+        --resources .local/industrial-era-client/26.3 --server-jar .local/minecraft/26.3/jars/server.jar \\
         --java /path/to/java25
 
 Needs `openssl` on PATH (the mock's RSA). Logs and reports go to --out.

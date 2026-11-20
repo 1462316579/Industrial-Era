@@ -1,6 +1,6 @@
-// Copyright (c) 2026 Ludovic Marie and the Horizon contributors.
+// Copyright (c) 2026 Ludovic Marie and the Industrial Era contributors.
 // SPDX-License-Identifier: MIT
-//! Provider-aware selection, adapted from Horizon Android's launcher account model.
+//! Provider-aware selection, adapted from Industrial Era Android's launcher account model.
 use super::*;
 
 /// A failed refresh never replaces the profile that was playing before it.

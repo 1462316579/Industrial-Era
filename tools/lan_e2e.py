@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LAN multiplayer end to end: a host opens its world to LAN and a guest joins, both real games.
 
-The host's world runs on its integrated server thread. Two Horizon clients run under horizon-ctl in scratch folders. The host
+The host's world runs on its integrated server thread. Two Industrial Era clients run under industrial-era-ctl in scratch folders. The host
 creates a survival world and opens it to LAN with commands allowed; the guest connects to it by
 address. The script then checks, from both sides, what a guest's game used to get wrong (#366):
 
@@ -350,7 +350,7 @@ both sides go to --out (host-*.png, guest-*.png).
     python3 tools/lan_e2e.py --check chest --check tab
     python3 tools/lan_e2e.py --check portals
 
-Needs the prepared resources in .local/horizon-client. On Linux the games run on vscreen (the
+Needs the prepared resources in .local/industrial-era-client. On Linux the games run on vscreen (the
 desktop), or headless (offscreen, no pause) where there is none; on macOS both games render offscreen. Games started here have no audio (HORIZON_NO_AUDIO=1).
 """
 import argparse
@@ -392,8 +392,8 @@ class Game:
     def __init__(self, name, ctl, resources):
         self.name = name
         self.work = Path(tempfile.mkdtemp(prefix=f'hzlan-{name}-'))
-        (self.work / '.local/horizon-client').mkdir(parents=True)
-        lab.link_dir(resources, self.work / '.local/horizon-client' / lab.VERSION)
+        (self.work / '.local/industrial-era-client').mkdir(parents=True)
+        lab.link_dir(resources, self.work / '.local/industrial-era-client' / lab.VERSION)
         self.socket = self.work / 'c.sock'
         env = game_env(os.environ.get('VSCREEN', 'lan-e2e'), home=self.work / 'home')
         env = game_environment(env, self.work)
@@ -404,7 +404,7 @@ class Game:
         return self.d(tool, **args)
 
     def raw(self, *words):
-        """A game command horizon-ctl has no table entry for (lan, connect): the words as typed."""
+        """A game command industrial-era-ctl has no table entry for (lan, connect): the words as typed."""
         result = subprocess.run(self.d.base + [str(w) for w in words], cwd=self.work, env=self.d.env,
                                 capture_output=True, text=True, timeout=600)
         lines = result.stdout.strip().splitlines()
@@ -648,7 +648,7 @@ def check_crafting(host, guest, out):
     guest.raw('wait-for', 'screen', 'inventory')
     inv = guest('inventory')
     slot = next(s['slot'] for s in inv['hotbar'] if s and s.get('item') == 'minecraft:oak_log')
-    # Horizon's slot ids (click-slot): the hotbar is 0-8, the grid 100-108, the result 200.
+    # Industrial Era's slot ids (click-slot): the hotbar is 0-8, the grid 100-108, the result 200.
     guest.raw('click-slot', slot)
     guest.raw('click-slot', 100)
     guest.wait(5)
@@ -784,7 +784,7 @@ def lan_guest(host):
 
 def check_distance(host, guest, out):
     """IntegratedServer.tickServer: the server takes the host's render distance as its view distance
-    (past 32, which Horizon's options allow) and sends it to every player (SetChunkCacheRadius)."""
+    (past 32, which Industrial Era's options allow) and sends it to every player (SetChunkCacheRadius)."""
     seen = {}
     try:
         for distance in (48, 6):
@@ -1837,7 +1837,7 @@ def check_leads(host, guest, out):
 
 
 def container_items(game):
-    """The open container's stacks by slot (Horizon's container slots are 300 and up) and its size."""
+    """The open container's stacks by slot (Industrial Era's container slots are 300 and up) and its size."""
     slots = [s for s in game('screen').get('slots', []) if s.get('slot', 0) >= 300]
     return {s['slot'] - 300: s['item'] for s in slots if s.get('item')}, len(slots)
 
@@ -2498,7 +2498,7 @@ def held(game):
 
 
 def container_of(game, n):
-    """The open container's (most) slots by container index, Horizon's slots 300 and up."""
+    """The open container's (most) slots by container index, Industrial Era's slots 300 and up."""
     return {s['slot'] - 300: (s.get('item'), s.get('count'))
             for s in game('screen').get('slots', []) if 300 <= s.get('slot', 0) < 300 + n}
 
@@ -2572,7 +2572,7 @@ def check_shift_double_click(host, guest, out):
         guest.raw('interact', *chest)
         guest.raw('wait-for', 'screen', 'container', '--timeout', 10)
         guest.wait(5)
-        # Take the 32 on the cursor, then a wait past Horizon's 250 ms double click window.
+        # Take the 32 on the cursor, then a wait past Industrial Era's 250 ms double click window.
         mouse(guest, hotbar_slot(guest, 'minecraft:diamond'))
         time.sleep(0.4)
 
@@ -6842,7 +6842,7 @@ def run(ctl, out, resources, checks):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--bin-dir', help='prebuilt horizon-client and horizon-ctl (default: build with the fast profile)')
+    parser.add_argument('--bin-dir', help='prebuilt industrial-era-client and industrial-era-ctl (default: build with the fast profile)')
     parser.add_argument('--check', action='append', choices=CHECKS, help='run only these checks (repeatable)')
     parser.add_argument('--out', default=str(ROOT / '.local/lan-e2e'), help='screenshots and game logs go here')
     # The host's world always runs on its server thread; the flag stays for existing callers.
@@ -6851,14 +6851,14 @@ def main():
     if args.bin_dir:
         bins = Path(args.bin_dir).resolve()
     else:
-        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'horizon-client', '-p', 'horizon-client-lib',
-                        '--bin', 'horizon-client', '--bin', 'horizon-ctl'],
+        subprocess.run(['cargo', 'build', '--locked', '--profile', 'fast', '-p', 'industrial-era-client', '-p', 'industrial-era-client-lib',
+                        '--bin', 'industrial-era-client', '--bin', 'industrial-era-ctl'],
                        cwd=ROOT, check=True)
         meta = json.loads(subprocess.run(['cargo', 'metadata', '--format-version', '1', '--no-deps'], cwd=ROOT,
                                          capture_output=True, text=True, check=True).stdout)
         bins = Path(meta['target_directory']) / 'fast'
     resources = lab.RESOURCES.resolve()
-    if not (resources / 'horizon-resources.json').exists():
+    if not (resources / 'industrial-era-resources.json').exists():
         sys.exit(f'no prepared resources in {resources}')
     try:
         require_server_reports(resources)
@@ -6866,7 +6866,7 @@ def main():
         sys.exit(str(error))
     out = Path(args.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
-    results = run(bins / 'horizon-ctl', out, resources, args.check or CHECKS)
+    results = run(bins / 'industrial-era-ctl', out, resources, args.check or CHECKS)
     (out / 'results.json').write_text(json.dumps({'checks': results}, indent=2) + '\n')
     print(json.dumps(results, indent=1))
     sys.exit(0 if results and all(r['pass'] for r in results.values()) else 1)
@@ -7233,7 +7233,7 @@ def check_held_use(host, guest, out):
             host('command', command='kill @e[type=minecraft:trident]')
             game('command', command='item replace entity @s weapon.mainhand with minecraft:trident')
             game.wait(5)
-            # /kill finds no thrown trident (Horizon's selectors miss them): count what's new.
+            # /kill finds no thrown trident (Industrial Era's selectors miss them): count what's new.
             before = flying(game, 'trident')
             game.raw('use-item', '--hold', 1.2)
             game.wait(10)
@@ -8803,7 +8803,7 @@ def check_cure_discount(host, guest, out):
             # ZombieVillager.mobInteract: the apple starts the cure; then it is cut short.
             game.raw('interact-entity', zombie)
             game.wait(10)
-            # Horizon counts the cure down in the AI step, so NoAI goes for the last tick.
+            # Industrial Era counts the cure down in the AI step, so NoAI goes for the last tick.
             host('command', command=f'data merge entity @e[tag={tag},limit=1] {{ConversionTime:1,NoAI:0b}}')
             villager = None
             for _ in range(30):
@@ -9684,7 +9684,7 @@ def check_falling(host, guest, out):
                             f'{{Tags:["{tag}"],Item:{{id:"minecraft:diamond",count:1}},PickupDelay:32767}}')
     host('command', command=f'summon minecraft:falling_block {x + 2.5} {top} {z - 0.5} '
                             f'{{Tags:["{tag}"],BlockState:{{Name:"minecraft:sand"}},DropItem:0b}}')
-    # Horizon's selectors don't see primed TNT yet: its fuse ends it in the air, 19 blocks down.
+    # Industrial Era's selectors don't see primed TNT yet: its fuse ends it in the air, 19 blocks down.
     host('command', command=f'summon minecraft:tnt {x + 4.5} {top} {z + 0.5} {{fuse:34s}}')
     heights = {'item': [], 'falling block': [], 'primed tnt': []}
     fuses = []
@@ -10830,7 +10830,7 @@ def check_dig_sounds(host, guest, out):
 
     Vanilla plays the block's hit sound from the server's destroy progress
     level events (2019 and 2020), so the digger and the players around hear
-    the same hits. Horizon's digger heard every hit twice: once from its own
+    the same hits. Industrial Era's digger heard every hit twice: once from its own
     client and once from the server, which is what the report called a sound
     played too often.
     """

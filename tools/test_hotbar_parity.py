@@ -153,7 +153,7 @@ def main():
     if run.returncode:
         print(run.stderr[-4000:])
         sys.exit('oracle failed')
-    lib.cargo_example('horizon-client', 'hotbar_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('industrial-era-client', 'hotbar_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
     bad = lib.compare(cases, work / 'native.txt', work / 'rust.txt', lambda c, line: 'hotbar' if not line.startswith('error') else 'oracle error',
                       describe=lambda c: c['snbt'][:300] if c['snbt'] else 'missing file', limit=args.limit)
     raise SystemExit(1 if bad else 0)

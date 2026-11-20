@@ -1,5 +1,5 @@
 //! The pixel sunset behind the glass look: a port of the website's `HorizonScene`
-//! (horizon-site `components/horizon-scene.tsx`, as the launcher mockup draws it with
+//! (industrial-era-site `components/industrial-era-scene.tsx`, as the launcher mockup draws it with
 //! `wideSun={{ x: 0.72, scale: 1.1, rise: 0.1 }}`), with its seeds, its random draws in the same
 //! order and its colour sums, so the same window size gives the same picture.
 //!
@@ -167,7 +167,7 @@ pub struct Model {
     px: f64,
     w: i32,
     h: i32,
-    horizon: i32,
+    industrial-era: i32,
     fog_top: i32,
     fog_bottom: i32,
     sun: (i32, i32, i32),
@@ -229,14 +229,14 @@ impl Model {
         let w = (width / px).ceil() as i32;
         let h = (height / px).ceil() as i32;
         let land = land_height / px;
-        let horizon = round(h as f64 - land * 0.55) as i32;
+        let industrial-era = round(h as f64 - land * 0.55) as i32;
         let r = round(land * 0.4 * sun_scale) as i32;
         let sun = (
             round(w as f64 * sun_x) as i32,
-            round(horizon as f64 - r as f64 * (0.45 + sun_rise)) as i32,
+            round(industrial-era as f64 - r as f64 * (0.45 + sun_rise)) as i32,
             r,
         );
-        let fog_top = round(horizon as f64 - land * 0.18) as i32;
+        let fog_top = round(industrial-era as f64 - land * 0.18) as i32;
         let glow = (0..w)
             .map(|x| {
                 let d = (x - sun.0) as f64 / (w as f64 * 0.3);
@@ -244,13 +244,13 @@ impl Model {
             })
             .collect::<Vec<_>>();
         let sky_at = |y: f64| {
-            let f = clamp(y / horizon as f64, 0., 1.).powf(2.3) * SKY_STEPS as f64;
+            let f = clamp(y / industrial-era as f64, 0., 1.).powf(2.3) * SKY_STEPS as f64;
             let i = f.floor() as usize;
             mix(SKY[i], SKY[(i + 1).min(SKY.len() - 1)], f - i as f64)
         };
 
         let mut rand = Rng(7);
-        let sky_height = horizon as f64 * px;
+        let sky_height = industrial-era as f64 * px;
         let star_count = round(width * sky_height / 5200.) as usize;
         let mut stars = Vec::with_capacity(star_count);
         for _ in 0..star_count {
@@ -281,7 +281,7 @@ impl Model {
         let mut clouds = Vec::new();
         let mut add_cloud = |rand: &mut Rng, y: f64, cw: f64, ch: f64, speed: f64, depth: f64| {
             let t = clamp(
-                (y - horizon as f64 * 0.45) / (horizon as f64 * 0.55),
+                (y - industrial-era as f64 * 0.45) / (industrial-era as f64 * 0.55),
                 0.,
                 1.,
             );
@@ -301,13 +301,13 @@ impl Model {
         };
         for _ in 0..3 {
             let cw = (120. + rand.next() * 140.) / px;
-            let y = horizon as f64 - land * (0.45 + rand.next() * 0.25);
+            let y = industrial-era as f64 - land * (0.45 + rand.next() * 0.25);
             let ch = cw * (0.2 + rand.next() * 0.06);
             let speed = 0.5 + rand.next() * 0.8;
             add_cloud(&mut rand, y, cw, ch, speed, 0.4);
         }
         for _ in 0..5 {
-            let y = horizon as f64 - 5. - rand.next() * land * 0.4;
+            let y = industrial-era as f64 - 5. - rand.next() * land * 0.4;
             let cw = w as f64 * (0.08 + rand.next() * 0.12);
             let ch = 3. + rand.next() * 3.;
             let speed = 1. + rand.next() * 1.6;
@@ -351,7 +351,7 @@ impl Model {
                 trees: Vec::new(),
             }
         };
-        let hz = horizon as f64;
+        let hz = industrial-era as f64;
         let mut ridges = vec![
             ridge(
                 11,
@@ -411,7 +411,7 @@ impl Model {
             px,
             w,
             h,
-            horizon,
+            industrial-era,
             fog_top,
             fog_bottom: round(hz + land * 0.26) as i32,
             sun,
@@ -424,10 +424,10 @@ impl Model {
     }
 
     /// The static sky (`paintStaticSky`) at a point in logical pixels, as straight RGB in 0..=1:
-    /// the gradient to the horizon, the sun's glow on it and the haze over the land.
+    /// the gradient to the industrial-era, the sun's glow on it and the haze over the land.
     fn sky_rgb(&self, x: f64, y: f64) -> [f64; 3] {
-        let horizon = self.horizon as f64 * self.px;
-        let t = clamp(y / horizon, 0., 1.);
+        let industrial-era = self.industrial-era as f64 * self.px;
+        let t = clamp(y / industrial-era, 0., 1.);
         let stop = |i: usize| (i as f64 / SKY_STEPS as f64).powf(1. / 2.3);
         let mut i = 0;
         while i + 1 < SKY_STEPS && t > stop(i + 1) {
@@ -436,9 +436,9 @@ impl Model {
         let f = clamp((t - stop(i)) / (stop(i + 1) - stop(i)), 0., 1.);
         let mut c = lerp(rgb(SKY[i]), rgb(SKY[i + 1]), f);
         // The glow: a radial gradient squeezed to an ellipse `width * 0.6` wide.
-        let ry = horizon * 0.32;
+        let ry = industrial-era * 0.32;
         let u = (x - self.sun.0 as f64 * self.px) * ry / (self.width * 0.6);
-        let d = (u * u + (y - horizon).powi(2)).sqrt() / ry;
+        let d = (u * u + (y - industrial-era).powi(2)).sqrt() / ry;
         if d < 1. {
             let stops = [
                 (0., SKY[14], 0.9),
@@ -450,7 +450,7 @@ impl Model {
         }
         let fog_top = self.fog_top as f64 * self.px;
         if y >= fog_top {
-            let t = clamp((y - fog_top) / (horizon - fog_top), 0., 1.);
+            let t = clamp((y - fog_top) / (industrial-era - fog_top), 0., 1.);
             c = over(c, (rgb(FOG), 0.3 * t));
         }
         c
@@ -543,10 +543,10 @@ impl Model {
         if y < self.fog_top.max(0) || y >= self.fog_bottom.min(self.h) {
             return c;
         }
-        let t = if y < self.horizon {
-            (y - self.fog_top) as f64 / (self.horizon - self.fog_top) as f64
+        let t = if y < self.industrial-era {
+            (y - self.fog_top) as f64 / (self.industrial-era - self.fog_top) as f64
         } else {
-            1. - (y - self.horizon) as f64 / (self.fog_bottom - self.horizon) as f64
+            1. - (y - self.industrial-era) as f64 / (self.fog_bottom - self.industrial-era) as f64
         };
         let g = self.glow[(x.clamp(0, self.w - 1)) as usize];
         mix(c, FOG, t * t * (0.16 + 0.3 * g))
@@ -876,7 +876,7 @@ impl Render for Scene {
         let halo_strength = (0.9 + 0.1 * (time * 0.9).sin()) as f32;
 
         // The sky's moving parts (`renderSky`): stars and the odd meteor, in logical pixels.
-        let sky_height = m.horizon as f64 * m.px;
+        let sky_height = m.industrial-era as f64 * m.px;
         let shift = -view.0 * 4.;
         let mut stars: Vec<(Bounds<Pixels>, f32, Hsla)> = Vec::new();
         for s in &m.stars {
@@ -930,7 +930,7 @@ impl Render for Scene {
             .left_0()
             .size_full()
             .overflow_hidden()
-            .bg(gpui::rgb(horizon_theme::glass::PAGE))
+            .bg(gpui::rgb(industrial_era_theme::glass::PAGE))
             .child(layer(baked.sky.clone(), None))
             .child(
                 div()
@@ -1189,7 +1189,7 @@ fn saturate([r, g, b]: [f64; 3], s: f64) -> [f64; 3] {
 mod tests {
     use super::*;
 
-    /// The website's own code (horizon-scene.tsx's `rng`, `buildScene`, `renderPixels`, run in
+    /// The website's own code (industrial-era-scene.tsx's `rng`, `buildScene`, `renderPixels`, run in
     /// Node at 1280 × 772) gave these: the first draws of seed 7, the scene's measures, each cloud's
     /// row, size and mask sum, and an FNV-1a hash of its whole pixel buffer at 0 s and 5.3 s.
     #[test]
@@ -1202,7 +1202,7 @@ mod tests {
         );
         let m = Model::new(1280., 772.);
         assert_eq!(
-            (m.px, m.w, m.h, m.horizon, m.sun),
+            (m.px, m.w, m.h, m.industrial-era, m.sun),
             (4., 320, 193, 161, (230, 147, 25))
         );
         assert_eq!(m.stars.len(), 159);
@@ -1303,7 +1303,7 @@ mod tests {
         let m = Model::new(1280., 772.);
         assert_eq!(m.px, 4.);
         assert!(m.sun.0 > m.w / 2);
-        assert!(m.horizon > m.h / 2 && m.horizon < m.h);
+        assert!(m.industrial-era > m.h / 2 && m.industrial-era < m.h);
         // Every column of the nearest ridge reaches the bottom.
         let (texels, cols, rows, _) = m.ridge_texels(2, 0);
         assert!((0..cols).all(|c| texels[((rows - 1) * cols + c) as usize][3] == 255));

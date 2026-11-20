@@ -15,7 +15,7 @@ pub use launcher::browser;
 pub mod list;
 
 use browser::{
-    horizon::Registry,
+    industrial-era::Registry,
     installed::{self, Entry, Installed},
     modrinth::Modrinth,
     Kind, Project, Query, Source, SourceId, Support, Version, GAME,
@@ -34,20 +34,20 @@ const LARGEST_SHADER_PACK: u64 = 256 << 20;
 /// The catalog's three lists.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Shelf {
-    /// Horizon's registry of reviewed mods.
+    /// Industrial Era's registry of reviewed mods.
     #[default]
     Mods,
     /// Modrinth's resource packs.
     ResourcePacks,
     /// Modrinth's Iris and OptiFine shader packs, which the game converts. A search also finds
-    /// Horizon's own.
+    /// Industrial Era's own.
     ShaderPacks,
 }
 
 /// What an install put in the game folder, which says what the player does next.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Done {
-    /// In `horizon-native-mods/`: it waits for a compile.
+    /// In `industrial-era-native-mods/`: it waits for a compile.
     NativeMod,
     /// Loads with the resources, at the next start.
     ContentMod,
@@ -189,7 +189,7 @@ pub fn caution(project: &Project) -> Option<String> {
 /// Whether `project` is a native mod, which only runs once compiled into the game. The registry
 /// says so: a search of it has its index at hand.
 pub fn is_native_mod(project: &Project) -> bool {
-    project.source == SourceId::Horizon && browser::horizon::is_native_mod(&project.id)
+    project.source == SourceId::Industrial Era && browser::industrial-era::is_native_mod(&project.id)
 }
 
 fn is_modrinth_shader_pack(project: &Project) -> bool {
@@ -224,10 +224,10 @@ pub fn remove(home: &Path, project: &Project) -> Result<Entry, String> {
     installed::remove(home, &project.id)
 }
 
-/// The mod id of an installed mod's entry (its file's name in `horizon-mods/` or
-/// `horizon-native-mods/`), which the Mods page and `horizon-mods.txt` know it by.
+/// The mod id of an installed mod's entry (its file's name in `industrial-era-mods/` or
+/// `industrial-era-native-mods/`), which the Mods page and `industrial-era-mods.txt` know it by.
 pub fn mod_id(entry: &Entry) -> Option<String> {
-    browser::horizon::mod_id(entry).map(str::to_owned)
+    browser::industrial-era::mod_id(entry).map(str::to_owned)
 }
 
 /// Installs `project` (and what it needs) into the game folder `home`, its download checked.
@@ -274,7 +274,7 @@ fn shader_pack_version(versions: &[Version]) -> Option<&Version> {
 }
 
 /// Modrinth's shader pack into `shaderpacks/`, and on the list of what the catalog installed.
-/// Adapted from Horizon Android's `shader_catalog.rs` (Vasysik, MIT).
+/// Adapted from Industrial Era Android's `shader_catalog.rs` (Vasysik, MIT).
 fn install_modrinth_shader_pack(
     project: &Project,
     home: &Path,
@@ -383,7 +383,7 @@ mod backend {
     }
 
     pub fn game_mod_api_level() -> Option<u32> {
-        Some(horizon_mods::api_level::LEVEL)
+        Some(industrial_era_mods::api_level::LEVEL)
     }
 }
 
@@ -394,7 +394,7 @@ pub fn set_game_home(home: std::path::PathBuf) {
 
 /// Where a native mod's file goes (`mod_list::NATIVE_DIR`).
 mod native_mods {
-    pub const INSTALLED: &str = "horizon-native-mods";
+    pub const INSTALLED: &str = "industrial-era-native-mods";
 }
 
 /// The launcher's proxy setting: the phone's own network settings apply instead.

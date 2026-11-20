@@ -1,10 +1,10 @@
 {
- "format": "horizon-benchmark-report",
+ "format": "industrial-era-benchmark-report",
  "version": 1,
  "kind": "game",
  "created": "2026-10-29T18:55:59Z",
  "app": {
-  "name": "horizon-client",
+  "name": "industrial-era-client",
   "version": "v0.2.97",
   "commit": null
  },
@@ -769,5 +769,5 @@
    ]
   }
  ],
- "label": "horizon-win-9800x3d-5080"
+ "label": "industrial-era-win-9800x3d-5080"
 }

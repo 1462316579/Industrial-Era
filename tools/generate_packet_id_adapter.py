@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate crates/horizon-protocol/src/adapter/v<OLD>.rs: how an older release numbers the packets of each
+"""Generate crates/industrial-era-protocol/src/adapter/v<OLD>.rs: how an older release numbers the packets of each
 connection state against the pinned one, from both versions' data generator packets reports.
 
-    generate_packet_id_adapter.py --old ~/code/horizon-parity/versions/26.2
+    generate_packet_id_adapter.py --old ~/code/industrial-era-parity/versions/26.2
 
 `--old` (and `--new`, the pinned version in .local by default) is a directory `tools/version_port.py prepare
 VERSION --download` made: `jars/client.jar` and `datagen/reports/packets.json`.
@@ -61,7 +61,7 @@ def main():
         info = lab.version_info()
     old_version, old_protocol = old_info["id"], old_info["protocol_version"]
     module = "v" + old_version.replace(".", "_")
-    out = args.out or ROOT / f"crates/horizon-protocol/src/adapter/{module}.rs"
+    out = args.out or ROOT / f"crates/industrial-era-protocol/src/adapter/{module}.rs"
     lines = [
         f"//! Packet ids of protocol {old_protocol} ({old_version}) against the pinned"
         f" {info['protocol_version']} ({info['name']}).",
@@ -76,7 +76,7 @@ def main():
     for state in STATES:
         for direction in ["clientbound", "serverbound"]:
             o, n = ids(old, state, direction), ids(new, state, direction)
-            # Clientbound: indexed by the old server's id. Serverbound: indexed by Horizon's id.
+            # Clientbound: indexed by the old server's id. Serverbound: indexed by Industrial Era's id.
             values = table(o, n) if direction == "clientbound" else table(n, o)
             assert all(v is None or v < 256 for v in values)
             lines.append("#[rustfmt::skip]")
@@ -84,7 +84,7 @@ def main():
     for direction, doc in [
         ("clientbound", f"For each id a {old_version} server sends in `state`, the pinned version's id"
                         " of that packet."),
-        ("serverbound", f"For each pinned-version id Horizon sends in `state`, the id a {old_version}"
+        ("serverbound", f"For each pinned-version id Industrial Era sends in `state`, the id a {old_version}"
                         " server knows it by."),
     ]:
         lines.append(f"/// {doc}")

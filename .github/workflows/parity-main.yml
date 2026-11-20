@@ -27,7 +27,7 @@ jobs:
     # this run waited 2 h while every merge replaced the pending one, and on the release runner a release then waited
     # behind the next run. PR parity jobs have ludovics-mac-mini and playhorizon. Not playhorizon: its 4 CPUs
     # make a core-crate run several times longer, and a failure here bisects and comments on merges.
-    runs-on: [self-hosted, macOS, horizon-parity-main]
+    runs-on: [self-hosted, macOS, industrial-era-parity-main]
     timeout-minutes: 240  # a core-crate batch reruns ~300 harnesses (~60-90 min), a bisect a few rounds of the failures
     steps:
       - uses: actions/checkout@v4
