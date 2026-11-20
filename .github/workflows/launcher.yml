@@ -19,20 +19,23 @@ jobs:
           fetch-depth: 0
       - name: Install the C++ toolchain launcher needs
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends g++ build-essential
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends g++ build-essential libasound2-dev libudev-dev pkg-config
       - name: Install Rust toolchain
+        working-directory: launcher
         run: |
           rustup toolchain install stable --profile minimal --component rustfmt --component clippy
           rustup default stable
       - name: Check formatting and lint
+        working-directory: launcher
         run: |
           cargo +stable fmt --all -- --check
           cargo +stable clippy --workspace --all-targets -- -D warnings
       - name: Build launcher
+        working-directory: launcher
         run: cargo +stable build --release
       - name: Upload launcher binary
         uses: actions/upload-artifact@v4
         with:
           name: industrial-era-launcher
-          path: target/release/horizon-launcher
+          path: launcher/target/release/horizon-launcher
           retention-days: 7
