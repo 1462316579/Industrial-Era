@@ -1,4 +1,4 @@
-package io.github.juanluci.starling;
+package io.github.1462316579.industrial-era;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * The game folder as documents, which GameFolderProvider shows to Android's Files app. A document's
- * id is "starling" for the folder and "starling/<path>" for what is in it, so an id still works
+ * id is "industrial-era" for the folder and "industrial-era/<path>" for what is in it, so an id still works
  * after the folder moves to shared storage. Nothing here touches Android:
  * tests/test_android_game_folder.py runs it on a computer.
  *
@@ -25,7 +25,7 @@ import java.util.List;
  * names stay as they are.
  */
 final class GameFolder {
-    static final String ROOT = "starling";
+    static final String ROOT = "industrial-era";
 
     /** android.rs PLAYER_FILES, which the test compares with this. */
     private static final List<String> PLAYER_FILES = Arrays.asList(

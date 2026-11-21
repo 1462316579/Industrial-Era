@@ -1,4 +1,4 @@
-package io.github.juanluci.starling;
+package io.github.1462316579.industrial-era;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -22,13 +22,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Industrial Era Android's worlds and resource packs brought into Starling, the two ports being one now.
+ * Industrial Era Android's worlds and resource packs brought into Industrial Era, the two ports being one now.
  * Industrial Era Android shows its files to the system as a documents provider (its
  * HorizonDocumentsProvider: a root "industrial-era" holding each profile's "p0/worlds", "p0/packs"...),
- * so the system's folder picker, opened on it, gives Starling read access to what the player
+ * so the system's folder picker, opened on it, gives Industrial Era read access to what the player
  * picks: the whole folder, its Worlds or Resource Packs, or one world or pack. Each world goes
  * into the game's import inbox as a zip of its folder, each pack as it is (zipped when it is a
- * folder); the game installs them as it does a file opened with Starling
+ * folder); the game installs them as it does a file opened with Industrial Era
  * (crates/industrial-era-client/src/import.rs), a world under a name of its own beside the others.
  */
 final class HorizonImport {
@@ -77,7 +77,7 @@ final class HorizonImport {
                     WorkService.hold(activity, REASON, "", false);
                 }
             }
-        }, "starling-industrial-era-import").start();
+        }, "industrial-era-industrial-era-import").start();
     }
 
     /** One document of the tree: its id, its name, and whether it is a folder. */
@@ -127,7 +127,7 @@ final class HorizonImport {
                 brought += bring(files, tree, inbox, path[1], document(files, tree, picked));
             }
         } catch (IOException | RuntimeException e) {
-            android.util.Log.w("starling", "could not read Industrial Era Android's folder", e);
+            android.util.Log.w("industrial-era", "could not read Industrial Era Android's folder", e);
             return "Could not read Industrial Era Android's files: close Industrial Era Android, then try again";
         }
         return brought == 0 ? "Industrial Era Android has no worlds or resource packs there" : null;
@@ -162,7 +162,7 @@ final class HorizonImport {
             }
             return 1;
         } catch (IOException | RuntimeException e) {
-            android.util.Log.w("starling", "could not bring " + item.name + " over", e);
+            android.util.Log.w("industrial-era", "could not bring " + item.name + " over", e);
             if (part != null) {
                 part.delete();
             }

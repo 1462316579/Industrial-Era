@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build Starling's Android APK (Industrial Era on Android): industrial-era-android as a
+"""Build Industrial Era's Android APK: industrial-era-android as a
 NativeActivity library.
 
-The APK holds the game library, the launcher icon, Starling Visuals and what prepares the game
+The APK holds the game library, the launcher icon, Industrial Era Visuals and what prepares the game
 files on the phone (the Java launchers in native/ and original exporter classes/sources), nothing of
 Minecraft: the resources
 industrial-era-prepare makes from the player's own copy are made on the phone, or copied there.
@@ -11,8 +11,8 @@ industrial-era-prepare makes from the player's own copy are made on the phone, o
     python3 packaging/android/build_apk.py --no-build      # package the library built last
     python3 packaging/android/build_apk.py --install       # and adb install it
     python3 packaging/android/build_apk.py --zip           # and a zip of it to send
-    python3 packaging/android/build_apk.py --dev           # Starling Dev, beside the release
-    python3 packaging/android/build_apk.py --preview       # Starling Preview, the organisation's CI build
+    python3 packaging/android/build_apk.py --dev           # Industrial Era Dev, beside the release
+    python3 packaging/android/build_apk.py --preview       # Industrial Era Preview, the organisation's CI build
 
 Needs the Android SDK (ANDROID_HOME, else the default folder) with the build-tools, platform and
 NDK pinned below, the aarch64-linux-android Rust target, cargo-ndk and a JDK (javac, keytool,
@@ -37,9 +37,8 @@ HERE = Path(__file__).resolve().parent
 APPLICATION_ID = "io.github.1462316579.industrial-era"
 LABEL = "Industrial Era"
 # --dev and --preview: an app of its own, installed beside the release (which a build signed with
-# another key cannot install over), with its own folder (StarlingActivity.sharedFolder: StarlingDev,
-# StarlingPreview) and its own sign-in and game files. Preview is what starling-client/starling's
-# CI builds, signed with that repository's test key: the release key stays out of it.
+# another key cannot install over), with its own folder and its own sign-in and game files. Preview
+# is what Industrial Era's CI builds, signed with a test key: the release key stays out of it.
 DEV_SUFFIX = ".dev"
 VARIANTS = {"dev": (DEV_SUFFIX, " Dev"), "preview": (".preview", " Preview")}
 VERSION_NAME = "0.2.0"
@@ -136,7 +135,7 @@ def build_launchers(ndk, out, abi=ABI):
     clang = ndk_tool(ndk, f"{compiler}{MIN_SDK}-clang")
     source = HERE / "native" / "java_launcher.c"
     libraries = {}
-    for name, flags in (("libstarling_java.so", []), ("libstarling_javac.so", ["-DJAVAC"])):
+    for name, flags in (("libindustrial_era_java.so", []), ("libindustrial_era_javac.so", ["-DJAVAC"])):
         target = out / name
         run(
             clang, "-O2", "-fPIE", "-pie", "-Wall", "-Werror", *flags,
@@ -161,7 +160,7 @@ def zip_folder(folder, archive):
 def assets(out):
     """The APK's assets/: prepare-kit.zip (PREPARE_KIT, with the paths industrial-era-prepare reads),
     lowbudget.zip, the skin the setup draws the menus with (packaging/lowbudget/pack, made by its
-    make.py), and StarlingVisuals.zip, the shader pack the app puts in shaderpacks/ (also left in
+    make.py), and IndustrialEraVisuals.zip, the shader pack the app puts in shaderpacks/ (also left in
     `out` for the release page)."""
     run(sys.executable, ROOT / "tools/build_android_exporters.py")
     folder = out / "assets"
@@ -182,18 +181,18 @@ def assets(out):
         for name in ["manifest.json", *sorted(manifest["classes"])]:
             kit.write(bundle / name, "exporters/" + name)
     zip_folder(HERE.parent / "lowbudget" / "pack", folder / "lowbudget.zip")
-    zip_folder(HERE.parent / "shaderpacks" / "starling-visuals", folder / "StarlingVisuals.zip")
-    shutil.copyfile(folder / "StarlingVisuals.zip", out / "StarlingVisuals.zip")
+    zip_folder(HERE.parent / "shaderpacks" / "industrial-era-visuals", folder / "IndustrialEraVisuals.zip")
+    shutil.copyfile(folder / "IndustrialEraVisuals.zip", out / "IndustrialEraVisuals.zip")
     return folder
 
 
 def compile_java(build_tools, android_jar, out):
-    """StarlingActivity and LauncherActivity (java/) as classes.dex."""
+    """IndustrialEraActivity and LauncherActivity (java/) as classes.dex."""
     classes, dex = out / "classes", out / "dex"
     for folder in (classes, dex):
         shutil.rmtree(folder, ignore_errors=True)
         folder.mkdir()
-    sources = sorted((HERE / "java").rglob("*.java")) + [out / "generated" / "io/github/juanluci/starling/R.java"]
+    sources = sorted((HERE / "java").rglob("*.java")) + [out / "generated" / "io/github/1462316579/industrial-era/R.java"]
     run("javac", "--release", "8", "-nowarn", "-classpath", android_jar, "-d", classes, *sources)
     # A single archive also avoids cmd.exe's command-line limit on Windows.
     archive = out / "classes.jar"
@@ -238,10 +237,10 @@ def link_resources(aapt2, android_jar, out, assets, variant, abi=ABI):
     dark = theme.split("pub const DARK: Palette = Palette {", 1)[1].split("};", 1)[0]
     colors = dict(re.findall(r"(\w+): 0x([0-9a-fA-F]{6})", dark))
     entries = "\n".join(
-        f'<color name="starling_{name}">#{colors[name]}</color>'
+        f'<color name="industrial-era_{name}">#{colors[name]}</color>'
         for name in ("page", "rule", "ink", "ink_soft", "accent", "on_accent")
     )
-    (res / "values/starling-colors.xml").write_text(f"<resources>\n{entries}\n</resources>\n", encoding="utf-8")
+    (res / "values/industrial-era-colors.xml").write_text(f"<resources>\n{entries}\n</resources>\n", encoding="utf-8")
     compiled = out / "compiled"
     shutil.rmtree(compiled, ignore_errors=True)
     compiled.mkdir()
@@ -252,7 +251,7 @@ def link_resources(aapt2, android_jar, out, assets, variant, abi=ABI):
     run(
         aapt2, "link", "-o", out / "base.apk",
         "--manifest", out / "AndroidManifest.xml",
-        "--java", out / "generated", "--custom-package", "io.github.juanluci.starling",
+        "--java", out / "generated", "--custom-package", "io.github.1462316579.industrial-era",
         "-I", android_jar,
         "--min-sdk-version", MIN_SDK, "--target-sdk-version", TARGET_SDK,
         "--version-code", VERSION_CODE, "--version-name", VERSION_NAME,
@@ -315,11 +314,11 @@ def main():
     )
     parser.add_argument(
         "--dev", action="store_true",
-        help=f"Starling Dev ({APPLICATION_ID}{DEV_SUFFIX}), installed beside the release",
+        help=f"Industrial Era Dev ({APPLICATION_ID}{DEV_SUFFIX}), installed beside the release",
     )
     parser.add_argument(
         "--preview", action="store_true",
-        help=f"Starling Preview ({APPLICATION_ID}{VARIANTS['preview'][0]}), the organisation's CI build",
+        help=f"Industrial Era Preview ({APPLICATION_ID}{VARIANTS['preview'][0]}), the organisation's CI build",
     )
     parser.add_argument("--abi", choices=TARGETS, default=ABI, help="Android ABI (default: arm64-v8a)")
     args = parser.parse_args()

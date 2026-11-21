@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Starling's mod build service (docs/starling-native-mods.md).
+"""Industrial Era's mod build service (docs/industrial-era-native-mods.md).
 
 A phone sends its native mods (`.hnmod`); this compiles the game with them, in a sandbox, one build at
 a time, and hands back the library. Python's standard library only.
@@ -149,7 +149,7 @@ def commit_of(version):
     try:
         return json.loads((ROOT / "versions.json").read_text())[version]
     except (OSError, ValueError, KeyError):
-        raise Refused(f"The build server has no game for Starling {version[:32]}. Update the game.")
+        raise Refused(f"The build server has no game for Industrial Era {version[:32]}. Update the game.")
 
 
 def result_of(key):
@@ -261,7 +261,7 @@ def worker():
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    server_version = "StarlingModBuild"
+    server_version = "IndustrialEraModBuild"
     timeout = 60
 
     def answer(self, code, value):

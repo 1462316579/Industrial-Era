@@ -4,7 +4,7 @@
 A native mod is written for Industrial Era on a computer, where nothing asks before a program opens the
 microphone; on Android the app must hold the permission, and ask the player for it. The mod is
 never changed for that (it is plug and play): native_build.sh writes what this finds in the
-build's build.json, each mod with its own, and StarlingActivity asks for it, saying which mod
+build's build.json, each mod with its own, and IndustrialEraActivity asks for it, saying which mod
 wants it, once the build is running (NativeMods.permissions).
 
     native_mod_permissions.py FOLDER...    # each mod folder, and what it needs

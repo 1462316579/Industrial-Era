@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The door to Starling's mod build service (mod_build_server.py), on a small machine that stays on.
+"""The door to Industrial Era's mod build service (mod_build_server.py), on a small machine that stays on.
 
 The build machine costs money by the hour, so it sleeps: a request wakes it, and it is put back to sleep
 once it has had nothing to do for a while. Finished libraries and known failures stay here, so asking for
@@ -75,7 +75,7 @@ JOB = re.compile(r"[0-9a-f]{24}")
 LIBRARY = "libhorizon_android.so"
 CHUNK = 256 * 1024
 GITHUB_API = os.environ.get("GITHUB_API", "https://api.github.com")
-GITHUB_REPO = os.environ.get("GITHUB_BUILDS_REPO", "starling-client/mod-builds")
+GITHUB_REPO = os.environ.get("GITHUB_BUILDS_REPO", "ludovic111/mod-builds")
 GITHUB_WORKFLOW = "build.yml"
 PUBLIC_URL = os.environ.get("GATEWAY_PUBLIC_URL", "")
 # Runs at once: the rest wait here, where their place in line can be told. A free organization runs
@@ -90,7 +90,7 @@ GITHUB_PER_DAY = int(os.environ.get("GITHUB_BUILDS_PER_DAY", "300"))
 GITHUB_VERSIONS = {v.strip() for v in os.environ.get("GITHUB_VERSIONS", "").split(",") if v.strip()}
 # Asked for a version GitHub doesn't build, with no build machine left.
 NO_MACHINE = (
-    "This version of Starling can't compile native mods anymore: update Starling, then compile again."
+    "This version of Industrial Era can't compile native mods anymore: update Industrial Era, then compile again."
 )
 GITHUB_LOOK_SECONDS = 20
 # Asked for and no run after this, or a run this old: it isn't coming.
@@ -485,7 +485,7 @@ def github_headers():
         "Authorization": f"Bearer {github_token()}",
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "starling-gateway",
+        "User-Agent": "industrial-era-gateway",
     }
 
 
@@ -804,7 +804,7 @@ def github_worker():
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    server_version = "StarlingModGateway"
+    server_version = "IndustrialEraModGateway"
     timeout = 120
 
     def address(self):

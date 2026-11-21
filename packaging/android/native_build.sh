@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Starling with native mods (docs/starling-native-mods.md): the mods' industrial-era-mixins bundles
-# applied to Starling's source, built as a release is (build_apk.py, the fast profile). Runs on
+# Industrial Era with native mods (docs/native-mods.md): the mods' industrial-era-mixins bundles
+# applied to Industrial Era's source, built as a release is (build_apk.py, the fast profile). Runs on
 # the build VM and on GitHub's runners (.github/workflows/native-mods.yml).
 #
 #   native_build.sh SOURCE OUT BUNDLE...
 #
-# SOURCE is a Starling checkout at the commit to build, only read (git archive). Each BUNDLE is a
+# SOURCE is an Industrial Era checkout at the commit to build, only read (git archive). Each BUNDLE is a
 # folder holding a industrial-era-mixin.toml. OUT gets libhorizon_android.so (stripped), the APK with the
 # mods in, and build.json: the key, the version, the commit, the mods (each with the Android
 # permissions its source shows it needs, native_mod_permissions.py), all those permissions, and
 # the library's SHA-256.
 #
-# NATIVE_CACHE (default ~/.cache/starling-native) keeps industrial-era-mixins and the build folder with
+# NATIVE_CACHE (default ~/.cache/industrial-era-native) keeps industrial-era-mixins and the build folder with
 # its target between builds: a file a build leaves as it was keeps its time, so Cargo recompiles
 # only the crates the mods change. PROFILE defaults to fast, a release's.
 # ABI selects the Android architecture (default arm64-v8a); VARIANT can be --preview or --dev.
@@ -27,7 +27,7 @@ source=$(cd "$1" && pwd)
 mkdir -p "$2"
 out=$(cd "$2" && pwd)
 shift 2
-cache=${NATIVE_CACHE:-$HOME/.cache/starling-native}
+cache=${NATIVE_CACHE:-$HOME/.cache/industrial-era-native}
 profile=${PROFILE:-fast}
 abi=${ABI:-arm64-v8a}
 case "$abi" in
@@ -74,8 +74,7 @@ grep -qxF "$lib_attr" "$work/source/crates/industrial-era-client/src/lib.rs" \
 grep -vxF "$lib_attr" "$work/source/crates/industrial-era-client/src/lib.rs" > "$work/lib.rs"
 cp "$work/lib.rs" "$work/source/crates/industrial-era-client/src/lib.rs"
 
-# The bundles, each pinned to the commit built here when it pins one (Starling's commits are not
-# Industrial Era's; a mod that calls what Starling changed fails in the compiler).
+# The bundles, each pinned to the commit built here when it pins one.
 mkdir "$work/mods"
 for bundle in "$@"; do
   [ -f "$bundle/industrial-era-mixin.toml" ] || fail "$bundle has no industrial-era-mixin.toml"
@@ -131,7 +130,7 @@ listed = []
 for folder in sorted(pathlib.Path(mods).iterdir()):
     mod = tomllib.loads((folder / "industrial-era-mixin.toml").read_text())["mod"]
     entry = {"id": mod["id"], "version": mod["version"]}
-    # What the player is asked for when the build runs (StarlingActivity): the mod is not changed.
+    # What the player is asked for when the build runs: the mod is not changed.
     wanted = needs(folder)
     if wanted:
         entry["permissions"] = wanted

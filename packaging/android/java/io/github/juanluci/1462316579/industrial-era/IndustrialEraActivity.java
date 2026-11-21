@@ -1,4 +1,4 @@
-package io.github.juanluci.starling;
+package io.github.1462316579.industrial-era;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -63,7 +63,7 @@ import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * The game runs in libhorizon_android (NativeActivity); this only does what the NDK cannot:
- * tells the game where its folder is (Starling in shared storage once the player allows it), hides the
+ * tells the game where its folder is (Industrial Era in shared storage once the player allows it), hides the
  * system bars, keeps the screen on while the game is in front, tells the game how tall the
  * on-screen keyboard is (it no longer shrinks the window since edge-to-edge), and ends the
  * process with the activity, since the game's event loop cannot start twice in one process.
@@ -71,7 +71,7 @@ import javax.crypto.spec.GCMParameterSpec;
  * file picker, the clipboard, the keyboard's editor (TextMirror), the browser, the keystore, the
  * mouse's capture and the controllers' makers and motors.
  */
-public class StarlingActivity extends NativeActivity {
+public class IndustrialEraActivity extends NativeActivity {
     private static final int PICK_FILE = 1;
     /** Industrial Era Android's folder picked: its worlds and packs come over (HorizonImport). */
     private static final int PICK_HORIZON = 2;
@@ -82,14 +82,14 @@ public class StarlingActivity extends NativeActivity {
     private File modBuild;
 
     /** The build with native mods loaded in place of the APK's library (android_lib.rs). */
-    private static final String GAME_LIBRARY = "STARLING_GAME_LIBRARY";
+    private static final String GAME_LIBRARY = "INDUSTRIAL_ERA_GAME_LIBRARY";
     /** This install of the APK (NativeMods.stamp), for game/native_builds.rs. */
-    private static final String APK_STAMP = "STARLING_APK";
+    private static final String APK_STAMP = "INDUSTRIAL_ERA_APK";
 
     /**
      * Loads the game library with this class loader, so the native methods resolve: a build with
      * native mods when one is chosen (NativeMods), else the APK's own. NativeActivity then loads
-     * the APK's library, whose entry point (starling_on_create, android_lib.rs) hands over to the
+     * the APK's library, whose entry point (industrial-era-on_create, android_lib.rs) hands over to the
      * build named by GAME_LIBRARY, the very library loaded here.
      */
     private void loadGame() {
@@ -138,8 +138,8 @@ public class StarlingActivity extends NativeActivity {
     /** The game has drawn: the window may show (firstFrame). */
     private volatile boolean drawn;
 
-    /** Shared storage's Starling folder when the player allowed the app to use it, else null:
-     *  StarlingDev for Starling Dev (build_apk.py --dev) and StarlingPreview for Starling Preview
+    /** Shared storage's Industrial Era folder when the player allowed the app to use it, else null:
+     *  IndustrialEraDev for Industrial Era Dev (build_apk.py --dev) and IndustrialEraPreview for Industrial Era Preview
      *  (--preview), which keep out of the release's. */
     static String sharedFolder(Context context) {
         boolean allowed = Build.VERSION.SDK_INT >= 30
@@ -147,8 +147,8 @@ public class StarlingActivity extends NativeActivity {
                 : context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         == PackageManager.PERMISSION_GRANTED;
         String id = context.getPackageName();
-        String name = id.endsWith(".dev") ? "StarlingDev"
-                : id.endsWith(".preview") ? "StarlingPreview" : "Starling";
+        String name = id.endsWith(".dev") ? "IndustrialEraDev"
+                : id.endsWith(".preview") ? "IndustrialEraPreview" : "Industrial Era";
         return allowed
                 ? new File(Environment.getExternalStorageDirectory(), name).getPath()
                 : null;
@@ -156,13 +156,13 @@ public class StarlingActivity extends NativeActivity {
 
     public void openDiagnostics() {
         runOnUiThread(new Runnable() {
-            @Override public void run() { startActivity(new Intent(StarlingActivity.this, DiagnosticsActivity.class)); }
+            @Override public void run() { startActivity(new Intent(IndustrialEraActivity.this, DiagnosticsActivity.class)); }
         });
     }
 
     /** Only the explicitly exported diagnostic ZIP is shared; no app data directory grant. */
     public void shareDiagnostic(final String name) {
-        if (!name.matches("starling-diagnostics-[0-9]+\\.zip")) return;
+        if (!name.matches("industrial-era-diagnostics-[0-9]+\\.zip")) return;
         runOnUiThread(new Runnable() {
             @Override public void run() {
                 Uri uri = Uri.parse("content://" + getPackageName() + ".updates/diagnostics/" + name);
@@ -171,7 +171,7 @@ public class StarlingActivity extends NativeActivity {
                 send.setClipData(ClipData.newRawUri("diagnostic report", uri));
                 send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try { startActivity(Intent.createChooser(send, null)); }
-                catch (ActivityNotFoundException e) { android.util.Log.w("starling", "No report sharing activity", e); }
+                catch (ActivityNotFoundException e) { android.util.Log.w("industrial-era", "No report sharing activity", e); }
             }
         });
     }
@@ -457,7 +457,7 @@ public class StarlingActivity extends NativeActivity {
             @Override
             public void run() {
                 if (mirror == null) {
-                    mirror = new TextMirror(StarlingActivity.this);
+                    mirror = new TextMirror(IndustrialEraActivity.this);
                     addContentView(mirror, new android.view.ViewGroup.LayoutParams(1, 1));
                 }
                 mirror.show(text, cursor, anchor, maxLength, flags, generation);
@@ -613,7 +613,7 @@ public class StarlingActivity extends NativeActivity {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         message.setSpan(new StyleSpan(Typeface.BOLD), 0, warning.length(),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        message.append("\n\nThe game another server sends back runs inside Starling with full "
+        message.append("\n\nThe game another server sends back runs inside Industrial Era with full "
                 + "access, including your worlds and your signed-in account. Only use a server you "
                 + "run yourself or fully trust. Your native mods are the only files sent to it.");
 
@@ -626,18 +626,18 @@ public class StarlingActivity extends NativeActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String typed = address.getText().toString();
                         if (NativeMods.isBuildServer(typed)) {
-                            NativeMods.chooseBuildServer(StarlingActivity.this, typed);
+                            NativeMods.chooseBuildServer(IndustrialEraActivity.this, typed);
                         } else {
-                            Toast.makeText(StarlingActivity.this,
+                            Toast.makeText(IndustrialEraActivity.this,
                                     "That is not an https:// address. Nothing changed.",
                                     Toast.LENGTH_LONG).show();
                         }
                     }
                 })
-                .setNeutralButton("Use Starling's", new DialogInterface.OnClickListener() {
+                .setNeutralButton("Use Industrial Era's", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        NativeMods.chooseBuildServer(StarlingActivity.this, null);
+                        NativeMods.chooseBuildServer(IndustrialEraActivity.this, null);
                     }
                 })
                 .setNegativeButton("Cancel", null)
@@ -657,13 +657,13 @@ public class StarlingActivity extends NativeActivity {
         return names.toString();
     }
 
-    /** Whether the player allowed the Starling folder (they may have just come back from it). */
+    /** Whether the player allowed the Industrial Era folder (they may have just come back from it). */
     public boolean fileAccessAllowed() {
         return sharedFolder(this) != null;
     }
 
     /**
-     * Android's setting that allows the Starling folder, in a task of its own: home and Starling's
+     * Android's setting that allows the Industrial Era folder, in a task of its own: home and Industrial Era's
      * icon bring the player back to the game, not to the setting.
      */
     public void openFileAccessSettings() {
@@ -780,12 +780,12 @@ public class StarlingActivity extends NativeActivity {
             }
         }
         // A folder the Files app can't show at all (the app's own native mods) is the game's to
-        // explain: it offers the Starling folder.
+        // explain: it offers the Industrial Era folder.
         if (id != null || shared) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(StarlingActivity.this, R.string.open_folder_failed,
+                    Toast.makeText(IndustrialEraActivity.this, R.string.open_folder_failed,
                             Toast.LENGTH_LONG).show();
                 }
             });
@@ -811,7 +811,7 @@ public class StarlingActivity extends NativeActivity {
                 startActivity(intent);
                 return true;
             } catch (ActivityNotFoundException | SecurityException e) {
-                android.util.Log.i("starling", "No folder view in " + app + ": " + e);
+                android.util.Log.i("industrial-era", "No folder view in " + app + ": " + e);
             }
         }
         return false;
@@ -873,7 +873,7 @@ public class StarlingActivity extends NativeActivity {
         if (clipboard == null) {
             return false;
         }
-        clipboard.setPrimaryClip(ClipData.newPlainText("Starling", text));
+        clipboard.setPrimaryClip(ClipData.newPlainText("Industrial Era", text));
         return true;
     }
 
@@ -913,7 +913,7 @@ public class StarlingActivity extends NativeActivity {
 
     /**
      * Android's package installer on an update the game downloaded to files/updates/: it asks the
-     * player to allow installing from Starling the first time, then to update; once installed it
+     * player to allow installing from Industrial Era the first time, then to update; once installed it
      * offers to open the game again. False where no installer takes it.
      */
     public boolean installUpdate(String name) {
@@ -930,7 +930,7 @@ public class StarlingActivity extends NativeActivity {
 
     /** The Android Keystore key the account's tokens are sealed with; it never leaves the
      * Keystore. */
-    private static final String SECRET_KEY = "starling-account";
+    private static final String SECRET_KEY = "industrial-era-account";
 
     private static SecretKey secretKey() throws Exception {
         KeyStore store = KeyStore.getInstance("AndroidKeyStore");

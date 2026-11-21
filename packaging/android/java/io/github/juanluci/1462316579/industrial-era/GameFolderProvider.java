@@ -1,4 +1,4 @@
-package io.github.juanluci.starling;
+package io.github.1462316579.industrial-era;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -42,15 +42,15 @@ public final class GameFolderProvider extends DocumentsProvider {
     /** Looked up on each call: the player can allow shared storage while this process lives. */
     private GameFolder folder() {
         Context context = getContext();
-        return GameFolder.choose(context.getFilesDir(), StarlingActivity.sharedFolder(context));
+        return GameFolder.choose(context.getFilesDir(), IndustrialEraActivity.sharedFolder(context));
     }
 
-    /** The manifest's authority, which follows the package: Starling and its Preview side by side. */
+    /** The manifest's authority, which follows the package: Industrial Era and its Preview side by side. */
     private String authority() {
         return getContext().getPackageName() + ".documents";
     }
 
-    /** The app's name, as the phone lists it: Starling, Starling Preview... */
+    /** The app's name, as the phone lists it: Industrial Era, Industrial Era Preview... */
     private String title() {
         Context context = getContext();
         return context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """One build of the mod service on a machine that lives for one build: GitHub's runner, in the
-mod-builds repository's build.yml (docs/starling-native-mods.md). The mods are checked and compiled as
+mod-builds repository's build.yml (docs/industrial-era-native-mods.md). The mods are checked and compiled as
 mod_build_server.py does, sandbox included, but without its count of mods: that one keeps a player
 from filling the service's own small machine, and this runner is nobody else's.
 

@@ -1,4 +1,4 @@
-**Starling 0.8.0: the first release of Starling and Industrial Era Android together.**
+**Industrial Era 0.8.0: the first release of Industrial Era Android.**
 
 Industrial Era Android and Starling are now one app, in [starling-client/starling](https://github.com/starling-client/starling). Starling, formerly Industrial Era Android, is co-founded by [JuanLuci](https://github.com/JuanLuci), founder of Starling, and [Vasysik](https://github.com/Vasysik), founder of Industrial Era Android. Thanks to Vasysik for the support for older phones, Diagnostics, account profiles with Ely.by, the terrain work on Adreno and the game folder in the Files app in this release.
 

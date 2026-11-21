@@ -1,4 +1,4 @@
-package io.github.juanluci.starling;
+package io.github.1462316579.industrial-era;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -18,7 +18,7 @@ import org.json.JSONObject;
 /**
  * The game with native mods (game/native_builds.rs): a build of this version's game library with
  * the player's native mods compiled in, downloaded to files/native/KEY/ and chosen by
- * files/native/current. StarlingActivity loads it in place of the APK's own library. A build is
+ * files/native/current. IndustrialEraActivity loads it in place of the APK's own library. A build is
  * only loaded by the install of the APK it was made under (its `apk` file, `stamp`): after any
  * install, even of the same version, it waits for its rebuild. One that stopped twice before its
  * first frame is set aside, with a notice the game shows.
@@ -68,7 +68,7 @@ final class NativeMods {
         }
         if (count >= TRIES) {
             setAside(dir, "The build with native mods closed twice before it showed, so "
-                    + "Starling started without it.");
+                    + "Industrial Era started without it.");
             return null;
         }
         write(starts, Integer.toString(count + 1));
@@ -77,7 +77,7 @@ final class NativeMods {
 
     /**
      * This install of the APK: when Android installed or last updated it, which changes with every
-     * APK put on the phone. The game writes it beside each build it downloads (STARLING_APK).
+     * APK put on the phone. The game writes it beside each build it downloads (INDUSTRIAL_ERA_APK).
      */
     static String stamp(Context context) {
         try {
@@ -135,7 +135,7 @@ final class NativeMods {
     /** The build could not be loaded: set aside, saying why. */
     static void failed(Context context, String why) {
         setAside(dir(context), "The build with native mods could not be loaded (" + why
-                + "), so Starling started without it.");
+                + "), so Industrial Era started without it.");
     }
 
     /**
@@ -146,7 +146,7 @@ final class NativeMods {
         return BUILD_SERVER_ADDRESS.matcher(text.trim()).matches();
     }
 
-    /** Native mods compile on the build server at `address`, or on Starling's with null. */
+    /** Native mods compile on the build server at `address`, or on Industrial Era's with null. */
     static void chooseBuildServer(Context context, String address) {
         File file = new File(dir(context), "build-server");
         if (address == null) {

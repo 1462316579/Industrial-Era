@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Native mods made before Industrial Era split its client into crates, pointed at where things went.
 
-A mod names what it hooks by crate and module, and is built by Industrial Era at the commit it pins. Starling
+A mod names what it hooks by crate and module, and is built by Industrial Era at the commit it pins. Industrial Era
 builds every mod at its own commit (native_build.sh), and at that commit `horizon_client` holds only the
 game module and a glob of `horizon_client_lib`, which industrial-era-mixins can't look through. The manifests
 are pointed at where things went, and the mods' calls to what changed its shape since are brought up to

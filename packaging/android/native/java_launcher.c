@@ -1,9 +1,9 @@
 /*
- * Starling's `java` and `javac` on Android, for industrial-era-prepare (the game files prepared on the
+ * Industrial Era's `java` and `javac` on Android, for industrial-era-prepare (the game files prepared on the
  * phone). An app may run programs only from its APK's library folder, so build_apk.py puts this
- * there twice, as libstarling_java.so and libstarling_javac.so (built with -DJAVAC), and the game
- * names them as the Java tools (horizon_prepare::java::supply). Each starts the runtime Starling
- * downloaded (STARLING_JAVA_HOME, starling_account::java) as the JDK's own launchers do, through
+ * there twice, as libindustrial_era_java.so and libindustrial_era_javac.so (built with -DJAVAC), and the game
+ * names them as the Java tools (horizon_prepare::java::supply). Each starts the runtime Industrial Era
+ * downloaded (INDUSTRIAL_ERA_JAVA_HOME, industrial-era_account::java) as the JDK's own launchers do, through
  * JLI_Launch in its libjli.so; the runtime finds its home from where that library is.
  */
 #include <dlfcn.h>
@@ -21,15 +21,15 @@ typedef int (*jli_launch)(int argc, char **argv, int jargc, const char **jargv, 
 static void *open_library(const char *path) {
     void *library = dlopen(path, RTLD_NOW | RTLD_GLOBAL);
     if (library == NULL) {
-        fprintf(stderr, "starling java: %s\n", dlerror());
+        fprintf(stderr, "industrial-era java: %s\n", dlerror());
     }
     return library;
 }
 
 int main(int argc, char **argv) {
-    const char *home = getenv("STARLING_JAVA_HOME");
+    const char *home = getenv("INDUSTRIAL_ERA_JAVA_HOME");
     if (home == NULL || home[0] == '\0') {
-        fprintf(stderr, "starling java: STARLING_JAVA_HOME is not set\n");
+        fprintf(stderr, "industrial-era java: INDUSTRIAL_ERA_JAVA_HOME is not set\n");
         return 2;
     }
     char path[PATH_MAX];
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     // program: loaded first, it answers their dependency by name.
     ssize_t length = readlink("/proc/self/exe", path, sizeof(path) - 1);
     if (length <= 0) {
-        fprintf(stderr, "starling java: cannot find its own folder\n");
+        fprintf(stderr, "industrial-era java: cannot find its own folder\n");
         return 2;
     }
     path[length] = '\0';
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     }
     jli_launch launch = (jli_launch)dlsym(jli, "JLI_Launch");
     if (launch == NULL) {
-        fprintf(stderr, "starling java: %s has no JLI_Launch\n", path);
+        fprintf(stderr, "industrial-era java: %s has no JLI_Launch\n", path);
         return 2;
     }
 #ifdef JAVAC
