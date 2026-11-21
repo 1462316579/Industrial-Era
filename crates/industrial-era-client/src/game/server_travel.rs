@@ -208,14 +208,14 @@ impl Game<'_> {
         host: &LanHost,
         conn: u32,
         target: Dim,
-        cause: &str,
+        _cause: &str,
     ) -> bool {
         let Some(g) = host.hub.guest(conn) else {
             return false;
         };
-        let (player, name) = (g.uuid, g.name.clone());
-        let (from, to) = (self.dim.id(), target.id());
-        let mut cancel = false;
+        let (_player, _name) = (g.uuid, g.name.clone());
+        let (_from, _to) = (self.dim.id(), target.id());
+        let cancel = false;
         !cancel
     }
 
@@ -254,7 +254,7 @@ impl Game<'_> {
                 // PlayerList.respawn(keepAllPlayerData = true), CHANGED_DIMENSION:
                 // PlayerEvent.Clone with `wasDeath` false.
                 if let Some(g) = host.hub.guest(conn) {
-                    let (uuid, name) = (g.uuid, g.name.clone());
+                    let (_uuid, _name) = (g.uuid, g.name.clone());
                 }
                 self.start_server_trip(host, conn, Dim::Overworld, None);
                 self.portals.player.cooldown = 10;
@@ -304,8 +304,8 @@ impl Game<'_> {
                 let Some(player) = host.hub.guest(conn) else {
                     return;
                 };
-                let (id, name) = (player.uuid, player.name.clone());
-                let mut cancel = false;
+                let (_id, _name) = (player.uuid, player.name.clone());
+                let cancel = false;
                 if cancel {
                     return;
                 }
@@ -532,8 +532,8 @@ impl Game<'_> {
                 Some((at, yaw))
             }
             Ok(None) | Err(_) => {
-                let mut cancel = false;
-                if let (Some(player), Some(name)) =
+                let cancel = false;
+                if let (Some(_player), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {}
                 if cancel {
@@ -787,18 +787,16 @@ impl Game<'_> {
         for note in std::mem::take(&mut self.teleport_notes) {
             let TeleportNote {
                 conn,
-                uuid,
-                name,
-                from,
-                to,
-                dimension,
+                uuid: _,
+                name: _,
+                from: _,
+                to: _,
+                dimension: _,
             } = note;
             // In place when it is their turn already (as_guest finds them swapped in).
             if self.lan_acting == Some(conn) {
             } else {
-                self.as_guest(host, conn, |g| {
-                    g;
-                });
+                self.as_guest(host, conn, |_g| {});
             }
         }
     }
@@ -820,7 +818,7 @@ impl Game<'_> {
                 log::error!("could not open {}: {e}", t.dim.id());
                 continue;
             }
-            let (uuid, name) = (host.hub.guests[i].uuid, host.hub.guests[i].name.clone());
+            let (_uuid, _name) = (host.hub.guests[i].uuid, host.hub.guests[i].name.clone());
             let g = &mut host.hub.guests[i];
             let [yaw, pitch] = t.rotation.unwrap_or([g.yaw, g.pitch]);
             let origin = g.position;
@@ -869,10 +867,10 @@ impl Game<'_> {
         left: Option<Dim>,
         to: Dim,
     ) {
-        let Some(from) = left.filter(|from| *from != to) else {
+        let Some(_from) = left.filter(|from| *from != to) else {
             return;
         };
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
+        let Some((_uuid, _name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
             return;
         };
     }

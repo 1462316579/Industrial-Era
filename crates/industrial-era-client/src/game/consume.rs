@@ -313,13 +313,13 @@ impl TeleportConsumeWorld for Teleporter<'_, '_> {
     }
     fn teleport_allowed(&mut self, target: &mut Vec3) -> Result<bool, Infallible> {
         // EntityTeleportEvent.ChorusFruit: only a server's player is heard.
-        let (Some(uuid), Some(name)) = (self.0.lan_acting_uuid, self.0.lan_acting_name.clone())
+        let (Some(_uuid), Some(_name)) = (self.0.lan_acting_uuid, self.0.lan_acting_name.clone())
         else {
             return Ok(true);
         };
         let from = self.at();
-        let mut to = [target.x, target.y, target.z];
-        let mut cancel = false;
+        let to = [target.x, target.y, target.z];
+        let cancel = false;
         // Vanilla chorus fruit: no mod can cancel or redirect the teleport.
         let _ = (from, cancel);
         // Keep the mod's spot inside the level as vanilla's own draw is (a

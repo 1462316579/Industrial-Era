@@ -252,7 +252,7 @@ impl Game<'_> {
         if self.ui.vanilla_root.as_os_str().is_empty() {
             self.ui.vanilla_root = vanilla.clone();
         }
-        let (selected, server, mods) = (
+        let (selected, server, _mods) = (
             self.settings.resource_packs.clone(),
             self.server_packs.active.clone(),
             Vec::<String>::new(),
@@ -265,8 +265,8 @@ impl Game<'_> {
         let (unicode, japanese) = (self.settings.force_unicode, self.settings.japanese_glyphs);
         self.pack_reload = Some(PackReload::spawn(kind, move |progress| {
             stage_pack(
-                &vanilla, &selected, &server, &mods, &assets, &res, &context, unicode, japanese,
-                progress,
+                &vanilla, &selected, &server, &BTreeSet::new(), &[], &assets, &res, &context,
+                unicode, japanese, progress,
             )
             .map_err(|e| e.to_string())
         })?);
@@ -470,8 +470,8 @@ pub(super) fn stage_pack(
     vanilla_root: &Path,
     selected: &[String],
     server: &[Pack],
-    mods_enabled: &BTreeSet<String>,
-    dev_mods: &[PathBuf],
+    _mods_enabled: &BTreeSet<String>,
+    _dev_mods: &[PathBuf],
     assets: &Arc<Assets>,
     res: &Resources,
     context: &WorkerContext,
@@ -481,7 +481,7 @@ pub(super) fn stage_pack(
 ) -> industrial_era_client::Result<StagedPack> {
     let root = startup_root(vanilla_root, selected, server)?;
     // The blocks and items stay the start's: the registries can't change (world_content.rs).
-    let started = super::world_content::running();
+    let _started = super::world_content::running();
     progress.set(1);
     // The world's models and sprites and the GUI atlas read the same root and nothing of
     // each other: about a second each, side by side.

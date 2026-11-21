@@ -261,15 +261,15 @@ impl Game<'_> {
             0
         };
         if ticks > 0 {
-            if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
             }
             let item = self
                 .using
                 .and_then(|(slot, _)| self.stack_in(slot))
                 .map(|stack| stack.item.clone());
-            let mut cancel = false;
-            if let (Some(player), Some(name), Some(item)) =
+            let cancel = false;
+            if let (Some(_player), Some(_name), Some(_item)) =
                 (self.lan_acting_uuid, self.lan_acting_name.clone(), item)
             {}
             if !cancel {

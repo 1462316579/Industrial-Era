@@ -162,15 +162,15 @@ impl Game<'_> {
         }
         // The mods hear a server player's cast or reel-in first.
         if self.player.is_some()
-            && let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_uuid), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            let state = match &self.hook {
+            let _state = match &self.hook {
                 None => 0,
                 Some(h) if matches!(h.state, State::Hooked(_)) => 4,
                 Some(h) if h.nibble > 0 => 2,
                 Some(_) => 3,
             };
-            let mut cancel = false;
+            let cancel = false;
             if cancel {
                 return true;
             }
@@ -518,10 +518,10 @@ impl Game<'_> {
             } else {
                 // The mods hear a server player's fish bite, and may call it
                 // off: the wait starts over.
-                if let (Some(uuid), Some(name)) =
+                if let (Some(_uuid), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {
-                    let mut cancel = false;
+                    let cancel = false;
                     if cancel {
                         h.time_until_lured = 0;
                         h.time_until_hooked = 0;

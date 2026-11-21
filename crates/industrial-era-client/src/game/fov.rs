@@ -90,7 +90,7 @@ impl Game<'_> {
         let effect = self.fov_effect_scale();
         let target = self.fov_player().map_or(1.0, |player| {
             let base = field_of_view_modifier(&player, first_person, effect);
-            let mut modifier = base;
+            let modifier = base;
             valid_fov_modifier(modifier, base)
         });
         let target = self.zoomed_fov_target(target);
@@ -140,7 +140,7 @@ impl Game<'_> {
             false,
         );
         let vanilla = self.zoomed_fov_degrees(fov);
-        let mut degrees = vanilla;
+        let degrees = vanilla;
         if degrees.is_finite() && (1.0..=179.0).contains(&degrees) {
             degrees
         } else {

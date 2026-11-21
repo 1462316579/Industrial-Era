@@ -347,7 +347,7 @@ impl Game<'_> {
             self.consume_held();
         }
         self.swing_arm();
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         true
     }
     pub(super) fn tick_rockets(&mut self) {

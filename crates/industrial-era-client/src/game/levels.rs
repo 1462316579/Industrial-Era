@@ -419,7 +419,7 @@ impl Game<'_> {
         // `ServerTickStart` before that level work, where NeoForge fires
         // `ServerTickEvent.Pre`. A paused pass and a held server tick nothing.
         let running = (!paused && !self.agent.hold_server).then(|| self.clock.world_runs());
-        if let Some(running) = running
+        if let Some(_running) = running
             && (self.serving.is_some() || self.options.dedicated.is_some())
         {}
         let observe_level =
@@ -658,7 +658,7 @@ impl Game<'_> {
         for dim in closing {
             self.enter_level(None, dim)?;
             // Its chunks leave with it: the mods hear before its last save.
-            let chunks: Vec<_> = self.world.chunks.values().cloned().collect();
+            let _chunks: Vec<_> = self.world.chunks.values().cloned().collect();
             self.save_level(true)?;
             // Its entities' attachments are saved with them; they leave memory too.
             for uuid in self.persist.uuids.values() {
@@ -694,7 +694,7 @@ impl Game<'_> {
     /// (`MinecraftServer.stopServer`'s `level.close()` loop), in vanilla's
     /// order of its levels: the Overworld, the Nether, the End.
     pub(super) fn native_levels_closing(&mut self) {
-        for dim in [Dim::Overworld, Dim::Nether, Dim::End] {}
+        for _dim in [Dim::Overworld, Dim::Nether, Dim::End] {}
     }
 
     /// Save every parked level (`MinecraftServer.saveAllChunks`); the level

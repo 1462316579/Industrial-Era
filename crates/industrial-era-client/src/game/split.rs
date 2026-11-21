@@ -284,8 +284,7 @@ impl<'a> Split<'a> {
         if next != self.focus {
             self.turn(self.focus);
             if let Some(game) = self.game_mut(self.focus) {
-                for key in std::mem::take(&mut game.physical_keys) {
-                    game;
+                for _key in std::mem::take(&mut game.physical_keys) {
                 }
                 for key in std::mem::take(&mut game.keys) {
                     if let Err(e) = game.mapped_key(key, false, false) {

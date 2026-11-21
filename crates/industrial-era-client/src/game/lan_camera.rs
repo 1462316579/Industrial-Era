@@ -166,7 +166,7 @@ impl Game<'_> {
     /// the client is told, or back to the player (`None`).
     pub(super) fn guest_set_camera(&mut self, host: &mut LanHost, gi: usize, camera: Option<i32>) {
         let guest = &host.hub.guests[gi];
-        let (conn, own, uuid, name) = (guest.conn, guest.entity_id, guest.uuid, guest.name.clone());
+        let (conn, own, _uuid, _name) = (guest.conn, guest.entity_id, guest.uuid, guest.name.clone());
         let previous = self.cmds.guest_cameras.get(&conn).map(|c| c.id);
         let camera = camera.filter(|id| *id != own);
         if self.cmds.guest_cameras.get(&conn).map(|c| c.id) == camera {
@@ -201,7 +201,7 @@ impl Game<'_> {
             c.teleports = teleports;
         }
         if camera.is_none()
-            && let Some(entity_id) = previous
+            && let Some(_entity_id) = previous
         {}
     }
 

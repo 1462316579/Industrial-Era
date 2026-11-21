@@ -892,7 +892,7 @@ impl Game<'_> {
         }
         set_key(&mut tag, "id", Tag::String(kind.into()));
         place_summoned(&mut tag, pos);
-        let from = self.mobs.len();
+        let _from = self.mobs.len();
         let canceled = self.persist.joins_canceled;
         let target = self.spawn_entity_from_nbt(tag);
         // A mod kept the entity out: tryAddFreshEntityWithPassengers is false.

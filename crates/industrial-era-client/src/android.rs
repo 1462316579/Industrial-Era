@@ -1196,9 +1196,7 @@ pub fn frame_hint(cpu: std::time::Duration, fps_limit: i32) {
         let Some(set_frame_rate) = hints.set_frame_rate else {
             return;
         };
-        let Some(window) = android_app() else {
-            return;
-        };
+        let window = android_app();
         // No cap: the screen's fastest rate (Android's own choice may stay at 60 Hz).
         let rate = cap.map_or_else(max_refresh_rate, |c| c as f32);
         let ptr = window.ptr().as_ptr() as usize;
@@ -1291,21 +1289,20 @@ pub fn main(app: AndroidApp) {
         log::warn!("Could not initialize diagnostics: {error}");
     }
     crate::diagnostics::collect_exits(&private);
-    crate::entry::start(Default::default(), || {
-        log::info!(
-            "Industrial Era: Android, game folder {}, private files {}, arguments {args:?}, environment {env:?}",
-            home.display(),
-            private.display()
-        );
-        for note in notes {
-            log::info!("{note}");
-        }
-        // Read from the APK's assets, which the app above opens.
-        crate::preparer::put_shader_pack(&home);
-        // The saved Microsoft sign-in renews while the game loads.
-        crate::accounts::resume();
-        winit::platform::android::set_input_hook(input::hook);
-    });
+    crate::entry::start(Default::default());
+    log::info!(
+        "Industrial Era: Android, game folder {}, private files {}, arguments {args:?}, environment {env:?}",
+        home.display(),
+        private.display()
+    );
+    for note in notes {
+        log::info!("{note}");
+    }
+    // Read from the APK's assets, which the app above opens.
+    crate::preparer::put_shader_pack(&home);
+    // The saved Microsoft sign-in renews while the game loads.
+    crate::accounts::resume();
+    winit::platform::android::set_input_hook(input::hook);
     finish_and_exit()
 }
 

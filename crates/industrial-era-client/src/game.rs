@@ -3733,8 +3733,8 @@ impl Game<'_> {
         velocity: [f64; 3],
         pickup_delay: u32,
     ) {
-        let item = stack.item.clone();
-        let count = stack.count as i32;
+        let _item = stack.item.clone();
+        let _count = stack.count as i32;
         self.next_entity += 1;
         let p = Vec3::new(position[0], position[1], position[2]);
         // ItemEntity.bobOffs comes from the entity's own random, not the level's.
@@ -3816,7 +3816,7 @@ impl Game<'_> {
         let registry = self.pack.assets.registry;
         let dynamic = self.pending.dynamic(pos);
         let place = self.loot_place_at(pos.map(|v| f64::from(v) + 0.5), block_entity);
-        let mut drops = industrial_era_world::loot::with_native_loot_place(place, || {
+        let drops = industrial_era_world::loot::with_native_loot_place(place, || {
             match world_items!(self).block_loot_sequence(registry, state) {
                 Some(sequence) => {
                     let random = self.rand_sequences.get(&sequence, self.level.seed);
@@ -4004,7 +4004,7 @@ impl Game<'_> {
             let item = &mut items[i];
             let mut alive = alive || (item.age < 6000 && item.position.y > -128.0);
             if merging && !removed[i] && item.age >= 6000 && item.position.y > -128.0 {
-                let mut extra_life = 0;
+                let extra_life = 0;
                 if extra_life > 0 {
                     item.age = 6000 - extra_life.min(32766);
                     alive = true;
@@ -5672,7 +5672,7 @@ impl Game<'_> {
         let state = self.world.block(pos[0], pos[1], pos[2]);
         // Native mods, once the game allowed the break: a canceled one keeps
         // the block, and a guest's acknowledgement puts it back in its world.
-        let mut canceled = false;
+        let canceled = false;
         if canceled {
             return Ok(());
         }
@@ -5931,9 +5931,9 @@ impl Game<'_> {
         if let Some(id) = named
             && let Some(entity) = self.level_entity(id)
         {
-            let kind = self.target_type(entity);
-            let stack = self.held().cloned();
-            let mut claimed = false;
+            let _kind = self.target_type(entity);
+            let _stack = self.held().cloned();
+            let claimed = false;
             if claimed {
                 self.swing_arm();
                 return Ok(true);
@@ -5983,8 +5983,8 @@ impl Game<'_> {
         let mut anchor_passed = false;
         // Native mods, where ServerPlayerGameMode.useItemOn starts: a
         // canceled click does nothing (a guest's block is sent back).
-        if let Some(hit) = block_hit {
-            let mut canceled = false;
+        if let Some(_hit) = block_hit {
+            let canceled = false;
             if canceled {
                 // Nothing was used, so nothing consumed the action.
                 self.use_failed = true;
@@ -6203,8 +6203,8 @@ impl Game<'_> {
         // aimed at had its turn, and the item is off cooldown. A guest's
         // UseItemOn reaches only useOn, its UseItem only use.
         let on_block = matches!(self.guest_use, Some(GuestUse::OnBlock(_)));
-        let mut claimed = false;
-        if let Some(hit) = block_hit {}
+        let claimed = false;
+        if let Some(_hit) = block_hit {}
         if !claimed && !on_block {}
         if claimed {
             self.swing_arm();
@@ -6316,10 +6316,10 @@ impl Game<'_> {
             // BowItem.use: ArrowNockEvent, then FAIL without ammunition.
             let found_projectile = self.get_projectile(&stack).is_some();
             let has_ammo = found_projectile || self.creative;
-            let player =
+            let _player =
                 industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid());
-            let name = self.acting_player_name().to_owned();
-            let (hand, mut cancel) = (self.hand, false);
+            let _name = self.acting_player_name().to_owned();
+            let (_hand, cancel) = (self.hand, false);
             if has_ammo && !cancel {
                 self.start_using_item();
             }
@@ -6465,16 +6465,16 @@ impl Game<'_> {
     /// Asks the mods whether the acting guest may empty `stack` at `pos`
     /// (`native_bucket_empty`): true when one cancelled it. A game's own
     /// player is not asked.
-    fn bucket_empty_cancelled(&mut self, stack: &ItemStack, pos: [i32; 3]) -> bool {
-        let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) else {
+    fn bucket_empty_cancelled(&mut self, stack: &ItemStack, _pos: [i32; 3]) -> bool {
+        let (Some(_uuid), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) else {
             return false;
         };
-        let fluid = match &*stack.item {
+        let _fluid = match &*stack.item {
             "minecraft:lava_bucket" => "minecraft:lava",
             "minecraft:powder_snow_bucket" => "minecraft:powder_snow",
             _ => "minecraft:water",
         };
-        let mut cancel = false;
+        let cancel = false;
         cancel
     }
     /// The player as a block's `useItemOn` / `useWithoutItem` sees them.
@@ -6600,7 +6600,7 @@ impl Game<'_> {
                 self.audio.play(sound, at, 1.0, 1.0);
             }
             // A mod's own kind: the owning mod's hook answers.
-            ConsumeEffect::Native { kind, data } => {}
+            ConsumeEffect::Native { kind: _, data: _ } => {}
         }
     }
     fn consume_held(&mut self) {
@@ -7925,7 +7925,7 @@ impl Game<'_> {
         );
         let partial = self.clock.fraction() as f32;
         // BundleItem overrides the bar with its fullness.
-        let mut bar = industrial_era_client::bundle::Contents::of(self.items(), stack)
+        let bar = industrial_era_client::bundle::Contents::of(self.items(), stack)
             .map(|c| c.bar())
             .unwrap_or_else(|| hud_overlays::damage_bar(stack.damage as i32, max_damage));
         // Client-only: a mod may replace or hide the bar vanilla just chose.
@@ -7952,7 +7952,7 @@ impl Game<'_> {
     fn draw_phone_offers(&mut self, batch: &mut HudBatch) {
         self.draw_files_offer(batch);
         self.draw_update_offer(batch);
-        self.draw_catalog(batch);
+        self.draw_dialog(batch);
     }
     #[cfg(not(target_os = "android"))]
     fn draw_phone_offers(&mut self, _batch: &mut HudBatch) {}
@@ -8081,9 +8081,6 @@ impl Game<'_> {
         let spectator = self.spectator();
         let (wi, hi) = (w as i32, h as i32);
         let show_hud = !self.ui.hide_gui;
-        // max(Hud.leftHeight, Hud.rightHeight) after the bars: the item name and
-        // the action bar sit above it.
-        let mut bar_height = 39;
         if show_hud {
             self.draw_spyglass(&mut batch);
             // Hud.extractCrosshair / extractItemHotbar / extractPlayerHealth /
@@ -8106,7 +8103,7 @@ impl Game<'_> {
                 let full = attack.is_some_and(|a| {
                     hud_layout::full_attack_indicator(a, delay, self.crosshair_living())
                 });
-                let draws = hud_layout::crosshair(wi, hi, attack, full);
+                let _draws = hud_layout::crosshair(wi, hi, attack, full);
                 // Under one creative window it hides; Bedrock Inventory has a gap at the middle.
                 if self.screen != Screen::Creative || CREATIVE_SHIFT.get() == 0.0 {}
             }
@@ -8117,14 +8114,14 @@ impl Game<'_> {
             // Hud.nextContextualInfoState: the jump bar, the experience bar or
             // the locator bar above the hotbar.
             let has_experience = !self.creative && !spectator;
-            let contextual = industrial_era_client::locator_bar::ContextualBar::next(
+            let _contextual = industrial_era_client::locator_bar::ContextualBar::next(
                 self.waypoints.has_waypoints(),
                 !spectator && self.jumpable_mount(),
                 self.mount_jumping(),
                 has_experience,
                 self.experience_recent(),
             );
-            use industrial_era_client::locator_bar::ContextualBar;
+            
             // The mount's hearts.
             let vehicle_hearts = if spectator {
                 0
@@ -8132,7 +8129,6 @@ impl Game<'_> {
                 self.draw_mount_hud(&mut batch, wi, hi)
             };
             // Without the survival bars only the mount's hearts raise it.
-            bar_height = 39 + 10 * ((vehicle_hearts + 9) / 10);
             // The one bar above the hotbar: the mount's jump bar, the locator
             // bar (with its background) or the experience bar, with the level
             // number that a survival player always has.
@@ -8153,7 +8149,7 @@ impl Game<'_> {
                 // Hud.extractAirBubbles: `isEyeInFluidMatching`, so the eyes are below
                 // the surface, not merely in the water block.
                 let under_water = p.is_eye_in_fluid(industrial_era_client::motion::WATER);
-                let inputs = hud_layout::HealthInputs {
+                let _inputs = hud_layout::HealthInputs {
                     tick: self.ticks as i32,
                     millis: self.started.elapsed().as_millis() as i64,
                     health: p.health.health(),
@@ -8176,19 +8172,8 @@ impl Game<'_> {
                     vehicle_hearts,
                 };
                 let at = [p.position.x, p.position.y, p.position.z];
-                // The native mods' health HUD (`native_health_hud`): a mod
-                // that answers draws every row instead.
-                let mut native_health_hud = None;
-                let draws = match native_health_hud {
-                    Some(draws) => draws,
-                    None => self.health_hud.layout(&inputs, wi, hi),
-                };
                 // The rows draw in one pass here, so a mod's `player_health`
                 // layer stands for the armor, food and air rows too.
-                bar_height = self
-                    .health_hud
-                    .left_height
-                    .max(self.health_hud.right_height);
                 // Hud.playAirBubblePoppedSound: Player.playSound (PLAYERS), heard
                 // by this client only.
                 if let Some((volume, pitch)) = self.health_hud.bubble_pop_sound.take() {
@@ -8205,7 +8190,7 @@ impl Game<'_> {
             if !spectator {}
         }
         // Hud.extractSleepOverlay: over all health/food bars, under titles and chat.
-        let draws = hud_overlays::sleep_overlay(wi, hi, self.sleep_timer as i32);
+        let _draws = hud_overlays::sleep_overlay(wi, hi, self.sleep_timer as i32);
         if show_hud {}
         let atlas = &self.gui.atlas;
         if show_hud
@@ -10125,7 +10110,7 @@ impl Game<'_> {
             let mut crafted = 0;
             while let Some((recipe, result)) = self.craft_recipe() {
                 let made = (result.item.clone(), result.count);
-                let taken = result.clone();
+                let _taken = result.clone();
                 let cells = self.craft_size * self.craft_size;
                 let ingredients = self.craft_grid[..cells].to_vec();
                 let remainders = world_recipes!(self).remainders(
@@ -10426,7 +10411,7 @@ impl Game<'_> {
         self.mark_translucent_entity(out.len(), "minecraft:entity_shadow");
         // A native shader pack's sun shadows already fall under the entities in the Overworld:
         // the round blob would be a second one. The Nether and the End have no sun to cast them.
-        let pack_shadows = self.dim == Dim::Overworld && self.renderer.is_some_and(|r| true);
+        let pack_shadows = self.dim == Dim::Overworld && self.renderer.as_ref().is_some_and(|_r| true);
         let shadow_sprite = (self.settings.entity_shadows && !pack_shadows)
             .then(|| self.gui.atlas.sprites.get("misc/shadow").copied())
             .flatten();
@@ -10969,8 +10954,8 @@ impl Game<'_> {
         // Item.getAttackDamageBonus (a mace's smash), before the critical hit.
         amount += self.smash_damage_bonus(target_kind);
         let vanilla_crit = living && self.critical_attack(scale);
-        let mut crit = vanilla_crit;
-        let mut multiplier = if vanilla_crit { 1.5 } else { 1.0 };
+        let crit = vanilla_crit;
+        let multiplier = if vanilla_crit { 1.5 } else { 1.0 };
         if living && damaging {}
         if crit {
             amount *= multiplier;
@@ -12619,7 +12604,7 @@ impl Game<'_> {
         let Ok(new) = registry.resolve(&industrial_era_client::cauldron::extinguished(&old)) else {
             return;
         };
-        let level = |state: &industrial_era_world::chunk::BlockState| {
+        let _level = |state: &industrial_era_world::chunk::BlockState| {
             if matches!(state.name.as_str(), "minecraft:cauldron") {
                 0
             } else if state.name == "minecraft:lava_cauldron" {
@@ -12731,7 +12716,7 @@ impl Game<'_> {
             if !self.may_build() {
                 return Ok(UseResult::Fail);
             }
-            let mut canceled = false;
+            let canceled = false;
             if canceled {
                 return Ok(UseResult::Fail);
             }
@@ -12782,7 +12767,7 @@ impl Game<'_> {
                 return Ok(UseResult::Fail);
             }
             let target = self.bucket_target(content, &hit);
-            let mut canceled = false;
+            let canceled = false;
             // `mayUseItemAt(blockPos2)`: a block that refuses the fluid passes
             // it to the block beside, so a mod hears that block too (powder
             // snow places like a block and never goes there).
@@ -12989,18 +12974,18 @@ impl Game<'_> {
     /// given vanilla's `canMerge` answer: the mods may flip it, then cancel the merge.
     fn orb_merges(
         &mut self,
-        into: u32,
-        into_value: u32,
-        from: u32,
-        from_value: u32,
+        _into: u32,
+        _into_value: u32,
+        _from: u32,
+        _from_value: u32,
         vanilla: bool,
     ) -> bool {
-        let dimension = self.dim.id();
-        let mut can_merge = vanilla;
+        let _dimension = self.dim.id();
+        let can_merge = vanilla;
         if !can_merge {
             return false;
         }
-        let mut canceled = false;
+        let canceled = false;
         !canceled
     }
     /// `ExperienceOrb.scanForMerges`, run by each orb on `tickCount % 20 == 1`:
@@ -13267,7 +13252,7 @@ impl Game<'_> {
     /// sound every fifth level (at most every 100 ticks).
     pub(super) fn give_orb_points(&mut self, gained: u32) {
         let at = self.eye_position();
-        let old_level = self.experience.level;
+        let _old_level = self.experience.level;
         let gave = self.experience.give(gained as i32);
         // Player.giveExperienceLevels runs per level, so the first multiple of 5
         // crossed plays the sound (and starts the cooldown for the rest).
@@ -13283,8 +13268,8 @@ impl Game<'_> {
     /// BowItem.releaseUsing: power from charge time, arrows at power * 3.
     fn release_bow(&mut self, stack: &ItemStack, ticks: u32) {
         let ammo = self.get_projectile(stack);
-        let mut charge = i32::try_from(ticks).unwrap_or(i32::MAX);
-        let mut canceled = false;
+        let charge = i32::try_from(ticks).unwrap_or(i32::MAX);
+        let canceled = false;
         let power = item_use::bow_release_power(ammo.is_some(), charge, canceled);
         let (Some(power), Some(ammo)) = (power, ammo) else {
             return;
@@ -13342,7 +13327,7 @@ impl Game<'_> {
             on_ground,
         );
         self.add_projectile(arrow);
-        let (player, name, projectile) = (
+        let (_player, _name, _projectile) = (
             industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid()),
             self.acting_player_name().to_owned(),
             self.next_entity,
@@ -13463,11 +13448,11 @@ impl Game<'_> {
             let attack = attacks[i];
             let inverse_height =
                 industrial_era_client::first_person::equip_displacement(heights[i], scale);
-            let mut canceled = false;
+            let canceled = false;
             if canceled {
                 continue;
             }
-            let (mut x, mut y, mut z, mut pitch, mut yaw, mut roll, mut pose_scale) =
+            let (x, y, z, pitch, yaw, roll, pose_scale) =
                 (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
             // No mod moved the hand (always so without one): no matrices to build.
             let pose = [x, y, z, pitch, yaw, roll, pose_scale];
@@ -13574,7 +13559,7 @@ impl Game<'_> {
                         .item_renderer
                         .models
                         .components(&industrial_era_client::item_render::stack_view(&stack));
-                    let mut animation = components
+                    let animation = components
                         .get("minecraft:consumable")
                         .map_or(industrial_era_world::consumable::UseAnimation::None, |c| {
                             industrial_era_client::first_person::consumable_animation(c)
@@ -14099,7 +14084,7 @@ impl Game<'_> {
             self.pitch = 0.0;
             self.snap_player_model_pitch();
         }
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
     }
     fn tick_sleep(&mut self) {
         self.sleep_timer = tick_sleep_timer(self.sleep_timer, self.sleeping.is_some());
@@ -14143,11 +14128,11 @@ impl Game<'_> {
                 let mut target = t + 24000 - t.rem_euclid(24000);
                 // SleepFinishedTimeEvent: the mods may move the wake-up time,
                 // never before now (`setTimeAddition` refuses a lower one).
-                let mut asked = target;
+                let asked = target;
                 if asked >= t {
                     target = asked;
                 }
-                let mut cancel = false;
+                let cancel = false;
                 if !cancel {
                     self.world.day_time = target;
                 }
@@ -14961,7 +14946,7 @@ impl Game<'_> {
             // The vehicle tree goes into a player's file when they leave
             // (`take_parent_vehicle`); here it stays in the chunk saves.
             let mut host = host;
-            let directory = industrial_era_client::lan::playerdata::directory(&self.world_root);
+            let _directory = industrial_era_client::lan::playerdata::directory(&self.world_root);
             for g in host.hub.guests.iter_mut().filter(|g| g.placed) {
                 industrial_era_client::lan::playerdata::save(g, &self.world_root);
             }
@@ -15304,8 +15289,8 @@ impl Game<'_> {
                         || self.can_place_on_in_adventure(h.pos)
                 })
                 .filter(|h| {
-                    let state = self.world.block(h.pos[0], h.pos[1], h.pos[2]);
-                    let mut canceled = false;
+                    let _state = self.world.block(h.pos[0], h.pos[1], h.pos[2]);
+                    let canceled = false;
                     !canceled
                 })
                 .map(|h| {
@@ -16595,7 +16580,7 @@ impl ApplicationHandler for Game<'_> {
             None
         };
         self.handle_window_event(event_loop, id, event, input_trace::InputOrigin::User);
-        if let Some((event, modifiers)) = key {}
+        if let Some((_event, _modifiers)) = key {}
     }
     fn device_event(&mut self, _: &ActiveEventLoop, _: DeviceId, event: DeviceEvent) {
         if let DeviceEvent::MouseMotion { delta: (x, y) } = event {
@@ -16703,14 +16688,14 @@ impl Game<'_> {
         } else {
             None
         };
-        if let Some((button, pressed, modifiers)) = mouse {
-            let mut canceled = false;
+        if let Some((_button, _pressed, _modifiers)) = mouse {
+            let canceled = false;
             if canceled {
                 return;
             }
         }
         self.handle_window_event_inner(event_loop, event);
-        if let Some((button, pressed, modifiers)) = mouse {}
+        if let Some((_button, _pressed, _modifiers)) = mouse {}
     }
     fn handle_window_event_inner(&mut self, event_loop: &dyn EventLoopCtl, mut event: WindowEvent) {
         if self.platform_keypad_event(event_loop, &mut event) {
@@ -17090,13 +17075,12 @@ impl Game<'_> {
                         && !self.screen_over_playing()
                         && self.sleeping.is_none()
                         && self.player.is_some()
-                        && !self
-                        && let Some((wheel, (horizontal_steps, vertical_steps))) = self
+                        && let Some((wheel, (_horizontal_steps, vertical_steps))) = self
                             .mouse
                             .on_scroll(raw_x, raw_y, discrete, wheel_sensitivity)
                     {
                         if !self.pad_synthetic_input() {
-                            let mut canceled = false;
+                            let canceled = false;
                             if canceled {
                                 return Ok(());
                             }
@@ -17595,7 +17579,7 @@ impl Game<'_> {
                         && self.pause_menu
                         && !matches!(event.physical_key, PhysicalKey::Code(KeyCode::Escape)) =>
                 {
-                    if let PhysicalKey::Code(key) = event.physical_key {}
+                    if let PhysicalKey::Code(_key) = event.physical_key {}
                     if let PhysicalKey::Code(key) = event.physical_key {
                         self.pause_key(key)?;
                     }
@@ -17603,7 +17587,7 @@ impl Game<'_> {
                 WindowEvent::KeyboardInput { event, .. }
                     if self.screen == Screen::Dead && event.state == ElementState::Pressed =>
                 {
-                    if let PhysicalKey::Code(key) = event.physical_key {}
+                    if let PhysicalKey::Code(_key) = event.physical_key {}
                     if let PhysicalKey::Code(key) = event.physical_key {
                         self.death_key(key)?;
                     }
@@ -18087,7 +18071,6 @@ impl Game<'_> {
         {
             self.poll_files_offer();
             self.poll_update_offer();
-            self.poll_catalog();
         }
         industrial_era_client::spans::time("pads", || self.poll_pads(event_loop));
         self.pause_if_inactive();
@@ -18587,6 +18570,8 @@ impl<'a> Game<'a> {
             frame_graph: Default::default(),
             stats_overlay: Default::default(),
             imports: Default::default(),
+            #[cfg(target_os = "android")]
+            files_offer: Default::default(),
             #[cfg(target_os = "android")]
             update_offer: Default::default(),
             bedrock_items: None,

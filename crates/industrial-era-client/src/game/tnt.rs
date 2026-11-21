@@ -145,8 +145,8 @@ impl PrimedTnt {
 impl Game<'_> {
     /// Asks the mods whether the TNT at `pos` may be primed
     /// (`native_tnt_primed`); the acting guest, if any, is its player.
-    pub(super) fn tnt_prime_allowed(&mut self, pos: BlockPos) -> bool {
-        let mut cancel = false;
+    pub(super) fn tnt_prime_allowed(&mut self, _pos: BlockPos) -> bool {
+        let cancel = false;
         !cancel
     }
     /// Primes TNT a level event announced, or, when the mods refuse, puts

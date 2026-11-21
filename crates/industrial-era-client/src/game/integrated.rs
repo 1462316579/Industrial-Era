@@ -635,7 +635,7 @@ impl Game<'_> {
         opening: Opening,
     ) -> Result<()> {
         let result = self.run_integrated_inner(launch, flags, tasks, ready, opening);
-        if let Err(error) = &result {}
+        if let Err(_error) = &result {}
         result
     }
 

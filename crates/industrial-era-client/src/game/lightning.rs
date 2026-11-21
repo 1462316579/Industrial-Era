@@ -254,11 +254,11 @@ impl Game<'_> {
     }
     pub(super) fn lightning_strike_allowed(
         &mut self,
-        player: Option<u128>,
-        pos: [i32; 3],
-        cause: &str,
+        _player: Option<u128>,
+        _pos: [i32; 3],
+        _cause: &str,
     ) -> bool {
-        let mut cancel = false;
+        let cancel = false;
         !cancel
     }
     /// `ClientLevel.addEntity` for a server's lightning bolt: on a client it
@@ -612,7 +612,7 @@ impl Game<'_> {
         if !events.is_empty() {
             let _ = self.handle_mob_events(events);
         }
-        for entity in powered {}
+        for _entity in powered {}
         // Cushion.thunderHit: a cushion whose box meets the strike box breaks and drops its item
         // (the bolt is no player, so no creative spare). Last first, since
         // break_cushion removes the entry.

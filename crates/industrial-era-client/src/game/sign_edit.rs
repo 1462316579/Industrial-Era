@@ -338,7 +338,7 @@ impl Game<'_> {
         self.keys.clear();
         self.right = false;
         self.capture(false);
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
     }
     /// `AbstractSignEditScreen.tick`: the editor closes (and `removed` sends
     /// the text) once its sign is removed or the player's eyes are further
@@ -446,7 +446,7 @@ impl Game<'_> {
         // Everything vanilla checks has passed: the mods hear what is about to
         // go on the sign, with the player's state swapped in, and may rewrite
         // or refuse it.
-        if let Some((uuid, name, dimension)) = host
+        if let Some((_uuid, _name, _dimension)) = host
             .hub
             .guest(conn)
             .map(|g| (g.uuid, g.name.clone(), g.dimension.clone()))

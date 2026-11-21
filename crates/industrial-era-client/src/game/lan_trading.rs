@@ -284,8 +284,8 @@ impl Game<'_> {
         if !traded.is_empty() {
             // The guest's own statistic and advancements.
             if let Some(gi) = host.hub.guests.iter().position(|g| g.conn == conn) {
-                let g = &host.hub.guests[gi];
-                if let Some(entity_id) = gm.merchant.mob {}
+                let _g = &host.hub.guests[gi];
+                if let Some(_entity_id) = gm.merchant.mob {}
             }
             self.as_guest(host, conn, |g| g.merchant_traded(gm.merchant.mob, &traded));
         }
@@ -324,11 +324,11 @@ impl Game<'_> {
         let Some(guest) = host.hub.guests.iter().find(|g| g.conn == conn) else {
             return;
         };
-        let (uuid, name) = (guest.uuid, guest.name.clone());
+        let (_uuid, _name) = (guest.uuid, guest.name.clone());
         if self.lan_merchant_op(host, conn, None, |menu, env| {
             menu.merchant_select(env, index)
         }) {
-            let villager = host
+            let _villager = host
                 .play
                 .get(&conn)
                 .and_then(|p| p.merchant.as_ref())

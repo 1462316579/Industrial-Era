@@ -991,7 +991,7 @@ impl Game<'_> {
         self.ui.chat.add_recent(&message);
         // On a server (single player's own included) the server runs it.
         if self.remote.is_some() {
-            if let Some(command) = message.strip_prefix('/') {
+            if let Some(_command) = message.strip_prefix('/') {
                 self.send_chat(&message);
             }
             return;

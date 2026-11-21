@@ -433,7 +433,7 @@ impl GameLevel<'_> {
         // BlockBehaviour.spawnAfterBreak with no tool: ores, sculk and spawners
         // award experience at the block's centre.
         let name = self.facts.get(state).name.clone();
-        if let Some(mut xp) = removal::break_experience(&mut self.world.random, &name)
+        if let Some(xp) = removal::break_experience(&mut self.world.random, &name)
             && self.rules.block_drops
         {
             let centre = [
@@ -724,9 +724,9 @@ impl Game<'_> {
         }
         let mut spill = std::mem::take(&mut self.spill);
         let used = std::mem::take(&mut spill.used);
-        let tool = self.held().cloned();
-        retell_runs(&mut spill.spawns, &used, |used, origin, drops| {
-            let block = Some((used.pos, used.state));
+        let _tool = self.held().cloned();
+        retell_runs(&mut spill.spawns, &used, |used, _origin, _drops| {
+            let _block = Some((used.pos, used.state));
         });
         for s in spill.spawns {
             let motion = s.motion.unwrap_or_else(new_item_motion);

@@ -297,8 +297,8 @@ impl Game<'_> {
             let exposure = self.seen_percent(center, [lo.x, lo.y, lo.z], [hi.x, hi.y, hi.z]);
             let power = (1.0 - dist) * f64::from(exposure) * multiplier;
             let dir = direction([feet[0], feet[1] + entity.explosion_eye_height(), feet[2]]);
-            let mut push = [dir[0] * power, dir[1] * power, dir[2] * power];
-            let id = Some(entity.id());
+            let push = [dir[0] * power, dir[1] * power, dir[2] * power];
+            let _id = Some(entity.id());
             entity.push_from_explosion(Vec3::new(push[0], push[1], push[2]));
         });
         self.restore_entities(entities);
@@ -314,7 +314,7 @@ impl Game<'_> {
         multiplier: f32,
         breeze: bool,
         wind_charge: bool,
-        blocks: &[[i32; 3]],
+        _blocks: &[[i32; 3]],
     ) -> Option<[f64; 3]> {
         if self.spectator() {
             return None;
@@ -350,7 +350,7 @@ impl Game<'_> {
         );
         let power = (1.0 - dist) * f64::from(exposure) * f64::from(multiplier) * (1.0 - resistance);
         let l = (eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]).sqrt();
-        let mut push = if l < 1.0e-5 {
+        let push = if l < 1.0e-5 {
             [0.0; 3]
         } else {
             eye.map(|d| d / l * power)

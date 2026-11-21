@@ -1314,7 +1314,7 @@ impl Game<'_> {
         // A world is leaving either way: its icon attempt goes with it.
         self.world_icon = None;
         // Minecraft.disconnect: the client level goes.
-        if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
+        if let Some(_old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
         if let Some(mut r) = self.remote.take() {
             r.session.disconnect();
         }
@@ -2309,7 +2309,7 @@ impl Game<'_> {
                     // clearClientLevel drops the client level now, so its
                     // unload comes before the configuration screen, not
                     // after the next login's load.
-                    if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
+                    if let Some(_old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
                     let ticks = self.ticks;
                     if let Some(r) = self.remote.as_mut() {
                         r.reset_listener();
@@ -2640,7 +2640,7 @@ impl Game<'_> {
                 .remote
                 .as_mut()
                 .and_then(|r| r.heard_level.replace(spawn.dimension.clone()));
-            if let Some(old) = old {}
+            if let Some(_old) = old {}
         }
         let has_sky = self
             .remote
@@ -6543,7 +6543,7 @@ impl Game<'_> {
             (keys.forward, keys.backward, keys.left, keys.right) = (true, false, false, false);
             keys.analog = None;
         }
-        let [mut strafe, mut forward] = keys.direction();
+        let [strafe, forward] = keys.direction();
         let original = [strafe, forward];
         if [strafe, forward] != original {
             if forward != original[1] {

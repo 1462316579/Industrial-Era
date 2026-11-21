@@ -112,7 +112,7 @@ impl Game<'_> {
         if !integrated && (!host.settings.guest_commands || !allowed) {
             return false;
         }
-        let Some((permission, uuid, name)) = host
+        let Some((permission, _uuid, _name)) = host
             .hub
             .guest(conn)
             .map(|g| (g.permission, g.uuid, g.name.clone()))
@@ -125,7 +125,7 @@ impl Game<'_> {
         }
         // The mods hear it as they hear a typed command; the batch is quiet,
         // so their replies go nowhere.
-        let mut canceled = false;
+        let canceled = false;
         if canceled {
             return false;
         }

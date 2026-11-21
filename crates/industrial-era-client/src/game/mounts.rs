@@ -265,7 +265,7 @@ impl Game<'_> {
             return true;
         }
         // doPlayerRide
-        let id = self.mobs[index].id;
+        let _id = self.mobs[index].id;
         let m = &mut self.mobs[index];
         m.extra.flag = false;
         m.extra.counter = 0;
@@ -345,7 +345,7 @@ impl Game<'_> {
         // Animal.setInLove: entity event 18.
         if loved {
             self.love_cause.insert(id, self.lan_acting);
-            let kind = self.mobs[index].kind.id.clone();
+            let _kind = self.mobs[index].kind.id.clone();
             self.mob_event_particles(id, 18);
         }
         self.consume_held();
@@ -605,13 +605,13 @@ impl Game<'_> {
                     // AbstractHorse.tameWithName: entity event 7, spawnTamingParticles(true).
                     self.mob_event_particles(mob, 7);
                 }
-                if let Some(kind) = self
+                if let Some(_kind) = self
                     .mobs
                     .iter()
                     .find(|m| m.id == mob)
                     .map(|m| m.kind.id.clone())
                 {
-                    let owner = self
+                    let _owner = self
                         .level
                         .player_uuid
                         .map(industrial_era_client::lan::playerdata::ints_uuid);
@@ -721,13 +721,13 @@ impl Game<'_> {
     /// `Hud.extractVehicleHealth` (a native mod's `minecraft:vehicle_health`
     /// layer, only while riding a mount). Returns the mount's heart count
     /// (`getVehicleMaxHearts`).
-    pub(super) fn draw_mount_hud(&mut self, batch: &mut HudBatch, w: i32, h: i32) -> i32 {
+    pub(super) fn draw_mount_hud(&mut self, _batch: &mut HudBatch, w: i32, h: i32) -> i32 {
         let Some(i) = self.mount_index() else {
             return 0;
         };
         let m = &self.mobs[i];
         let hearts = industrial_era_client::hud_layout::vehicle_max_hearts(m.attrs.max_health);
-        let draws = industrial_era_client::hud_layout::vehicle_health(w, h, hearts, m.health);
+        let _draws = industrial_era_client::hud_layout::vehicle_health(w, h, hearts, m.health);
         hearts
     }
     /// The jump bar when it is the contextual bar.

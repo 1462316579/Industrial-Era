@@ -1321,8 +1321,8 @@ impl Game<'_> {
     /// reason that destroys the boat (DISCARDED included), while the boat item
     /// itself only drops on the death path (`VehicleEntity.destroy`), not when
     /// a creative hit discards it. True when the boat was removed.
-    pub(super) fn hurt_boat(&mut self, i: usize, mut damage: f32, creative: bool) -> bool {
-        let mut cancel = false;
+    pub(super) fn hurt_boat(&mut self, i: usize, damage: f32, creative: bool) -> bool {
+        let cancel = false;
         if cancel {
             return false;
         }

@@ -377,7 +377,7 @@ impl Game<'_> {
             if !server_client {
                 let sound = format!("minecraft:item.trident.riptide_{}", riptide.min(3));
                 self.audio.play(&sound, at, 1.0, 1.0);
-                if let (Some(player), Some(name)) =
+                if let (Some(_player), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {}
             }
@@ -587,9 +587,9 @@ impl Game<'_> {
                 }
                 // ProjectileImpactEvent for the mob hit: a canceled one does
                 // nothing, and the trident stays where it would have hit.
-                let canceled_mob = hit_mob.is_some_and(|(id, d)| {
+                let canceled_mob = hit_mob.is_some_and(|(_id, d)| {
                     // `at` is where the movement enters the mob's box.
-                    let at = Vec3::new(
+                    let _at = Vec3::new(
                         t.position.x + t.velocity.x * d,
                         t.position.y + t.velocity.y * d,
                         t.position.z + t.velocity.z * d,

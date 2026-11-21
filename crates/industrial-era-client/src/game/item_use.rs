@@ -23,8 +23,8 @@ impl Game<'_> {
             return false;
         };
         let own = self.use_duration(&stack);
-        let (mut duration, mut canceled) = (own, false);
-        let hand = self.hand;
+        let (duration, canceled) = (own, false);
+        let _hand = self.hand;
         let Some(ticks_set) = start_of(own, duration, canceled) else {
             return false;
         };
@@ -41,7 +41,7 @@ impl Game<'_> {
     /// goat horns, 0 for the rest, then a mod's answer.
     pub(super) fn use_duration(&self, stack: &ItemStack) -> i32 {
         let info = self.items().get(&stack.item);
-        let mut duration = match &*stack.item {
+        let duration = match &*stack.item {
             "minecraft:bow" | "minecraft:crossbow" | "minecraft:trident" => 72_000,
             "minecraft:spyglass" => 1200,
             "minecraft:brush" => 200,
@@ -112,10 +112,10 @@ impl Game<'_> {
     }
     /// `LivingEntityUseItemEvent.Finish` after `finishUsingItem` of `stack`
     /// (no ticks left): the hand holds what a mod made the result.
-    pub(super) fn use_item_finished(&mut self, stack: &ItemStack) {
-        let mut result = self.held().cloned();
+    pub(super) fn use_item_finished(&mut self, _stack: &ItemStack) {
+        let result = self.held().cloned();
         let before = result.clone();
-        let hand = self.hand;
+        let _hand = self.hand;
         if result != before {
             *self.held_mut() = result.filter(|s| s.count > 0);
         }
@@ -124,17 +124,17 @@ impl Game<'_> {
     /// `updatingUsingItem` starts: a mod may change the ticks left, which
     /// moves the end. False when it ran the use out (`tick_ran_out`): the
     /// item's tick and countdown are skipped.
-    pub(super) fn use_item_ticked(&mut self, stack: &ItemStack, ticks: u32) -> bool {
+    pub(super) fn use_item_ticked(&mut self, _stack: &ItemStack, ticks: u32) -> bool {
         let before = ticks_left(self.use_duration, ticks);
-        let (mut remaining, mut canceled) = (before, false);
-        let hand = self.used_hand().unwrap_or(self.hand);
+        let (remaining, canceled) = (before, false);
+        let _hand = self.used_hand().unwrap_or(self.hand);
         let (left, set) = tick_left(before, remaining, canceled, self.use_ticks_set);
         self.use_ticks_set = set;
         self.use_duration = duration_leaving(ticks, left);
         left > 0 || !set
     }
     /// A mod's `Item.onUseTick` of `stack` used `ticks`, while ticks are left.
-    pub(super) fn item_on_use_tick(&mut self, stack: &ItemStack, ticks: u32) {
+    pub(super) fn item_on_use_tick(&mut self, _stack: &ItemStack, ticks: u32) {
         let remaining = ticks_left(self.use_duration, ticks);
         if remaining > 0 {}
     }
@@ -150,25 +150,25 @@ impl Game<'_> {
     }
     /// `LivingEntityUseItemEvent.Stop` as `releaseUsingItem` lets go of
     /// `stack` used `ticks`: false when a mod skips its `releaseUsing`.
-    pub(super) fn use_item_stopped(&mut self, stack: &ItemStack, ticks: u32) -> bool {
-        let mut canceled = false;
-        let remaining = ticks_left(self.use_duration, ticks);
-        let hand = self.hand;
+    pub(super) fn use_item_stopped(&mut self, _stack: &ItemStack, ticks: u32) -> bool {
+        let canceled = false;
+        let _remaining = ticks_left(self.use_duration, ticks);
+        let _hand = self.hand;
         !canceled
     }
     /// A mod's `Item.releaseUsing` of `stack` used `ticks`: when it says it
     /// was used, `ItemStack.releaseUsing` applies the use cooldown.
     pub(super) fn mod_release_using(&mut self, stack: &ItemStack, ticks: u32) {
-        let mut used = false;
-        let remaining = ticks_left(self.use_duration, ticks);
+        let used = false;
+        let _remaining = ticks_left(self.use_duration, ticks);
         if used {
             self.apply_use_cooldown(stack);
         }
     }
     /// `Player.canEat(canAlwaysEat)` for `stack`, food that is eaten only
     /// when hungry, then a mod's answer.
-    pub(super) fn can_eat(&self, stack: &ItemStack, can_always_eat: bool) -> bool {
-        let mut can_eat = can_always_eat
+    pub(super) fn can_eat(&self, _stack: &ItemStack, can_always_eat: bool) -> bool {
+        let can_eat = can_always_eat
             || self.creative
             || self
                 .player

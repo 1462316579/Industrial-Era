@@ -135,7 +135,7 @@ impl Game<'_> {
     }
     fn drop_leash(&mut self, id: u32, drop: bool, sound: bool, used: bool) {
         let killer = self.lead_killers.remove(&id).map(|(killer, _)| killer);
-        let Some((alive, at, kind)) = self.mobs.iter_mut().find(|m| m.id == id).and_then(|m| {
+        let Some((alive, at, _kind)) = self.mobs.iter_mut().find(|m| m.id == id).and_then(|m| {
             industrial_era_client::mobs::leash::remove(m)?;
             Some((
                 m.alive(),
@@ -146,7 +146,7 @@ impl Game<'_> {
             return;
         };
         if used
-            && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
         }
         // Leashable.tickLeash gates a dying entity's lead drop on entity_drops.
@@ -158,11 +158,11 @@ impl Game<'_> {
             return;
         }
         // No mods: the killer of a mob that died leashed.
-        let Some(player) = killer else {
+        let Some(_player) = killer else {
             self.drop_lead_item(at);
             return;
         };
-        let mut drops = vec![ItemStack::new("minecraft:lead", 1)];
+        let drops = vec![ItemStack::new("minecraft:lead", 1)];
         for stack in drops {
             if stack.count > 0 && &*stack.item != "minecraft:air" {
                 let v = super::dispenser::new_item_motion();

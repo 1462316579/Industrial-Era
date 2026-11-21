@@ -872,7 +872,7 @@ impl Game<'_> {
             return false;
         }
         if event.state == ElementState::Pressed && !event.repeat {
-            if self.catalog_back() {
+            if self.pad_back().is_ok() {
                 // The catalog closes, and the page it was opened from stays.
             } else if self.touch.editor.take().is_some() {
                 self.save_touch_layout();
@@ -1103,7 +1103,7 @@ impl Game<'_> {
 
     pub(super) fn text_context(&mut self) -> Option<&'static str> {
         #[cfg(target_os = "android")]
-        if self.catalog_typing() {
+        if self.dialog_typing() {
             return Some("catalog");
         }
         // A server's dialog takes the input over whatever is under it (`text_field_focused`).

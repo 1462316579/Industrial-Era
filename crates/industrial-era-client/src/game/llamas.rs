@@ -63,7 +63,7 @@ impl Game<'_> {
         if loved {
             let id = self.mobs[index].id;
             self.love_cause.insert(id, self.lan_acting);
-            let kind = self.mobs[index].kind.id.clone();
+            let _kind = self.mobs[index].kind.id.clone();
             self.mob_event_particles(id, 18);
         }
         self.llama_sound(index, "entity.llama.eat", 1.0);

@@ -567,14 +567,14 @@ impl Game<'_> {
             if !stand.name_with_tag(stack) {
                 return false;
             }
-            let id = stand.id;
+            let _id = stand.id;
             let name = stand.custom_name.as_ref().map(|name| name.plain());
             if alive {
                 // NameTagItem shrinks the stack even with infinite materials.
                 let mut rest = stack.clone();
                 rest.count -= 1;
                 *self.held_mut() = (rest.count > 0).then_some(rest);
-                if let (Some(player), Some(player_name), Some(name)) =
+                if let (Some(_player), Some(_player_name), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone(), name)
                 {}
             }
@@ -638,11 +638,11 @@ impl Game<'_> {
             .is_none_or(|h| h.count <= 1 || current.is_none());
         if moves
             && target.is_some()
-            && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            let stand = self.armor_stands[i].id as i32;
-            let slot_name = ["mainhand", "offhand", "feet", "legs", "chest", "head"][slot];
-            let mut cancel = false;
+            let _stand = self.armor_stands[i].id as i32;
+            let _slot_name = ["mainhand", "offhand", "feet", "legs", "chest", "head"][slot];
+            let cancel = false;
             if cancel {
                 return true;
             }

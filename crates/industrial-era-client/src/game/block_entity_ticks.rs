@@ -243,9 +243,9 @@ impl Game<'_> {
                 .flatten();
             (lit, burning, smelted, smelting)
         };
-        if let Some(item) = smelting {}
-        if let Some(fuel) = burning {}
-        if let Some((Some(item), result)) = smelted {}
+        if let Some(_item) = smelting {}
+        if let Some(_fuel) = burning {}
+        if let Some((Some(_item), _result)) = smelted {}
         for stack in drops {
             self.campfire_drop(pos, stack);
         }

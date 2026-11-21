@@ -114,7 +114,6 @@ impl Game<'_> {
         }
         if loved {
             self.love_cause.insert(id, self.lan_acting);
-            let kind = Default::default();
         }
         self.consume_held();
         if let Some(stack) = dropped {

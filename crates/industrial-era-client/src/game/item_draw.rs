@@ -269,7 +269,7 @@ impl Game<'_> {
             && self.stack_in(slot) == Some(stack)
         {
             let view = item_render::stack_view(stack);
-            let mut duration = use_duration(&self.pack.item_renderer.models.components(&view));
+            let duration = use_duration(&self.pack.item_renderer.models.components(&view));
             owner.using_this_item = true;
             owner.use_duration = duration;
             // getUseItemRemainingTicks: the duration the use started with,

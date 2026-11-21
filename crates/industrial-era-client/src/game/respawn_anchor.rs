@@ -184,8 +184,8 @@ impl Game<'_> {
             .respawn_config
             .is_some_and(|c| c.dim == config.dim && c.pos == config.pos);
         if !same {
-            let mut cancel = false;
-            if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            let cancel = false;
+            if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
             }
             if cancel {

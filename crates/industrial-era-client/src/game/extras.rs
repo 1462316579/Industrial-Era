@@ -7,7 +7,7 @@ use industrial_era_client::{
     extras::{Corner, Cps, FpsCounter, fov_target},
     extras_hud::{self, Corners},
     hud::{HudBatch, MINIMAP_SPRITE},
-    minimap::{self, Layer, Minimap, View},
+    minimap::{Minimap, View},
     multiplayer,
     reconnect::{Retry, Tracker},
     title::Mode,

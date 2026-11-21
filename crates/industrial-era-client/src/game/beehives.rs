@@ -151,8 +151,8 @@ impl Game<'_> {
             .block_entities
             .put(key, BlockEntity::Beehive(hive));
         if stored {
-            let kind = self.mobs[i].kind.id.clone();
-            let block = self
+            let _kind = self.mobs[i].kind.id.clone();
+            let _block = self
                 .res
                 .facts()
                 .get(self.world.block(at[0], at[1], at[2]))

@@ -869,13 +869,13 @@ impl Game<'_> {
         let (kind, radius) = (entity.kind, entity.listener_radius());
         let origin = block_of(info.pos);
         let distance = (dist_sqr(origin, key) as f64).sqrt() as f32;
-        let block = match kind {
+        let _block = match kind {
             SculkKind::Sensor => "minecraft:sculk_sensor",
             SculkKind::Calibrated => "minecraft:calibrated_sculk_sensor",
             SculkKind::Shrieker => "minecraft:sculk_shrieker",
             SculkKind::Catalyst => "minecraft:sculk_catalyst",
         };
-        let mut cancel = false;
+        let cancel = false;
         if cancel {
             return Ok(());
         }

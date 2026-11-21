@@ -168,7 +168,7 @@ impl Game<'_> {
         let Some(shooter) = self.mobs.iter().find(|m| m.id == mob) else {
             return false;
         };
-        let kind = shooter.kind.id.clone();
+        let _kind = shooter.kind.id.clone();
         let projectile = Some(Self::mob_vanilla_ammo(&shooter.extra, weapon));
         // A crossbow takes arrows and firework rockets only.
         let projectile = projectile.filter(|ammo| is_arrow(ammo) || &*ammo.item == FIREWORK_ROCKET);
@@ -342,7 +342,7 @@ impl Game<'_> {
                 }
                 arrow.shoot(&mut self.world.random, dir.to_array(), power, 1.0);
                 self.add_projectile(arrow);
-                let (player, name, projectile) = (
+                let (_player, _name, _projectile) = (
                     industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid()),
                     self.acting_player_name().to_owned(),
                     self.next_entity,

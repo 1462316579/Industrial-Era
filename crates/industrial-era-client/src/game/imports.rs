@@ -455,7 +455,7 @@ fn done_title(kind: Kind) -> &'static str {
         Kind::Unknown => "Imported",
         Kind::Skin => "Skin imported",
         Kind::Resources => "Minecraft resources imported",
-        Kind::Bedrock | Kind::Unknown => "Imported",
+        Kind::Bedrock => "Imported",
     }
 }
 

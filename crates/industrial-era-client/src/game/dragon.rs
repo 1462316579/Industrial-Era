@@ -2412,7 +2412,7 @@ impl Game<'_> {
                     f.full_collision || f.legacy_solid
                 })
                 .map_or(64, |y| y + 1);
-            let pos = BlockPos::new(0, y, 0);
+            let _pos = BlockPos::new(0, y, 0);
             let allowed = self.with_level(|_, _, _| true);
             if allowed {
                 let _ = self.level_set([0, y, 0], egg);
@@ -3240,7 +3240,7 @@ impl Game<'_> {
         &mut self,
         center: [f64; 3],
         radius: f32,
-        blocks: &[[i32; 3]],
+        _blocks: &[[i32; 3]],
     ) {
         let diameter = f64::from(radius * 2.0);
         let in_reach = |p: Vec3| {
@@ -3276,7 +3276,7 @@ impl Game<'_> {
         for (part, amount) in hits {
             self.hurt_dragon(part, amount, true, by, DamageKind::Explosion);
         }
-        let Some((id, mut push)) = self
+        let Some((_id, push)) = self
             .dragon
             .as_ref()
             .and_then(|d| Some((d.id, d.explosion_knockback(center, radius, exposure)?)))

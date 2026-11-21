@@ -976,7 +976,7 @@ impl Game<'_> {
     }
     /// `Player.giveExperienceLevels`.
     pub(super) fn give_levels(&mut self, levels: i32) {
-        let old_level = self.experience.level;
+        let _old_level = self.experience.level;
         let xp = &mut self.experience;
         xp.level = xp.level.saturating_add(levels);
         if xp.level < 0 {
@@ -2631,13 +2631,13 @@ impl Game<'_> {
     pub(super) fn tooltip_box(
         &self,
         batch: &mut HudBatch,
-        stack: Option<&ItemStack>,
+        _stack: Option<&ItemStack>,
         x: f32,
         y: f32,
         w: f32,
         h: f32,
     ) {
-        let (mut background, mut border_top, mut border_bottom) =
+        let (background, border_top, border_bottom) =
             (0xf0100010, 0x505000ff, 0x5028007f);
         let convert = |color: u32| {
             let [a, r, g, b] = color.to_be_bytes();
@@ -2715,7 +2715,7 @@ impl Game<'_> {
         let probe =
             industrial_era_client::bundle::tooltip_layout(self.items(), stack, 0.0, 0.0, 96.0);
         let bundle_extra = probe.as_ref().map_or(0.0, |l| l.height + 2.0);
-        let mut component = None;
+        let component = None;
         let component = tooltip_component_size(component);
         let extra = bundle_extra + component.map_or(0.0, |size| size[1] + 2.0);
         let min_width = (if probe.is_some() { 96.0_f32 } else { 0.0 })
@@ -2741,7 +2741,7 @@ impl Game<'_> {
             self.draw_bundle_tooltip(batch, &layout);
             self.draw_bundle_selected_name(batch, &layout, x, y + text_h + 2.0, w);
         }
-        if let Some(size) = component {}
+        if let Some(_size) = component {}
     }
     /// `ClientBundleTooltip.extractSelectedItemTooltip`: the selected item's
     /// name in a box of its own, centred over the grid (less 12) and 15 above
@@ -2937,11 +2937,11 @@ impl Game<'_> {
         let consumed_fuel = was_unfueled && b.fuel > 0;
         let started = was_idle && b.brew_time > 0;
         let ingredient = started.then(|| b.ingredient.clone()).flatten();
-        if consumed_fuel && let Some(item) = fuel_item {
-            let (x, y, z) = pos;
+        if consumed_fuel && let Some(_item) = fuel_item {
+            let (_x, _y, _z) = pos;
         }
-        if let Some(ingredient) = ingredient {
-            let (x, y, z) = pos;
+        if let Some(_ingredient) = ingredient {
+            let (_x, _y, _z) = pos;
         }
         if out != brewing::BrewTick::default() {
             let (x, y, z) = pos;

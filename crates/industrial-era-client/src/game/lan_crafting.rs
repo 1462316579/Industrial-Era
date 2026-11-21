@@ -159,11 +159,8 @@ impl Game<'_> {
         }
         if !item_crafted.is_empty() {
             let conn = host.hub.guests[gi].conn;
-            self.as_guest(host, conn, |g| {
-                let player = g;
-                for (recipe, stack) in &item_crafted {
-                    g;
-                }
+            self.as_guest(host, conn, |_g| {
+                for (_recipe, _stack) in &item_crafted {}
             });
         }
         if !equipped.is_empty() {
@@ -215,8 +212,8 @@ impl Game<'_> {
                 .collect::<Vec<_>>()
         });
         let guest = &host.hub.guests[gi];
-        let (uuid, name) = (guest.uuid, guest.name.clone());
-        let mut result = menu.slot(0).cloned();
+        let (_uuid, _name) = (guest.uuid, guest.name.clone());
+        let result = menu.slot(0).cloned();
         let env = self.menu_env();
         menu.set_slot(&env, 0, result);
         let g = &mut host.hub.guests[gi];
@@ -356,9 +353,9 @@ impl Game<'_> {
         let count = |s: Option<&ItemStack>| s.map_or(0, |s| s.count);
         if furnace && count(menu.slot(2)) < count(items[2].as_ref()) {
             let at = host.hub.guests[gi].position;
-            let guest = &host.hub.guests[gi];
+            let _guest = &host.hub.guests[gi];
             let output = items[2].as_ref();
-            if let Some(output) = output {}
+            if let Some(_output) = output {}
             self.award_furnace_recipes(pos, at);
         }
         // Slot.setChanged on a changed container slot: BlockEntity.setChanged,
@@ -440,7 +437,7 @@ impl Game<'_> {
         {
             return;
         }
-        let (player, name) = (g.uuid, g.name.clone());
+        let (_player, _name) = (g.uuid, g.name.clone());
         let creative = g.creative();
         let placed = if p.container == 0 {
             let crafting = host.play.entry(conn).or_default();
@@ -533,8 +530,8 @@ impl Game<'_> {
                     .collect::<Vec<_>>()
             });
             let guest = &host.hub.guests[gi];
-            let (uuid, name) = (guest.uuid, guest.name.clone());
-            let mut result = menu.slot(0).cloned();
+            let (_uuid, _name) = (guest.uuid, guest.name.clone());
+            let result = menu.slot(0).cloned();
             let vanilla = result.clone();
             if result != vanilla && !changed.contains(&0) {
                 changed.push(0);

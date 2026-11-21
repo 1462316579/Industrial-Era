@@ -43,8 +43,8 @@ impl Game<'_> {
         // (no pickup delay).
         let (dx, dz) = (f64::from(dx), f64::from(dz));
         let table = "minecraft:carve/pumpkin";
-        let mut drops = self.sequence_loot(table, table, Some(shears));
-        let origin = pos.map(|c| f64::from(c) + 0.5);
+        let drops = self.sequence_loot(table, table, Some(shears));
+        let _origin = pos.map(|c| f64::from(c) + 0.5);
         for seeds in drops {
             let at = [
                 f64::from(pos[0]) + 0.5 + dx * 0.65,

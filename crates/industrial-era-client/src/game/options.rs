@@ -407,6 +407,8 @@ impl Game<'_> {
                 Event::DiagnosticsRecord => self.toggle_diagnostic_recording(),
                 Event::DiagnosticsGpu => self.toggle_diagnostic_gpu(),
                 Event::ButtonClick => self.audio.play_button_click(),
+                industrial_era_client_lib::options_ui::Event::OpenCatalog(_) => {}
+                industrial_era_client_lib::options_ui::Event::NativePackOptions(_) => {}
                 Event::Changed => {
                     #[cfg(target_os = "android")]
                     self.mobile_options_apply();
@@ -692,7 +694,7 @@ impl Game<'_> {
                 .industrial_era
                 .battery_limit(limit, self.title.is_none(), self.focused);
         // A native mod may only lower it (`native_framerate_limit`).
-        let mut hooked = limit;
+        let hooked = limit;
         if hooked >= 1 {
             hooked.min(limit)
         } else {

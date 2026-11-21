@@ -620,7 +620,7 @@ impl Game<'_> {
             let criterion = &a.criteria[ci].name;
             if self.adv.progress.grant(&a.id, criterion, &date) {
                 self.advancement_progress(&a.id, criterion, true);
-                if let (Some(player), Some(name)) =
+                if let (Some(_player), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {}
             }
@@ -631,8 +631,8 @@ impl Game<'_> {
         }
     }
     /// `PlayerAdvancements.award` / `revoke` after a criterion's progress changed.
-    fn advancement_progress(&mut self, advancement: &str, criterion: &str, granted: bool) {
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+    fn advancement_progress(&mut self, _advancement: &str, _criterion: &str, _granted: bool) {
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
     }
     /// The criteria `CriteriaTriggers.TICK` granted network players in the hub
     /// (their first tick and a reload), told to the mods.
@@ -641,7 +641,7 @@ impl Game<'_> {
             return;
         };
         for batch in std::mem::take(&mut host.hub.native_advancement_grants) {
-            for grant in batch.grants {}
+            for _grant in batch.grants {}
         }
     }
     /// `PlayerAdvancements.progressChanged`, kept for a network player's client.
@@ -655,9 +655,9 @@ impl Game<'_> {
     pub(super) fn recipe_unlocked(&mut self, unlocked: &[String]) {
         let mut allowed = Vec::with_capacity(unlocked.len());
         let mut refused = Vec::new();
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
             for recipe in unlocked {
-                let mut cancel = false;
+                let cancel = false;
                 if cancel {
                     refused.push(recipe.clone());
                 } else {
@@ -735,10 +735,10 @@ impl Game<'_> {
     fn award(&mut self, index: usize) {
         let tree = self.adv.tree.clone();
         let a = &tree.list[index];
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         // AdvancementRewards.grant
         if a.rewards.experience > 0 {
-            let old_level = self.experience.level;
+            let _old_level = self.experience.level;
             self.experience.give(a.rewards.experience);
         }
         // ServerPlayer.awardRecipesByKey: the rewards that name a recipe.

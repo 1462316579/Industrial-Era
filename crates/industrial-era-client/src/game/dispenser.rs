@@ -1171,7 +1171,7 @@ impl Game<'_> {
         self.world.modified.insert((front.0 >> 4, front.2 >> 4));
         self.boats.push(boat);
         if self.serving.is_some() || self.options.dedicated.is_some() {
-            let boat = self.boats.last().unwrap();
+            let _boat = self.boats.last().unwrap();
         }
         (shrink(stack), CLICK)
     }
@@ -1213,7 +1213,7 @@ impl Game<'_> {
         self.world.modified.insert((front.0 >> 4, front.2 >> 4));
         self.carts.push(cart);
         if self.serving.is_some() || self.options.dedicated.is_some() {
-            let cart = self.carts.last().unwrap();
+            let _cart = self.carts.last().unwrap();
         }
         (shrink(stack), CLICK)
     }
@@ -1340,9 +1340,6 @@ impl Game<'_> {
         if self
             .with_level(|b, level, ticks| b.fire_can_be_placed_at(level, ticks, target_pos, facing))
         {
-            if !self {
-                return Ok((Some(stack), CLICK));
-            }
             let fire =
                 self.with_level(|b, level, ticks| b.fire_state_for(level, ticks, target_pos));
             self.level_set([target.0, target.1, target.2], fire)?;
@@ -1807,8 +1804,8 @@ impl Game<'_> {
                 continue;
             }
             let at = m.position;
-            let entity_id = m.id;
-            let kind = m.kind.id.clone();
+            let _entity_id = m.id;
+            let _kind = m.kind.id.clone();
             let sound_at = Some([at.x, at.y, at.z]);
             match m.species() {
                 Species::SulfurCube if sulfur_cube::has_body(m) => {

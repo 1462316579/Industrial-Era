@@ -293,7 +293,7 @@ impl Game<'_> {
             partial,
             kind,
             |distance| {
-                let mut distance = distance;
+                let distance = distance;
                 distance
             },
             |from, to| {

@@ -15,9 +15,9 @@ impl Game<'_> {
         if self.options.split_guest {
             return;
         }
-        let (mut music, mut volume) = self.situational_music();
+        let (music, volume) = self.situational_music();
         // A native mod's own choice of track and volume, then its layers.
-        let mut layers = Vec::new();
+        let layers = Vec::new();
         self.music_layers.tick(&layers, &mut self.audio);
         // Options.musicFrequency's listener: MusicManager.setMinutesBetweenSongs.
         let frequency = MusicFrequency::parse(&self.settings.file.name("musicFrequency"));

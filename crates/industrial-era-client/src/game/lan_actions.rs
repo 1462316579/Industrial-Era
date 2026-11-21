@@ -676,8 +676,8 @@ impl Game<'_> {
             && let Some(g) = host.hub.guests.get(swap.i)
             && g.food != now
         {
-            let (uuid, name, from, saturation) = (g.uuid, g.name.clone(), g.food, g.saturation);
-            let (mut to, mut cancel) = (now, false);
+            let (_uuid, _name, from, saturation) = (g.uuid, g.name.clone(), g.food, g.saturation);
+            let (to, cancel) = (now, false);
             if let Some(p) = self.player.as_mut() {
                 if cancel {
                     p.health.food.food = from;
@@ -763,7 +763,7 @@ impl Game<'_> {
                 p.guest = Some(conn);
             }
         }
-        let guest = &host.hub.guests[i];
+        let _guest = &host.hub.guests[i];
         for projectile in projectiles..self.creatures.projectiles.len() {
             let item = match &self.creatures.projectiles[projectile].kind {
                 industrial_era_client::projectiles::ProjectileKind::Snowball => {
@@ -783,7 +783,7 @@ impl Game<'_> {
                 }
                 _ => None,
             };
-            if let Some(item) = item {}
+            if let Some(_item) = item {}
         }
         // The guest's swings are theirs: the host's own count stays the host's.
         play.swings += self.swings_started.wrapping_sub(swings);
@@ -1247,12 +1247,12 @@ impl Game<'_> {
             Slots::Block(k) => [Some(*k), None],
             _ => [None, None],
         };
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
+        let Some((_uuid, _name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
             return false;
         };
         let mut locked = false;
         for key in halves.iter().flatten().copied() {
-            let mut check = self.container_locked_for(key, spectator, hand.as_ref());
+            let check = self.container_locked_for(key, spectator, hand.as_ref());
             locked |= check;
         }
         if locked {
@@ -1778,7 +1778,7 @@ impl Game<'_> {
                         }),
                         Some(conn),
                     );
-                    let guest = &host.hub.guests[gi];
+                    let _guest = &host.hub.guests[gi];
                 }
                 4 | 5 => {
                     if !spectator {
@@ -1816,7 +1816,7 @@ impl Game<'_> {
                         g.player_on_equip("offhand", main.as_ref(), offhand.as_ref());
                         g.player_on_equip("mainhand", offhand.as_ref(), main.as_ref());
                     });
-                    let guest = &host.hub.guests[gi];
+                    let _guest = &host.hub.guests[gi];
                 }
                 // STAB: `PiercingWeapon.attack` of a left click with a spear.
                 8 if !spectator => self.guest_jab(host, conn),
@@ -1831,12 +1831,12 @@ impl Game<'_> {
                     );
                     return;
                 }
-                let (uuid, name, old_slot) = {
+                let (_uuid, _name, old_slot) = {
                     let g = &host.hub.guests[gi];
                     (g.uuid, g.name.clone(), g.selected)
                 };
                 if old_slot != p.slot as usize {
-                    let mut cancel = false;
+                    let cancel = false;
                     if cancel {
                         host.hub.send_to(
                             conn,
@@ -1864,7 +1864,7 @@ impl Game<'_> {
             // click on nothing), seen by the players around, and the attack
             // strength starts again.
             S::Punch(_) => {
-                let (player, name) = {
+                let (_player, _name) = {
                     let g = &host.hub.guests[gi];
                     (g.uuid, g.name.clone())
                 };
@@ -2192,7 +2192,7 @@ impl Game<'_> {
                 if !spectator && let Some(slot) = slot {
                     host.hub
                         .select_bundle_item(conn, slot, p.index, &mut self.world);
-                    let guest = &host.hub.guests[gi];
+                    let _guest = &host.hub.guests[gi];
                 }
             }
             S::ContainerClick(p) => {
@@ -2298,7 +2298,7 @@ impl Game<'_> {
             S::SetGameRule(p) if host.hub.guests[gi].permission >= 2 => {
                 for entry in p.entries {
                     if self.ui.rules.set_string(&entry.name, &entry.value) {
-                        let guest = &host.hub.guests[gi];
+                        let _guest = &host.hub.guests[gi];
                         let message = industrial_era_client::text::Text::tr(
                             "commands.gamerule.set",
                             &[&entry.name, &entry.value],
@@ -3086,7 +3086,7 @@ impl Game<'_> {
         let Some(permission) = host.hub.guest(conn).map(|g| g.permission) else {
             return;
         };
-        let Some((player_uuid, player_name)) =
+        let Some((_player_uuid, _player_name)) =
             host.hub.guest(conn).map(|g| (g.uuid, g.name.clone()))
         else {
             return;
@@ -3263,7 +3263,7 @@ impl Game<'_> {
         (g.xp_level, g.xp_progress, g.xp_total) = (xp.level, xp.progress, xp.total);
         // PlayerEvent.Clone, at the end of `restoreFrom`: the data is copied,
         // the new player not yet placed.
-        let (cloned, name) = (g.uuid, g.name.clone());
+        let (_cloned, _name) = (g.uuid, g.name.clone());
         let clock_rate = self.network_clock_rate();
         let ctx = TickCtx {
             world: &mut self.world,
@@ -3284,11 +3284,11 @@ impl Game<'_> {
         // ServerGamePacketListenerImpl.handleClientCommand: a hardcore world's
         // respawned player only watches.
         if self.level.hardcore {
-            let (uuid, name, from) = {
+            let (_uuid, _name, from) = {
                 let g = &host.hub.guests[i];
                 (g.uuid, g.name.clone(), g.game_mode)
             };
-            let mut cancel = false;
+            let cancel = false;
             if from != SPECTATOR {}
             if !cancel {
                 host.hub
@@ -3592,7 +3592,7 @@ impl Game<'_> {
     /// teleport the client there.
     fn wake_guest_from(&mut self, host: &mut LanHost, gi: usize, head: [i32; 3]) {
         let yaw = host.hub.guests[gi].yaw;
-        let (player, name) = {
+        let (_player, _name) = {
             let g = &host.hub.guests[gi];
             (g.uuid, g.name.clone())
         };
@@ -3658,7 +3658,7 @@ impl Game<'_> {
                 }
             }
         }
-        if let Some((player, name)) = identity {}
+        if let Some((_player, _name)) = identity {}
     }
 
     /// `SleepStatus.update`'s counts over the host's player and the guests:
@@ -4136,7 +4136,7 @@ impl Game<'_> {
                 changed = Some((g.uuid, g.name.clone(), gliding));
             }
         }
-        if let Some((uuid, name, gliding)) = changed {}
+        if let Some((_uuid, _name, _gliding)) = changed {}
     }
 
     /// `Player.canGlide`: not flying, airborne, not riding, no levitation, and
@@ -4310,7 +4310,7 @@ impl Game<'_> {
         let swinging = play.swing.swinging();
         if progress != play.last_progress && progress >= 0 {
             play.last_progress = progress;
-            let guest = &host.hub.guests[gi];
+            let _guest = &host.hub.guests[gi];
             // The host player sees it too (on the server thread its window is a guest).
             self.destroy_block_progress(host.hub.guests[gi].entity_id, pos, progress);
             host.hub.broadcast_near(
@@ -4439,7 +4439,7 @@ impl Game<'_> {
     /// (`handleTakeItemEntity`).
     fn guest_arrows(&mut self, host: &mut LanHost, gi: usize) {
         use industrial_era_client::arrows::Touch;
-        let (conn, id, at, creative, unable, dims, player, name) = {
+        let (conn, id, at, creative, unable, dims, _player, _name) = {
             let g = &host.hub.guests[gi];
             (
                 g.conn,
@@ -4493,7 +4493,7 @@ impl Game<'_> {
         });
         self.creatures.projectiles = projectiles;
         for shot in picked {
-            if let Some(arrow) = shot.arrow.as_ref() {}
+            if let Some(_arrow) = shot.arrow.as_ref() {}
             host.hub.take_item(shot.id as i32, id, 1, at);
         }
     }
@@ -4505,7 +4505,7 @@ impl Game<'_> {
     fn guest_orbs(&mut self, host: &mut LanHost, gi: usize) {
         let g = &host.hub.guests[gi];
         let height = f64::from(g.dimensions().height);
-        let (conn, id, at, player, name) =
+        let (conn, id, at, _player, _name) =
             (g.conn, g.entity_id, g.position, g.uuid, g.name.clone());
         let unable = g.spectator() || g.dead || g.health <= 0.0;
         let play = host.play.entry(conn).or_default();

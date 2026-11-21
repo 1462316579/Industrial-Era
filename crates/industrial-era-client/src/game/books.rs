@@ -379,7 +379,7 @@ impl Game<'_> {
             36 + p.slot as usize
         };
         let cancelled = self.as_guest(host, conn, |g| {
-            let mut cancel = false;
+            let cancel = false;
             let writable = g
                 .stack_in(p.slot as usize)
                 .is_some_and(|stack| &*stack.item == "minecraft:writable_book");
@@ -877,7 +877,7 @@ impl Game<'_> {
         self.audio
             .play("minecraft:item.book.put", Some(at), 1.0, 1.0);
         self.container_changed(key);
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         true
     }
     /// `LecternBlock.openScreen`: reading the lectern's book.
@@ -946,7 +946,7 @@ impl Game<'_> {
             _ => None,
         };
         self.lectern_button(key, 3);
-        if let (Some(book), Some(player), Some(name)) = (
+        if let (Some(_book), Some(_player), Some(_name)) = (
             before.filter(|_| {
                 matches!(self.world.block_entities.get(&key),
                 Some(BlockEntity::Lectern(l)) if l.book.is_none())
@@ -1102,7 +1102,7 @@ impl Game<'_> {
             self.lectern_pulses.push((key, 2));
             self.level_event_at(1043, [key.0, key.1, key.2], 0);
             self.container_changed(key);
-            if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
             }
         }

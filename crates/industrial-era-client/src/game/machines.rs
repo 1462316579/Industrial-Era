@@ -1045,14 +1045,14 @@ impl Game<'_> {
         &self,
         holder: &View,
         slot: usize,
-        source: &View,
-        destination: &View,
+        _source: &View,
+        _destination: &View,
     ) -> bool {
         let containers = self.containers();
-        let Some(stack) = containers.get(holder, slot) else {
+        let Some(_stack) = containers.get(holder, slot) else {
             return false;
         };
-        let mut cancel = false;
+        let cancel = false;
         cancel
     }
     /// The rest of `HopperBlockEntity.ejectItems`: one item into `target`.
@@ -1172,7 +1172,7 @@ impl Game<'_> {
             // container (whose bone meal is lost with it).
             let bone_meal = c.bone_meal.clone();
             {
-                let mut cancel = false;
+                let cancel = false;
                 if cancel {
                     return Some(false);
                 }
@@ -1529,9 +1529,6 @@ impl Game<'_> {
     }
     /// `imageHeight` of the open screen (HopperScreen is 133 tall).
     pub(super) fn screen_height(&self) -> f32 {
-        if let Some(height) = self {
-            return height;
-        }
         if self
             .station
             .as_ref()

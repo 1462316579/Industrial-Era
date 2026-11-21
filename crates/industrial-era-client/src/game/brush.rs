@@ -212,9 +212,9 @@ impl Game<'_> {
                 f64::from(pos[1] + face[1]) + 0.625,
                 f64::from(pos[2] + face[2]) + 0.5,
             ];
-            let mut drops = vec![item];
-            let tool = self.stack_in(slot).cloned();
-            let origin = pos.map(|c| f64::from(c) + 0.5);
+            let drops = vec![item];
+            let _tool = self.stack_in(slot).cloned();
+            let _origin = pos.map(|c| f64::from(c) + 0.5);
             for item in drops {
                 self.spawn_item(item, at, [0.0; 3], 0);
             }

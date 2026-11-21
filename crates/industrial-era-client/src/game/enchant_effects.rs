@@ -93,10 +93,10 @@ impl Game<'_> {
         // The mods hear a server player's wear once Unbreaking has had its say,
         // and may change it or stop it.
         if loss > 0
-            && let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_uuid), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            let mut points = loss as i32;
-            let mut cancel = false;
+            let points = loss as i32;
+            let cancel = false;
             loss = if cancel { 0 } else { points.max(0) as u32 };
         }
         if loss > 0 {
@@ -184,7 +184,7 @@ impl Game<'_> {
         };
         let Some(m) = self.mobs.get(mob) else { return };
         let kind = m.kind.id.clone();
-        let victim = m.id;
+        let _victim = m.id;
         let ctx = EffectContext {
             this: Some(&kind),
             attacker: Some("minecraft:player"),
@@ -255,7 +255,7 @@ impl Game<'_> {
         for (effect, level) in mob_effects {
             self.apply_mob_effect(mob, &effect, level);
         }
-        for (id, kind_of, data, level) in hook_calls {}
+        for (_id, _kind_of, _data, _level) in hook_calls {}
         self.post_attack_bursts(&held, &kind);
     }
     /// `EnchantmentHelper.doPostPiercingAttackEffects`: the
@@ -385,7 +385,7 @@ impl Game<'_> {
         let ticks = (between("min_duration", "max_duration") * 20.0).round() as i32;
         let amplifier = (between("min_amplifier", "max_amplifier").round() as i32).max(0);
         if let Some(id) = super::potions::mob_effect_id(ids[pick]) {
-            let (new, entity) = (!m.has_effect(id), m.id as i32);
+            let (_new, _entity) = (!m.has_effect(id), m.id as i32);
             m.add_effect(id, ticks, amplifier);
         }
     }
@@ -549,7 +549,7 @@ impl Game<'_> {
                 items: Some(world_items!(self)),
                 ..Default::default()
             };
-            let mut to_repair_xp = world_stations!(self).enchantments.modify_value(
+            let to_repair_xp = world_stations!(self).enchantments.modify_value(
                 Some(&stack),
                 "minecraft:repair_with_xp",
                 &ctx,
@@ -580,12 +580,10 @@ impl Game<'_> {
                 return amount;
             }
             current.damage -= repaired;
-            let item = current.item.to_string();
-            let player = (self.serving.is_some() || self.options.dedicated.is_some()).then(|| self);
+            let _item = current.item.to_string();
             let remaining = amount.saturating_sub(
                 (u64::from(repaired) * u64::from(amount) / u64::from(to_repair_xp)) as u32,
             );
-            let _ = player;
             if remaining == 0 {
                 return 0;
             }
@@ -845,7 +843,7 @@ impl Game<'_> {
         if !moved && !landed && !changed.iter().any(|c| *c) {
             return;
         }
-        let id = stand.id;
+        let _id = stand.id;
         let told: Vec<_> = (0..6)
             .filter(|&i| changed[i])
             .map(|i| {
@@ -859,7 +857,7 @@ impl Game<'_> {
             .collect();
         stand.enchantment_equipment.clone_from(&stand.equipment);
         if self.remote.is_none() && !self.options.execution_role.is_client() {
-            for (slot, from, to) in told {}
+            for (_slot, _from, _to) in told {}
         }
         let stand = &self.armor_stands[index];
         let at = [stand.position.x, stand.position.y, stand.position.z];

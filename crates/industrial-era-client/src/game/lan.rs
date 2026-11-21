@@ -202,8 +202,8 @@ impl Game<'_> {
         &mut self,
         host: &mut LanHost,
         conn: u32,
-        player: u128,
-        name: &str,
+        _player: u128,
+        _name: &str,
     ) {
         let Some(play) = host.play.get_mut(&conn) else {
             return;
@@ -211,7 +211,7 @@ impl Game<'_> {
         if std::mem::replace(&mut play.left_game, true) {
             return;
         }
-        let mut cancel = false;
+        let cancel = false;
         if !cancel && let Some(play) = host.play.get_mut(&conn) {
             play.stats.custom("leave_game", 1);
         }
@@ -1427,7 +1427,7 @@ impl Game<'_> {
             } else {
                 playerdata::save(guest, &self.world_root);
             }
-            let directory = playerdata::directory(&self.world_root);
+            let _directory = playerdata::directory(&self.world_root);
         }
         self.save_guest_records(host, guest);
     }
@@ -1816,8 +1816,7 @@ impl Game<'_> {
                 }
                 HostEvent::Joined(conn) => {
                     // No mods: accept every login.
-                    let mut cancel = false;
-                    let mut reason = None;
+                    let _cancel = false;
                     // No mods: never cancel the login.
                     self.lan_guest_joined(&mut host, conn, entities, spawn);
                     if self.options.dedicated.is_some()
@@ -1859,7 +1858,7 @@ impl Game<'_> {
                                 .with_color(industrial_era_client::text::YELLOW),
                         );
                     }
-                    if let Some((uuid, name)) = host
+                    if let Some((_uuid, _name)) = host
                         .hub
                         .guest(conn)
                         .filter(|g| g.placed)
@@ -1926,60 +1925,55 @@ impl Game<'_> {
                     }
                 }
                 HostEvent::Flight { .. } => {}
-                HostEvent::Sneak { conn, sneaking } => {
+                HostEvent::Sneak { conn, sneaking: _ } => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
-                        self.as_guest(&mut host, conn, |game| {
-                            game;
-                        });
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
+                        self.as_guest(&mut host, conn, |_game| {});
                     }
                 }
                 HostEvent::Kicked {
                     conn,
-                    player,
-                    name,
-                    reason,
+                    player: _,
+                    name: _,
+                    reason: _,
                 } => {
                     // The same poll can have removed the guest (their `Left`): without the guest's
                     // state swapped in.
                     if host.hub.guest(conn).is_some() {
-                        self.as_guest(&mut host, conn, |game| {
-                            game;
-                        });
+                        self.as_guest(&mut host, conn, |_game| {});
                     } else {
                     }
                 }
-                HostEvent::Input { conn, flags } => {
+                HostEvent::Input { conn, flags: _ } => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
-                        self.as_guest(&mut host, conn, |game| {
-                            game;
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
+                        self.as_guest(&mut host, conn, |_game| {
                         });
                     }
                 }
-                HostEvent::MainHandChanged(conn, left) => {
+                HostEvent::MainHandChanged(conn, _left) => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
                     }
                 }
-                HostEvent::LocaleChanged(conn, locale) => {
+                HostEvent::LocaleChanged(conn, _locale) => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
                     }
                 }
                 HostEvent::PlayerLoaded(conn) => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
                     }
                 }
                 HostEvent::RecipeBookSettings {
                     conn,
-                    book,
-                    open,
-                    filtering,
+                    book: _,
+                    open: _,
+                    filtering: _,
                 } => {
                     if let Some(g) = host.hub.guest(conn) {
-                        let (uuid, name) = (g.uuid, g.name.clone());
+                        let (_uuid, _name) = (g.uuid, g.name.clone());
                     }
                 }
                 HostEvent::Packet(conn, packet) => {
@@ -2558,7 +2552,7 @@ impl Game<'_> {
         };
         // The mods hear a server player's break (a creative player's gear takes no wear).
         if !self.creative
-            && let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_uuid), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
         }
         let Some(at) = self

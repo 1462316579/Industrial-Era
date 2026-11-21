@@ -10,7 +10,7 @@ static ALLOCATOR: industrial_era_threads::CensusAllocator = industrial_era_threa
 
 /// The mod API level this game serves, kept in the program for the launcher
 /// to read without running it. `main` reads it, so the linker keeps it.
-static MOD_API_LEVEL: [u8; 27] = *b"industrial-era-mod-api-level-0";
+static MOD_API_LEVEL: [u8; 30] = *b"industrial-era-mod-api-level-0";
 
 fn main() {
     std::hint::black_box(&MOD_API_LEVEL);

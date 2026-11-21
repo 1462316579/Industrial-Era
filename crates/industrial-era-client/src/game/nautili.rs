@@ -142,7 +142,7 @@ impl Game<'_> {
             let sound = nautilus::eat_sound(m);
             let id = m.id;
             self.love_cause.insert(id, self.lan_acting);
-            let kind = self.mobs[index].kind.id.clone();
+            let _kind = self.mobs[index].kind.id.clone();
             self.use_nautilus_food(item);
             self.nautilus_sound(index, sound);
             // Animal.setInLove: entity event 18.

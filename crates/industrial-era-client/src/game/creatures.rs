@@ -2,7 +2,7 @@
 //! chunk-generation spawning (`NaturalSpawner`), mob events (attacks,
 //! breeding, conversions, drops), projectiles, player interactions
 //! (feeding, shearing, milking, spawn eggs, throwing) and rendering.
-use super::{Dim, Game, Hand, InteractTarget, dispenser, view_vector};
+use super::{Dim, Game, InteractTarget, dispenser, view_vector};
 use industrial_era_assets::item_model::DisplayContext;
 use industrial_era_client::{
     Result,
@@ -58,7 +58,7 @@ pub(super) struct Creatures {
     pub projectiles: Vec<Projectile>,
     /// The entities a family tells the mods ticked, kept between ticks
     /// (game/native_ticks.rs).
-    pub tick_buffer: Vec<(u32)>,
+    pub tick_buffer: Vec<u32>,
     /// Wind bursts from a guest's turn, waiting for it to end (game/wind.rs).
     pub wind_bursts: Vec<super::wind::Burst>,
     /// The players a fishing hook can catch, taken as the hooks tick, and
@@ -645,7 +645,7 @@ impl Game<'_> {
             }
         }
         self.mobs.push(mob);
-        let transformed_kind = self
+        let _transformed_kind = self
             .mobs
             .last()
             .expect("converted mob was just inserted")
@@ -1403,7 +1403,7 @@ impl Game<'_> {
     fn drop_death_loot(
         &mut self,
         m: &mut Mob,
-        player_uuid: Option<u128>,
+        _player_uuid: Option<u128>,
         by_player: bool,
         killer: industrial_era_world::loot::LootEntity,
         consumed: bool,
@@ -1507,7 +1507,7 @@ impl Game<'_> {
                 other => rest.push(other),
             }
         }
-        let table = drops::death_loot_table(m, death.mob_drops).filter(|t| loot.has_table(t));
+        let _table = drops::death_loot_table(m, death.mob_drops).filter(|t| loot.has_table(t));
         stacks.retain(|stack| stack.count > 0 && &*stack.item != "minecraft:air");
         for item in stacks {
             // Every death drop is its own ItemEntity, and the drop entity's
@@ -1711,12 +1711,12 @@ impl Game<'_> {
         }
         let player = (p.owner == Some(Who::Player))
             .then(|| industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid()));
-        let name = if player.is_some() {
+        let _name = if player.is_some() {
             self.acting_player_name().to_owned()
         } else {
             String::new()
         };
-        let (id, kind) = (p.id, p.kind.id());
+        let (_id, _kind) = (p.id, p.kind.id());
         self.creatures.projectiles.push(p);
     }
     /// `MushroomCow.shear`'s `sendParticles(EXPLOSION, x, getY(0.5), z, 1, 0, 0, 0, 0)`:
@@ -2363,7 +2363,7 @@ impl Game<'_> {
                     }
                 }
                 MobEvent::DropItem {
-                    mob,
+                    mob: _,
                     item,
                     count,
                     at,
@@ -2448,7 +2448,7 @@ impl Game<'_> {
                 MobEvent::BreakDoor { mob, pos } => {
                     // BreakDoorGoal.tick: removeBlock, then level events 1021
                     // and 2001 with the state that is there now.
-                    let kind = self
+                    let _kind = self
                         .mobs
                         .iter()
                         .find(|m| m.id == mob)
@@ -2513,7 +2513,7 @@ impl Game<'_> {
                         self.level_event_at(2001, pos, state.0 as i32);
                     }
                     if let Some(state) = self.pack.assets.registry.default_state(name) {
-                        let old_name = self
+                        let _old_name = self
                             .res
                             .facts()
                             .get(self.world.block(pos[0], pos[1], pos[2]))
@@ -2523,7 +2523,7 @@ impl Game<'_> {
                         if let Some(mob) = mob
                             && let Some(m) = self.mobs.iter().find(|m| m.id == mob)
                         {
-                            let kind = m.kind.id.clone();
+                            let _kind = m.kind.id.clone();
                         }
                     }
                 }
@@ -2576,7 +2576,7 @@ impl Game<'_> {
                         self.level_event_at(2001, pos, old.0 as i32);
                     }
                     if drop {
-                        let mut drops = world_items!(self).block_drops_in(
+                        let drops = world_items!(self).block_drops_in(
                             self.pack.assets.registry,
                             old,
                             None,
@@ -2733,7 +2733,7 @@ impl Game<'_> {
                 } => {
                     let mob_count = self.mobs.len();
                     self.breed(parent, partner, llama);
-                    let child = self.mobs.get(mob_count).map(|m| m.id);
+                    let _child = self.mobs.get(mob_count).map(|m| m.id);
                 }
                 MobEvent::LockGaze { mob, partner } => {
                     if let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob) {
@@ -3804,7 +3804,7 @@ impl Game<'_> {
                         |pos| bubble_tops.push(pos),
                     );
                 }
-                let events_from = arrow_events.len();
+                let _events_from = arrow_events.len();
                 if let Some(a) = p.arrow.as_mut() {
                     arrow_events.extend(a.events.drain(..).map(|e| (p.position, e)));
                 }
@@ -3847,7 +3847,7 @@ impl Game<'_> {
                     continue;
                 }
                 if hit != Hit::None {
-                    if let Some(before) = before {
+                    if let Some(_before) = before {
                         impacts.push(());
                     }
                     hits.push((p.clone(), hit));
@@ -3866,7 +3866,7 @@ impl Game<'_> {
                 }
             }
         }
-        let listed = keep_flags.clone();
+        let _listed = keep_flags.clone();
         let mut idx = 0;
         projectiles.retain(|_| {
             let k = keep_flags[idx];
@@ -4683,15 +4683,15 @@ impl Game<'_> {
                 }
                 // To where the pearl started its last tick (oldPosition).
                 let mut to = p.previous;
-                let mut damage = 5.0;
-                let mut cancel = false;
+                let damage = 5.0;
+                let cancel = false;
                 // EntityTeleportEvent.EnderPearl: a server player's pearl.
                 if p.owner == Some(Who::Player)
-                    && let Some(from) = self.player.as_ref().map(|pl| pl.position)
-                    && let (Some(uuid), Some(name)) =
+                    && let Some(_from) = self.player.as_ref().map(|pl| pl.position)
+                    && let (Some(_uuid), Some(_name)) =
                         (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {
-                    let mut target = [to.x, to.y, to.z];
+                    let target = [to.x, to.y, to.z];
                     // A target that is not a number keeps the pearl's.
                     if target.iter().all(|v| v.is_finite()) {
                         to = Vec3::new(target[0], target[1], target[2]);
@@ -4861,7 +4861,7 @@ impl Game<'_> {
                 let owner = self.potion_owner(p.owner);
                 self.splash(stack, at, mob, block, p.age, &owner);
                 if stack.item.as_ref() != "minecraft:experience_bottle" {
-                    let item = stack.item.to_string();
+                    let _item = stack.item.to_string();
                 }
             }
             (ProjectileKind::LlamaSpit, Hit::Entity { who, .. }) => match who {
@@ -5069,10 +5069,10 @@ impl Game<'_> {
                 _ => false,
             };
             if shearable
-                && let (Some(player), Some(name)) =
+                && let (Some(_player), Some(_name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                let mut cancel = false;
+                let cancel = false;
                 if cancel {
                     return Ok(true);
                 }
@@ -5116,7 +5116,7 @@ impl Game<'_> {
             self.audio
                 .play(sound, Some(self.mobs[index].center()), 1.0, 1.0);
             self.trigger_item("minecraft:filled_bucket", &filled);
-            let species = bucket.trim_end_matches("_bucket").to_owned();
+            let _species = bucket.trim_end_matches("_bucket").to_owned();
             let id = self.mobs[index].id as i32;
             // Leashable.dropLeash, then discard.
             self.break_leash(id as u32, true, false);
@@ -5128,7 +5128,7 @@ impl Game<'_> {
             } else {
                 *self.held_mut() = Some(filled);
             }
-            if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
             }
             self.swing_arm();
@@ -5137,9 +5137,9 @@ impl Game<'_> {
         // AgeableMob.mobInteract: a golden dandelion on a baby freezes its
         // growth, or lets it grow again.
         if self.mobs[index].alive() && self.age_lock_takes(&self.mobs[index], &item) {
-            let entity_id = self.mobs[index].id;
+            let _entity_id = self.mobs[index].id;
             self.set_age_locked(index);
-            if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
             }
             if let Some(stack) = &held {
@@ -5263,9 +5263,8 @@ impl Game<'_> {
         let mut handled = true;
         let mut ignited_creeper = false;
         let mut drops: Vec<(String, u32)> = Vec::new();
-        // The shearing table rolled, for the mods (none for a mooshroom).
         let mut drops_table = String::new();
-        let mob = (m.id, m.kind.clone());
+        let _mob = (m.id, m.kind.clone());
         // `Sheep.shear`'s drops add a spread on top of the ItemEntity's own
         // motion; `MushroomCow.shear`'s do not.
         let mut wool = false;
@@ -5765,7 +5764,7 @@ impl Game<'_> {
                         if self.mobs[index].extra.in_love > 0 {
                             let id = self.mobs[index].id;
                             self.love_cause.insert(id, self.lan_acting);
-                            let kind = self.mobs[index].kind.id.clone();
+                            let _kind = self.mobs[index].kind.id.clone();
                             self.mob_event_particles(id, 18);
                         }
                     }
@@ -5872,7 +5871,7 @@ impl Game<'_> {
         if let Some((at, height)) = shear_puff {
             self.mooshroom_shear_puff(at, height);
         }
-        let mut drops: Vec<ItemStack> = drops
+        let drops: Vec<ItemStack> = drops
             .into_iter()
             .map(|(item, count)| ItemStack::new(&item, count))
             .collect();
@@ -5929,12 +5928,12 @@ impl Game<'_> {
             _ => return false,
         };
         let at = m.position;
-        let mob = (m.id, m.kind.clone());
+        let _mob = (m.id, m.kind.clone());
         let tool = self.held().cloned();
         self.audio.play(sound, Some([at.x, at.y, at.z]), 1.0, 1.0);
         self.mobs[index].extra.sheared = true;
-        let mut stacks = self.sequence_loot(table, table, tool.as_ref());
-        let origin = [at.x, at.y, at.z];
+        let stacks = self.sequence_loot(table, table, tool.as_ref());
+        let _origin = [at.x, at.y, at.z];
         for stack in stacks {
             self.spawn_at_location(at, height, stack);
         }
@@ -5958,8 +5957,8 @@ impl Game<'_> {
         let feet = [at.x, at.y, at.z];
         let tool = self.held().cloned();
         let table = "minecraft:brush/armadillo";
-        let mut stacks = self.sequence_loot(table, table, tool.as_ref());
-        let kind = self.mobs[index].kind.clone();
+        let stacks = self.sequence_loot(table, table, tool.as_ref());
+        let _kind = self.mobs[index].kind.clone();
         for d in stacks {
             self.spawn_at_location(at, 0.0, d);
         }
@@ -6052,7 +6051,7 @@ impl Game<'_> {
             }
         }
         if kind == ProjectileKind::Egg
-            && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
         }
         Ok(true)

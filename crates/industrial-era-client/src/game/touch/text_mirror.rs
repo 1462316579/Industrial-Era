@@ -339,7 +339,7 @@ impl Game<'_> {
                 edit_box_field(("port", 0), self.world_options_port()?, DONE)
             }
             #[cfg(target_os = "android")]
-            "catalog" => field(("catalog", 0), self.catalog_query(), None, 0, SEARCH),
+            "catalog" => field(("catalog", 0), self.dialog_query(), None, 0, SEARCH),
             "title" => {
                 // Create New World's game rules, which `focused_field` leaves out.
                 if let Some(rules) = self.rules_mirror() {
@@ -461,7 +461,7 @@ impl Game<'_> {
             Some("creative") => self.creative_search_edit(Some(text)),
             Some("title") => self.title_edit(Some(text), false),
             #[cfg(target_os = "android")]
-            Some("catalog") => self.catalog_type(text),
+            Some("catalog") => self.dialog_type(text),
             _ => {}
         }
     }
@@ -494,8 +494,8 @@ impl Game<'_> {
             }
             #[cfg(target_os = "android")]
             Some("catalog") => match key {
-                KeyCode::Enter | KeyCode::NumpadEnter => self.catalog_submit(),
-                KeyCode::Backspace => self.catalog_backspace(),
+                KeyCode::Enter | KeyCode::NumpadEnter => self.dialog_submit(),
+                KeyCode::Backspace => self.dialog_backspace(),
                 _ => {}
             },
             Some("title") => match key {
@@ -565,7 +565,7 @@ impl Game<'_> {
                 _ if self.touch.mirror.shown.is_none() => {}
                 crate::android::MirrorEvent::Action => self.mirror_action(),
                 // Back closes the keyboard, not the page under the catalog.
-                crate::android::MirrorEvent::Key(111) if self.catalog_typing() => {
+                crate::android::MirrorEvent::Key(111) if self.dialog_typing() => {
                     self.touch.wanted = false;
                 }
                 crate::android::MirrorEvent::Key(111) => {

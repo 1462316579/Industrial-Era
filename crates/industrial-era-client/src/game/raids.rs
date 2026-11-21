@@ -463,7 +463,7 @@ impl Game<'_> {
     pub(super) fn raid_command_stop(&mut self, id: i32) {
         if let Some(r) = self.raiding.raids.get_mut(id) {
             r.stop();
-            let center = r.center;
+            let _center = r.center;
         }
     }
     pub(super) fn raid_set_omen(&mut self, id: i32, level: i32) -> i32 {

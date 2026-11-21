@@ -166,7 +166,7 @@ impl Game<'_> {
     pub(super) fn native_player_level_changed(&mut self, from: i32) {
         let to = self.experience.level;
         if from != to
-            && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
+            && let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
         }
     }
@@ -1170,9 +1170,9 @@ impl Game<'_> {
             return false;
         }
         // A server player's change is heard by the mods first, who may keep it.
-        if let Some(uuid) = self.lan_acting_uuid {
-            let name = self.acting_player_name().to_owned();
-            let mut cancel = false;
+        if let Some(_uuid) = self.lan_acting_uuid {
+            let _name = self.acting_player_name().to_owned();
+            let cancel = false;
             if cancel {
                 return false;
             }
@@ -1614,7 +1614,7 @@ impl Game<'_> {
             Target::Frame(_) | Target::Painting(_) => {}
         }
         if self.options.dedicated.is_some()
-            && let (Some(entity), Some(from), Some(to)) =
+            && let (Some(_entity), Some(_from), Some(_to)) =
                 (self.network_entity_id(t), from, self.target_position(t))
         {}
     }
@@ -1840,7 +1840,7 @@ impl Game<'_> {
                 if total == t {
                     return Err(err("commands.time.set.already_at_time", &[&clock, &t]));
                 }
-                let mut cancel = false;
+                let cancel = false;
                 if !cancel {
                     self.world.day_time = t;
                     self.ui.clock.partial = 0.0;
@@ -1865,7 +1865,7 @@ impl Game<'_> {
                     ));
                 }
                 let target = m.resolve(total);
-                let mut cancel = false;
+                let cancel = false;
                 if !cancel {
                     self.world.day_time = target;
                     self.ui.clock.partial = 0.0;
@@ -1879,7 +1879,7 @@ impl Game<'_> {
             "time.add" => {
                 let t = i64::from(Self::int(ctx, "time").unwrap_or(0));
                 let target = (total + t).max(0);
-                let mut cancel = false;
+                let cancel = false;
                 if !cancel {
                     self.world.day_time = target;
                 }
@@ -1998,10 +1998,10 @@ impl Game<'_> {
             self.world.weather.raining,
             self.world.weather.thundering,
         );
-        let mut cancel = false;
+        let cancel = false;
         let old_thundering = self.world.weather.thundering;
         let old_thunder_time = self.world.weather.thunder_time;
-        let mut cancel_thunder = false;
+        let cancel_thunder = false;
         if cancel {
             let w = &mut self.world.weather;
             (
@@ -2258,7 +2258,7 @@ impl Game<'_> {
                         let empty = industrial_era_world::nbt::Tag::Compound(Default::default());
                         cart.spawner = Some(Box::new(Spawner::load(&empty)));
                     }
-                    let id = cart.id;
+                    let _id = cart.id;
                     self.carts.push(cart);
                     name = Text::translate(&format!("entity.minecraft.{k}"), &[]);
                 }
@@ -2962,7 +2962,7 @@ impl Game<'_> {
     /// ExperienceCommand's add and set on the player in place: false when
     /// the points to set do not fit the level.
     fn change_experience(&mut self, add: bool, levels: bool, amount: i32) -> bool {
-        let old_level = self.experience.level;
+        let _old_level = self.experience.level;
         if add {
             if levels {
                 // Player.giveExperienceLevels handles the strict negative
@@ -3081,7 +3081,7 @@ impl Game<'_> {
                 }));
         }
         if from != i {
-            let (from, to) = difficulty_names(from, i);
+            let (_from, _to) = difficulty_names(from, i);
         }
     }
     fn cmd_spawnpoint(&mut self, ctx: &Context) -> R<i32> {

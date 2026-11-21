@@ -29,14 +29,14 @@ impl Game<'_> {
         if !m.alive() {
             return false;
         }
-        let entity_id = m.id;
-        let entity_name = name.clone();
+        let _entity_id = m.id;
+        let _entity_name = name.clone();
         m.custom_name = Some(name);
         m.persistent = true;
         // itemStack.shrink(1), in creative too.
         self.consume_held();
         self.swing_arm();
-        if let (Some(player), Some(player_name)) =
+        if let (Some(_player), Some(_player_name)) =
             (self.lan_acting_uuid, self.lan_acting_name.clone())
         {}
         true
@@ -180,7 +180,7 @@ impl Game<'_> {
             let name_shown = sb::name_shown(team, viewer, view)
                 && (player || m.name_visible || Some(m.id) == target)
                 && (player || m.custom_name.is_some());
-            let mut visible = name_shown;
+            let visible = name_shown;
             if !visible {
                 if let Some(text) = description {
                     let l = self.world.light(
@@ -271,7 +271,7 @@ impl Game<'_> {
             };
             let name_shown =
                 a.custom_name.is_some() && a.name_visible && sb::name_shown(team, viewer, view);
-            let mut visible = name_shown;
+            let visible = name_shown;
             if !visible {
                 continue;
             }

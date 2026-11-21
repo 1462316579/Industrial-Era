@@ -143,10 +143,10 @@ impl Game<'_> {
             // AnvilCraftEvent.Pre: the taken result's onTake waits for the mods.
             let mut anvil_craft = gs.menu.anvil_craft.take();
             let mut cancelled = false;
-            if let Some(craft) = &anvil_craft {
+            if let Some(_craft) = &anvil_craft {
                 let guest = &host.hub.guests[gi];
-                let (uuid, name) = (guest.uuid, guest.name.clone());
-                let mut cancel = false;
+                let (_uuid, _name) = (guest.uuid, guest.name.clone());
+                let cancel = false;
                 if cancel && let Some(undo) = undo {
                     // The take is refused: the result, inputs, cost, inventory
                     // and cursor are as before the click (the resync below
@@ -171,22 +171,22 @@ impl Game<'_> {
                 });
             if recomputed && gs.kind == StationKind::Anvil {
                 let guest = &host.hub.guests[gi];
-                let (uuid, name) = (guest.uuid, guest.name.clone());
-                let mut result = gs.menu.slot(2).cloned();
+                let (_uuid, _name) = (guest.uuid, guest.name.clone());
+                let result = gs.menu.slot(2).cloned();
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 2, result);
             }
             if recomputed && gs.kind == StationKind::Grindstone {
                 let guest = &host.hub.guests[gi];
-                let (uuid, name) = (guest.uuid, guest.name.clone());
-                let mut result = gs.menu.slot(2).cloned();
+                let (_uuid, _name) = (guest.uuid, guest.name.clone());
+                let result = gs.menu.slot(2).cloned();
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 2, result);
             }
             if recomputed && gs.kind == StationKind::Smithing {
                 let guest = &host.hub.guests[gi];
-                let (uuid, name) = (guest.uuid, guest.name.clone());
-                let mut result = gs.menu.slot(3).cloned();
+                let (_uuid, _name) = (guest.uuid, guest.name.clone());
+                let result = gs.menu.slot(3).cloned();
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 3, result);
             }
@@ -346,10 +346,10 @@ impl Game<'_> {
             let creative = gs.menu.creative;
             // A broken anvil closes the menu on the next stillValid check.
             self.anvil_used(gs.pos, creative);
-            if let Some(craft) = craft
+            if let Some(_craft) = craft
                 && let Some(guest) = host.hub.guests.iter().find(|g| g.conn == conn)
             {
-                let (uuid, name) = (guest.uuid, guest.name.clone());
+                let (_uuid, _name) = (guest.uuid, guest.name.clone());
             }
         }
     }
@@ -366,8 +366,8 @@ impl Game<'_> {
             bookcases,
             gs.menu.slot(0),
         );
-        let guest = &host.hub.guests[gi];
-        let mut costs = offers.costs;
+        let _guest = &host.hub.guests[gi];
+        let costs = offers.costs;
         let mut clues = offers.clues;
         for i in 0..3 {
             // A cost a mod changed shows the clue of the list it will give.
@@ -403,7 +403,7 @@ impl Game<'_> {
             return;
         };
         let g = &host.hub.guests[gi];
-        let (seed, creative, conn, uuid, name) =
+        let (seed, creative, conn, _uuid, _name) =
             (g.xp_seed, g.creative(), g.conn, g.uuid, g.name.clone());
         let Some(enchanted) = industrial_era_client::stations::apply_enchantment(
             &self.stations().enchantments,
@@ -415,7 +415,7 @@ impl Game<'_> {
         ) else {
             return;
         };
-        let enchanted_for_hook = enchanted.clone();
+        let _enchanted_for_hook = enchanted.clone();
         let need = button as i32 + 1;
         // Player.onEnchantmentPerformed, and EnchantmentMenu's awardStat(ENCHANT_ITEM).
         self.as_guest(host, conn, |game| {
@@ -530,7 +530,7 @@ impl Game<'_> {
         self.lan_station_op(host, conn, Some(window), |menu, env| {
             selected = menu.button(env, id);
         });
-        if selected && let Some((player, name)) = identity {
+        if selected && let Some((_player, _name)) = identity {
             match kind {
                 Some(StationKind::Loom) => {}
                 Some(StationKind::Stonecutter) => {}
@@ -669,7 +669,7 @@ impl Game<'_> {
         else {
             return;
         };
-        let Some((player, name)) = host
+        let Some((_player, _name)) = host
             .hub
             .guests
             .iter()

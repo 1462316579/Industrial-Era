@@ -565,6 +565,7 @@ impl Game<'_> {
             ) as f32
                 * 0.030_000_001,
             status,
+            mod_params: Default::default(),
             end_flash,
             end_flash_direction,
         }

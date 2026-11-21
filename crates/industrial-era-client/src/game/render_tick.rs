@@ -158,12 +158,12 @@ impl Game<'_> {
     }
     fn native_fog_color_now(
         &self,
-        partial: f32,
-        camera: [f64; 3],
-        fog_type: FogType,
+        _partial: f32,
+        _camera: [f64; 3],
+        _fog_type: FogType,
         color: [f32; 4],
     ) -> [f32; 4] {
-        let mut rgb = [color[0], color[1], color[2]];
+        let rgb = [color[0], color[1], color[2]];
         if rgb.iter().all(|v| v.is_finite() && (0.0..=1.0).contains(v)) {
             [rgb[0], rgb[1], rgb[2], color[3]]
         } else {
@@ -172,12 +172,12 @@ impl Game<'_> {
     }
     fn native_fog_now(
         &self,
-        partial: f32,
-        camera: [f64; 3],
-        fog_type: FogType,
+        _partial: f32,
+        _camera: [f64; 3],
+        _fog_type: FogType,
         original: FogData,
     ) -> FogData {
-        let mut fog = original;
+        let fog = original;
         let distances = [
             fog.environmental_start,
             fog.environmental_end,

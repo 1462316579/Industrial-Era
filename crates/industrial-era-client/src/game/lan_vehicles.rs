@@ -131,7 +131,7 @@ impl Game<'_> {
         // The rider's state is swapped in for the call, so the helpers reach
         // them; a vehicle nobody rides is told of with nobody swapped in.
         for (rider, _kind, _from, _to) in moved {
-            let Some((conn, uuid)) = rider else {
+            let Some((conn, _uuid)) = rider else {
                 continue;
             };
             let Some(mut host) = self.lan.take() else {

@@ -344,10 +344,10 @@ impl Game<'_> {
         let loaded = std::mem::take(&mut self.world.loaded_entities);
         let player_uuid = self.level.player_uuid;
         for (key, tags) in loaded {
-            let count = tags.len();
+            let _count = tags.len();
             for mut tag in tags {
                 // PersistentEntitySectionManager.addEntity's `loaded`.
-                let from_disk = !take_fresh(&mut tag);
+                let _from_disk = !take_fresh(&mut tag);
                 // An End gateway's traveller never left the level: nothing joins.
                 let moved = take_moved(&mut tag);
                 // Whatever was added since the last tick joins before this one.
@@ -1461,7 +1461,7 @@ impl Game<'_> {
         if let Err(e) = self.save.save_entities_later(chunks) {
             log::warn!("Industrial Era: failed to save entities: {e}");
         }
-        for (chunk, count) in counts {}
+        for (_chunk, _count) in counts {}
     }
 }
 impl Game<'_> {

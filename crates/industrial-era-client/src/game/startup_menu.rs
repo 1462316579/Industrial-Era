@@ -366,7 +366,6 @@ pub(super) fn spawn_loader(
     let (sender, receiver) = std::sync::mpsc::channel();
     let settings = settings.clone();
     let vanilla_root = vanilla_root.to_path_buf();
-    let dev_mods = Vec::new();
     let world = launch_world(options).map(str::to_owned);
     let progress = progress.clone();
     let handle = std::thread::Builder::new()
@@ -388,7 +387,7 @@ pub(super) fn spawn_loader(
                 true,
                 false,
                 &progress,
-                &mut |gui, root, _text| {
+                &mut |gui, root| {
                     let _ = sender.send(LoaderMsg::Ui(gui, root.to_path_buf()));
                 },
             )
@@ -701,6 +700,7 @@ impl Loading {
             match event {
                 Event::DiagnosticsExport => super::diagnostics::export_diagnostics(),
                 Event::DiagnosticsOpen => super::diagnostics::open_diagnostics(),
+                industrial_era_client_lib::options_ui::Event::OpenCatalog(_) => {}
                 Event::DiagnosticsRecord => {
                     if crate::performance::active() {
                         crate::performance::stop();

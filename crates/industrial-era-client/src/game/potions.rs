@@ -776,7 +776,7 @@ impl Game<'_> {
                             if mob_can_be_affected(tags, &m.kind.id, effect)
                                 && let Some(name) = mob_effect_id(effect)
                             {
-                                let new = !m.has_effect(name);
+                                let _new = !m.has_effect(name);
                                 m.add_effect(name, duration, amp);
                             }
                         }
@@ -947,7 +947,7 @@ impl Game<'_> {
     pub(super) fn add_player_effect(&mut self, effect: EffectInstance) -> bool {
         let id = effect.id;
         let amp = effect.amplifier;
-        let new = self.potions.effects.get(id).is_none();
+        let _new = self.potions.effects.get(id).is_none();
         let changed = self.potions.effects.add(effect);
         self.apply_effect_status();
         if id == "absorption"
@@ -965,8 +965,8 @@ impl Game<'_> {
     pub(super) fn mod_effect_added(
         &mut self,
         effect: &str,
-        entity: Option<i32>,
-        amplifier: i32,
+        _entity: Option<i32>,
+        _amplifier: i32,
         new: bool,
     ) {
         if self.remote.is_none() && brewing::is_mod_effect(effect) {
@@ -978,13 +978,13 @@ impl Game<'_> {
     /// may end it. Whether it stays.
     fn mod_effect_tick(
         &self,
-        effect: &str,
-        entity: Option<i32>,
-        tick_count: i32,
-        amplifier: i32,
+        _effect: &str,
+        _entity: Option<i32>,
+        _tick_count: i32,
+        _amplifier: i32,
     ) -> bool {
-        let mut apply = false;
-        let mut keep = true;
+        let apply = false;
+        let keep = true;
         if apply {}
         keep
     }
@@ -1405,7 +1405,7 @@ impl Game<'_> {
                             if mob_can_be_affected(tags, &m.kind.id, id)
                                 && let Some(name) = mob_effect_id(id)
                             {
-                                let new = !m.has_effect(name);
+                                let _new = !m.has_effect(name);
                                 m.add_effect_with(
                                     name,
                                     scaled(*duration),

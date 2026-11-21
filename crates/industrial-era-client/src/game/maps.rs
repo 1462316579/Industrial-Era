@@ -1134,7 +1134,7 @@ impl Game<'_> {
             self.consume_held();
             self.give_or_drop_stack(filled);
         }
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
+        if let (Some(_player), Some(_name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         let at = [p.x, p.y, p.z];
         self.audio.play(
             "minecraft:ui.cartography_table.take_result",
@@ -1805,7 +1805,7 @@ impl Game<'_> {
         let Some(map) = self.maps.data.get(&id) else {
             return Vec::new();
         };
-        let info = NativeMapInfo {
+        let _info = NativeMapInfo {
             id,
             center: map.center,
             scale: map.scale,
@@ -1813,7 +1813,7 @@ impl Game<'_> {
             locked: map.locked,
             in_frame: frame,
         };
-        let mut decorations: Vec<NativeMapDecoration> = Vec::new();
+        let decorations: Vec<NativeMapDecoration> = Vec::new();
         decorations
             .into_iter()
             .filter(|d| !frame || d.shown_on_frame)

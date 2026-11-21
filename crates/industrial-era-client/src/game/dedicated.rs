@@ -718,7 +718,7 @@ impl Game<'_> {
     // The epoch starts at world open; failures before that send no lifecycle event.
     pub(super) fn run_dedicated(&mut self) -> Result<()> {
         let result = self.run_dedicated_inner();
-        if let Err(error) = &result {}
+        if let Err(_error) = &result {}
         result
     }
 

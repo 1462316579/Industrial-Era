@@ -109,7 +109,7 @@ impl Game<'_> {
         }
         for batch in batches {
             for e in batch.events {
-                let (id, kind) = (e.entity as u32, &*e.tracked.kind);
+                let (_id, _kind) = (e.entity as u32, &*e.tracked.kind);
                 if e.start {
                 } else {
                 }

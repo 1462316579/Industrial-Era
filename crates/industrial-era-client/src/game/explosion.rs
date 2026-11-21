@@ -395,7 +395,7 @@ impl Game<'_> {
         attacker: Option<&(u32, Text)>,
         cause: Option<&industrial_era_client::advancements::EntityView>,
     ) -> Option<[f64; 3]> {
-        let ExplosionHookContext { center, blocks } = *context;
+        let ExplosionHookContext { center, blocks: _ } = *context;
         let diameter = f64::from(radius * 2.0);
         // Blast protection: `EXPLOSION_KNOCKBACK_RESISTANCE` (0.15 per level and
         // piece, so two Blast Protection IV pieces cancel it).
@@ -484,7 +484,7 @@ impl Game<'_> {
             }
         }
         if !spectator {
-            let mut push = [dir[0] * power, dir[1] * power, dir[2] * power];
+            let push = [dir[0] * power, dir[1] * power, dir[2] * power];
             if let Some(p) = self.player.as_mut() {
                 p.velocity = Vec3::new(
                     p.velocity.x + push[0],
@@ -697,7 +697,7 @@ impl Game<'_> {
                     // `hurtServer` does nothing to the rest.
                     _ => {}
                 }
-                let mut velocity = [push.x, push.y, push.z];
+                let velocity = [push.x, push.y, push.z];
                 let push = Vec3::new(velocity[0], velocity[1], velocity[2]);
                 match handle {
                     EntityHandle::Item(_) | EntityHandle::Orb(_) if destroyed => {}
@@ -873,7 +873,7 @@ impl Game<'_> {
         let ctx = industrial_era_client::sculk::Context::default();
         self.post_game_event("minecraft:explode", center, ctx);
         let mut targets = self.exploded_positions(center, radius, resists);
-        let dimension = self.dim.id();
+        let _dimension = self.dim.id();
         let pushed =
             self.explosion_hurt_entities(center, radius, damage_type, interaction, &targets);
         if interaction != BlockInteraction::Keep {
@@ -981,7 +981,7 @@ impl Game<'_> {
                 pos.map(|v| f64::from(v) + 0.5),
                 self.loot_block_entity(pos, &name),
             );
-            let mut drops = industrial_era_world::loot::with_native_loot_place(place, || {
+            let drops = industrial_era_world::loot::with_native_loot_place(place, || {
                 world_items!(self).block_drops_exploded(
                     self.pack.assets.registry,
                     state,
