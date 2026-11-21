@@ -29,6 +29,7 @@ enum Span {
 
 impl Cull {
     /// Invalidate measurements when filtering, ordering or collection identity changes.
+    #[allow(dead_code)]
     pub fn reset(&self) {
         *self.0.borrow_mut() = Drawn::default();
     }

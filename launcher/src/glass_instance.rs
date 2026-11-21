@@ -12,23 +12,12 @@ use new_instance::{NewKind, VersionList};
 use servers_page::Field;
 use std::sync::Arc;
 
-/// The loaders Prism Launcher offers, in the mockup's order. Those `loaders::Kind` can install
-/// are shown; the others join when the launcher learns them.
-const LOADERS: [&str; 5] = ["fabric", "quilt", "neoforge", "forge", "liteloader"];
 /// Logos offered as icons (the mockup's `LOGO_ICONS`, but Minecraft's, which is Mojang's).
 const LOGO_ICONS: [&str; 4] = ["neoforge", "fabric", "quilt", "forge"];
 /// The colours offered (`ICON_COLORS`).
 const COLOURS: [u32; 8] = [
     0x6b4bff, 0x3b82f6, 0x14b8a6, 0x22c55e, 0xeab308, 0xf97316, 0xef4444, 0x8b8a99,
 ];
-
-/// The loaders a new modded instance can use now.
-pub(super) fn loaders() -> Vec<Loader> {
-    LOADERS
-        .iter()
-        .filter_map(|id| Loader::parse(id).ok())
-        .collect()
-}
 
 /// What an existing instance plays.
 fn kind_of(i: &Instance) -> NewKind {
@@ -273,13 +262,11 @@ impl Launcher {
     }
 
     /// The mark an instance shows when nothing is chosen: IndustrialEra's, or its loader's logo.
-    fn auto_mark(&mut self, kind: NewKind, loader: Loader, size: f32) -> AnyElement {
+    fn auto_mark(&mut self, kind: NewKind, _loader: Loader, size: f32) -> AnyElement {
         match kind {
-            NewKind::IndustrialEra => {
-                return ui::mark_tile(size, self.look.accent_soft).into_any_element()
-            }
+            NewKind::IndustrialEra => ui::mark_tile(size, self.look.accent_soft).into_any_element(),
             NewKind::Vanilla => {
-                return letter_tile(white(fill::BUTTON), "Vanilla", size).into_any_element()
+                letter_tile(white(fill::BUTTON), "Vanilla", size).into_any_element()
             }
         }
     }

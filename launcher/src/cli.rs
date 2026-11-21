@@ -4,7 +4,6 @@ use clap::{Parser, Subcommand};
 use industrial_era_launcher::account::{self, Accounts};
 use industrial_era_launcher::backend::{self, Release};
 use industrial_era_launcher::build_import;
-use industrial_era_launcher::i18n::{tr, trf};
 use industrial_era_launcher::instances;
 use industrial_era_launcher::loaders;
 use industrial_era_launcher::other_launchers;

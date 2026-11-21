@@ -5,7 +5,7 @@
 use super::*;
 use gpui::RenderImage;
 use industrial_era_launcher::browser::images;
-use industrial_era_launcher::instances::{self, Instance, Kind as InstanceKind};
+use industrial_era_launcher::instances::{self, Instance};
 use std::sync::Arc;
 
 /// The loaders' logos as the launcher mockup on playhorizon.dev shows them, each its project's

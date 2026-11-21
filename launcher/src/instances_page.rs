@@ -188,7 +188,6 @@ impl Launcher {
     ) -> Vec<AnyElement> {
         let t = self.theme;
         let selected = self.selected_instance().map(|i| i.id.clone());
-        let on_packs = false;
         let mut out = Vec::new();
         let mut group = None;
         for i in self.instances.list.clone() {

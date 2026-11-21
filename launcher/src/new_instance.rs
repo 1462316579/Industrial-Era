@@ -5,7 +5,7 @@
 use super::*;
 use crate::plate::alpha;
 use crate::shell::{c, Action};
-use industrial_era_launcher::loaders::{self, Kind as Loader};
+use industrial_era_launcher::loaders::Kind as Loader;
 use industrial_era_launcher::minecraft_versions::{Kind as VersionKind, Versions};
 use servers_page::Field;
 use theme::night;
@@ -260,7 +260,7 @@ impl Launcher {
                     cx.notify();
                 },
             )));
-        let mut rows = div()
+        let rows = div()
             .flex()
             .flex_col()
             .gap(px(10.))

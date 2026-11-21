@@ -17,10 +17,6 @@ pub(super) struct Importing {
 impl Launcher {
     pub(super) fn import_dropped(&mut self, files: Vec<PathBuf>, cx: &mut Context<Self>) {
         for file in files {
-            let name = file
-                .file_name()
-                .map(|n| n.to_string_lossy().into_owned())
-                .unwrap_or_default();
             match import::what(&file) {
                 Err(e) => self.importing.note = Some(Err(e)),
                 Ok(Dropped::Instance) => self.import_instance(file, cx),

@@ -3,9 +3,7 @@
 //! loaders, each with its logo, as many as `loaders::Kind` knows.
 use super::*;
 use crate::glass_ui::{self as ui, white};
-use glass_instance::{
-    choice, choice_text, letter_tile, list_box, list_choice, loaders, section, tick, tile_image,
-};
+use glass_instance::{list_box, list_choice, section, tick};
 use industrial_era_launcher::minecraft_versions::Kind as VersionKind;
 use industrial_era_theme::glass::{fill, ink, radius};
 use new_instance::VersionList;
@@ -156,56 +154,6 @@ impl Launcher {
             tr("Minecraft version").into(),
             Some(filters),
             div().flex().flex_col().child(field).child(list),
-        )
-    }
-
-    /// The loaders, four across from 1280 px, else two; then what Create installs.
-    pub(super) fn loader_choice(&mut self, cx: &mut Context<Self>) -> Div {
-        let t = self.theme;
-        let now = self.draft_loader(None);
-        let minecraft = self.draft_minecraft(None).unwrap_or_else(|| "…".into());
-        let mut grid = div()
-            .grid()
-            .grid_cols(if self.window_width >= 1280. { 4 } else { 2 })
-            .gap(px(10.));
-        for loader in loaders() {
-            let logo = match self.loader_logo(loader.id(), 40.) {
-                Some(image) => tile_image(image, 40.),
-                None => letter_tile(white(fill::BUTTON), loader.name(), 40.).into_any_element(),
-            };
-            let note = match loader.id() {
-                "fabric" => tr("Light and fast to update"),
-                "quilt" => tr("Fabric mods run here too"),
-                "neoforge" => tr("The big modpacks' home"),
-                "forge" => tr("For older packs"),
-                _ => "",
-            };
-            grid = grid.child(
-                choice(format!("loader-{}", loader.id()), loader == now, &t)
-                    .flex_col()
-                    .items_start()
-                    .gap(px(12.))
-                    .p(px(16.))
-                    .min_w_0()
-                    .child(logo)
-                    .child(choice_text(loader.name(), note))
-                    .on_click(cx.listener(move |this, _: &ClickEvent, _, cx| {
-                        this.change(|j| j.loader = loader);
-                        cx.notify();
-                    })),
-            );
-        }
-        section(
-            tr("Loader").into(),
-            None,
-            div().flex().flex_col().child(grid).child(
-                ui::text(13., FontWeight::NORMAL, ink::FAINT)
-                    .mt(px(10.))
-                    .child(trf(
-                        "Installs the newest stable {loader} for Minecraft {version}.",
-                        &[("loader", now.name()), ("version", &minecraft)],
-                    )),
-            ),
         )
     }
 }

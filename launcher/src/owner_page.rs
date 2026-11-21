@@ -13,6 +13,7 @@ impl Launcher {
 
     /// `owner` as the window shows it: always None now that the owner gate is off; the launcher
     /// never blocks Play on a Microsoft account.
+    #[allow(dead_code)]
     pub(crate) fn owner_shown(&self) -> Option<bool> {
         None
     }

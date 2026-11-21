@@ -730,7 +730,6 @@ impl Launcher {
     }
 
     /// The native mods turned on in the instance Play starts, unpacked and checked, with their
-
     fn fetch_releases(&mut self) {
         self.releases = Load::Loading;
         let tx = self.tx.clone();
