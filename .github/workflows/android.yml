@@ -114,14 +114,14 @@ jobs:
           HORIZON_ANDROID_KEY_ALIAS: ${{ env.RELEASE_BUILD == 'true' && secrets.INDUSTRIAL_ERA_KEY_ALIAS || 'industrial-era-debug' }}
           HORIZON_ANDROID_STORE_PASSWORD: ${{ secrets.INDUSTRIAL_ERA_STORE_PASSWORD }}
           HORIZON_ANDROID_KEY_PASSWORD: ${{ secrets.INDUSTRIAL_ERA_KEY_PASSWORD }}
-          MODS: ${{ inputs.native_mods }}
+          MODS: ''
           PROFILE: ${{ env.RELEASE_BUILD == 'true' && 'fast' || 'quick' }}
           VARIANT: ${{ env.PREVIEW == 'true' && '--preview' || '' }}
         # Releases with the fast profile (fewer codegen units: a little quicker in game). With native mods, the APK
         # native_build.sh makes, named after them.
         run: |
           if [ -z "$MODS" ]; then
-            python packaging/android/build_apk.py --abi "$ABI" --profile "$PROFILE" $VARIANT ${{ inputs.keep_symbols && '--keep-symbols' || '' }}
+            python packaging/android/build_apk.py --abi "$ABI" --profile "$PROFILE" $VARIANT
             exit 0
           fi
           bundles=()
@@ -140,7 +140,7 @@ jobs:
           name: industrial-era-apk-${{ matrix.abi }}
           path: target/android/industrial-era-*.apk
           if-no-files-found: error
-          retention-days: ${{ inputs.release_key && 1 || 90 }}
+          retention-days: 90
       # The library with its symbols, to read the frames of native crashes in diagnostic ZIPs
       # (docs/android-diagnostics.md). Builds with native mods don't make one.
       - uses: actions/upload-artifact@v4
@@ -214,13 +214,13 @@ jobs:
           PROFILE: ${{ env.RELEASE_BUILD == 'true' && 'fast' || 'quick' }}
           VARIANT: ${{ env.PREVIEW == 'true' && '--preview' || '' }}
         run: |
-          python packaging/android/build_apk.py --universal --profile "$PROFILE" $VARIANT ${{ inputs.keep_symbols && '--keep-symbols' || '' }}
+          python packaging/android/build_apk.py --universal --profile "$PROFILE" $VARIANT
       - uses: actions/upload-artifact@v4
         with:
           name: industrial-era-apk-universal
           path: target/android/industrial-era-*-universal.apk
           if-no-files-found: error
-          retention-days: ${{ inputs.release_key && 1 || 90 }}
+          retention-days: 90
       - uses: actions/upload-artifact@v4
         with:
           name: industrial-era-symbols-universal
