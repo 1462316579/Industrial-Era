@@ -153,11 +153,7 @@ impl Game<'_> {
         if !self.settings.industrial_era.fog {
             industrial_era_client::fog::clear_distance_fog(&mut fog, &input);
         }
-        if self.title.is_none() {
-            fog.color =
-                self.native_fog_color_now(self.clock.fraction() as f32, at, fog_type, fog.color);
-            fog = self.native_fog_now(self.clock.fraction() as f32, at, fog_type, fog);
-        }
+        if self.title.is_none() {}
         fog
     }
     fn native_fog_color_now(
@@ -168,7 +164,6 @@ impl Game<'_> {
         color: [f32; 4],
     ) -> [f32; 4] {
         let mut rgb = [color[0], color[1], color[2]];
-        self.native_compute_fog_color(partial, camera, fog_type, &mut rgb);
         if rgb.iter().all(|v| v.is_finite() && (0.0..=1.0).contains(v)) {
             [rgb[0], rgb[1], rgb[2], color[3]]
         } else {
@@ -183,7 +178,6 @@ impl Game<'_> {
         original: FogData,
     ) -> FogData {
         let mut fog = original;
-        self.native_render_fog(partial, camera, fog_type, &mut fog);
         let distances = [
             fog.environmental_start,
             fog.environmental_end,
@@ -247,7 +241,7 @@ impl Game<'_> {
             63.0
         };
         self.dim == Dim::Overworld
-            && camera.y < industrial - era
+            && camera.y < industrial_era
             && fog_type(
                 &self.world,
                 self.res.facts(),

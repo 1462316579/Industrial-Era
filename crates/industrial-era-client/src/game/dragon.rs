@@ -2413,13 +2413,7 @@ impl Game<'_> {
                 })
                 .map_or(64, |y| y + 1);
             let pos = BlockPos::new(0, y, 0);
-            let allowed = self.with_level(|_, level, _| {
-                let mut cancel = false;
-                if level.native_authoritative {
-                    level.native_dragon_egg_form(level.dimension, pos, &mut cancel);
-                }
-                !cancel
-            });
+            let allowed = self.with_level(|_, _, _| true);
             if allowed {
                 let _ = self.level_set([0, y, 0], egg);
             }
@@ -3289,7 +3283,6 @@ impl Game<'_> {
         else {
             return;
         };
-        self.native_explosion_knockback(self.dim.id(), center, blocks, Some(id), &mut push);
         if let Some(d) = self.dragon.as_mut() {
             d.velocity = Vec3::new(
                 d.velocity.x + push[0],

@@ -3903,7 +3903,7 @@ mod tests {
             for x in (camera[0] - 2048..camera[0] + 2048).step_by(64) {
                 if !covered.contains(&(x.div_euclid(16), z.div_euclid(16))) && leaf(x, z).is_some()
                 {
-                    industrial - era.push((x, z));
+                    industrial_era.push((x, z));
                 }
             }
         }
@@ -3940,7 +3940,7 @@ mod tests {
             if fine.is_none() && seam.iter().all(|&(x, z, leaf)| drawn(x, z, leaf.level)) {
                 fine = Some((jobs, cost));
             }
-            if reached.is_none() && industrial - era.iter().all(|&(x, z)| drawn(x, z, MAX_LEVEL)) {
+            if reached.is_none() && industrial_era.iter().all(|&(x, z)| drawn(x, z, MAX_LEVEL)) {
                 reached = Some((jobs, cost));
             }
             if let (Some(fine), Some(reached)) = (fine, reached) {

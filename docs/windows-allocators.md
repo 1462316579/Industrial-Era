@@ -1,6 +1,6 @@
 # Windows allocator experiments
 
-The normal client already uses mimalloc through `horizon_threads::Allocator`,
+The normal client already uses mimalloc through `industrial_era_threads::Allocator`,
 including its startup configuration and memory-release behavior. It does not
 request Windows Segment Heap. An off-by-default Cargo feature allows a separate
 experiment with the Win32 heap used by native libraries:

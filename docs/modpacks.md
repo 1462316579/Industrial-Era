@@ -157,7 +157,7 @@ derivative work. These rules are part of the pipeline, not advice to users:
 
    A port whose code may be shared but whose assets may not ships without them, and the game
    fetches them on the player's device from the mod's own file on Modrinth (Starling,
-   `horizon_mods::fetch`), as `prepare` gets Minecraft's from Mojang. The manifest names the
+   `industrial_era_mods::fetch`), as `prepare` gets Minecraft's from Mojang. The manifest names the
    file by its SHA-512 and the folders the game takes from it:
 
    ```toml
@@ -298,7 +298,7 @@ the inventory above or landing on it to the one below, the chute it leads into, 
 order its machine names them (a blaze burner's blaze, rods and flame: `block-models.json`).
 
 A block can also be a **kinetic part** (Starling: rotation passed from block to block, as
-Create's; `horizon_client::kinetics`): `"kinetic": { "part": "shaft" | "cogwheel" |
+Create's; `industrial_era_client::kinetics`): `"kinetic": { "part": "shaft" | "cogwheel" |
 "large_cogwheel" | "gearbox" | "motor" | "crank" | "drill" | "crushing_wheel" | "millstone" |
 "press" | "mixer" | "fan" | "water_wheel" | "clutch" | "gearshift" | "belt" | "saw" | "bearing" |
 "arm", "rpm": 16,

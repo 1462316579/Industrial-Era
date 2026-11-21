@@ -117,48 +117,15 @@ impl Game<'_> {
             Some(i) => self.stack_in(i).cloned(),
             None => self.creative.then(|| ItemStack::new(ARROW, 1)),
         };
-        if industrial_era_client::mod_api::mods().is_empty() {
-            return vanilla.map(|stack| Ammo { stack, slot });
-        }
-        let mut projectile = vanilla.clone();
-        // A client predicting its own use has the profile it logged in with.
-        let player = match self
-            .remote
-            .as_ref()
-            .filter(|_| self.lan_acting_uuid.is_none())
-        {
-            Some(r) => r.profile(),
-            None => industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid()),
-        };
-        let name = self.own_profile_name();
-        self.native_living_get_projectile(
-            Some(player),
-            &name,
-            None,
-            "minecraft:player",
-            weapon,
-            &mut projectile,
-        );
-        let slot = slot.filter(|_| projectile == vanilla);
-        projectile.map(|stack| Ammo { stack, slot })
+        vanilla.map(|stack| Ammo { stack, slot })
     }
     /// `AbstractSkeleton.performRangedAttack`'s `getProjectile`: the arrow
     /// `mob` shot becomes the replaced ammunition's (`ProjectileUtil.getMobArrow`).
     pub(super) fn mob_bow_ammo(&mut self, mob: u32, weapon: &ItemStack, arrow: &mut Projectile) {
-        if industrial_era_client::mod_api::mods().is_empty() {
-            return;
-        }
         let Some(shooter) = self.mobs.iter().find(|m| m.id == mob) else {
             return;
         };
-        let kind = shooter.kind.id.clone();
-        let vanilla = Self::mob_vanilla_ammo(&shooter.extra, weapon);
-        let mut projectile = Some(vanilla.clone());
-        self.native_living_get_projectile(None, "", Some(mob), &kind, weapon, &mut projectile);
-        let Some(ammo) = projectile.filter(|ammo| *ammo != vanilla && is_arrow(ammo)) else {
-            return;
-        };
-        Self::arrow_from_ammo(&ammo, arrow);
+        Self::arrow_from_ammo(&Self::mob_vanilla_ammo(&shooter.extra, weapon), arrow);
     }
     /// `Monster.getProjectile`: the projectile `weapon` supports in the off
     /// hand, then the main hand (`getHeldProjectile`), else a new arrow.
@@ -202,8 +169,7 @@ impl Game<'_> {
             return false;
         };
         let kind = shooter.kind.id.clone();
-        let mut projectile = Some(Self::mob_vanilla_ammo(&shooter.extra, weapon));
-        self.native_living_get_projectile(None, "", Some(mob), &kind, weapon, &mut projectile);
+        let projectile = Some(Self::mob_vanilla_ammo(&shooter.extra, weapon));
         // A crossbow takes arrows and firework rockets only.
         let projectile = projectile.filter(|ammo| is_arrow(ammo) || &*ammo.item == FIREWORK_ROCKET);
         let Some(shooter) = self.mobs.iter_mut().find(|m| m.id == mob) else {
@@ -381,7 +347,6 @@ impl Game<'_> {
                     self.acting_player_name().to_owned(),
                     self.next_entity,
                 );
-                self.native_entity_shoot_bow(player, &name, projectile, power as f32);
             }
             self.player_projectile_shot();
             let pitch = if index == 0 {

@@ -24,12 +24,6 @@ impl Game<'_> {
         if !self.world.block_entities.has_states() {
             let states = self.ticking_states();
             self.world.block_entities.set_states(states);
-            let containers = self.native_containers();
-            self.world.block_entities.set_mod_containers(containers);
-            let fluids = self.native_fluid_tables();
-            self.world.block_entities.set_mod_fluids(fluids);
-            let energy = self.native_energy_tables();
-            self.world.block_entities.set_mod_energy(energy);
         }
         // Only lingering cooldowns are dropped; a hopper that ticks checks
         // its own block. Once a second is soon enough for the rest.
@@ -71,7 +65,6 @@ impl Game<'_> {
                 Some(BlockEntity::Brewing(_)) => self.tick_brewing_stand(pos)?,
                 Some(BlockEntity::DaylightDetector) => self.tick_daylight_detector(pos),
                 Some(BlockEntity::Campfire(_)) => self.tick_campfire(pos)?,
-                Some(BlockEntity::Mod(_)) => self.tick_mod_block_entity(pos),
                 Some(BlockEntity::PotentSulfur(_)) => {
                     self.tick_potent_sulfur(pos)?;
                     // A window that simulates the world itself is its own
@@ -189,7 +182,6 @@ impl Game<'_> {
                         if record { Ticking::Yes } else { Ticking::Idle }
                     }
                     n if FurnaceKind::from_block(n).is_some() => Ticking::Yes,
-                    n if !n.starts_with("minecraft:") && self.native_ticks(n) => Ticking::Yes,
                     _ => Ticking::No,
                 }
             })
@@ -251,15 +243,9 @@ impl Game<'_> {
                 .flatten();
             (lit, burning, smelted, smelting)
         };
-        if let Some(item) = smelting {
-            self.native_furnace_start_smelt([pos.0, pos.1, pos.2], &item);
-        }
-        if let Some(fuel) = burning {
-            self.native_furnace_burn([pos.0, pos.1, pos.2], &fuel);
-        }
-        if let Some((Some(item), result)) = smelted {
-            self.native_furnace_smelt([pos.0, pos.1, pos.2], &item, &result);
-        }
+        if let Some(item) = smelting {}
+        if let Some(fuel) = burning {}
+        if let Some((Some(item), result)) = smelted {}
         for stack in drops {
             self.campfire_drop(pos, stack);
         }

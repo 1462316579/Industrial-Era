@@ -38,7 +38,7 @@ fn send_native_nearby(
         .filter(|g| g.placed && g.dimension == dimension && within_range(g.position))
     {
         // A vanilla client cannot decode a native mod's particle id; see
-        // `mod_particle_only_for_horizon`.
+        // `mod_particle_only_for_industrial_era`.
         if industrial_era_only && guest.brand != "industrial-era" {
             continue;
         }
@@ -49,7 +49,7 @@ fn send_native_nearby(
 /// A native mod's particle travels as `MOD_PARTICLE_ID` (-1) plus its name.
 /// Vanilla reads the id with `IdMap.byIdOrThrow`, which throws on -1 and
 /// drops the connection, so such a particle may only go to Industrial Era clients.
-fn mod_particle_only_for_horizon(particle: &Particle) -> bool {
+fn mod_particle_only_for_industrial_era(particle: &Particle) -> bool {
     matches!(particle.data, Some(ParticleData::Mod(_)))
 }
 
@@ -167,7 +167,7 @@ pub(super) fn send_hub_level_particles(
     let Some(particle) = Game::hub_particle(hub, options, state) else {
         return;
     };
-    let industrial_era_only = mod_particle_only_for_horizon(&particle);
+    let industrial_era_only = mod_particle_only_for_industrial_era(&particle);
     let packet = C::LevelParticles(play::LevelParticles {
         particle,
         override_limiter: false,
@@ -508,7 +508,7 @@ impl Game<'_> {
         let Some(host) = self.lan.as_ref() else {
             return;
         };
-        let industrial_era_only = mod_particle_only_for_horizon(&particle);
+        let industrial_era_only = mod_particle_only_for_industrial_era(&particle);
         let body = C::LevelParticles(play::LevelParticles {
             particle,
             override_limiter: false,

@@ -3,14 +3,13 @@
 //! version beside the releases. The program alone can't start: it needs a version folder's
 //! game files. So an import is a copy of an installed release or Nightly's folder (its
 //! research-lock.json, preparer sources and prepared resources) with the picked program in
-//! place of that version's own, as a native build is (`native_mods::install`).
+//! place of that version's own.
 //!
 //! Nothing signed it: the Versions page says so. Its tag (`imported-<date>-<sha>`) is no
 //! release's, so no update replaces it, prunes it or moves the selection off it.
 
 use crate::backend::{self, CLIENT};
 use crate::i18n::{tr, trf};
-use crate::native_mods::{self, Target};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::{Cursor, Read, Seek};
@@ -77,7 +76,13 @@ fn base_for(
             selected
                 .filter(|s| usable(s))
                 .map(str::to_owned)
-                .or_else(|| native_mods::newest_installed(installed).cloned())
+                .or_else(|| {
+                    installed
+                        .iter()
+                        .rev()
+                        .find(|v| official(v))
+                        .cloned()
+                })
                 .ok_or_else(|| {
                     tr("Install a release or Nightly first: an imported build plays with its game \
                     files.")
@@ -233,7 +238,7 @@ fn is_game(program: &[u8]) -> bool {
         &[b"\x7fELF"]
     };
     magic.iter().any(|m| program.starts_with(m))
-        && industrial_era_mods::api_level::read_mark(program).is_some()
+        && program.windows(27).any(|w| w == b"industrial-era-mod-api-level-0")
 }
 
 /// Installs `program` in `versions` as a copy of installed version `base` with it in place of
@@ -278,7 +283,7 @@ fn install_in(
     let record = serde_json::json!({ "base": base, "file": file, "sha256": sha256 });
     let made = fs::create_dir_all(&partial)
         .map_err(|e| e.to_string())
-        .and_then(|()| native_mods::copy_base(&versions.join(base), &partial, Target::Client))
+        .and_then(|()| copy_dir(&versions.join(base), &partial).map_err(|e| e.to_string()))
         .and_then(|()| finish(&partial, &dir, program, &record).map_err(|e| e.to_string()));
     let _ = retried(|| fs::remove_dir_all(&partial).or_else(|_| gone(&partial)));
     if let Err(e) = made {
@@ -337,6 +342,40 @@ fn gone(path: &Path) -> std::io::Result<()> {
     }
 }
 
+/// Copy a version folder's game files into `dst` (non-recursive: just what a game run reads
+/// at startup, beside the program the import replaced).
+fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
+    for e in fs::read_dir(src)? {
+        let e = e?;
+        let name = e.file_name();
+        let src = e.path();
+        let dst = dst.join(&name);
+        if name == "game" || name == "native" || name == "mods" || name == ".installed" {
+            continue;
+        }
+        if src.is_dir() {
+            fs::create_dir_all(&dst)?;
+            for ee in fs::read_dir(&src)? {
+                let ee = ee?;
+                let from = ee.path();
+                let to = dst.join(ee.file_name());
+                if from.is_dir() {
+                    fs::create_dir_all(&to)?;
+                    for fff in fs::read_dir(&from)? {
+                        let fff = fff?;
+                        let _ = std::fs::copy(fff.path(), to.join(fff.file_name()));
+                    }
+                } else {
+                    let _ = std::fs::copy(&from, &to);
+                }
+            }
+        } else {
+            let _ = std::fs::copy(&src, &dst);
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -369,7 +408,7 @@ mod tests {
         } else {
             b"\x7fELF"
         };
-        [magic, body, &industrial_era_mods::api_level::MARK[..]].concat()
+        [magic, body, b"industrial-era-mod-api-level-0"].concat()
     }
 
     #[test]
@@ -465,7 +504,7 @@ mod tests {
             &b"MZ"[..]
         };
         assert!(!is_game(
-            &[other, &industrial_era_mods::api_level::MARK[..]].concat()
+            &[other, b"industrial-era-mod-api-level-0"].concat()
         ));
         let d = dir("zip");
         let zip_path = d.join("industrial_era-client-windows-x86_64.zip");

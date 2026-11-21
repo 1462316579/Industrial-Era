@@ -1,7 +1,7 @@
 # World generation
 
 Industrial Era targets the repository-pinned Minecraft Java Edition **26.3**.
-`horizon_world::worldgen::decode_noise` implements its direct normal-noise JSON
+`industrial_era_world::worldgen::decode_noise` implements its direct normal-noise JSON
 codec. `DensityRegistry` decodes named density definitions and `NoiseRouter`
 loads the eight router roots against the same graph. `AquiferConfig` binds the six
 aquifer density roots, and `NoiseBasedAquifer` implements underground fluid and

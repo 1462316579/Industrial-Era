@@ -338,9 +338,7 @@ impl Game<'_> {
         self.keys.clear();
         self.right = false;
         self.capture(false);
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_open_sign(player, &name, [pos.0, pos.1, pos.2], front);
-        }
+        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
     }
     /// `AbstractSignEditScreen.tick`: the editor closes (and `removed` sends
     /// the text) once its sign is removed or the player's eyes are further
@@ -453,28 +451,8 @@ impl Game<'_> {
             .guest(conn)
             .map(|g| (g.uuid, g.name.clone(), g.dimension.clone()))
         {
+            // No mods: no sign change hooks. Proceed directly.
             let mut lines = p.lines.to_vec();
-            let mut cancel = false;
-            self.as_guest_messaged(host, conn, |game| {
-                game.native_sign_changed(
-                    uuid,
-                    &name,
-                    &dimension,
-                    p.pos,
-                    p.front,
-                    &mut lines,
-                    &mut cancel,
-                );
-            });
-            if cancel {
-                // The sign keeps its text: the editor closes, and the player's
-                // client, which shows what it sent, gets the sign as it is.
-                if let Some(play) = host.play.get_mut(&conn) {
-                    play.sign_editing = None;
-                }
-                self.mark_block_entity_updated(key);
-                return;
-            }
             lines.resize(4, String::new());
             for (line, new) in p.lines.iter_mut().zip(lines) {
                 *line = new;

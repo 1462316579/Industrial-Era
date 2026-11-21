@@ -1,13 +1,11 @@
-//! IndustrialEra's own registry (docs/api/mod-index.md): mods, modpacks and resource packs made for
-//! IndustrialEra, reviewed as pull requests in industrial_era-rust/industrial_era-mods. One file lists them all,
-//! `index.json`; every download is checked against it before it reaches the game folder
-//! (`industrial_era_mods::index::check_file`: size, SHA-256, the author's signature, the file's own
-//! manifest), and files the index says were taken down are refused and turned off.
+//! IndustrialEra's own registry: mods, modpacks and resource packs made for IndustrialEra, reviewed as
+//! pull requests. One file lists them all, `index.json`; every download is checked against it before it
+//! reaches the game folder (size, SHA-256, the author's signature, the file's own manifest), and files
+//! the index says were taken down are refused and turned off.
 use super::{
     details::{Details, Link},
     download, installed, java, FileRef, Kind, Project, Query, Source, SourceId, Version, GAME,
 };
-use industrial_era_mods::index::{self, Index, Trust};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -59,14 +57,6 @@ pub fn known_index() -> Option<Arc<Index>> {
         .unwrap()
         .as_ref()
         .map(|(_, index)| index.clone())
-}
-
-/// Whether the registry's project `id` is a native mod, by the index already read (never the
-/// network); false when none was read.
-pub fn is_native_mod(id: &str) -> bool {
-    known_index()
-        .and_then(|index| Some(index.project(id)?.kind == index::Kind::NativeMod))
-        .unwrap_or(false)
 }
 
 /// The index: the one fetched in the last ten minutes, else fetched again (and kept in the game
@@ -217,11 +207,6 @@ fn kind_of(kind: &index::Kind) -> Option<Kind> {
     match kind {
         index::Kind::Mod => Some(Kind::Mod),
         index::Kind::ResourcePack => Some(Kind::ResourcePack),
-        index::Kind::Modpack => Some(Kind::Modpack),
-        index::Kind::Shader => Some(Kind::Shader),
-        // Mixin mods: installed beside the others, compiled into the game by `native_mods`.
-        index::Kind::NativeMod => Some(Kind::Mod),
-        index::Kind::Other(_) => None,
     }
 }
 
@@ -258,18 +243,6 @@ pub fn trust_and_capabilities(id: &str) -> Vec<String> {
         Some(_) => "Signed by its author: the launcher checks the signature".to_owned(),
         None => "Unsigned: the launcher checks its checksum only".to_owned(),
     });
-    if p.kind == index::Kind::NativeMod {
-        lines.push(
-            "Native code: it is compiled into the game and runs with full access to your computer. Its source was reviewed before it was listed".into(),
-        );
-        if let Some(v) = p.versions.first() {
-            let pin = v.api.split('/').nth(1).unwrap_or_default();
-            lines.push(format!(
-                "Built by the launcher on IndustrialEra {}",
-                &pin[..pin.len().min(7)]
-            ));
-        }
-    }
     if let Some(v) = p.versions.first().filter(|_| p.kind == index::Kind::Mod) {
         lines.extend(
             v.capabilities
@@ -652,10 +625,8 @@ fn install_version(
     if let Some(r) = index.revoked(&p.id, &v.file.sha256) {
         return Err(format!("{} was taken down: {}", p.name, r.reason));
     }
-    let native = p.kind == index::Kind::NativeMod;
-    let relative = match native {
-        true => format!("{}/{}.hnmod", crate::native_mods::INSTALLED, p.id),
-        false => relative(project.kind, &p.id, &v.file.name)?,
+    let relative = match project {
+        Kind::Mod | Kind::ResourcePack => relative(project, &p.id, &v.file.name)?,
     };
     let mut list = installed::Installed::load(home);
     let ours = |e: &installed::Entry| e.source == SourceId::IndustrialEra && e.project == p.id;
@@ -738,19 +709,8 @@ fn install_version(
     Ok(entry)
 }
 
-/// Whether an update to a native version keeps the old file `old`: a mod that turned native
-/// keeps its `.hmod` until the player builds the game with the new version. The game runs it
-/// meanwhile and skips it once the native one is built in; removing the mod removes both.
-fn stays(native: bool, old: &str) -> bool {
-    native && old.ends_with(".hmod")
-}
-
-/// The mod id of an installed mod (`industrial_era-mods/<id>`, `industrial_era-mods/<id>.hmod` or
-/// `industrial_era-native-mods/<id>.hnmod`).
+/// The mod id of an installed mod (`industrial_era-mods/<id>.hmod`).
 pub fn mod_id(entry: &installed::Entry) -> Option<&str> {
-    if let Some(rest) = entry.file.strip_prefix(crate::native_mods::INSTALLED) {
-        return rest.strip_prefix('/')?.strip_suffix(".hnmod");
-    }
     let rest = entry.file.strip_prefix(java::MODS_DIR)?.strip_prefix('/')?;
     Some(rest.strip_suffix(".hmod").unwrap_or(rest))
 }
@@ -813,6 +773,5 @@ pub fn before_play(home: &Path) {
     });
 }
 
-pub mod pack;
 #[cfg(test)]
 mod tests;

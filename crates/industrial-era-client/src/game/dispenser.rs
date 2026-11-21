@@ -13,8 +13,6 @@ use industrial_era_client::{
     particles::{ParticleOptions, ParticleType},
     projectiles::{Projectile, ProjectileKind},
 };
-// Its old home, for mixin code that names it here.
-pub(super) use industrial_era_client::mod_api::NativeDispensed;
 use industrial_era_core::{
     geometry::{Aabb, Direction, Vec3},
     position::BlockPos,
@@ -102,7 +100,7 @@ fn shrink(mut stack: ItemStack) -> Option<ItemStack> {
 type Dispensed = (Option<ItemStack>, i32);
 
 /// None keeps vanilla's behaviour; an explicit empty remainder consumes the stack.
-fn mod_dispensed(answer: Option<NativeDispensed>) -> Option<Dispensed> {
+fn mod_dispensed(answer: Option<Dispensed>) -> Option<Dispensed> {
     answer.map(|(left, event)| (left.filter(|stack| stack.count > 0), event))
 }
 
@@ -623,32 +621,6 @@ impl Game<'_> {
         facing: Direction,
         stack: ItemStack,
     ) -> Result<Option<ItemStack>> {
-        let mut answer = None;
-        if self.serving.is_some() || self.options.dedicated.is_some() {
-            self.native_dispense_item(
-                self.dim.id(),
-                [pos.0, pos.1, pos.2],
-                facing,
-                &stack,
-                &mut answer,
-            );
-        }
-        if let Some((left, event)) = mod_dispensed(answer) {
-            if event == FAIL {
-                self.native_block_failed_dispense(
-                    self.dim.id(),
-                    [pos.0, pos.1, pos.2],
-                    &stack.item,
-                );
-            }
-            // DefaultDispenseItemBehavior.dispense: playSound, then playAnimation;
-            // a NOOP behaviour (event 0) plays neither.
-            if event != 0 {
-                self.dispenser_event(event, pos, 0);
-                self.dispenser_event(2000, pos, data_value(facing));
-            }
-            return Ok(left);
-        }
         let item = stack.item.to_string();
         let (left, event) = match item.as_str() {
             "minecraft:arrow"
@@ -697,9 +669,7 @@ impl Game<'_> {
             }
             _ => self.dispense_default_method(pos, facing, stack)?,
         };
-        if event == FAIL {
-            self.native_block_failed_dispense(self.dim.id(), [pos.0, pos.1, pos.2], &item);
-        }
+        if event == FAIL {}
         self.dispenser_event(event, pos, 0);
         self.dispenser_event(2000, pos, data_value(facing));
         Ok(left)
@@ -909,12 +879,6 @@ impl Game<'_> {
                 };
                 self.player_equipped(name, Some(&one));
                 self.apply_equipment();
-                self.native_block_dispense_armor(
-                    self.dim.id(),
-                    [pos.0, pos.1, pos.2],
-                    &stack.item,
-                    "player",
-                );
                 return true;
             }
             Target::Stand(i) => {
@@ -948,16 +912,6 @@ impl Game<'_> {
             let ctx = self.who_context(who, None);
             self.post_game_event("minecraft:equip", [at.x, at.y, at.z], ctx);
         }
-        self.native_block_dispense_armor(
-            self.dim.id(),
-            [pos.0, pos.1, pos.2],
-            &stack.item,
-            match target {
-                Target::Stand(_) => "armor_stand",
-                Target::Mob(_) => "mob",
-                Target::Player => "player",
-            },
-        );
         true
     }
     /// After `EntityType.spawn` / `MobBucketItem.spawn`: `mob.playAmbientSound()`.
@@ -1218,10 +1172,6 @@ impl Game<'_> {
         self.boats.push(boat);
         if self.serving.is_some() || self.options.dedicated.is_some() {
             let boat = self.boats.last().unwrap();
-            self.native_vehicle_create(
-                boat.entity_type().as_str(),
-                [boat.position.x, boat.position.y, boat.position.z],
-            );
         }
         (shrink(stack), CLICK)
     }
@@ -1264,10 +1214,6 @@ impl Game<'_> {
         self.carts.push(cart);
         if self.serving.is_some() || self.options.dedicated.is_some() {
             let cart = self.carts.last().unwrap();
-            self.native_vehicle_create(
-                cart.kind.id(),
-                [cart.position.x, cart.position.y, cart.position.z],
-            );
         }
         (shrink(stack), CLICK)
     }
@@ -1394,7 +1340,7 @@ impl Game<'_> {
         if self
             .with_level(|b, level, ticks| b.fire_can_be_placed_at(level, ticks, target_pos, facing))
         {
-            if !self.native_block_ignite_allowed(target_pos, "flint_and_steel") {
+            if !self {
                 return Ok((Some(stack), CLICK));
             }
             let fire =
@@ -1844,7 +1790,6 @@ impl Game<'_> {
         let id = mob.id;
         self.mobs[index].removed = true;
         self.mobs.push(mob);
-        self.native_mobs_joined(self.mobs.len() - 1, false);
         Some(id)
     }
     /// `ShearsDispenseItemBehavior.tryShearEntity`: the first live, ready
@@ -1985,12 +1930,6 @@ impl Game<'_> {
                 }
                 _ => continue,
             }
-            self.native_block_shear_entity(
-                self.dim.id(),
-                [target.0, target.1, target.2],
-                entity_id,
-                &kind,
-            );
             self.post_block_game_event(
                 "minecraft:shear",
                 [target.0, target.1, target.2],

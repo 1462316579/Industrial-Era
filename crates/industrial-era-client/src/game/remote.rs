@@ -1097,7 +1097,6 @@ impl Game<'_> {
         self.container = None;
         self.carried = None;
         self.using = None;
-        self.end_mod_use();
         self.clicks.miss_time = 0;
         // A new LocalPlayer has no effects: the server sends what it has
         // (ClientboundUpdateMobEffectPacket on placement).
@@ -1311,15 +1310,11 @@ impl Game<'_> {
         self.titles.overlay_time = 0;
         // GameRenderer.resetData and narrator.clear (Minecraft.disconnect).
         self.item_activation.reset();
-        // Kept mod block entity geometry belongs to the world leaving.
-        self.kept_block_entities.get_mut().clear();
         self.clear_narrator();
         // A world is leaving either way: its icon attempt goes with it.
         self.world_icon = None;
         // Minecraft.disconnect: the client level goes.
-        if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {
-            self.native_client_level_unload(&old);
-        }
+        if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
         if let Some(mut r) = self.remote.take() {
             r.session.disconnect();
         }
@@ -2314,9 +2309,7 @@ impl Game<'_> {
                     // clearClientLevel drops the client level now, so its
                     // unload comes before the configuration screen, not
                     // after the next login's load.
-                    if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {
-                        self.native_client_level_unload(&old);
-                    }
+                    if let Some(old) = self.remote.as_mut().and_then(|r| r.heard_level.take()) {}
                     let ticks = self.ticks;
                     if let Some(r) = self.remote.as_mut() {
                         r.reset_listener();
@@ -2647,10 +2640,7 @@ impl Game<'_> {
                 .remote
                 .as_mut()
                 .and_then(|r| r.heard_level.replace(spawn.dimension.clone()));
-            self.native_client_level_load(&spawn.dimension);
-            if let Some(old) = old {
-                self.native_client_level_unload(&old);
-            }
+            if let Some(old) = old {}
         }
         let has_sky = self
             .remote
@@ -3532,9 +3522,7 @@ impl Game<'_> {
             // thread, after all preceding packets (especially teleports).
             C::Ping(p) => self.send(S::Pong(p)),
             // A native mod's server half to its client half.
-            C::CustomPayload(p) if p.channel == industrial_era_protocol::mod_net::CHANNEL => {
-                self.remote_native_net(&p.data);
-            }
+            C::CustomPayload(p) if p.channel == industrial_era_protocol::mod_net::CHANNEL => {}
             // The synced attachments of a holder the server shows the window.
             C::CustomPayload(p)
                 if p.channel == industrial_era_protocol::attachment_sync::CHANNEL =>
@@ -3543,10 +3531,7 @@ impl Game<'_> {
             }
             // The server's recipes its native mods asked to send.
             C::CustomPayload(p)
-                if p.channel == industrial_era_client::lan::recipes::CONTENT_CHANNEL =>
-            {
-                self.remote_recipe_content(&p.data);
-            }
+                if p.channel == industrial_era_client::lan::recipes::CONTENT_CHANNEL => {}
             // PingDebugMonitor.onPongReceived.
             C::PongResponse(p) => {
                 let delay = self.debug_millis() - p.time;
@@ -3554,7 +3539,6 @@ impl Game<'_> {
             }
             C::Login(p) => {
                 self.test_highlights.clear();
-                self.forget_synced_recipes();
                 self.level.hardcore = p.hardcore;
                 log::info!(
                     "Industrial Era: joined as entity {}, game mode {}",
@@ -3614,7 +3598,6 @@ impl Game<'_> {
                         .retain(|holder, _| matches!(holder, Holder::Player(_)));
                 }
                 self.using = None;
-                self.end_mod_use();
                 // After a death (no KEEP_ENTITY_DATA) the new LocalPlayer
                 // rides nothing: the server pairs a vehicle again with its
                 // passengers. A dimension change keeps the vehicle it travels in.
@@ -4928,7 +4911,6 @@ impl Game<'_> {
             C::ContainerSetData(p) if self.remote_station_open(p.container) => {
                 self.remote_station_data(usize::try_from(p.id).unwrap_or(usize::MAX), p.value);
             }
-            C::ContainerSetData(p) if self.native_screen_data(p.container, p.id, p.value) => {}
             C::ContainerSetData(p) => {
                 let v = i32::from(p.value);
                 match self
@@ -6349,10 +6331,7 @@ impl Game<'_> {
         // The rockets boosting this player tick after it, also while it waits
         // for chunks.
         self.tick_own_rockets();
-        // Client mods tick on any server, single player's own included.
-        self.native_net.to_server = 0;
-        self.native_tick();
-        self.tell_native_now();
+
         // Far tiles the samplers asked for (`lod_net`).
         if let Some(r) = &self.remote {
             r.session.send_far_terrain();
@@ -6566,7 +6545,6 @@ impl Game<'_> {
         }
         let [mut strafe, mut forward] = keys.direction();
         let original = [strafe, forward];
-        self.native_movement_input(&mut forward, &mut strafe, &mut keys.jump, &mut keys.shift);
         if [strafe, forward] != original {
             if forward != original[1] {
                 keys.forward = forward > 0.0;
@@ -8001,16 +7979,7 @@ impl Game<'_> {
         }
         // InputEvent.InteractionKeyMappingTriggered for the main hand: a cancel
         // ends the whole click, the off hand gets no turn.
-        if let Some(swing) = self.native_interaction(1, Hand::Main) {
-            if swing {
-                self.swing_hand(Hand::Main, SwingAnimation::DEFAULT);
-            }
-            return;
-        }
         // An item a mod claims: its use is the mod's, and the server never hears of it.
-        if self.mod_use_start() {
-            return;
-        }
         // Resolve the crosshair once. A passing entity interaction keeps
         // that target and may only fall back to using the item itself.
         let entity = self.remote_use_targets_entity();
@@ -8770,11 +8739,7 @@ impl Game<'_> {
         let Some(held) = self.with_hand(hand, |g| g.held().cloned()) else {
             return false;
         };
-        // A mod's claimed item is never used on the server; its own use
-        // starts from the main hand only (`mod_use_start`).
-        if self.native_input.claimant(&held.item).is_some() {
-            return false;
-        }
+
         let seq = self.next_sequence();
         self.send(S::UseItem(play::UseItem {
             hand: hand_id(hand),
@@ -8790,10 +8755,6 @@ impl Game<'_> {
         let group = industrial_era_client::cooldowns::group(&held, info.use_cooldown.as_ref());
         if self.cooldowns.is_on_cooldown(&group) {
             return false;
-        }
-        // a mod's item used over time starts here too, as the server starts it.
-        if self.with_hand(hand, |g| g.start_mod_use(&held)) {
-            return true;
         }
         // Item.use: Equippable.swapWithEquipmentSlot runs on this client too, so
         // the armor slot and the hand change at once (the server confirms).
@@ -9070,12 +9031,6 @@ impl Game<'_> {
             return;
         }
         // The off hand's turn: the event again, then the entity or the block.
-        if let Some(swing) = self.native_interaction(1, Hand::Off) {
-            if swing {
-                self.swing_hand(Hand::Off, SwingAnimation::DEFAULT);
-            }
-            return;
-        }
         let off_target = if self.remote_use_targets_entity() {
             self.remote_use_entity(Hand::Off)
         } else {
@@ -9095,7 +9050,6 @@ impl Game<'_> {
     fn remote_tick_using(&mut self) {
         let Some((slot, ticks)) = self.using else {
             // A mod's use the game reset (the server stopping the use...).
-            self.end_mod_use();
             return;
         };
         let stack = self.stack_in(slot).cloned();
@@ -9107,19 +9061,14 @@ impl Game<'_> {
                 r.use_item = item;
             } else if r.use_item != item {
                 self.using = None;
-                self.end_mod_use();
                 return;
             }
         }
         // Another hotbar slot picked: LivingEntity.updatingUsingItem sees a
         // different stack in the hand. The off hand keeps its item.
         let in_hand = slot == self.selected || slot == super::shield::OFFHAND_SLOT;
-        // A mod's item: held until the button lets go, counted for the mod.
-        if self.mod_use_tick(slot, ticks, !self.right || !in_hand) {
-            return;
-        }
-        // updatingUsingItem runs here too: a use a mod's tick ran out stays
-        // frozen until let go (RELEASE_USE_ITEM) or the server finishes it.
+        // updatingUsingItem runs here too: a use that ran out stays frozen
+        // until let go (RELEASE_USE_ITEM) or the server finishes it.
         if let Some(s) = stack.as_ref().filter(|_| in_hand)
             && !self.use_item_ticked(s, ticks)
         {
@@ -9390,13 +9339,6 @@ impl Game<'_> {
         }
         // InputEvent.InteractionKeyMappingTriggered, after the checks that stop
         // an attack: a cancel ends it there, swinging unless the mod said not to.
-        if let Some(swing) = self.native_interaction(0, Hand::Main) {
-            if swing {
-                let animation = spear.map_or(SwingAnimation::DEFAULT, |k| k.attack_animation());
-                self.swing_hand(Hand::Main, animation);
-            }
-            return false;
-        }
         // A spear jabs (`MultiPlayerGameMode.piercingAttack`): the server
         // stabs, this client swings, plays the sound and starts its charge
         // again.
@@ -9545,19 +9487,7 @@ impl Game<'_> {
         {
             let state = self.world.block(hit.pos[0], hit.pos[1], hit.pos[2]);
             let air = self.res.facts().is_air(state);
-            // InputEvent.InteractionKeyMappingTriggered, before the dig goes on:
-            // a cancel digs nothing and swings unless the mod said not to.
-            let canceled = if air {
-                None
-            } else {
-                self.native_interaction(0, Hand::Main)
-            };
-            if let Some(swing) = canceled {
-                if swing {
-                    self.swing_arm();
-                    self.send(S::Punch(Empty));
-                }
-            } else if self.remote_break_restricted() {
+            if self.remote_break_restricted() {
                 // continueDestroyBlock returned false: no swing.
             } else if !air {
                 self.remote_mining(false);
@@ -10220,21 +10150,6 @@ impl Game<'_> {
             let key = target.filter(holds).unwrap_or((i32::MIN, 0, 0));
             self.world.block_entities.insert(key, entity);
             self.container = Some(key);
-            self.open_native_screen(key, target, p.container, &menu);
-            // A mod menu type shows through its mod's screen only: without one
-            // (`MenuScreens.create` finds no screen) the window closes again.
-            if self.mod_screen.is_none() && mod_type.is_some() {
-                self.world.block_entities.remove(&key);
-                self.container = None;
-                if let Some(r) = self.remote.as_mut() {
-                    r.menu = None;
-                    r.menu_title = None;
-                }
-                self.send(S::ContainerClose(play::ContainerClose {
-                    container: p.container,
-                }));
-                return;
-            }
         }
         self.screen = Screen::Inventory;
         self.capture(false);
@@ -11090,11 +11005,6 @@ impl industrial_era_client::interaction_input::InteractionWorld for RemoteInputW
         self.0.using.is_some()
     }
     fn release_using(&mut self) {
-        if let Some((slot, ticks)) = self.0.using
-            && self.0.mod_use_tick(slot, ticks, true)
-        {
-            return;
-        }
         self.0.release_remote_use();
     }
     fn start_attack(&mut self) -> bool {
@@ -11108,18 +11018,12 @@ impl industrial_era_client::interaction_input::InteractionWorld for RemoteInputW
         // for (`handlePickItemFromEntity`), else the block.
         if let Some(entity) = self.0.pick_entity_hit() {
             if let Some(id) = entity {
-                if self.0.native_interaction(2, Hand::Main).is_some() {
-                    return;
-                }
                 self.0.send(S::PickItemFromEntity(play::PickItemFromEntity {
                     id,
                     include_data: self.0.has_control_down(),
                 }));
             }
         } else if let Some(hit) = self.0.pick() {
-            if self.0.native_interaction(2, Hand::Main).is_some() {
-                return;
-            }
             self.0.send(S::PickItemFromBlock(play::PickItemFromBlock {
                 pos: hit.pos,
                 include_data: self.0.has_control_down(),

@@ -43,11 +43,8 @@ use std::{
     sync::Arc,
 };
 
-/// A living entity jumped (`LivingEvent.LivingJumpEvent`). 359.
-#[inline(never)]
-pub fn native_living_jump(entity: u32, kind: &str) {
-    crate::native_client_hooks::living_jump(entity, kind);
-}
+/// No mod hooks remain after native mods were removed.
+pub fn native_living_jump(_entity: u32, _kind: &str) {}
 
 pub(crate) mod environment;
 mod fluids;

@@ -1564,7 +1564,6 @@ impl Game<'_> {
             if pickup_instead_of_push(species, passenger, occupied) && !player {
                 // Entity.startRiding: a mod may cancel it (EntityMountEvent).
                 if can_ride_cart(species, cooldown)
-                    && self.native_mob_may_ride(mob, id, true)
                     && let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob)
                 {
                     m.extra.mount = Some(id);
@@ -1635,7 +1634,6 @@ impl Game<'_> {
         self.push_carts();
         // ServerLevel.tick: only entities in entity-ticking chunks tick.
         let ticking = self.entity_ticking_area();
-        let mut round = self.native_tick_round();
         // A server player's minecart moves with its rider (lan_vehicles.rs).
         let ridden = self.guest_vehicles();
         // By id: an exploding cart can destroy or prime others mid-loop.
@@ -1652,9 +1650,6 @@ impl Game<'_> {
                 continue;
             }
             let kind = self.carts[i].kind.id();
-            if !self.native_tick_pre_one(&mut round, id, kind) {
-                continue;
-            }
             let Some(i) = self.carts.iter().position(|c| c.id == id) else {
                 continue;
             };
@@ -1664,7 +1659,6 @@ impl Game<'_> {
                 self.hopper_cart_suck(&mut c);
             }
             let Some(i) = self.carts.iter().position(|c| c.id == id) else {
-                self.native_tick_post_one(&round, id, kind);
                 continue;
             };
             if alive {
@@ -1679,13 +1673,9 @@ impl Game<'_> {
                 self.carts.remove(i);
             }
             // After the ticked cart is stored: a mod reads and changes the cart as it is now.
-            self.native_tick_post_one(&round, id, kind);
         }
         // On the server for every cart, the ridden ones too.
         for id in ids {
-            if round.canceled(id) {
-                continue;
-            }
             if let Some(i) = self.carts.iter().position(|c| c.id == id) {
                 let p = self.carts[i].position;
                 if ticking(p.x.floor() as i32, p.z.floor() as i32) {
@@ -1800,7 +1790,7 @@ impl Game<'_> {
     /// `getDismountLocationForPassenger`: beside the cart (across its facing), else on top.
     pub(super) fn dismount_cart(&mut self, i: usize) {
         let id = self.carts[i].id;
-        if self.riding == Some(id) && !self.native_may_leave(id) {
+        if self.riding == Some(id) {
             return;
         }
         self.riding = None;
@@ -1877,10 +1867,6 @@ impl Game<'_> {
         self.carts.push(cart);
         if self.serving.is_some() || self.options.dedicated.is_some() {
             let cart = self.carts.last().unwrap();
-            self.native_vehicle_create(
-                cart.kind.id(),
-                [cart.position.x, cart.position.y, cart.position.z],
-            );
         }
         if !self.creative {
             self.consume_held();
@@ -1968,9 +1954,6 @@ impl Game<'_> {
                 let has_mob = self.mobs.iter().any(|m| m.extra.mount == Some(id));
                 if sneaking || self.riding.is_some() || self.ridden_by_guest(id) || has_mob {
                     return false;
-                }
-                if !self.native_may_board(id) {
-                    return true;
                 }
                 self.riding = Some(id);
             }
@@ -2144,7 +2127,6 @@ impl Game<'_> {
     pub(super) fn hurt_cart(&mut self, i: usize, mut damage: f32, creative: bool, fire: bool) {
         let kind = self.carts[i].kind.id();
         let mut cancel = false;
-        self.native_vehicle_damage(kind, &mut damage, &mut cancel);
         if cancel {
             return;
         }
@@ -2173,7 +2155,6 @@ impl Game<'_> {
                     self.carts[i].position.y,
                     self.carts[i].position.z,
                 ];
-                self.native_vehicle_destroy(self.carts[i].kind.id(), at);
             }
             let mut c = self.carts.remove(i);
             if c.kind == CartKind::Tnt && (fire || speed >= f64::from(0.01f32)) {

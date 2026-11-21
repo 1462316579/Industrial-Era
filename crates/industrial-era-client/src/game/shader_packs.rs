@@ -106,16 +106,8 @@ fn pack_draws_flat(path: &std::path::Path) -> bool {
 }
 
 // A native mod can bundle a pack as `native-<mod-id>`; its Mods toggle controls it too.
-fn active_pack<'a>(picked: &'a str, mods: &industrial_era_client::mod_list::ModList) -> &'a str {
-    if picked.strip_prefix("native-").is_some_and(|id| {
-        mods.installed
-            .iter()
-            .any(|m| m.id == id && m.native.is_some() && mods.disabled.contains(id))
-    }) {
-        ""
-    } else {
-        picked
-    }
+fn active_pack<'a>(picked: &'a str, _mods: &industrial_era_client::mod_list::ModList) -> &'a str {
+    picked
 }
 
 /// Whether the pack `settings` pick (or `HORIZON_SHADER_PACK`) is one of Industrial Era's own: only
@@ -292,9 +284,9 @@ impl Game<'_> {
             let scale = self.world_scale();
             let industrial_era = &self.settings.industrial_era;
             let (antialias, taa, upscale) = (
-                industrial - era.fxaa,
-                industrial - era.taa,
-                industrial - era.upscaling.ratio(),
+                industrial_era.fxaa,
+                industrial_era.taa,
+                industrial_era.upscaling.ratio(),
             );
             if let Some(renderer) = &mut self.renderer {
                 renderer.drop_shader_packs();
@@ -312,7 +304,6 @@ impl Game<'_> {
         let path = Self::shader_packs_dir().join(&name);
         if industrial_era_shader_api::package::is_pack(&path) {
             // One of Industrial Era's own packs (game/native_shaders.rs).
-            self.tick_native_shader_pack(&path);
         } else if let Some(renderer) = &mut self.renderer
             && renderer.shader_pack_dimension() != Some(dimension)
         {
@@ -573,7 +564,6 @@ impl Game<'_> {
                 self.pack.clouds.0,
             ) as f32
                 * 0.030_000_001,
-            mod_params: self.native_shader_params_now(partial),
             status,
             end_flash,
             end_flash_direction,

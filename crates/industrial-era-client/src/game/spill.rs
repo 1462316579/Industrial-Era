@@ -436,9 +436,6 @@ impl GameLevel<'_> {
         if let Some(mut xp) = removal::break_experience(&mut self.world.random, &name)
             && self.rules.block_drops
         {
-            if self.native_authoritative {
-                self.native_block_exp(self.dimension, pos, &name, &mut xp);
-            }
             let centre = [
                 f64::from(pos.x) + 0.5,
                 f64::from(pos.y) + 0.5,
@@ -730,7 +727,6 @@ impl Game<'_> {
         let tool = self.held().cloned();
         retell_runs(&mut spill.spawns, &used, |used, origin, drops| {
             let block = Some((used.pos, used.state));
-            self.native_use_drops(used.table, origin, block, None, tool.as_ref(), drops);
         });
         for s in spill.spawns {
             let motion = s.motion.unwrap_or_else(new_item_motion);

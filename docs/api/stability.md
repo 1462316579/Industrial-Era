@@ -17,7 +17,7 @@ promise, how something is deprecated and removed, and the tests that keep old mo
 | API | The version | A user names the line they need |
 | --- | --- | --- |
 | Content mods | the manifest's `api` line | `api = "0.2"` in `industrial-era-mod.toml` |
-| Native mods | the Industrial Era and industrial-era-mixins revisions the bundle pins | `horizon_revision` in `industrial-era-mixin.toml` |
+| Native mods | the Industrial Era and industrial-era-mixins revisions the bundle pins | `industrial_era_revision` in `industrial-era-mixin.toml` |
 | Agent control | the control protocol's version (`hello` replies it; MCP `serverInfo` carries the release) | `industrial-era-ctl --api 0.1` (planned) |
 | Server control API | the path (`/api/v1/`) | the path |
 | `server.toml` | the file's keys; a key is never renamed in place | nothing: old files keep loading |

@@ -1039,7 +1039,6 @@ impl Game<'_> {
             || matches!(self.book, Some(super::books::BookScreen::Edit { .. }))
             || (playing_screen(Screen::Creative) && self.creative_screen.tab().search)
             || self.recipe_search_focused()
-            || self.mod_browser_typing()
             || self.station_typing()
             || self.screen == Screen::CommandBlock
             || self.screen == Screen::Win

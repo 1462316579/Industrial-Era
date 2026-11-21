@@ -804,8 +804,8 @@ fn only_a_dedicated_server_has_the_dedicated_commands() {
     ];
     for dev in [false, true] {
         for industrial_era in [false, true] {
-            let integrated = vanilla::game_tree(dev, industrial - era, false);
-            let server = vanilla::game_tree(dev, industrial - era, true);
+            let integrated = vanilla::game_tree(dev, industrial_era, false);
+            let server = vanilla::game_tree(dev, industrial_era, true);
             for name in dedicated {
                 assert!(integrated.find(name).is_none(), "{name}");
                 assert!(server.find(name).is_some(), "{name}");
@@ -846,8 +846,8 @@ fn a_dedicated_server_keeps_seed_and_version_for_game_masters() {
     // without op gets neither (a seed cracker's input on an SMP).
     for dev in [false, true] {
         for industrial_era in [false, true] {
-            let integrated = vanilla::game_tree(dev, industrial - era, false);
-            let server = vanilla::game_tree(dev, industrial - era, true);
+            let integrated = vanilla::game_tree(dev, industrial_era, false);
+            let server = vanilla::game_tree(dev, industrial_era, true);
             let open = root_commands(integrated, 0);
             assert!(open.contains(&"seed".to_owned()), "{open:?}");
             assert!(open.contains(&"version".to_owned()), "{open:?}");

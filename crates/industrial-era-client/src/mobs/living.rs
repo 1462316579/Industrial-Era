@@ -1081,14 +1081,12 @@ impl Mob {
                 &mut cancel,
             );
             if cancel {
-                self.mod_block_fall(contact, landed, 0.0);
                 return false;
             }
         }
         // Entity.causeFallDamage: nothing happens to a fall immune entity, nor
         // to those on it.
         if self.kind.flags.fall_immune {
-            self.mod_block_fall(contact, landed, 0.0);
             return false;
         }
         let power = distance + 1.0e-6 - self.kind.safe_fall_distance;

@@ -25,7 +25,6 @@ impl Game<'_> {
         let own = self.use_duration(&stack);
         let (mut duration, mut canceled) = (own, false);
         let hand = self.hand;
-        self.native_living_entity_use_item_start(&stack, None, hand, &mut duration, &mut canceled);
         let Some(ticks_set) = start_of(own, duration, canceled) else {
             return false;
         };
@@ -55,7 +54,6 @@ impl Game<'_> {
                 _ => 0,
             },
         };
-        self.native_use_duration(stack, &mut duration);
         duration
     }
     /// Whether `stack` is a mod's item that only a mod uses over time: no
@@ -118,7 +116,6 @@ impl Game<'_> {
         let mut result = self.held().cloned();
         let before = result.clone();
         let hand = self.hand;
-        self.native_living_entity_use_item_finish(stack, None, hand, 0, &mut result);
         if result != before {
             *self.held_mut() = result.filter(|s| s.count > 0);
         }
@@ -131,7 +128,6 @@ impl Game<'_> {
         let before = ticks_left(self.use_duration, ticks);
         let (mut remaining, mut canceled) = (before, false);
         let hand = self.used_hand().unwrap_or(self.hand);
-        self.native_living_entity_use_item_tick(stack, None, hand, &mut remaining, &mut canceled);
         let (left, set) = tick_left(before, remaining, canceled, self.use_ticks_set);
         self.use_ticks_set = set;
         self.use_duration = duration_leaving(ticks, left);
@@ -140,9 +136,7 @@ impl Game<'_> {
     /// A mod's `Item.onUseTick` of `stack` used `ticks`, while ticks are left.
     pub(super) fn item_on_use_tick(&mut self, stack: &ItemStack, ticks: u32) {
         let remaining = ticks_left(self.use_duration, ticks);
-        if remaining > 0 {
-            self.native_on_use_tick(stack, None, remaining);
-        }
+        if remaining > 0 {}
     }
     /// How long `stack`, used `ticks`, counts as held: `getUseDuration` less
     /// the ticks left (`BowItem.releaseUsing`, `CrossbowItem.onUseTick`,
@@ -160,7 +154,6 @@ impl Game<'_> {
         let mut canceled = false;
         let remaining = ticks_left(self.use_duration, ticks);
         let hand = self.hand;
-        self.native_living_entity_use_item_stop(stack, None, hand, remaining, &mut canceled);
         !canceled
     }
     /// A mod's `Item.releaseUsing` of `stack` used `ticks`: when it says it
@@ -168,7 +161,6 @@ impl Game<'_> {
     pub(super) fn mod_release_using(&mut self, stack: &ItemStack, ticks: u32) {
         let mut used = false;
         let remaining = ticks_left(self.use_duration, ticks);
-        self.native_release_using(stack, None, remaining, &mut used);
         if used {
             self.apply_use_cooldown(stack);
         }
@@ -182,7 +174,6 @@ impl Game<'_> {
                 .player
                 .as_ref()
                 .is_some_and(|p| p.health.food.food < 20);
-        self.native_can_eat(stack, &mut can_eat);
         can_eat
     }
 }

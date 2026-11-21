@@ -386,7 +386,7 @@ impl Settings {
             .parent()
             .map(crate::graphics::Graphics::load)
             .unwrap_or_default();
-        crate::mipmap::set_dither_cutouts(industrial - era.dither_cutout_mips);
+        crate::mipmap::set_dither_cutouts(industrial_era.dither_cutout_mips);
         let controller = path
             .parent()
             .map(crate::gamepad::PadSettings::load)
@@ -404,7 +404,7 @@ impl Settings {
             crate::keypad::Settings::load(&path.with_file_name("industrial-era-keypad.json"));
         let settings = match fs::read(path) {
             Ok(bytes) => Self {
-                industrial_era: self.industrial_era.clone(),
+                industrial_era: industrial_era.clone(),
                 controller,
                 keypad,
                 extras,
@@ -412,7 +412,7 @@ impl Settings {
                 ..Self::parse(&String::from_utf8_lossy(&bytes))
             },
             Err(_) => Self {
-                industrial_era: self.industrial_era.clone(),
+                industrial_era: industrial_era.clone(),
                 controller,
                 keypad,
                 extras,

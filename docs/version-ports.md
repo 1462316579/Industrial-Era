@@ -29,7 +29,7 @@ to players. Players still prepare their own copy from their official launcher (`
   protocol 777, resource pack 97.1, data pack 121.0, Java 25). `tools/gen_version_consts.py` writes them into
   one generated file, `crates/industrial-era-core/src/version.rs` (`VANILLA_VERSION`, `PROTOCOL_VERSION`,
   `DATA_VERSION`, the pack formats, Java, `/version`'s build time), and every Rust site reads them from there
-  (`horizon_protocol::PROTOCOL_VERSION`, `horizon_world::DATA_VERSION` and the save's version name are aliases
+  (`industrial_era_protocol::PROTOCOL_VERSION`, `industrial_era_world::DATA_VERSION` and the save's version name are aliases
   of it; the status, the legacy ping, the crash report, `/version`, the title screens and the default resource
   folder use it). CI checks the file against the pinned jar (`--check`). Test fixtures that state a version
   (a level.dat to read, a relay message) keep their literals: they test parsing, not the pin.

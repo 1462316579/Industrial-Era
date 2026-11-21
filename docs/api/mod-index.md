@@ -6,7 +6,7 @@ Industrial Era's registry lists what is made for Industrial Era and reviewed: co
 [industrial-era-rust/industrial-era-mods](https://github.com/industrial-era-rust/industrial-era-mods) that links its GitHub repository; its versions are
 the repository's GitHub releases, read and checked by the registry's CI with no pull request and no review per version. The launcher and the
 website read one file, `index.json`, which that repository's CI builds. The Rust types and every check below are
-`horizon_mods::index` and `horizon_mods::modpack` (feature `index`); the sample is
+`industrial_era_mods::index` and `industrial_era_mods::modpack` (feature `index`); the sample is
 `crates/industrial-era-mods/tests/index/index-v1.json`, read by the tests with the files it lists.
 
 Level: preview ([stability.md](stability.md)). Schema 1.
@@ -65,7 +65,7 @@ changing what one means, makes schema 2.
    level when the entry lists one, and its
    content's fence ([mods.md](../mods.md#content-mods-api-02)); a native mod's `industrial-era-native.json` and
    `industrial-era-mixin.toml` (id, version, the pinned Industrial Era and industrial-era-mixins revisions); a modpack's manifest (id, version, format, game,
-   mods); a resource pack's `pack.mcmeta`; a shader pack's `horizon_shader_api::check` and manifest (id, version,
+   mods); a resource pack's `pack.mcmeta`; a shader pack's `industrial_era_shader_api::check` and manifest (id, version,
    shader API).
 4. A kind this build can't install is refused with "this Industrial Era can't install a … yet".
 
@@ -101,7 +101,7 @@ them into the profile's game folder.
 `revoked.toml`. An entry is **a link and a page**: the project's GitHub repository and what the listing says about it.
 Its versions are the repository's GitHub releases. What an entry can't vouch for is read from the file by the kind's own
 check (`index::inspect`): a mod's API, side and capabilities, a modpack's mods, the size. Types and rules:
-`horizon_mods::index::registry`.
+`industrial_era_mods::index::registry`.
 
 ```toml
 id = "coords_hud"                # the file's name, and the manifest's id
@@ -203,7 +203,7 @@ How the repository runs (its workflows are in `.github/workflows/`):
   nobody installed) fails `registry review` on purpose and needs an administrator's merge.
 
 Kinds open to submissions: `mod` (content only), `native-mod`, `modpack`, `resourcepack`, `shader`. A shader pack (`.hshader`) passes
-`horizon_shader_api::check`, the check the game runs before it loads one (`industrial-era-shader check`, [shaders.md](../shaders.md)):
+`industrial_era_shader_api::check`, the check the game runs before it loads one (`industrial-era-shader check`, [shaders.md](../shaders.md)):
 every stage validated by naga and translated for Vulkan, Metal and DirectX 12; its manifest's id, version and shader
 API line are its facts. Iris and OptiFine packs are for the Modrinth browser. A new kind gets its own check before it
 opens.
@@ -213,5 +213,5 @@ opens.
 - 2026-10-30: an entry names its GitHub repository (`repo`) and its versions are the repository's releases, read by the registry's CI; `file.url` may be a release asset of that repository. The index's schema is unchanged.
 - 2026-10-26: `projects[].downloads`, GitHub's download counts of a project's files, refreshed every hour.
 - 2026-10-26: the launcher installs `shader` files into `shaderpacks/`; the sample index lists one (`glow`).
-- 2026-10-25: `shader` opens, checked by `horizon_shader_api::check`; its files are `.hshader`.
+- 2026-10-25: `shader` opens, checked by `industrial_era_shader_api::check`; its files are `.hshader`.
 - Schema 1 (2026-10-24): kinds `mod`, `modpack`, `resourcepack`, `shader`; `.hpack` format 1.

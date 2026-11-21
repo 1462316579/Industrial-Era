@@ -20,53 +20,6 @@ thread_local! {
     static CONTAINED: Cell<u32> = const { Cell::new(0) };
     /// The message of the last panic `contain` caught on this thread, from the hook.
     static CAUGHT: RefCell<Option<String>> = const { RefCell::new(None) };
-    /// The native mod hook this thread is inside, for the panic hook to name.
-    static IN_NATIVE_MOD: Cell<Option<NativeModCall>> = const { Cell::new(None) };
-}
-
-/// A call into one hook of a native mod.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct NativeModCall {
-    /// The mod's `[mod] id`, None in a build that didn't name its mods.
-    pub id: Option<&'static str>,
-    /// Its place in dispatch order, which names it then.
-    pub index: usize,
-    pub hook: &'static str,
-}
-
-/// Marks this thread as inside `call` until the guard drops, which also happens while a panic
-/// unwinds. A hook called from a hook is named by the inner call.
-pub fn enter_native_mod(call: NativeModCall) -> NativeModGuard {
-    NativeModGuard {
-        outer: IN_NATIVE_MOD.with(|c| c.replace(Some(call))),
-    }
-}
-
-/// Puts back the call that `enter_native_mod` found.
-#[must_use]
-pub struct NativeModGuard {
-    outer: Option<NativeModCall>,
-}
-
-impl Drop for NativeModGuard {
-    fn drop(&mut self) {
-        IN_NATIVE_MOD.with(|c| c.set(self.outer));
-    }
-}
-
-/// `message`, with the native mod hook this thread is inside, if any.
-fn attributed(message: String) -> String {
-    match IN_NATIVE_MOD.with(Cell::get) {
-        Some(NativeModCall {
-            id: Some(id), hook, ..
-        }) => format!("{message}\nin native mod {id}, hook {hook}"),
-        Some(NativeModCall {
-            id: None,
-            index,
-            hook,
-        }) => format!("{message}\nin native mod #{index}, hook {hook}"),
-        None => message,
-    }
 }
 
 /// Runs `f`, and returns a panic in it as an error with the panic's message instead of letting
@@ -465,10 +418,10 @@ fn payload_text(payload: &(dyn std::any::Any + Send)) -> String {
 
 fn panic_message(info: &std::panic::PanicHookInfo) -> String {
     let text = payload_text(info.payload());
-    attributed(match info.location() {
+    match info.location() {
         Some(at) => format!("panicked at {at}:\n{text}"),
         None => format!("panicked:\n{text}"),
-    })
+    }
 }
 
 /// A `std::backtrace` as one line a frame, `function (file:line:col)`. Captured in a panic hook
@@ -728,24 +681,6 @@ mod tests {
     }
 
     #[test]
-    fn a_panic_in_a_native_mods_hook_names_it() {
-        let outer = enter_native_mod(NativeModCall {
-            id: None,
-            index: 1,
-            hook: "render",
-        });
-        let inner = enter_native_mod(NativeModCall {
-            id: Some("b"),
-            index: 0,
-            hook: "tick",
-        });
-        assert!(attributed("boom".into()).ends_with("\nin native mod b, hook tick"));
-        drop(inner);
-        assert!(attributed("boom".into()).ends_with("\nin native mod #1, hook render"));
-        drop(outer);
-        assert_eq!(attributed("boom".into()), "boom");
-    }
-
     fn report() -> Report {
         Report {
             time: chrono::TimeZone::with_ymd_and_hms(&Local, 2026, 10, 14, 9, 5, 7).unwrap(),

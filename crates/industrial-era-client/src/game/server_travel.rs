@@ -216,7 +216,6 @@ impl Game<'_> {
         let (player, name) = (g.uuid, g.name.clone());
         let (from, to) = (self.dim.id(), target.id());
         let mut cancel = false;
-        self.native_player_portal(player, &name, from, to, cause, &mut cancel);
         !cancel
     }
 
@@ -256,7 +255,6 @@ impl Game<'_> {
                 // PlayerEvent.Clone with `wasDeath` false.
                 if let Some(g) = host.hub.guest(conn) {
                     let (uuid, name) = (g.uuid, g.name.clone());
-                    self.native_player_clone(uuid, &name, false);
                 }
                 self.start_server_trip(host, conn, Dim::Overworld, None);
                 self.portals.player.cooldown = 10;
@@ -308,7 +306,6 @@ impl Game<'_> {
                 };
                 let (id, name) = (player.uuid, player.name.clone());
                 let mut cancel = false;
-                self.native_player_teleport_end_gateway(id, &name, g, &mut cancel);
                 if cancel {
                     return;
                 }
@@ -538,16 +535,7 @@ impl Game<'_> {
                 let mut cancel = false;
                 if let (Some(player), Some(name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
-                {
-                    self.native_player_spawn_point_set(
-                        player,
-                        &name,
-                        config.dim.id(),
-                        config.pos,
-                        "death_reset",
-                        &mut cancel,
-                    );
-                }
+                {}
                 if cancel {
                     return None;
                 }
@@ -807,10 +795,9 @@ impl Game<'_> {
             } = note;
             // In place when it is their turn already (as_guest finds them swapped in).
             if self.lan_acting == Some(conn) {
-                self.native_player_teleported(uuid, &name, from, to, &dimension);
             } else {
                 self.as_guest(host, conn, |g| {
-                    g.native_player_teleported(uuid, &name, from, to, &dimension);
+                    g;
                 });
             }
         }
@@ -846,9 +833,6 @@ impl Game<'_> {
                 .change_level(i, t.at, yaw, Some(pitch), false, cooldown, &ctx);
             self.as_guest(host, t.conn, |g| {
                 g.trigger_dimension(source, t.dim, origin);
-                // The mods hear the teleport into another level, with the
-                // player's state swapped in.
-                g.native_player_teleported(uuid, &name, origin, t.at, t.dim.id());
             });
             self.server_trips.retain(|trip| !trip.is(t.conn));
             self.server_trips.push(Trip {
@@ -891,9 +875,6 @@ impl Game<'_> {
         let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
             return;
         };
-        self.as_guest(host, conn, |g| {
-            g.native_player_changed_dimension(uuid, &name, from.id(), to.id());
-        });
     }
 
     /// The hub's view of the server for packets sent outside its own tick.

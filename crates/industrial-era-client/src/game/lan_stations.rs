@@ -69,10 +69,6 @@ impl Game<'_> {
         let Some((menu_type, kind, _)) = menu_of(station.kind) else {
             return false;
         };
-        // The mods may stop the menu; the click is spent.
-        if !self.guest_may_open(host, conn, menu_type, Some(station.pos)) {
-            return true;
-        }
         // ServerPlayer.openMenu closes the menu that was open.
         self.guest_close_all(host, conn);
         let title = industrial_era_protocol::text::translatable(station.kind.title_key(), &[]);
@@ -81,7 +77,7 @@ impl Game<'_> {
         };
         let mut menu = Box::new(Menu::new(kind));
         // Without a mod the take runs AnvilMenu.onTake's order in the click itself.
-        menu.anvil_hook = kind == Kind::Anvil && !industrial_era_client::mod_api::mods().is_empty();
+        menu.anvil_hook = kind == Kind::Anvil && false;
         if let Some(g) = host.hub.guests.iter_mut().find(|g| g.conn == conn)
             && kind == Kind::Enchanting
         {
@@ -151,7 +147,6 @@ impl Game<'_> {
                 let guest = &host.hub.guests[gi];
                 let (uuid, name) = (guest.uuid, guest.name.clone());
                 let mut cancel = false;
-                self.native_anvil_craft_pre(uuid, &name, gs.pos, craft, &mut cancel);
                 if cancel && let Some(undo) = undo {
                     // The take is refused: the result, inputs, cost, inventory
                     // and cursor are as before the click (the resync below
@@ -178,7 +173,6 @@ impl Game<'_> {
                 let guest = &host.hub.guests[gi];
                 let (uuid, name) = (guest.uuid, guest.name.clone());
                 let mut result = gs.menu.slot(2).cloned();
-                self.native_prepare_anvil(uuid, &name, gs.pos, &mut result, &mut gs.menu.data[0]);
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 2, result);
             }
@@ -186,7 +180,6 @@ impl Game<'_> {
                 let guest = &host.hub.guests[gi];
                 let (uuid, name) = (guest.uuid, guest.name.clone());
                 let mut result = gs.menu.slot(2).cloned();
-                self.native_prepare_grindstone(uuid, &name, gs.pos, &mut result);
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 2, result);
             }
@@ -194,7 +187,6 @@ impl Game<'_> {
                 let guest = &host.hub.guests[gi];
                 let (uuid, name) = (guest.uuid, guest.name.clone());
                 let mut result = gs.menu.slot(3).cloned();
-                self.native_prepare_smithing(uuid, &name, gs.pos, &mut result);
                 let env = self.menu_env();
                 gs.menu.set_slot(&env, 3, result);
             }
@@ -225,9 +217,6 @@ impl Game<'_> {
     /// `LecternBlock.openScreen` for a guest: `minecraft:lectern` over the
     /// block entity, with its book and page.
     pub(super) fn lan_open_lectern(&mut self, host: &mut LanHost, conn: u32, key: (i32, i32, i32)) {
-        if !self.guest_may_open(host, conn, "minecraft:lectern", Some([key.0, key.1, key.2])) {
-            return;
-        }
         // ServerPlayer.openMenu closes the menu that was open.
         self.guest_close_all(host, conn);
         let title = industrial_era_protocol::text::translatable("container.lectern", &[]);
@@ -361,7 +350,6 @@ impl Game<'_> {
                 && let Some(guest) = host.hub.guests.iter().find(|g| g.conn == conn)
             {
                 let (uuid, name) = (guest.uuid, guest.name.clone());
-                self.native_anvil_craft_post(uuid, &name, gs.pos, craft);
             }
         }
     }
@@ -380,7 +368,6 @@ impl Game<'_> {
         );
         let guest = &host.hub.guests[gi];
         let mut costs = offers.costs;
-        self.native_prepare_item_enchant(guest.uuid, &guest.name, gs.pos, &mut costs);
         let mut clues = offers.clues;
         for i in 0..3 {
             // A cost a mod changed shows the clue of the list it will give.
@@ -457,7 +444,6 @@ impl Game<'_> {
             1.0,
             pitch,
         );
-        self.native_enchant_item(uuid, &name, gs.pos, &enchanted_for_hook, need);
     }
 
     /// `ServerGamePacketListenerImpl.handleRenameItem`: the guest's anvil
@@ -523,27 +509,8 @@ impl Game<'_> {
         if let Some(g) = host.hub.guest(conn)
             && let Some(menu) = g.menu.as_ref().filter(|m| m.window == window)
             && let Some(pos) = menu.pos
-            && self.mod_menu_at(pos).is_some()
         {
-            if !g.spectator() && menu.slots.still_valid(&self.world, g, menu.pos) {
-                // The clicking player's cursor stack (`clickMenuButton`'s
-                // other half). Single player's own player is a guest of
-                // its own host too (`lan.rs:165`), so this one path covers
-                // both single player and a LAN guest.
-                let mut carried = g.carried.clone();
-                // As that player: `native_acting_player`, `native_acting_id`
-                // and `native_give_stack` answer for the one who pressed.
-                self.as_guest(host, conn, |game| {
-                    game.mod_menu_button(pos, id, &mut carried)
-                });
-                if host.hub.guest(conn).is_some_and(|g| g.carried != carried) {
-                    let net = host.hub.stack(&carried);
-                    if let Some(g) = host.hub.guest_mut(conn) {
-                        g.carried = carried;
-                        g.send(&C::SetCursorItem(play::SetCursorItem { item: net }));
-                    }
-                }
-            }
+            let _ = pos;
             return;
         }
         // LecternMenu's page buttons and Take Book.
@@ -565,12 +532,8 @@ impl Game<'_> {
         });
         if selected && let Some((player, name)) = identity {
             match kind {
-                Some(StationKind::Loom) => {
-                    self.native_player_loom_pattern_select(player, &name, id);
-                }
-                Some(StationKind::Stonecutter) => {
-                    self.native_player_stonecutter_recipe_select(player, &name, id);
-                }
+                Some(StationKind::Loom) => {}
+                Some(StationKind::Stonecutter) => {}
                 _ => {}
             }
         }
@@ -761,13 +724,6 @@ impl Game<'_> {
             b.secondary = secondary.clone();
             select_sound = !b.sections.is_empty();
         }
-        self.native_player_change_beacon_effect(
-            player,
-            &name,
-            pos,
-            primary.as_deref().unwrap_or(""),
-            secondary.as_deref().unwrap_or(""),
-        );
         if select_sound {
             self.beacon_sound(pos, "minecraft:block.beacon.power_select");
         }

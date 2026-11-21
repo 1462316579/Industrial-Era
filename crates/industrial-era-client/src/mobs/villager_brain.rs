@@ -3498,9 +3498,6 @@ fn restock_if_due(m: &mut Mob, w: &MobWorld) {
         t.restock(w.game_time);
     }
 }
-#[cfg(test)]
-#[path = "villager_farming_tests.rs"]
-mod farming_tests;
 
 /// `HarvestFarmland.validFarmlandAroundVillager`: ripe crops and bare
 /// farmland around the villager.

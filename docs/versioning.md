@@ -54,7 +54,7 @@ the website's `src/versions.js` (industrial-era-rust/industrial-era-site).
 ## The workflows
 
 - **`release.yml`**: `tools/release_train.py decide --kind game` picks the tag (`next_game_tag`); the build gets the
-  version without its `v` in `HORIZON_VERSION`, so `horizon_core::release::VERSION` (and `--version`, the user
+  version without its `v` in `HORIZON_VERSION`, so `industrial_era_core::release::VERSION` (and `--version`, the user
   agents, crash reports and telemetry) say `0.2.3`. No version-bump commits: `Cargo.toml` versions are what builds
   from source say. The build checks that `industrial-era-server --version` and `industrial-era-prepare --version` say it.
 - **`launcher.yml`**: `decide --kind launcher` picks `launcher@0.2.N`; the build gets `HORIZON_LAUNCHER_VERSION`

@@ -215,14 +215,6 @@ impl Game<'_> {
             let mut drops = vec![item];
             let tool = self.stack_in(slot).cloned();
             let origin = pos.map(|c| f64::from(c) + 0.5);
-            self.native_use_drops(
-                "",
-                origin,
-                Some((pos, state)),
-                None,
-                tool.as_ref(),
-                &mut drops,
-            );
             for item in drops {
                 self.spawn_item(item, at, [0.0; 3], 0);
             }

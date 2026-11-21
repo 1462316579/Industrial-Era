@@ -171,7 +171,6 @@ impl Game<'_> {
                 Some(_) => 3,
             };
             let mut cancel = false;
-            self.native_player_fish(uuid, &name, state, &mut cancel);
             if cancel {
                 return true;
             }
@@ -523,7 +522,6 @@ impl Game<'_> {
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {
                     let mut cancel = false;
-                    self.native_player_fish(uuid, &name, 1, &mut cancel);
                     if cancel {
                         h.time_until_lured = 0;
                         h.time_until_hooked = 0;

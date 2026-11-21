@@ -438,7 +438,6 @@ impl Game<'_> {
         if triggered {
             self.award_custom_stat("raid_trigger", 1);
             self.trigger_player("minecraft:voluntary_exile");
-            self.native_raid_state_change(id, center, "triggered");
         }
         Some(id)
     }
@@ -465,7 +464,6 @@ impl Game<'_> {
         if let Some(r) = self.raiding.raids.get_mut(id) {
             r.stop();
             let center = r.center;
-            self.native_raid_state_change(id, center, "stopped");
         }
     }
     pub(super) fn raid_set_omen(&mut self, id: i32, level: i32) -> i32 {
@@ -628,9 +626,7 @@ impl Game<'_> {
         for (id, (old, _)) in old_states {
             if let Some(r) = self.raiding.raids.get(id)
                 && r.status != old
-            {
-                self.native_raid_state_change(id, r.center, r.status.name());
-            }
+            {}
         }
         for (id, action) in actions {
             self.apply_raid_action(id, action);
@@ -707,7 +703,6 @@ impl Game<'_> {
                 self.mount_mob(rider, id);
             }
         }
-        self.native_raid_spawn_wave(raid_id, pos, wave, spawns.len());
     }
     /// `Raid.joinRaid` for a new raider: placed at the block's centre one
     /// above, finalized for an event, its raid buffs applied.
@@ -769,7 +764,6 @@ impl Game<'_> {
         raider::finalize(&mut mob, reason);
         let id = mob.id;
         self.mobs.push(mob);
-        self.native_mobs_joined(self.mobs.len() - 1, false);
         self.enchant_spawn_equipment(id);
         self.halloween_spawn_head(id);
         Some(id)

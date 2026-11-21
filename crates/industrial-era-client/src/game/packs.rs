@@ -252,11 +252,10 @@ impl Game<'_> {
         if self.ui.vanilla_root.as_os_str().is_empty() {
             self.ui.vanilla_root = vanilla.clone();
         }
-        let (selected, server, mods, dev_mods) = (
+        let (selected, server, mods) = (
             self.settings.resource_packs.clone(),
             self.server_packs.active.clone(),
-            self.settings.mods.enabled.clone(),
-            self.options.dev_mods.clone(),
+            Vec::<String>::new(),
         );
         let (assets, res, context) = (
             self.pack.assets.clone(),
@@ -266,8 +265,8 @@ impl Game<'_> {
         let (unicode, japanese) = (self.settings.force_unicode, self.settings.japanese_glyphs);
         self.pack_reload = Some(PackReload::spawn(kind, move |progress| {
             stage_pack(
-                &vanilla, &selected, &server, &mods, &dev_mods, &assets, &res, &context, unicode,
-                japanese, progress,
+                &vanilla, &selected, &server, &mods, &assets, &res, &context, unicode, japanese,
+                progress,
             )
             .map_err(|e| e.to_string())
         })?);
@@ -381,8 +380,6 @@ impl Game<'_> {
             .set_resource_root(self.options.resources.clone());
         self.maps.slots.forget();
         self.map_patches.clear();
-        // Kept mod block entities name the old atlas's sprites.
-        self.kept_block_entities.get_mut().clear();
         // The atlas's sprites moved: the particle engine re-reads every rect
         // and the packs' sprite sets, or every particle draws a stale region.
         self.particles
@@ -461,7 +458,6 @@ impl Game<'_> {
         self.ui.chat.rescale(&self.gui.atlas);
         // The creative screen survives the reload; item names may not.
         self.creative_screen.forget_items();
-        self.native_client_resources_reloaded();
         Ok(())
     }
 }
@@ -486,18 +482,12 @@ pub(super) fn stage_pack(
     let root = startup_root(vanilla_root, selected, server)?;
     // The blocks and items stay the start's: the registries can't change (world_content.rs).
     let started = super::world_content::running();
-    let root =
-        super::mods::content_root(&root, mods_enabled, dev_mods, Some(&started), &mut |_| {});
     progress.set(1);
     // The world's models and sprites and the GUI atlas read the same root and nothing of
     // each other: about a second each, side by side.
-    let mod_image = !industrial_era_client::mod_api::mods().is_empty();
-    // The sound events, the GUI sprites' metadata and the language are read here too, not in
-    // the frame that applies the reload (about 20 ms of it).
     let (render, atlas, panorama, (sounds, ui_metadata, language)) = std::thread::scope(|s| {
         let atlas = s.spawn(|| {
-            HudAtlas::build_over_with_image(&root, vanilla_root, mod_image)
-                .map_err(|e| e.to_string())
+            HudAtlas::build_over_with_image(&root, vanilla_root, false).map_err(|e| e.to_string())
         });
         let panorama =
             s.spawn(|| industrial_era_client::gfx::panorama::Faces::load(&root, vanilla_root));

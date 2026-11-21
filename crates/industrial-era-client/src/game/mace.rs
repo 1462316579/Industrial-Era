@@ -234,7 +234,6 @@ impl Game<'_> {
             .items()
             .get(&stack.item)
             .and_then(|i| i.weapon_damage.map(|d| (d, i.max_damage)));
-        self.native_hurt_enemy_event(&stack, index);
         let smash = self.smash_attack();
         if smash {
             self.mace_hurt_enemy(index);
@@ -569,9 +568,7 @@ impl Game<'_> {
             // only when it landed.
             let old_health = self.mobs[i].health;
             if self.hurt_by_player(i, amount, source) {
-                if old_health > 0.0 && !self.mobs[i].alive() {
-                    self.native_kill_event(i);
-                }
+                if old_health > 0.0 && !self.mobs[i].alive() {}
                 self.mobs[i].knockback(0.4, xd, zd, &source);
                 self.last_hurt_by_player
                     .insert(self.mobs[i].id, self.lan_acting);

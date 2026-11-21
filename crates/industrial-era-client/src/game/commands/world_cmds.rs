@@ -1234,9 +1234,6 @@ impl Game<'_> {
                         return Err(generic());
                     }
                 } else {
-                    if !self.native_may_board(id) {
-                        return Err(generic());
-                    }
                     self.riding = Some(id);
                     self.yaw = self.boats[i].yaw;
                     // sendEventAndTriggers: START_RIDING_TRIGGER.
@@ -1249,10 +1246,7 @@ impl Game<'_> {
                 return Ok(1);
             }
             Target::Cart(id) => {
-                if target != Target::Player
-                    || self.ridden_by_guest(id)
-                    || !self.native_may_board(id)
-                {
+                if target != Target::Player || self.ridden_by_guest(id) {
                     return Err(generic());
                 }
                 self.riding = Some(id);
@@ -1282,9 +1276,6 @@ impl Game<'_> {
                 &[name, vehicle_name],
             ));
             return Ok(1);
-        }
-        if !self.native_may_board(mob_id) {
-            return Err(generic());
         }
         if let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob_id) {
             m.extra.flag = false;
@@ -1326,9 +1317,6 @@ impl Game<'_> {
         let Some(v) = self.mobs[i].extra.mount else {
             return;
         };
-        if !self.native_mob_may_ride(rider, v, false) {
-            return;
-        }
         self.mobs[i].extra.mount = None;
         let (width, yaw) = (f64::from(self.mobs[i].width()), self.mobs[i].yaw);
         let at = if let Some(b) = self.boats.iter().position(|b| b.id == v) {

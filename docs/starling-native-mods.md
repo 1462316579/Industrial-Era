@@ -33,7 +33,7 @@ without native mods" stops using one. Nothing is installed: the APK stays the re
 3. **One identity for the game module.** While industrial-era-mixins plans, industrial-era-android's library is an empty file (it
    refuses a module destination reached under two names, `E_TARGET_AMBIGUOUS`), and `lib.rs` loses the conditional
    attribute that keeps it from looking at the modules under that file. The bundles' targets stay Industrial Era's
-   (`horizon_client::game::Game<'_>::use_item`), so Industrial Era's own native mods apply unchanged.
+   (`industrial_era_client::game::Game<'_>::use_item`), so Industrial Era's own native mods apply unchanged.
 4. `industrial-era-mixins apply` into a stage, then into a build folder kept between builds: files whose bytes changed get
    the time of now, the others keep theirs, so Cargo recompiles only what the mods touched.
 5. `build_apk.py --profile fast`, as a release: the stripped library, an APK unless `NATIVE_LIBRARY_ONLY` is set, and

@@ -23,66 +23,55 @@ static SET: Mutex<Option<Option<String>>> = Mutex::new(None);
 
 /// The proxy address to reach `url` through: the launcher's setting, else the environment's, unless
 /// `url` is a local address or `NO_PROXY` names its host.
-pub fn spec_for(url: &str) -> Option<String> {
-    let scheme = industrial_era_port_pack::net::scheme_of(url)?;
-    if industrial_era_port_pack::net::direct(url) {
-        return None;
+/// `direct_hosts` match loopback and localhost: they never go through a proxy.
+const DIRECT_HOSTS: &[&str] = &["127.0.0.1", "localhost", "::1"];
+
+/// Whether `url` points at a local host: a loopback address never uses a proxy.
+pub fn direct(url: &str) -> bool {
+    for host in DIRECT_HOSTS {
+        if url.contains(host) {
+            return true;
+        }
     }
-    setting().or_else(|| industrial_era_port_pack::net::env_for(scheme))
+    false
 }
 
-/// The proxy to reach `url` through: `spec_for`'s address, read as one.
-pub fn for_url(url: &str) -> Option<ureq::Proxy> {
-    spec_for(url).and_then(|spec| industrial_era_port_pack::net::parse(&spec))
+/// The scheme of `url`: `http`, `https`...
+pub fn scheme_of(url: &str) -> Option<&str> {
+    url.split("://").next()
 }
 
-/// `builder`, reaching `url` through the proxy when one is set. For the parts that ask for a few
-/// addresses; the ones that fetch file after file keep their agent instead (`keep`).
-pub fn agent(builder: ureq::AgentBuilder, url: &str) -> ureq::AgentBuilder {
-    match for_url(url) {
-        Some(proxy) => builder.proxy(proxy),
-        None => builder,
-    }
+/// `env_for` reads `HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY` for the scheme, and `NO_PROXY` hosts.
+fn env_for(scheme: &str) -> Option<String> {
+    let env_var = match scheme {
+        "https" => "HTTPS_PROXY",
+        "http" => "HTTP_PROXY",
+        _ => "ALL_PROXY",
+    };
+    std::env::var(env_var).ok().or_else(|| std::env::var("ALL_PROXY").ok())
 }
 
-/// Why `spec` can't be used as a proxy, or None when it can (empty means none).
-pub fn refuse(spec: &str) -> Option<String> {
-    let spec = spec.trim();
-    if spec.is_empty() {
-        return None;
-    }
-    if industrial_era_port_pack::net::socks(spec) {
-        return Some(format!(
-            "{} is a SOCKS proxy; IndustrialEra downloads through an HTTP proxy, such as the \
-             http:// address your proxy app also listens on.",
-            industrial_era_port_pack::net::redacted(spec)
-        ));
-    }
-    // `ureq` takes `http://` without a host, which would leave a download failing with nothing
-    // said about the proxy.
-    if industrial_era_port_pack::net::parse(spec).is_none()
-        || industrial_era_port_pack::net::host_of(spec).is_none_or(str::is_empty)
-    {
-        return Some(format!(
-            "{} isn't a proxy address. Write it as http://host:port.",
-            industrial_era_port_pack::net::redacted(spec)
-        ));
-    }
-    None
+/// Parse `spec` as a proxy address: `http://host:port`.
+pub fn parse(spec: &str) -> Option<ureq::Proxy> {
+    ureq::Proxy::new(spec).ok()
 }
 
-/// Tells the parts that build their own agents (`industrial_era-port-pack`) which proxy to use, and keeps
-/// the setting for the launcher's own requests. Called with what `settings.json` holds: at start,
-/// and whenever the player changes the setting.
-///
-/// The environment's is left to them: they read it per address (`HTTPS_PROXY` for an https jar,
-/// `HTTP_PROXY` for an http one), the way the launcher does for its own.
-pub fn announce(setting: Option<String>) {
-    let spec = setting
-        .map(|p| p.trim().to_owned())
-        .filter(|p| !p.is_empty());
-    *held() = Some(spec.clone());
-    industrial_era_port_pack::net::set_proxy(spec);
+pub fn host_of(spec: &str) -> Option<String> {
+    let u = url::Url::parse(spec).ok()?;
+    u.host_str().map(|h| h.to_string())
+}
+
+fn socks(spec: &str) -> bool {
+    spec.starts_with("socks")
+}
+
+fn redacted(spec: &str) -> String {
+    let u = url::Url::parse(spec).ok()?;
+    format!("{}://***@{}", u.scheme(), u.host_str().unwrap_or(""))
+}
+
+pub fn set_proxy(_spec: Option<&str>) {
+    // Environment proxies are read per-address by the agent itself.
 }
 
 /// The launcher's setting: read from `settings.json` the first time it is needed and kept after

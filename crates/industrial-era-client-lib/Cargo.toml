@@ -41,9 +41,6 @@ industrial-era-shader-api = { path = "../industrial-era-shader-api" }
 industrial-era-friends = { path = "../industrial-era-friends" }
 # The narrator (GameNarrator): text-to-speech of chat, system messages and screens.
 industrial-era-narrator = { path = "../industrial-era-narrator" }
-# Industrial Era mods: sandboxed WebAssembly components, off unless installed and turned on (docs/mods.md).
-# Their runtime is the `mods` feature.
-industrial-era-mods = { path = "../industrial-era-mods", default-features = false, features = ["index"] }
 wgpu = { version = "30.0.1", default-features = false, features = ["std", "parking_lot", "vulkan", "metal", "wgsl", "naga-ir"] }
 winit = "0.30.13"
 pollster = "0.4"
@@ -151,10 +148,6 @@ name = "json_load_bench"
 path = "../industrial-era-client/examples/json_load_bench.rs"
 
 [[example]]
-name = "mod_port_probe"
-path = "../industrial-era-client/examples/mod_port_probe.rs"
-
-[[example]]
 name = "model_library_bench"
 path = "../industrial-era-client/examples/model_library_bench.rs"
 
@@ -193,10 +186,6 @@ path = "../industrial-era-client/examples/sprite_cache_parity.rs"
 [[example]]
 name = "client_probe"
 path = "../industrial-era-client/examples/probe/main.rs"
-
-[[test]]
-name = "custom_component_api"
-path = "../industrial-era-client/tests/custom_component_api.rs"
 
 [[test]]
 name = "custom_component_unregistered"

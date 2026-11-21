@@ -585,7 +585,7 @@ mod tests {
                 "Allocated:  5% 900MiB".to_owned(),
             ]
         );
-        let status = "Name:\thorizon\nVmRSS:\t  2048 kB\nRssAnon:\t  1024 kB\n";
+        let status = "Name:\tindustrial-era\nVmRSS:\t  2048 kB\nRssAnon:\t  1024 kB\n";
         assert_eq!(
             ProcessMemory::parse(status, "MemTotal:       8192 kB\n"),
             Some(ProcessMemory {

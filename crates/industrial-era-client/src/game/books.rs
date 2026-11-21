@@ -384,15 +384,9 @@ impl Game<'_> {
                 .stack_in(p.slot as usize)
                 .is_some_and(|stack| &*stack.item == "minecraft:writable_book");
             if writable
-                && let (Some(player), Some(name)) = (g.lan_acting_uuid, g.lan_acting_name.clone())
+                && let (Some(_player), Some(_name)) = (g.lan_acting_uuid, g.lan_acting_name.clone())
             {
-                g.native_player_edit_book(
-                    player,
-                    &name,
-                    p.pages.len() as i32,
-                    p.title.is_some(),
-                    &mut cancel,
-                );
+                // Vanilla: the server accepts the book edit.
             }
             if cancel {
                 return true;
@@ -883,9 +877,7 @@ impl Game<'_> {
         self.audio
             .play("minecraft:item.book.put", Some(at), 1.0, 1.0);
         self.container_changed(key);
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_insert_lectern_book(player, &name, pos, &book.item);
-        }
+        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         true
     }
     /// `LecternBlock.openScreen`: reading the lectern's book.
@@ -961,9 +953,7 @@ impl Game<'_> {
             }),
             self.lan_acting_uuid,
             self.lan_acting_name.clone(),
-        ) {
-            self.native_player_take_lectern_book(player, &name, [key.0, key.1, key.2], &book.item);
-        }
+        ) {}
         if self.may_build()
             && matches!(
                 self.book,
@@ -1114,12 +1104,6 @@ impl Game<'_> {
             self.container_changed(key);
             if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                self.native_player_lectern_page_change(
-                    player,
-                    &name,
-                    [key.0, key.1, key.2],
-                    menu.data[0],
-                );
             }
         }
     }

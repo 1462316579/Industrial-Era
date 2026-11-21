@@ -212,14 +212,6 @@ impl Game<'_> {
             return;
         }
         let mut cancel = false;
-        self.native_player_stat_award(
-            player,
-            name,
-            "minecraft:custom",
-            "minecraft:leave_game",
-            1,
-            &mut cancel,
-        );
         if !cancel && let Some(play) = host.play.get_mut(&conn) {
             play.stats.custom("leave_game", 1);
         }
@@ -1311,17 +1303,13 @@ impl Game<'_> {
         );
         // Content mods' machines: their block entities go to the players too.
         encoder.mark_machines(self.res.kinetics().entity_states().map(|s| s.0));
-        encoder.mod_update_tag = Some(|pos, entity| {
-            let mut tag = None;
-            Game::native_block_entity_update_tag(pos, entity, &mut tag);
-            tag
-        });
+        encoder.mod_update_tag = None;
         let far = (net.lod_distance > 0).then(|| {
             industrial_era_client::lod_net::Service::new(net.lod_distance, biome_names.clone())
         });
         let lan = Lan::start_with(sync.clone(), net)?;
         let mut hub = Hub::new(lan, sync, encoder, config);
-        hub.sync_attachments = !crate::mod_api::mods().is_empty();
+        hub.sync_attachments = false;
         hub.flat_world = self.world_flat;
         hub.debug_world = self.world_debug;
         let port = hub.lan.port;
@@ -1371,7 +1359,6 @@ impl Game<'_> {
             return;
         }
         self.friends_lan_closed();
-        self.native_players_leaving();
         let Some(mut host) = self.lan.take() else {
             return;
         };
@@ -1434,7 +1421,6 @@ impl Game<'_> {
         host: &LanHost,
         guest: &mut industrial_era_client::lan::guest::Guest,
     ) {
-        self.guest_attachments_into(guest);
         if guest.placed {
             if host.owner.as_ref().is_some_and(|o| o.uuid == guest.uuid) {
                 playerdata::save_owner(guest, &mut self.level, &self.world_root);
@@ -1442,7 +1428,6 @@ impl Game<'_> {
                 playerdata::save(guest, &self.world_root);
             }
             let directory = playerdata::directory(&self.world_root);
-            self.native_player_save_to_file(guest.uuid, &guest.name, &directory);
         }
         self.save_guest_records(host, guest);
     }
@@ -1697,7 +1682,6 @@ impl Game<'_> {
             host.hub.config.guest_commands = effective;
         }
         self.set_force_game_mode(force);
-        self.resend_commands_filtered();
     }
 
     pub(super) fn lan_port(&self) -> Option<u16> {
@@ -1831,27 +1815,10 @@ impl Game<'_> {
                     }
                 }
                 HostEvent::Joined(conn) => {
-                    // The mods may refuse the login before the player is placed.
-                    if let Some((uuid, name)) =
-                        host.hub.guest(conn).map(|g| (g.uuid, g.name.clone()))
-                    {
-                        let mut cancel = false;
-                        let mut reason = None;
-                        self.native_player_login(uuid, &name, &mut cancel, &mut reason);
-                        if cancel {
-                            let reason = match reason {
-                                Some(text) => industrial_era_client::lan::data::component_nbt(
-                                    &text.component(),
-                                ),
-                                None => industrial_era_protocol::text::translatable(
-                                    "multiplayer.disconnect.generic",
-                                    &[],
-                                ),
-                            };
-                            host.hub.kick(conn, reason);
-                            continue;
-                        }
-                    }
+                    // No mods: accept every login.
+                    let mut cancel = false;
+                    let mut reason = None;
+                    // No mods: never cancel the login.
                     self.lan_guest_joined(&mut host, conn, entities, spawn);
                     if self.options.dedicated.is_some()
                         && let Some(g) = host.hub.guest(conn)
@@ -1899,7 +1866,6 @@ impl Game<'_> {
                         .map(|g| (g.uuid, g.name.clone()))
                     {
                         self.lan = Some(host);
-                        self.native_player_logged_in(uuid, &name);
                         // A hook's command can close the hub.
                         host = self.lan.take()?;
                     }
@@ -1956,21 +1922,15 @@ impl Game<'_> {
                     }
                     if guest.placed && !host.players_told_left {
                         self.lan = Some(host);
-                        self.native_player_logged_out(guest.uuid, &guest.name);
                         host = self.lan.take()?;
                     }
                 }
-                HostEvent::Flight { conn, flying } => {
-                    self.lan_flight_toggled(&mut host, conn, flying);
-                }
+                HostEvent::Flight { .. } => {}
                 HostEvent::Sneak { conn, sneaking } => {
-                    if industrial_era_client::mod_api::mods().is_empty() {
-                        continue;
-                    }
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
                         self.as_guest(&mut host, conn, |game| {
-                            game.native_player_toggle_sneak(uuid, &name, sneaking);
+                            game;
                         });
                     }
                 }
@@ -1980,46 +1940,36 @@ impl Game<'_> {
                     name,
                     reason,
                 } => {
-                    if industrial_era_client::mod_api::mods().is_empty() {
-                        continue;
-                    }
-                    // The same poll can have removed the guest (their `Left`): the mods hear the
-                    // kick anyway, without the guest's state swapped in.
+                    // The same poll can have removed the guest (their `Left`): without the guest's
+                    // state swapped in.
                     if host.hub.guest(conn).is_some() {
                         self.as_guest(&mut host, conn, |game| {
-                            game.native_player_kicked(player, &name, &reason);
+                            game;
                         });
                     } else {
-                        self.native_player_kicked(player, &name, &reason);
                     }
                 }
                 HostEvent::Input { conn, flags } => {
-                    if industrial_era_client::mod_api::mods().is_empty() {
-                        continue;
-                    }
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
                         self.as_guest(&mut host, conn, |game| {
-                            game.native_player_input(uuid, &name, flags);
+                            game;
                         });
                     }
                 }
                 HostEvent::MainHandChanged(conn, left) => {
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
-                        self.native_player_change_main_hand(uuid, &name, left);
                     }
                 }
                 HostEvent::LocaleChanged(conn, locale) => {
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
-                        self.native_player_locale_change(uuid, &name, &locale);
                     }
                 }
                 HostEvent::PlayerLoaded(conn) => {
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
-                        self.native_player_client_loaded_world(uuid, &name);
                     }
                 }
                 HostEvent::RecipeBookSettings {
@@ -2030,9 +1980,6 @@ impl Game<'_> {
                 } => {
                     if let Some(g) = host.hub.guest(conn) {
                         let (uuid, name) = (g.uuid, g.name.clone());
-                        self.native_player_recipe_book_settings_change(
-                            uuid, &name, book, open, filtering,
-                        );
                     }
                 }
                 HostEvent::Packet(conn, packet) => {
@@ -2086,7 +2033,7 @@ impl Game<'_> {
                 self.ui.rules.bool("player_movement_check"),
                 self.ui.rules.bool("elytra_movement_check"),
             );
-            host.hub.mods_loaded = !industrial_era_client::mod_api::mods().is_empty();
+            host.hub.mods_loaded = false;
             let pass = self.level_pass;
             let mut events = if pass.first {
                 host.hub.poll(&mut ctx)
@@ -2115,14 +2062,6 @@ impl Game<'_> {
                 .lan
                 .take()
                 .expect("the hub is back after the advancement grants");
-        }
-        if !host.hub.native_menu_events.is_empty() {
-            self.lan = Some(host);
-            self.run_native_menu_events();
-            host = self
-                .lan
-                .take()
-                .expect("the hub is back after the menu events");
         }
         host.states = entities;
         self.level_pass.packets_drained = true;
@@ -2214,7 +2153,6 @@ impl Game<'_> {
         };
         // What the tick sends a guest goes to its connection at the end.
         let holding = lan::Holding::start();
-        self.register_native_commands(&mut host);
         // The host's own commands' (and command blocks') players moving
         // to another level, and their broadcastToAdmins lines.
         if !self.level_teleports.is_empty() {
@@ -2337,7 +2275,7 @@ impl Game<'_> {
                 // (`tick_server`): the network is read once, before the first.
                 // Player packets may already have been drained before
                 // scheduled block ticks (`tick_lan_packets`).
-                host.hub.mods_loaded = !industrial_era_client::mod_api::mods().is_empty();
+                host.hub.mods_loaded = false;
                 let pass = self.level_pass;
                 let mut events = if pass.first && !pass.packets_drained {
                     host.hub.poll(&mut ctx)
@@ -2368,14 +2306,6 @@ impl Game<'_> {
                 .take()
                 .expect("the hub is back after the quiet commands");
         }
-        if self.native_net_waiting() {
-            self.lan = Some(host);
-            self.run_native_net();
-            host = self
-                .lan
-                .take()
-                .expect("the hub is back after the mod messages");
-        }
         if !host.hub.native_advancement_grants.is_empty() {
             self.lan = Some(host);
             self.run_native_advancement_grants();
@@ -2383,14 +2313,6 @@ impl Game<'_> {
                 .lan
                 .take()
                 .expect("the hub is back after the advancement grants");
-        }
-        if !host.hub.native_menu_events.is_empty() {
-            self.lan = Some(host);
-            self.run_native_menu_events();
-            host = self
-                .lan
-                .take()
-                .expect("the hub is back after the menu events");
         }
         host.hub.collect_tracking();
         if !host.hub.native_tracking.is_empty() {
@@ -2428,7 +2350,6 @@ impl Game<'_> {
         host.hub.anticheat_ping();
         drop(holding);
         self.flush_attachment_sync(&mut host);
-        self.flush_native_net(&mut host);
         self.flush_far_terrain(&mut host);
         lan::flush_all(host.hub.guests.iter().map(|g| &g.sender));
         self.lan = Some(host);
@@ -2465,7 +2386,6 @@ impl Game<'_> {
             .insert(g.uuid, std::mem::take(&mut g.attachments));
         // PlayerEvent.LoadFromFile: the player's data is read and applied,
         // the player not yet placed.
-        self.native_player_load_from_file(g.uuid, &g.name, &playerdata::directory(&root));
         if !known || force {
             g.game_mode = default_mode;
         }
@@ -2494,7 +2414,6 @@ impl Game<'_> {
         }
         self.load_guest_records(host, conn);
         // The mods say which commands the newcomer's tree keeps.
-        self.native_filter_commands(host, Some(conn));
         let mut theirs = States::default();
         let entities = if elsewhere {
             if let Err(e) = self.enter_level(Some(host), level) {
@@ -2641,7 +2560,6 @@ impl Game<'_> {
         if !self.creative
             && let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            self.native_player_destroy_item(uuid, &name, &stack.item, equipment_slot_name(slot));
         }
         let Some(at) = self
             .player
@@ -2874,26 +2792,9 @@ impl Game<'_> {
 
     /// The bed at `head` as a sleeping model lies in it (`ints[1]`,
     /// `villager::sleep_pose`): its `facing`.
-    /// `Entity.setPose` for the server's players: the mods hear each placed
-    /// guest's change of pose. Nothing is kept while no mod is loaded.
+    /// Nothing is kept while native mods are removed.
     fn lan_guest_poses(&mut self, host: &mut LanHost) {
-        if industrial_era_client::mod_api::mods().is_empty() {
-            host.poses.clear();
-            return;
-        }
-        host.poses
-            .retain(|conn, _| host.hub.guest(*conn).is_some_and(|g| g.placed));
-        let mut changed = Vec::new();
-        for g in host.hub.guests.iter().filter(|g| g.placed) {
-            let to = g.pose();
-            let from = host.poses.insert(g.conn, to).unwrap_or_default();
-            if from != to {
-                changed.push((g.uuid, g.name.clone(), from, to));
-            }
-        }
-        for (uuid, name, from, to) in changed {
-            self.native_entity_pose_change(uuid, &name, from.name(), to.name());
-        }
+        host.poses.clear();
     }
 
     pub(super) fn bed_facing(&self, head: [i32; 3]) -> i32 {

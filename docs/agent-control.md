@@ -148,7 +148,7 @@ passes on without checking it).
 
 One switch hides and turns off every AI feature: `noAi:true` in `<game home>/industrial-era-extras.txt`.
 The game home is `HORIZON_HOME`, else the data dir's `industrial-era`. The game reads its extras from
-its working directory, which is that folder. `horizon_core::no_ai` reads and writes the switch:
+its working directory, which is that folder. `industrial_era_core::no_ai` reads and writes the switch:
 
 - `is_on(home)` and `check(home)` read it;
 - `set(home, on)` keeps the file's other lines, and writes no file to turn off a switch that was
@@ -358,7 +358,7 @@ A recording is one folder, a bundle is that folder plus the logs in one zip:
   - industrial-era-ctl: the table, the schemas, the reference, the No AI refusal, the destructive and
     network annotations;
   - the launcher: generated tools, `confirm`, the reference, the agent configs;
-  - `horizon_core::no_ai`;
+  - `industrial_era_core::no_ai`;
   - `options_ui`: the AI Agent page, and that No AI hides it;
   - `input_trace`: origins, the ring, the intrusion rule, `input-log` and the recording writer;
   - `repro`: the format's round trip, the folder slug and the world copy.

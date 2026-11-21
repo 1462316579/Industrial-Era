@@ -465,7 +465,7 @@ impl Game<'_> {
 
 impl Entity for Mob {
     fn native_type(&self) -> Cow<'static, str> {
-        super::native_hooks::mob_kind(self).into()
+        Cow::Borrowed(&self.kind.id)
     }
     fn save_nbt(
         game: &mut Game<'_>,

@@ -576,9 +576,7 @@ impl Game<'_> {
                 *self.held_mut() = (rest.count > 0).then_some(rest);
                 if let (Some(player), Some(player_name), Some(name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone(), name)
-                {
-                    self.native_player_name_entity(player, &player_name, id, &name);
-                }
+                {}
             }
             self.swing_arm();
             return true;
@@ -645,7 +643,6 @@ impl Game<'_> {
             let stand = self.armor_stands[i].id as i32;
             let slot_name = ["mainhand", "offhand", "feet", "legs", "chest", "head"][slot];
             let mut cancel = false;
-            self.native_armor_stand_manipulate(player, &name, stand, slot_name, &mut cancel);
             if cancel {
                 return true;
             }

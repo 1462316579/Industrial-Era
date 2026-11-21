@@ -108,9 +108,6 @@ impl Game<'_> {
             return false;
         }
         let id = m.id;
-        if !self.native_may_board(id) {
-            return true;
-        }
         self.riding = Some(id);
         self.trigger_player("minecraft:started_riding");
         true
@@ -269,9 +266,6 @@ impl Game<'_> {
         }
         // doPlayerRide
         let id = self.mobs[index].id;
-        if !self.native_may_board(id) {
-            return true;
-        }
         let m = &mut self.mobs[index];
         m.extra.flag = false;
         m.extra.counter = 0;
@@ -352,7 +346,6 @@ impl Game<'_> {
         if loved {
             self.love_cause.insert(id, self.lan_acting);
             let kind = self.mobs[index].kind.id.clone();
-            self.native_entity_enter_love_mode(id, &kind, self.lan_acting_uuid);
             self.mob_event_particles(id, 18);
         }
         self.consume_held();
@@ -556,9 +549,6 @@ impl Game<'_> {
         let Some(id) = self.riding else {
             return;
         };
-        if !self.native_may_leave(id) {
-            return;
-        }
         self.riding = None;
         let Some(m) = self.mobs.iter_mut().find(|m| m.id == id) else {
             return;
@@ -625,7 +615,6 @@ impl Game<'_> {
                         .level
                         .player_uuid
                         .map(industrial_era_client::lan::playerdata::ints_uuid);
-                    self.native_entity_tame(mob, &kind, owner);
                 }
             }
             MobEvent::Buck { mob } => {
@@ -739,9 +728,6 @@ impl Game<'_> {
         let m = &self.mobs[i];
         let hearts = industrial_era_client::hud_layout::vehicle_max_hearts(m.attrs.max_health);
         let draws = industrial_era_client::hud_layout::vehicle_health(w, h, hearts, m.health);
-        self.gui_layer("minecraft:vehicle_health", batch, |g, batch| {
-            industrial_era_client::hud_layout::paint(batch, &g.gui.atlas, &draws);
-        });
         hearts
     }
     /// The jump bar when it is the contextual bar.

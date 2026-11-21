@@ -202,9 +202,7 @@ impl Game<'_> {
         }
         if camera.is_none()
             && let Some(entity_id) = previous
-        {
-            self.native_player_stop_spectating_entity(uuid, &name, entity_id);
-        }
+        {}
     }
 
     /// The camera part of `ServerPlayer.tick` for every guest, after the

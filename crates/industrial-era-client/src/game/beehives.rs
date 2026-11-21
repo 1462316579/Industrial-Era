@@ -161,7 +161,6 @@ impl Game<'_> {
             if let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob) {
                 m.removed = true;
             }
-            self.native_entity_enter_block(mob, &kind, at, &block);
         }
     }
     /// `BeehiveBlockEntity.emptyAllLivingFromHive` with no player about.

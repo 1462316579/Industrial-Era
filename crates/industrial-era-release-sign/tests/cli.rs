@@ -33,7 +33,7 @@ fn folder(name: &str) -> PathBuf {
 }
 
 fn tool(args: &[&str], paths: &[&Path]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_horizon-release-sign"))
+    Command::new(env!("CARGO_BIN_EXE_industrial-era-release-sign"))
         .args(args)
         .args(paths)
         .output()

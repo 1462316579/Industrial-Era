@@ -59,10 +59,6 @@ impl Kind {
         Some(match (machine, part) {
             (Some(Machine::Depot), _) => Kind::Depot,
             (Some(Machine::Basin), _) => Kind::Basin,
-            (Some(Machine::Belt), _) => Kind::Belt,
-            (Some(Machine::Burner), _) => Kind::Burner,
-            (Some(Machine::Funnel), _) => Kind::Funnel,
-            (Some(Machine::Chute), _) => Kind::Chute,
             (_, Some(KineticPart::Millstone)) => Kind::Millstone,
             (_, Some(KineticPart::Press)) => Kind::Press,
             (_, Some(KineticPart::Mixer)) => Kind::Mixer,

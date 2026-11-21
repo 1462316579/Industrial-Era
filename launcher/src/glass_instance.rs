@@ -268,7 +268,7 @@ impl Launcher {
     }
 
     /// The IndustrialEra version an instance plays: the one it keeps, else the launcher's.
-    fn draft_horizon(&self) -> Option<String> {
+    fn draft_industrial_era(&self) -> Option<String> {
         let pin = self.instances.dialog.as_ref()?.pin.clone();
         pin.or_else(|| self.launcher_version().cloned())
     }
@@ -378,7 +378,7 @@ impl Launcher {
             )],
         );
         let mut summary = match kind {
-            NewKind::IndustrialEra => match self.draft_horizon() {
+            NewKind::IndustrialEra => match self.draft_industrial_era() {
                 Some(tag) => format!("IndustrialEra · {}", version_label(&tag)),
                 None => "IndustrialEra".into(),
             },
@@ -774,7 +774,7 @@ impl Launcher {
         let t = self.theme;
         let soft = self.look.accent_soft;
         let follows = self.launcher_version().cloned();
-        let chosen = self.draft_horizon();
+        let chosen = self.draft_industrial_era();
         let rows: Vec<_> = self
             .installed
             .clone()

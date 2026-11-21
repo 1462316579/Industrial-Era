@@ -147,7 +147,6 @@ impl Game<'_> {
     /// (`native_tnt_primed`); the acting guest, if any, is its player.
     pub(super) fn tnt_prime_allowed(&mut self, pos: BlockPos) -> bool {
         let mut cancel = false;
-        self.native_tnt_primed(self.lan_acting_uuid, [pos.x, pos.y, pos.z], &mut cancel);
         !cancel
     }
     /// Primes TNT a level event announced, or, when the mods refuse, puts

@@ -60,7 +60,7 @@ Limits, checked when an item is read (`Item::parse`); an item past one is refuse
 
 Unknown fields are refused, so a file never carries anything the game would silently ignore.
 
-## What other players wear (`horizon_cosmetics::Cosmetics`)
+## What other players wear (`industrial_era_cosmetics::Cosmetics`)
 
 The game asks Industrial Era's cosmetics service (HTTPS, JSON) what the players in view wear, and draws
 from its answers. The frame never waits on the network: it reads a cache, and a thread of its own
@@ -79,7 +79,7 @@ does the asking.
 
 ## In the game
 
-- **The flag**: `horizon_cosmetics::ON_BY_DEFAULT` is `false`. Until it is turned on nothing runs:
+- **The flag**: `industrial_era_cosmetics::ON_BY_DEFAULT` is `false`. Until it is turned on nothing runs:
   no thread, no request, no setting, no drawing. `HORIZON_COSMETICS=1` turns them on for one run
   (development, the bench); `HORIZON_COSMETICS_API=<url>` points the game at another service, and
   `HORIZON_COSMETICS_LOCAL=<folder>` reads items from a folder instead: every player and every

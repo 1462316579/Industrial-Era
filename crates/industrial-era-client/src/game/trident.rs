@@ -379,9 +379,7 @@ impl Game<'_> {
                 self.audio.play(&sound, at, 1.0, 1.0);
                 if let (Some(player), Some(name)) =
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
-                {
-                    self.native_player_riptide(player, &name);
-                }
+                {}
             }
             return;
         }
@@ -596,7 +594,7 @@ impl Game<'_> {
                         t.position.y + t.velocity.y * d,
                         t.position.z + t.velocity.z * d,
                     );
-                    self.native_trident_impact(t.id, t.guest, Some(id), [0; 3], [0; 3], at)
+                    false
                 });
                 if canceled_mob {
                     // No damage, sound or deflection: it flies on.
@@ -691,16 +689,8 @@ impl Game<'_> {
                     // doesn't stick the trident, which stays where it would
                     // have hit, still flying.
                     // The hook's `at` is the clip's hit location, before the back-off.
-                    let canceled_block = clip.is_some_and(|(at, block, face)| {
-                        self.native_trident_impact(
-                            t.id,
-                            t.guest,
-                            None,
-                            [block.x, block.y, block.z],
-                            face,
-                            at,
-                        )
-                    });
+                    // No mods: no trident impact hooks.
+                    let canceled_block = false;
                     let clip = clip.map(|(at, block, face)| (back_off(at, flight), block, face));
                     if canceled_block && let Some((stop, _, _)) = clip {
                         t.position = stop;

@@ -35,9 +35,7 @@ impl Game<'_> {
             Screen::WorldOptions => self.world_options_typing(),
             Screen::Creative => self.creative_screen.tab().search,
             Screen::BlockEditor => self.block_editor.as_ref().is_some_and(|s| s.text_focused()),
-            Screen::Inventory => {
-                self.mod_browser_typing() || self.recipe_search_focused() || self.station_typing()
-            }
+            Screen::Inventory => self.recipe_search_focused() || self.station_typing(),
             _ => false,
         };
         focused || cfg!(target_os = "android") && self.widget_text_focused()
@@ -108,13 +106,6 @@ impl Game<'_> {
     pub(super) fn ime_commit(&mut self, text: &str) {
         preedit::set_preedit(None);
         let text: String = text.chars().filter(|c| !c.is_control()).collect();
-        // ScreenEvent.CharacterTyped.Pre: the input method's committed text
-        // reaches a text box by characters, as a key's own text does, so the
-        // open screen hears of each of them first and a cancelled one never
-        // reaches the box.
-        let Some(text) = self.screen_text_typed(&text) else {
-            return;
-        };
         if text.is_empty() || !self.text_field_focused() {
             return;
         }
@@ -137,9 +128,6 @@ impl Game<'_> {
                 Screen::WorldOptions => self.world_options_text(Some(&text)),
                 Screen::Creative => self.creative_search_edit(Some(&text)),
                 Screen::BlockEditor => self.block_editor_type(&text),
-                Screen::Inventory if self.mod_browser_typing() => {
-                    self.mod_browser_text(Some(&text), false)
-                }
                 Screen::Inventory if self.recipe_search_focused() => {
                     self.recipe_text(Some(&text), false)
                 }

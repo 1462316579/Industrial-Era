@@ -1196,7 +1196,7 @@ pub fn frame_hint(cpu: std::time::Duration, fps_limit: i32) {
         let Some(set_frame_rate) = hints.set_frame_rate else {
             return;
         };
-        let Some(window) = android_app().native_window() else {
+        let Some(window) = android_app() else {
             return;
         };
         // No cap: the screen's fastest rate (Android's own choice may stay at 60 Hz).

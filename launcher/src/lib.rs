@@ -28,8 +28,6 @@ mod mac_update;
 pub mod minecraft_versions;
 pub mod modpacks;
 pub mod mojang;
-pub mod native_mods;
-pub mod native_status;
 pub mod nightly;
 pub mod other_launchers;
 pub mod packs;

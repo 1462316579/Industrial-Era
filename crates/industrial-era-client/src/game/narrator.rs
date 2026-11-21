@@ -262,7 +262,7 @@ impl Game<'_> {
             Screen::Options => self.ui.options.typing(),
             Screen::WorldOptions => self.world_options_typing(),
             Screen::CommandBlock | Screen::Social => true,
-            Screen::Inventory => self.station_typing() || self.mod_browser_typing(),
+            Screen::Inventory => self.station_typing(),
             _ => self
                 .title
                 .as_mut()

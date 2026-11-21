@@ -154,7 +154,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
 
 A blocky, Minecraft-like look in Industrial Era's purple, for the website, the redesigned launcher and
 the game's graphics settings screen:
-Minecraft's inventory rather than a document. Its colours are `horizon_theme::Blocks`
+Minecraft's inventory rather than a document. Its colours are `industrial_era_theme::Blocks`
 (`BLOCKS_LIGHT`, `BLOCKS_DARK`), which `tokens.css` carries under the same names as before plus
 `--panel`, `--raised`, `--button`, `--well`, `--bevel`, `--lip`, `--outline` and the `--face`
 of the main action. The game's other menus keep `LIGHT` and `DARK`.
@@ -202,7 +202,7 @@ than Pixelify. Hover and focus are vanilla's white edge.
 ## Night
 
 The launcher's look from 0.3: a pixel night sky that turns to a sunset at the industrial-era, with the
-content on top. Its tokens are `horizon_theme::night` (`NIGHT`, and `DAWN` for players who pick
+content on top. Its tokens are `industrial_era_theme::night` (`NIGHT`, and `DAWN` for players who pick
 Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 - **The sky is the brand, the content is the UI.** The sky, the stepped sun, the banded clouds and
@@ -311,7 +311,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 The launcher's next look, designed by Anthony S. (dezer-x) as a web mockup: playhorizon.dev/launcher,
 source in industrial-era-site `app/launcher/` and `components/launcher/`. The launcher ports it one to one,
 screen by screen, replacing Night where they differ; the mockup is the reference for every size,
-colour, state and motion. Its tokens are `horizon_theme::glass`; `tokens.css` carries the colours
+colour, state and motion. Its tokens are `industrial_era_theme::glass`; `tokens.css` carries the colours
 as `--glass-*`.
 
 - **The scene is the background**: a pixel sunset over three ridges with trees, clouds, stars, a

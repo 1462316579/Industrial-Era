@@ -3,7 +3,7 @@
 use industrial_era_shader_api::{Pack, check};
 use std::{path::Path, process::Command};
 
-const TOOL: &str = env!("CARGO_BIN_EXE_horizon-shader");
+const TOOL: &str = env!("CARGO_BIN_EXE_industrial-era-shader");
 
 fn scratch(name: &str) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!(

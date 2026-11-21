@@ -54,7 +54,7 @@ the game runs and the narrator is "Not Available".
 | The driver: reads the last drawn frame, runs `updateNarrationState` and says what is due | `crates/industrial-era-client/src/screen_narrator.rs` |
 | Game glue: start and stop, the options, Ctrl+B, the toast, the input events the driver hears | `crates/industrial-era-client/src/game/narrator.rs` |
 | Screens whose narration is their own (chat, level loading, books, confirm screens) | `crates/industrial-era-client/src/game/screen_info.rs` |
-| Chat and system messages | `game.rs`, `game/remote.rs` and the other callers of `horizon_narrator::say_*`, where vanilla narrates |
+| Chat and system messages | `game.rs`, `game/remote.rs` and the other callers of `industrial_era_narrator::say_*`, where vanilla narrates |
 
 ## How screens record their narration
 
@@ -93,7 +93,7 @@ speak: with text-to-speech unavailable nothing is built or allocated.
 Adding a screen, for example a confirm screen with two buttons:
 
 ```rust
-horizon_client::widgets::begin_screen(|| {
+industrial_era_client::widgets::begin_screen(|| {
     // ConfirmScreen.getNarrationMessage: its title and its message.
     ScreenInfo::new("my_confirm", join_for_narration(&[&title, &message]))
 });

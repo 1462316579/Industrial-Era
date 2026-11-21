@@ -567,8 +567,7 @@ fn tool_safe(path: &Path) -> bool {
     ascii(path) && !(cfg!(windows) && path.as_os_str().to_str().is_some_and(|p| p.contains(' ')))
 }
 
-/// Where builds happen — the Rust toolchain, its Cargo home and `native_mods::root` — as a
-/// path every build tool can read: `data_dir()` resolved, so the tools are never handed a
+/// Where builds happen — the Rust toolchain and its Cargo home — as a path every build tool
 /// link (industrial_era-mixins refuses one, and macOS's /tmp is one). On Windows, when the resolved
 /// path isn't [`tool_safe`], [`windows_build_dir`] names the same folder a way MinGW-w64 can open.
 pub fn build_dir() -> PathBuf {
@@ -655,9 +654,9 @@ pub fn game_mod_api_level() -> Option<u32> {
     Some(mod_api_level(&tag))
 }
 
-/// A game version's mod API level, read once from the mark its program carries
-/// (`industrial_era_mods::api_level::MARK`). A program from before the mark serves level 0, the
-/// contract of IndustrialEra 0.2.67 and 0.2.68.
+/// A game version's mod API level: `industrial-era-mod-api-level-0` read from the program's
+/// mark bytes. A program from before the mark serves level 0, the contract of IndustrialEra
+/// 0.2.67 and 0.2.68.
 pub fn mod_api_level(tag: &str) -> u32 {
     static LEVELS: Mutex<Vec<(String, u32)>> = Mutex::new(Vec::new());
     let mut levels = LEVELS.lock().unwrap_or_else(|e| e.into_inner());
@@ -672,7 +671,8 @@ pub fn mod_api_level(tag: &str) -> u32 {
 /// The mod API level in the game program at `path`: its mark's, else 0.
 fn program_mod_api_level(path: &Path) -> u32 {
     let program = fs::read(path).unwrap_or_default();
-    industrial_era_mods::api_level::read_mark(&program).unwrap_or(0)
+    let mark = b"industrial-era-mod-api-level-0";
+    program.windows(mark.len()).any(|w| w == mark).then_some(0).unwrap_or(0)
 }
 
 /// Installed versions, newest tag first.
@@ -3140,10 +3140,6 @@ pub enum Msg {
     /// How many play on the official server now, or none when it doesn't answer its status ping
     /// (`telemetry::watch_official`).
     OfficialPlayers(Option<u64>),
-    /// Where the native-mods build is (`native_mods::Step::label`).
-    NativeProgress(String),
-    /// The native-mods build ended: the version built, or why not.
-    Native(Result<String, String>),
     /// An imported game build is installed (`build_import::import`): its version, or why not.
     Imported(Result<String, String>),
     /// A Java instance's game is ready to start (`java_game`, wrapped): the instance's id and
@@ -3343,17 +3339,6 @@ pub struct Settings {
     /// The window's language. Unset follows the system's (`i18n::Language::system`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub language: Option<crate::i18n::Language>,
-    /// The player has read the notice before the first native mod (`native_status::NOTICE`).
-    /// Native mods are always on: an older file's `native_mods` switch is ignored.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub native_mods_noticed: bool,
-    /// The profile native builds compile with (`native_mods::Profile::chosen`); none is the
-    /// default, or the release's own while `native_release` is on.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub native_profile: Option<crate::native_mods::Profile>,
-    /// An older file's switch for the release profile, read when `native_profile` is unset.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub native_release: bool,
     /// Developer options (hidden: seven clicks on the sidebar's launcher version reveal them):
     /// offline names play without an account that owns the game, in the window only
     /// (`account::Accounts::play_as_with`, `account::launch_for_game`). Never a download: the game still

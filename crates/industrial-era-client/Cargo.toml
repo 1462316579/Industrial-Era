@@ -40,9 +40,6 @@ industrial-era-shader-api = { path = "../industrial-era-shader-api" }
 industrial-era-friends = { path = "../industrial-era-friends" }
 # The narrator (GameNarrator): text-to-speech of chat, system messages and screens.
 industrial-era-narrator = { path = "../industrial-era-narrator" }
-# Industrial Era mods: sandboxed WebAssembly components, off unless installed and turned on (docs/mods.md).
-# Their runtime is the `mods` feature.
-industrial-era-mods = { path = "../industrial-era-mods", default-features = false, features = ["index"] }
 wgpu = { version = "30.0.1", default-features = false, features = ["std", "parking_lot", "vulkan", "metal", "wgsl", "naga-ir"] }
 winit = "0.30.13"
 pollster = "0.4"
@@ -88,8 +85,6 @@ rustix = { version = "1", default-features = false, features = ["std", "time", "
 # file manager, the file picker, the clipboard (cpal's version of jni).
 winit = { version = "0.30.13", features = ["android-native-activity"] }
 jni = "0.21.1"
-# The mods, resource packs and shader packs catalog (game/mod_catalog.rs).
-starling-catalog = { path = "../starling-catalog" }
 
 [target.'cfg(windows)'.dependencies]
 # (Resource pack overlays' `junction` is industrial-era-client-render's, with packs.rs.)
@@ -147,10 +142,6 @@ path = "tests/datapack_biome_sync.rs"
 [[test]]
 name = "launch_api"
 path = "tests/launch_api.rs"
-
-[[test]]
-name = "mod_api_hooks"
-path = "tests/mod_api_hooks.rs"
 
 [lints]
 workspace = true

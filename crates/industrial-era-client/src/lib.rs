@@ -7,7 +7,6 @@ pub use industrial_era_client_lib::*;
 pub mod android;
 pub mod entry;
 pub mod game;
-pub mod mod_api;
 
 pub mod diagnostics;
 pub mod performance;

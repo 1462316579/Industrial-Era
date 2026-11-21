@@ -187,14 +187,6 @@ impl Game<'_> {
             let mut cancel = false;
             if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                self.native_player_spawn_point_set(
-                    player,
-                    &name,
-                    self.dim.id(),
-                    pos,
-                    "respawn_anchor",
-                    &mut cancel,
-                );
             }
             if cancel {
                 return Ok(());

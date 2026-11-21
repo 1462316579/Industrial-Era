@@ -635,10 +635,7 @@ impl Game<'_> {
         opening: Opening,
     ) -> Result<()> {
         let result = self.run_integrated_inner(launch, flags, tasks, ready, opening);
-        if let Err(error) = &result {
-            self.native_players_leaving();
-            self.native_lifecycle_close_failed(&error.to_string());
-        }
+        if let Err(error) = &result {}
         result
     }
 
@@ -653,11 +650,9 @@ impl Game<'_> {
         // The open segment runs as one unit (`integrated_open`) so its
         // failures fire `WorldOpenFailed` with the engine's own error text.
         if let Err(e) = self.integrated_open(&launch, &flags, tasks, ready, opening) {
-            self.native_lifecycle_world_failed(&e.to_string());
             return Err(e);
         }
         // The server thread's `WorldOpenReady` site, before the tick loop.
-        self.native_lifecycle_world_ready();
         if let (Some(script), Some(output)) = (
             std::env::var_os("HORIZON_COMMAND_SCRIPT"),
             std::env::var_os("HORIZON_COMMAND_OUTPUT"),
@@ -743,8 +738,6 @@ impl Game<'_> {
         opening: Opening,
     ) -> Result<()> {
         // MinecraftServer.loadLevel's start: nothing is loaded yet.
-        self.native_server_about_to_start(false);
-        self.native_lifecycle_open_started();
         // `load_world`, with the world `serve` started preparing.
         startup::time("server.wait_rest", || self.join_world_rest())?;
         self.perf.world_opening();
@@ -755,9 +748,7 @@ impl Game<'_> {
             startup::time("server.sync_adopt", || sync.adopt(&self.pack_files()));
         }
         let saved = Box::new(self.level.clone());
-        // IntegratedServer runs the server mods; the window the client mods.
-        self.mods.dev = self.options.dev_mods.clone();
-        startup::time("server.start_mods", || self.start_mods());
+        // No mods: skip mod loading.
         // Math.max(2, options.renderDistance): past vanilla's 32 when the
         // window's render distance is (Industrial Era's options go to 64).
         let view_distance = self.settings.render_distance.max(2);
@@ -849,17 +840,12 @@ impl Game<'_> {
     /// `MinecraftServer.stopServer`: the players are saved and sent away,
     /// then the world is saved.
     fn stop_integrated(&mut self) -> Result<()> {
-        // The close request: lifecycle observation stops.
-        self.native_lifecycle.begin_close();
         // MinecraftServer.stopServer's start: everyone is still here.
-        self.native_server_stopping(false);
-        self.native_players_leaving();
         // IntegratedServer.stopServer: teardownPublishedState.
         if let Some(s) = self.serving.take() {
             s.flags.published.store(0, Ordering::Relaxed);
         }
         if let Some(mut host) = self.lan.take() {
-            self.flush_native_net(&mut host);
             // PlayerList.removeAll: the owner and every guest leave the game.
             self.award_leave_game_to_all(&mut host);
             self.save_leaving_guests(&mut host);
@@ -879,7 +865,6 @@ impl Game<'_> {
         self.lan_close(false);
         self.save.flush()?;
         // `WorldCloseFinal` follows a successful final save.
-        self.native_lifecycle_world_closed();
         self.session_lock = None;
         Ok(())
     }
@@ -934,9 +919,8 @@ impl Game<'_> {
                     // A command a native mod registered goes to the mods
                     // first, as the owner's own chat does (the console is
                     // level 4, so every registered usage is allowed).
-                    if !g.perform_native_command(conn, 4, command.trim()) {
-                        g.run_command(&command);
-                    }
+                    // No mods: run every command directly.
+                    g.run_command(&command);
                     g.chat_capture.take().unwrap_or_default()
                 });
                 host = self.lan.take().expect("a command puts the hub back");

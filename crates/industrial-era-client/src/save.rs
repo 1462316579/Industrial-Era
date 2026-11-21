@@ -7455,7 +7455,7 @@ mod tests {
     }
 
     #[test]
-    fn mod_attachments_save_in_horizons_namespace_only_when_some() {
+    fn mod_attachments_save_in_industrial_era_namespace_only_when_some() {
         use industrial_era_world::attachments::Attachments;
         let root =
             std::env::temp_dir().join(format!("industrial-era-attach-{}", std::process::id()));

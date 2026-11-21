@@ -1,7 +1,6 @@
 [workspace]
-exclude = ["launcher", "crates/industrial-era-telemetry-server", "crates/industrial-era-mod-registry", "third_party/wgpu-hal", "third_party/naga", "third_party/libmimalloc-sys", "third_party/winit"]
+exclude = ["launcher", "crates/industrial-era-telemetry-server", "third_party/wgpu-hal", "third_party/naga", "third_party/libmimalloc-sys", "third_party/winit"]
 members = [
-    "crates/starling-catalog",
     "crates/industrial-era-core",
     "crates/industrial-era-dualsense",
     "crates/industrial-era-narrator",
@@ -33,9 +32,6 @@ members = [
     "crates/industrial-era-bench",
     "crates/industrial-era-friends",
     "crates/industrial-era-relay",
-    "crates/industrial-era-mods",
-    "crates/cargo-industrial-era-mod",
-    "crates/industrial-era-port-pack",
     "crates/industrial-era-shaders",
     "crates/industrial-era-optifine",
     "crates/industrial-era-shader-api",

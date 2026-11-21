@@ -864,8 +864,6 @@ impl Game<'_> {
         if self.debug_key(key, action) {
             return;
         }
-        self.native_key_event(key, down, false);
-        self.native_key_event(key, down, false);
         if self.screen == Screen::Options {
             if down {
                 let _ = self.options_key(key, None);
@@ -1059,18 +1057,6 @@ impl Game<'_> {
                 self.capture(true);
             }
             self.extras_mouse(button, down);
-            self.native_mouse_button_post(
-                match button {
-                    MouseButton::Left => 0,
-                    MouseButton::Right => 1,
-                    MouseButton::Middle => 2,
-                    MouseButton::Back => 3,
-                    MouseButton::Forward => 4,
-                    MouseButton::Other(i) => i as i32,
-                },
-                down,
-                0,
-            );
             if down
                 && self.settings.keys.get("key.smoothCamera")
                     == industrial_era_client::keybinds::mouse_name(button)

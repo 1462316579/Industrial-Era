@@ -210,10 +210,6 @@ impl Game<'_> {
                     self.world_options_text(None);
                     return Ok(());
                 }
-                Screen::Inventory if self.mod_browser_typing() => {
-                    self.mod_browser_text(None, true);
-                    return Ok(());
-                }
                 Screen::Social => {
                     self.social_backspace();
                     return Ok(());
@@ -254,9 +250,6 @@ impl Game<'_> {
             Screen::Options => self.ui.options.type_text(&self.gui.atlas, text),
             // The port, or the game rules' search and number boxes.
             Screen::WorldOptions => self.world_options_text(Some(text)),
-            Screen::Inventory if self.mod_browser_typing() => {
-                self.mod_browser_text(Some(text), false)
-            }
             Screen::Inventory if self.recipe_search_focused() => {
                 self.recipe_text(Some(text), false)
             }
@@ -546,23 +539,9 @@ impl Game<'_> {
                         self.debug_key(key, KeyAction::Release);
                     }
                 }
-                // Native mods see the key as the keyboard hook does.
-                let action = arg(2)?;
-                // ScreenEvent.KeyPressed.Pre: the open screen hears of the
-                // press before it acts on it, as the window's key event hands
-                // it over. A cancelled press goes no further — not to the
-                // screens, not to `native_key` — and its release still comes.
-                if action != "up" && self.screen_key_pressed(physical, action == "repeat") {
-                    if action == "tap" {
-                        self.physical_keys.remove(&physical);
-                        self.native_key_event(physical, false, false);
-                    }
-                    return ok();
-                }
-                self.native_key_event(physical, action != "up", action == "repeat");
-                if action == "tap" {
-                    self.native_key_event(physical, false, false);
-                }
+                // ScreenEvent.KeyPressed.Pre: the open screen hears of the press
+                // before it acts on it.
+                if action == "tap" {}
                 // The merchant's focused offer and the recipe book's last
                 // recipe take Enter and Space, as the window's.
                 if action != "up"
@@ -879,20 +858,8 @@ impl Game<'_> {
                 self.require_world()?;
                 // Typed keys: the open screen's narration hears them.
                 self.narration.keyboard_action();
-                // ScreenEvent.CharacterTyped.Pre: the open screen hears of
-                // each character before a text box takes it, as the window's
-                // key event fires it. A cancelled character is dropped, so
-                // `type` types the survivors only.
                 // `\b` is the socket's backspace sentinel, not two characters.
-                let typed = if text == "\\b" {
-                    text.to_owned()
-                } else {
-                    let Some(typed) = self.screen_text_typed(text) else {
-                        return ok();
-                    };
-                    typed
-                };
-                self.type_into_screen(&typed)?;
+                self.type_into_screen(text)?;
                 ok()
             }
             "options" => {
@@ -1180,7 +1147,6 @@ impl Game<'_> {
             Screen::BlockEditor => "block-editor",
             Screen::Win => "win",
             Screen::DebugOptions => "debug-options",
-            Screen::Mod => "mod",
         }
     }
 

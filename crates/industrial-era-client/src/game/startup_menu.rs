@@ -366,7 +366,7 @@ pub(super) fn spawn_loader(
     let (sender, receiver) = std::sync::mpsc::channel();
     let settings = settings.clone();
     let vanilla_root = vanilla_root.to_path_buf();
-    let dev_mods = options.dev_mods.clone();
+    let dev_mods = Vec::new();
     let world = launch_world(options).map(str::to_owned);
     let progress = progress.clone();
     let handle = std::thread::Builder::new()
@@ -378,24 +378,6 @@ pub(super) fn spawn_loader(
                     pack_error = Some(error.to_string());
                     vanilla_root.clone()
                 });
-            // A content build takes a while (about 40 s on a phone for Create): the menu bundle
-            // goes first, so the loading screen can say what it waits for.
-            let registries = super::world_content::next_start().map(|next| &next.content);
-            let mut menu_sent = false;
-            let root = mods::content_root(
-                &root,
-                &settings.mods.enabled,
-                &dev_mods,
-                registries,
-                &mut |note| {
-                    progress.note(Some(note.text()));
-                    if !std::mem::replace(&mut menu_sent, true)
-                        && let Ok(ui) = UiResources::load(&root, &vanilla_root)
-                    {
-                        let _ = sender.send(LoaderMsg::Ui(ui, root.clone()));
-                    }
-                },
-            );
             progress.note(None);
             let result = load_resources(
                 root,
@@ -406,7 +388,7 @@ pub(super) fn spawn_loader(
                 true,
                 false,
                 &progress,
-                &mut |gui, root| {
+                &mut |gui, root, _text| {
                     let _ = sender.send(LoaderMsg::Ui(gui, root.to_path_buf()));
                 },
             )

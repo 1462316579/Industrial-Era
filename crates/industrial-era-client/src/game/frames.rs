@@ -133,7 +133,6 @@ impl Game<'_> {
             return false;
         };
         let mut cancel = false;
-        self.native_hanging_place(uuid, &name, kind, pos, &mut cancel);
         cancel
     }
     /// Asks the mods whether a hanging entity of type `kind` at `pos` may
@@ -155,7 +154,6 @@ impl Game<'_> {
             None
         };
         let mut cancel = false;
-        self.native_hanging_break(player, kind, pos, &mut cancel);
         cancel
     }
     /// `ItemFrameItem.useOn`.
@@ -294,7 +292,6 @@ impl Game<'_> {
                 .and_then(|f| f.item.as_ref())
                 .map_or_else(String::new, |s| s.item.to_string());
             let rotation = frame.map_or(0, |f| f.rotation);
-            self.native_player_item_frame_change(player, &name, entity_id, action, &item, rotation);
         }
         self.swing_arm();
         true
@@ -350,16 +347,7 @@ impl Game<'_> {
         if f.item.is_some() {
             self.frame_output_changed(f.pos);
         }
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_item_frame_change(
-                player,
-                &name,
-                entity_id,
-                if with_frame { "break" } else { "remove_item" },
-                if with_frame { "" } else { &old_item },
-                rotation,
-            );
-        }
+        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         true
     }
     /// `ItemFrame.setItem` / `setRotation`: `updateNeighbourForOutputSignal`, so
@@ -398,14 +386,6 @@ impl Game<'_> {
         }
         if by_player && !drops.is_empty() {
             let tool = self.held().cloned();
-            self.native_use_drops(
-                "",
-                c,
-                None,
-                Some((f.id, f.kind())),
-                tool.as_ref(),
-                &mut drops,
-            );
         }
         for stack in drops {
             self.spawn_item(stack, at, [0.0; 3], 10);
@@ -595,7 +575,6 @@ impl Game<'_> {
             self.cull_entity_vertices(out, entity_start);
             if let Some(stack) = &f.item {
                 let mut canceled = false;
-                self.native_render_item_in_frame(f.id, f.pos, stack, &mut canceled);
                 if canceled {
                     continue;
                 }

@@ -485,7 +485,6 @@ impl Game<'_> {
         }
         if !spectator {
             let mut push = [dir[0] * power, dir[1] * power, dir[2] * power];
-            self.native_explosion_knockback(self.dim.id(), center, blocks, None, &mut push);
             if let Some(p) = self.player.as_mut() {
                 p.velocity = Vec3::new(
                     p.velocity.x + push[0],
@@ -699,13 +698,6 @@ impl Game<'_> {
                     _ => {}
                 }
                 let mut velocity = [push.x, push.y, push.z];
-                self.native_explosion_knockback(
-                    self.dim.id(),
-                    center,
-                    blocks,
-                    Some(entity),
-                    &mut velocity,
-                );
                 let push = Vec3::new(velocity[0], velocity[1], velocity[2]);
                 match handle {
                     EntityHandle::Item(_) | EntityHandle::Orb(_) if destroyed => {}
@@ -736,7 +728,6 @@ impl Game<'_> {
         }
         self.dropped.drain(items_kept..items_len);
         self.orbs.drain(orbs_kept..orbs_len);
-        self.native_leaves_flush();
         // Frames, paintings, cushions and armour stands last: vanilla lists
         // the entities in reach before hurting any, so the items they drop
         // here are neither destroyed nor pushed by the same blast.
@@ -868,9 +859,7 @@ impl Game<'_> {
         damage_type: &str,
         resists: Option<([i32; 3], f32)>,
     ) -> Result<()> {
-        if self.serving.is_some() || self.options.dedicated.is_some() {
-            self.native_explosion_prime(center, radius);
-        }
+        if self.serving.is_some() || self.options.dedicated.is_some() {}
         if let Some(p) = &self.player {
             let d = [
                 p.position.x - center[0],
@@ -885,7 +874,6 @@ impl Game<'_> {
         self.post_game_event("minecraft:explode", center, ctx);
         let mut targets = self.exploded_positions(center, radius, resists);
         let dimension = self.dim.id();
-        self.native_explosion_detonate(dimension, center, &mut targets);
         let pushed =
             self.explosion_hurt_entities(center, radius, damage_type, interaction, &targets);
         if interaction != BlockInteraction::Keep {
@@ -1005,7 +993,6 @@ impl Game<'_> {
                     false,
                 )
             });
-            self.native_block_drops(pos, state, None, None, Some(radius), &mut drops);
             for mut stack in drops {
                 if &*stack.item == "minecraft:air" || stack.count == 0 {
                     continue;

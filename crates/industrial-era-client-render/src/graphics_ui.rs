@@ -1633,7 +1633,7 @@ impl GraphicsUi {
         let (x, y) = (cols.side_x, cols.side_y);
         style::fill(batch, atlas, [x, y + 2.0, 6.0, 6.0], style::ACCENT);
         let industrial_era = Text::literal("Industrial Era");
-        batch.text_styled(atlas, &industrial - era, x + 10.0, y, style::WHITE, true);
+        batch.text_styled(atlas, &industrial_era, x + 10.0, y, style::WHITE, true);
         let title = Text::literal(lang::get("Graphics"));
         batch.text_styled(atlas, &title, x, y + 10.0, style::MUTED, true);
         for (i, page) in Page::ALL.into_iter().enumerate() {

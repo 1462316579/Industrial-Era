@@ -19,7 +19,7 @@ The dedicated server is the game itself, run headless:
 [--initSettings]`, started in the server folder (`crates/industrial-era-client/src/game/dedicated.rs`).
 
 - **Startup.** It follows vanilla's `Main.main` and `DedicatedServer.initServer`. It reads `server.properties`
-  and writes it straight back with vanilla's defaults filled in (`horizon_client::server`, byte-exact with
+  and writes it straight back with vanilla's defaults filled in (`industrial_era_client::server`, byte-exact with
   vanilla's `Properties.store`), and refuses to start until `eula.txt` says `eula=true`. It then loads the
   operator, whitelist and ban lists in vanilla's order and format, and opens `<universe>/<level-name>` with
   the same `Game` as single player, minus the local player.
@@ -346,7 +346,7 @@ industrial-era-server import-resources <dir>      prepare --server-jar PATH
 - Every command takes `--dir` (the server folder; default: the current folder).
 - While the server runs, management commands go through the control API, so the engine applies them as
   vanilla's console would and its lists stay right. While it's stopped, they edit the vanilla files directly
-  with the same code the engine uses (`horizon_server_files::user_lists`).
+  with the same code the engine uses (`industrial_era_server_files::user_lists`).
 - **The TUI** is `industrial-era-server console` (built, `console.rs`): the recent log and then the live one (the
   control API's event stream), a one-line header (TPS, MSPT, players, RAM) that updates
   every second, and a command line. It uses plain ANSI with no TUI framework, and falls back to plain lines
@@ -568,7 +568,7 @@ reproducible by anyone, and show the same gameplay on both sides.
   - TPS and MSPT (average, P50/P95/P99), from each server's own `/tick query` (vanilla's
     `ServerTickRateManager`; Industrial Era implements the same command and clock), so every server measures itself
     the same way;
-  - RSS and CPU (process tree, `horizon_bench::rss_bytes`/`cpu_seconds`);
+  - RSS and CPU (process tree, `industrial_era_bench::rss_bytes`/`cpu_seconds`);
   - chunk generation: chunks per second while the `explore` bots run, and time until each new bot has its
     full view loaded;
   - start time: cold and warm, to `Done`;

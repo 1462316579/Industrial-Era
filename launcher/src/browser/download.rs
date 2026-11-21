@@ -13,7 +13,7 @@ const HOSTS: [&str; 5] = [
     "https://cdn.modrinth.com/",
     "https://edge.forgecdn.net/",
     "https://mediafilez.forgecdn.net/",
-    industrial_era_mods::index::FILE_HOST,
+    "https://industrial-era-mods.github.io/files/",
     // The registry's files at their address before the move to industrial_era-rust (GitHub redirects it).
     "https://github.com/ludovic111/industrial_era-mods/releases/download/",
 ];
@@ -46,20 +46,14 @@ const MAX: u64 = 1 << 30;
 /// It is kept between downloads: a fresh agent starts a new connection pool, so one per file would
 /// be a handshake per file, and a modpack brings hundreds.
 pub(super) fn agent(url: &str) -> ureq::Agent {
-    let spec = crate::proxy::spec_for(url);
-    industrial_era_port_pack::net::keep("browser", spec.as_deref(), |proxy| {
-        let builder = ureq::AgentBuilder::new()
-            .user_agent(&format!(
-                "industrial_era-rust/industrial_era industrial_era-launcher/{} (github.com/industrial_era-rust/industrial_era)",
-                crate::backend::VERSION
-            ))
-            .timeout_connect(std::time::Duration::from_secs(15))
-            .timeout_read(std::time::Duration::from_secs(60));
-        match proxy {
-            Some(proxy) => builder.proxy(proxy).build(),
-            None => builder.build(),
-        }
-    })
+    ureq::AgentBuilder::new()
+        .user_agent(&format!(
+            "industrial_era-rust/industrial_era industrial_era-launcher/{} (github.com/industrial_era-rust/industrial_era)",
+            crate::backend::VERSION
+        ))
+        .timeout_connect(std::time::Duration::from_secs(15))
+        .timeout_read(std::time::Duration::from_secs(60))
+        .build()
 }
 
 /// Why a file can't be downloaded at all, before any byte is read.

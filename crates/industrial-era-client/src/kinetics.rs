@@ -17,7 +17,54 @@ use std::collections::{HashMap, VecDeque};
 use std::path::Path;
 use std::sync::Arc;
 
-pub use industrial_era_mods::content::{Kinetic, KineticPart, Machine};
+/// A part's kind: shaft, cogwheel, motor, crank, clutch, gearshift, bearing, belt, arm, millstone,
+/// press, mixer, saw, drill, fan, water wheel, large cogwheel, crushing wheel, press head, mixer
+/// head or pole (none).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum KineticPart {
+    Shaft,
+    Cogwheel,
+    LargeCogwheel,
+    CrushingWheel,
+    Press,
+    Motor,
+    Crank,
+    Drill,
+    Fan,
+    Bearing,
+    Clutch,
+    Gearshift,
+    Gearbox,
+    Belt,
+    Arm,
+    Millstone,
+    Mixer,
+    Saw,
+    WaterWheel,
+}
+/// A machine that is not itself a kinetic part: a depot or basin keeps items/work.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum Machine {
+    #[default]
+    None,
+    Depot,
+    Basin,
+}
+/// A kinetic state: its part and how its state turns it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Kinetic {
+    pub part: KineticPart,
+    pub rpm: f32,
+    pub spins: bool,
+    pub half: Option<String>,
+    pub extra: Option<String>,
+    pub extra_facing: Option<String>,
+    pub head: Option<String>,
+    pub pole: Option<String>,
+    pub models: Vec<String>,
+    pub stress: f32,
+    pub capacity: f32,
+}
 
 /// The fastest a part turns (Create's default speed limit).
 pub const MAX_RPM: f32 = 256.0;
@@ -204,7 +251,50 @@ impl Part {
     }
 }
 
-pub use industrial_era_mods::content::{direction, turns_from, turns_to};
+/// Which way `[0, 0, 1]` (south) turns to point at `facing`: the quarter turns about y.
+pub fn turns_to(facing: [i32; 3]) -> [u8; 3] {
+    match facing {
+        [0, 0, 1] => [0, 0, 0],
+        [0, 0, -1] => [0, 2, 0],
+        [0, 1, 0] => [1, 0, 0],
+        [0, -1, 0] => [3, 0, 0],
+        [-1, 0, 0] => [0, 1, 0],
+        [1, 0, 0] => [0, 3, 0],
+        _ => [0, 0, 0],
+    }
+}
+
+/// From `from` pointing at `to` as a block's facing: the turns that make `extra` face right.
+pub fn turns_from(made: [i32; 3], f: [i32; 3]) -> [u8; 3] {
+    let x = |[a, b, c]: [i32; 3]| [a, c, -b];
+    let y = |[a, b, c]: [i32; 3]| [-c, b, a];
+    for tx in 0..4u8 {
+        let mut v = made;
+        for _ in 0..tx {
+            v = x(v);
+        }
+        for ty in 0..4u8 {
+            if v == f {
+                return [tx, ty, 0];
+            }
+            v = y(v);
+        }
+    }
+    [0; 3]
+}
+
+/// The world's up direction, facing-free.
+pub fn direction(facing: &str) -> Option<[i32; 3]> {
+    match facing {
+        "up" => Some([0, 1, 0]),
+        "down" => Some([0, -1, 0]),
+        "north" => Some([0, 0, -1]),
+        "south" => Some([0, 0, 1]),
+        "west" => Some([-1, 0, 0]),
+        "east" => Some([1, 0, 0]),
+        _ => None,
+    }
+}
 
 fn axis_of(v: [i32; 3]) -> usize {
     v.iter().position(|c| *c != 0).unwrap_or(1)
@@ -221,58 +311,9 @@ pub struct KineticTable {
 }
 
 impl KineticTable {
-    pub fn load(root: &Path, registry: &BlockRegistry) -> Result<Self> {
-        let read = |name: &str| std::fs::read(root.join(name)).ok();
-        let mut out = Self::default();
-        if let Some(bytes) = read(crate::mod_content::KINETIC) {
-            let declared: HashMap<String, Kinetic> = serde_json::from_slice(&bytes)
-                .map_err(|e| format!("{}: {e}", crate::mod_content::KINETIC))?;
-            out.parts = vec![None; registry.len()];
-            for (i, slot) in out.parts.iter_mut().enumerate() {
-                let Some(state) = registry.state(BlockStateId(i as u32)) else {
-                    continue;
-                };
-                let Some(kinetic) = declared.get(&state.name) else {
-                    continue;
-                };
-                let prop = |k: &str| state.properties.get(k).map(String::as_str);
-                *slot = Part::new(kinetic, prop("axis"), prop("facing")).map(|mut part| {
-                    part.powered = prop("powered") == Some("true");
-                    if part.kind == KineticPart::Belt {
-                        part.pulley = prop("part") != Some("middle");
-                        if prop("slope") == Some("sideways") {
-                            part.axis = 1;
-                        }
-                    }
-                    if part.kind == KineticPart::Arm && prop("ceiling") == Some("true") {
-                        part.face = [0, 1, 0];
-                    }
-                    // DirectionalAxisKineticBlock.getRotationAxis, facing up or down.
-                    if part.kind == KineticPart::Saw && part.face == [0; 3] {
-                        part.axis = if prop("axis_along_first") == Some("true") {
-                            0
-                        } else {
-                            2
-                        };
-                    }
-                    Arc::new(part)
-                });
-            }
-        }
-        if let Some(bytes) = read(crate::mod_content::BLOCK_MODELS) {
-            out.models = serde_json::from_slice(&bytes)
-                .map_err(|e| format!("{}: {e}", crate::mod_content::BLOCK_MODELS))?;
-        }
-        if let Some(bytes) = read(crate::mod_content::MACHINES) {
-            let declared: HashMap<String, Machine> = serde_json::from_slice(&bytes)
-                .map_err(|e| format!("{}: {e}", crate::mod_content::MACHINES))?;
-            out.machines = (0..registry.len())
-                .map(|i| {
-                    let state = registry.state(BlockStateId(i as u32))?;
-                    declared.get(&state.name).copied()
-                })
-                .collect();
-        }
+    pub fn load(_root: &Path, _registry: &BlockRegistry) -> Result<Self> {
+        let _read = |name: &str| std::fs::read(_root.join(name)).ok();
+        let out = Self::default();
         Ok(out)
     }
     pub fn is_empty(&self) -> bool {

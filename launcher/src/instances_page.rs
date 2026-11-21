@@ -115,9 +115,6 @@ impl Launcher {
     }
 
     pub(super) fn select_instance(&mut self, instance: &Instance) {
-        // A native build's warning names the mods of the instance it was opened for.
-        self.native_confirm = None;
-        self.native_update = None;
         self.settings.instance =
             (instance.kind != InstanceKind::Default).then(|| instance.id.clone());
         self.save_settings();
@@ -213,13 +210,6 @@ impl Launcher {
                         }
                         (None, None, None) => tr("No version installed").into(),
                         (None, Some(_), _) if !prepared => tr("Needs preparing").into(),
-                        (None, Some(tag), _) if self.native_build_of(tag).is_some() => {
-                            let build = self.native_build_of(tag).unwrap_or_default();
-                            trf(
-                                "Native build · {version}",
-                                &[("version", &build.industrial_era_short())],
-                            )
-                        }
                         (None, Some(tag), Some(_)) => format!("{} · {tag}", tr("Ready")),
                         (None, Some(_), None) => tr("Ready").into(),
                     },
@@ -327,7 +317,7 @@ impl Launcher {
         let editing = d.editing.clone();
         let copy = selected.filter(|_| d.copy);
         // The IndustrialEra version is IndustrialEra's instances' alone: a Java one plays its own game.
-        let plays_horizon = match &editing {
+        let plays_industrial_era = match &editing {
             Some(id) => self
                 .instances
                 .list
@@ -374,7 +364,7 @@ impl Launcher {
                 m.name = Some(name);
                 m.group = group;
                 m.icon = icon;
-                if plays_horizon {
+                if plays_industrial_era {
                     m.version = pin;
                 }
             })?;

@@ -2,10 +2,7 @@
 //! chunk-generation spawning (`NaturalSpawner`), mob events (attacks,
 //! breeding, conversions, drops), projectiles, player interactions
 //! (feeding, shearing, milking, spawn eggs, throwing) and rendering.
-use super::{
-    Dim, Game, Hand, InteractTarget, dispenser, native_mob_draw::NativePlayerRender,
-    native_projectiles::Impact, view_vector,
-};
+use super::{Dim, Game, Hand, InteractTarget, dispenser, view_vector};
 use industrial_era_assets::item_model::DisplayContext;
 use industrial_era_client::{
     Result,
@@ -21,7 +18,6 @@ use industrial_era_client::{
         farm::Climate,
         spawning::{self, BiomeFacts},
     },
-    mod_api::NativeLootDrops,
     particles::{ParticleOptions, ParticleType},
     projectiles::{Hit, Projectile, ProjectileKind, ProjectileWorld, clip_including_border},
     text::Text,
@@ -62,7 +58,7 @@ pub(super) struct Creatures {
     pub projectiles: Vec<Projectile>,
     /// The entities a family tells the mods ticked, kept between ticks
     /// (game/native_ticks.rs).
-    pub tick_buffer: Vec<(u32, super::native_ticks::TickKind)>,
+    pub tick_buffer: Vec<(u32)>,
     /// Wind bursts from a guest's turn, waiting for it to end (game/wind.rs).
     pub wind_bursts: Vec<super::wind::Burst>,
     /// The players a fishing hook can catch, taken as the hooks tick, and
@@ -443,7 +439,6 @@ impl Game<'_> {
         }
         let id = mob.id;
         self.mobs.push(mob);
-        self.native_mobs_joined(self.mobs.len() - 1, false);
         if !self.mobs.iter().any(|m| m.id == id) {
             return None;
         }
@@ -650,7 +645,6 @@ impl Game<'_> {
             }
         }
         self.mobs.push(mob);
-        self.native_mobs_joined(self.mobs.len() - 1, false);
         let transformed_kind = self
             .mobs
             .last()
@@ -658,7 +652,6 @@ impl Game<'_> {
             .kind
             .id
             .clone();
-        self.native_entity_transform(from.id, &from.kind.id, id, &transformed_kind);
         Some(id)
     }
     /// The `summon` command: spawn a mob in front of the player or at a position.
@@ -922,19 +915,6 @@ impl Game<'_> {
         self.combat.charged_exploders.clear();
         self.combat.exploded.clear();
         // EntityTickEvent.Pre for the mobs about to tick, before the loop holds them.
-        let mut round = self.native_tick_round();
-        if round.listening() {
-            let ticking = self.entity_ticking_area();
-            let mut i = 0;
-            while let Some(m) = self.mobs.get(i) {
-                let (x, z) = (m.position.x.floor() as i32, m.position.z.floor() as i32);
-                if self.world.loaded(x, z) && ticking(x, z) {
-                    let (id, kind) = (m.id, super::native_ticks::TickKind::Mob(m.kind.clone()));
-                    self.native_tick_pre_batch(&mut round, id, kind);
-                }
-                i += 1;
-            }
-        }
         let uuid = self.level.player_uuid;
         let mut snapshot: Vec<Seen> = self.mobs.iter().map(|m| seen(m, uuid)).collect();
         let mut events = Vec::new();
@@ -1051,11 +1031,7 @@ impl Game<'_> {
                     keep.push(kept);
                     continue;
                 }
-                // A mod canceled its tick: it stays as it is.
-                if round.canceled(m.id) {
-                    keep.push(true);
-                    continue;
-                }
+
                 industrial_era_client::mobs::apply_mob_pushes(m, &mut pushes);
                 industrial_era_client::mobs::blocks_changed(m, &path_changes);
                 let from = events.len();
@@ -1144,7 +1120,6 @@ impl Game<'_> {
             self.mobs.append(&mut mobs);
         }
         self.died = died;
-        self.native_tick_post_batch(round);
         // ... and entity event 60 goes out as it is: the poof.
         for (id, at, width, height) in gone {
             let at = [at.x, at.y, at.z];
@@ -1420,10 +1395,8 @@ impl Game<'_> {
             Some(conn) if self.lan_acting != Some(conn) => {
                 Some(self.lan.as_ref()?.hub.guest(conn)?.uuid)
             }
-            Some(_) => Some(self.native_acting_id()),
-            None if self.lan_acting.is_none() && self.player.is_some() => {
-                Some(self.native_acting_id())
-            }
+            Some(_) => None,
+            None if self.lan_acting.is_none() && self.player.is_some() => None,
             None => None,
         }
     }
@@ -1534,20 +1507,7 @@ impl Game<'_> {
                 other => rest.push(other),
             }
         }
-        let kind = super::native_hooks::mob_kind(m);
         let table = drops::death_loot_table(m, death.mob_drops).filter(|t| loot.has_table(t));
-        let context = NativeLootDrops {
-            table: table.as_deref().unwrap_or_default(),
-            dimension: self.dim.id(),
-            origin: [m.position.x, m.position.y, m.position.z],
-            block: None,
-            entity: Some((m.id, &kind)),
-            player: player_uuid,
-            tool: None,
-            explosion: None,
-            used: false,
-        };
-        self.native_loot_drops(&context, &mut stacks);
         stacks.retain(|stack| stack.count > 0 && &*stack.item != "minecraft:air");
         for item in stacks {
             // Every death drop is its own ItemEntity, and the drop entity's
@@ -1758,7 +1718,6 @@ impl Game<'_> {
         };
         let (id, kind) = (p.id, p.kind.id());
         self.creatures.projectiles.push(p);
-        self.native_projectile_launch(player, &name, id, kind);
     }
     /// `MushroomCow.shear`'s `sendParticles(EXPLOSION, x, getY(0.5), z, 1, 0, 0, 0, 0)`:
     /// one puff over a sheared mooshroom, half its `height` up, shown here and to
@@ -2366,7 +2325,6 @@ impl Game<'_> {
                     self.next_entity += 1;
                     m.id = self.next_entity;
                     self.mobs.push(*m);
-                    self.native_mobs_joined(self.mobs.len() - 1, false);
                 }
                 MobEvent::SpawnKind { kind, at, setup } => {
                     if let Some(id) = self.spawn_mob(&kind, at, setup.persistent) {
@@ -2410,7 +2368,6 @@ impl Game<'_> {
                     count,
                     at,
                 } => {
-                    self.native_entity_drop_item(mob, &item, count as i32, at);
                     self.spawn_item(
                         ItemStack {
                             item,
@@ -2495,8 +2452,15 @@ impl Game<'_> {
                         .mobs
                         .iter()
                         .find(|m| m.id == mob)
-                        .map(super::native_hooks::mob_kind)
-                        .unwrap_or_default();
+                        .map(|m| m.kind.clone())
+                        .unwrap_or_else(|| {
+                            self.res
+                                .mob_types()
+                                .values()
+                                .next()
+                                .cloned()
+                                .expect("no mob types loaded")
+                        });
                     let air = self.world.air;
                     let at = BlockPos::new(pos[0], pos[1], pos[2]);
                     self.with_level(|b, level, ticks| b.set_block(level, ticks, at, air, 3));
@@ -2504,7 +2468,6 @@ impl Game<'_> {
                     self.level_event_at(1021, pos, 0);
                     let left = self.world.block(pos[0], pos[1], pos[2]);
                     self.level_event_at(2001, pos, left.0 as i32);
-                    self.native_entity_break_door(mob, &kind, pos);
                 }
                 MobEvent::DestroyProgress { mob, pos, progress } => {
                     self.destroy_block_progress(mob as i32, pos, progress);
@@ -2561,7 +2524,6 @@ impl Game<'_> {
                             && let Some(m) = self.mobs.iter().find(|m| m.id == mob)
                         {
                             let kind = m.kind.id.clone();
-                            self.native_entity_change_block(mob, &kind, pos, &old_name, name);
                         }
                     }
                 }
@@ -2621,7 +2583,6 @@ impl Game<'_> {
                             &mut self.world.random,
                             Some((&mut self.rand_sequences, self.level.seed)),
                         );
-                        self.native_block_drops(pos, old, None, None, None, &mut drops);
                         for d in drops {
                             self.pop_resource(pos, d);
                         }
@@ -2773,7 +2734,6 @@ impl Game<'_> {
                     let mob_count = self.mobs.len();
                     self.breed(parent, partner, llama);
                     let child = self.mobs.get(mob_count).map(|m| m.id);
-                    self.native_entity_breed(parent, partner, child);
                 }
                 MobEvent::LockGaze { mob, partner } => {
                     if let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob) {
@@ -3702,9 +3662,8 @@ impl Game<'_> {
         let mut trails = Vec::new();
         let mut bubble_tops = Vec::new();
         let mut keep_flags = vec![true; projectiles.len()];
-        // The impacts the mods may cancel (`native_projectile_impact`), on a server.
-        let hear = self.native_hears_impacts();
-        let mut impacts: Vec<Impact> = Vec::new();
+        // Projectile impacts: vanilla always lets them hit (mods can no longer cancel).
+        let mut impacts: Vec<()> = Vec::new();
         {
             let targets = self.projectile_targets();
             let breezes: Vec<u32> = self
@@ -3776,7 +3735,7 @@ impl Game<'_> {
                     continue;
                 }
                 // The projectile as it was, to fly on if a mod cancels its impact.
-                let before = (hear && !p.stuck).then(|| p.clone());
+                let before = (!p.stuck).then(|| p.clone());
                 let mob_shot = !matches!(p.owner, Some(Who::Player));
                 // A player's arrows, snowballs and eggs meet every player; a
                 // guest's flies from that guest (Projectile.getOwner), not
@@ -3889,13 +3848,7 @@ impl Game<'_> {
                 }
                 if hit != Hit::None {
                     if let Some(before) = before {
-                        impacts.push(Impact {
-                            index: i,
-                            before,
-                            hit,
-                            hit_slot: hits.len(),
-                            events: events_from..arrow_events.len(),
-                        });
+                        impacts.push(());
                     }
                     hits.push((p.clone(), hit));
                 }
@@ -3920,15 +3873,7 @@ impl Game<'_> {
             idx += 1;
             k
         });
-        if !impacts.is_empty() {
-            self.native_settle_impacts(
-                &mut projectiles,
-                &listed,
-                impacts,
-                &mut hits,
-                &mut arrow_events,
-            );
-        }
+        if !impacts.is_empty() {}
         self.smoke_trails(trails);
         for pos in bubble_tops {
             self.bubble_column_particles(pos);
@@ -4258,7 +4203,6 @@ impl Game<'_> {
         });
         if let Some(strength) = hit {
             let _ = self.process_level_events();
-            self.native_target_hit(self.dim.id(), pos, strength);
             if p.owner == Some(Who::Player) && (p.guest.is_none() || p.guest == self.lan_acting) {
                 self.award_custom_stat("target_hit", 1);
                 let kind = if p
@@ -4748,15 +4692,6 @@ impl Game<'_> {
                         (self.lan_acting_uuid, self.lan_acting_name.clone())
                 {
                     let mut target = [to.x, to.y, to.z];
-                    self.native_ender_pearl_teleport(
-                        uuid,
-                        &name,
-                        p.id,
-                        [from.x, from.y, from.z],
-                        &mut target,
-                        &mut damage,
-                        &mut cancel,
-                    );
                     // A target that is not a number keeps the pearl's.
                     if target.iter().all(|v| v.is_finite()) {
                         to = Vec3::new(target[0], target[1], target[2]);
@@ -4927,7 +4862,6 @@ impl Game<'_> {
                 self.splash(stack, at, mob, block, p.age, &owner);
                 if stack.item.as_ref() != "minecraft:experience_bottle" {
                     let item = stack.item.to_string();
-                    self.native_potion_splash(&item, [at.x, at.y, at.z]);
                 }
             }
             (ProjectileKind::LlamaSpit, Hit::Entity { who, .. }) => match who {
@@ -5139,13 +5073,6 @@ impl Game<'_> {
                     (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
                 let mut cancel = false;
-                self.native_player_shear_entity(
-                    player,
-                    &name,
-                    mob.id as i32,
-                    self.hand == Hand::Off,
-                    &mut cancel,
-                );
                 if cancel {
                     return Ok(true);
                 }
@@ -5203,7 +5130,6 @@ impl Game<'_> {
             }
             if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                self.native_player_bucket_entity(player, &name, id, &species);
             }
             self.swing_arm();
             return Ok(true);
@@ -5215,12 +5141,6 @@ impl Game<'_> {
             self.set_age_locked(index);
             if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                self.native_player_toggle_entity_age_lock(
-                    player,
-                    &name,
-                    entity_id,
-                    self.mobs[index].extra.age_locked,
-                );
             }
             if let Some(stack) = &held {
                 let target = self.mob_entity(&self.mobs[index]);
@@ -5345,7 +5265,7 @@ impl Game<'_> {
         let mut drops: Vec<(String, u32)> = Vec::new();
         // The shearing table rolled, for the mods (none for a mooshroom).
         let mut drops_table = String::new();
-        let mob = (m.id, super::native_hooks::mob_kind(m));
+        let mob = (m.id, m.kind.clone());
         // `Sheep.shear`'s drops add a spread on top of the ItemEntity's own
         // motion; `MushroomCow.shear`'s do not.
         let mut wool = false;
@@ -5846,7 +5766,6 @@ impl Game<'_> {
                             let id = self.mobs[index].id;
                             self.love_cause.insert(id, self.lan_acting);
                             let kind = self.mobs[index].kind.id.clone();
-                            self.native_entity_enter_love_mode(id, &kind, self.lan_acting_uuid);
                             self.mob_event_particles(id, 18);
                         }
                     }
@@ -5860,13 +5779,7 @@ impl Game<'_> {
         if !handled {
             return Ok(false);
         }
-        if ignited_creeper {
-            self.native_creeper_ignite(
-                self.mobs[index].id,
-                industrial_era_client::lan::playerdata::ints_uuid(acting),
-                &item,
-            );
-        }
+        if ignited_creeper {}
         if let Some(trusts) = ocelot_trust {
             // `spawnTrustingParticles` on the clients: entity event 41 (hearts) or 40 (smoke).
             self.mob_event_particles(self.mobs[index].id, if trusts { 41 } else { 40 });
@@ -5963,16 +5876,7 @@ impl Game<'_> {
             .into_iter()
             .map(|(item, count)| ItemStack::new(&item, count))
             .collect();
-        if !drops.is_empty() {
-            self.native_use_drops(
-                &drops_table,
-                feet,
-                None,
-                Some((mob.0, &mob.1)),
-                held.as_ref(),
-                &mut drops,
-            );
-        }
+        if !drops.is_empty() {}
         for stack in drops {
             for _ in 0..stack.count {
                 // `spawnAtLocation(stack, 1.0)`: an ItemEntity a block above
@@ -6025,20 +5929,12 @@ impl Game<'_> {
             _ => return false,
         };
         let at = m.position;
-        let mob = (m.id, super::native_hooks::mob_kind(m));
+        let mob = (m.id, m.kind.clone());
         let tool = self.held().cloned();
         self.audio.play(sound, Some([at.x, at.y, at.z]), 1.0, 1.0);
         self.mobs[index].extra.sheared = true;
         let mut stacks = self.sequence_loot(table, table, tool.as_ref());
         let origin = [at.x, at.y, at.z];
-        self.native_use_drops(
-            table,
-            origin,
-            None,
-            Some((mob.0, &mob.1)),
-            tool.as_ref(),
-            &mut stacks,
-        );
         for stack in stacks {
             self.spawn_at_location(at, height, stack);
         }
@@ -6063,15 +5959,7 @@ impl Game<'_> {
         let tool = self.held().cloned();
         let table = "minecraft:brush/armadillo";
         let mut stacks = self.sequence_loot(table, table, tool.as_ref());
-        let kind = super::native_hooks::mob_kind(&self.mobs[index]);
-        self.native_use_drops(
-            table,
-            feet,
-            None,
-            Some((id, &kind)),
-            tool.as_ref(),
-            &mut stacks,
-        );
+        let kind = self.mobs[index].kind.clone();
         for d in stacks {
             self.spawn_at_location(at, 0.0, d);
         }
@@ -6166,7 +6054,6 @@ impl Game<'_> {
         if kind == ProjectileKind::Egg
             && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            self.native_player_egg_throw(player, &name);
         }
         Ok(true)
     }
@@ -6216,9 +6103,7 @@ impl Game<'_> {
                 child, species, variant, color,
             );
         }
-        if species == Species::Piglin {
-            self.native_mobs_joined(self.mobs.len() - 1, false);
-        }
+        if species == Species::Piglin {}
         // `Mob.checkAndHandleImportantInteractions` then calls
         // `onOffspringSpawnedFromEgg`: `Fox`'s makes the baby trust the player
         // who used the egg (a fox egg used on a block trusts nobody).
@@ -6577,35 +6462,7 @@ impl Game<'_> {
                 let block = industrial_era_client::mobs::aquatic::glow_squid_block_light(mob, lit);
                 packed = (packed & 0xFF) | ((block * 16) << 8);
             }
-            // A native mod's own model in place of the vanilla one
-            // (`native_mob_submit`), before any of the vanilla model's parts
-            // (a sulfur cube's swallowed block) are drawn.
-            // A player's own hook (`native_player_submit`) is asked for the
-            // other players in view.
-            let who = is_player
-                .then(|| self.remote_player_name(mob.id))
-                .flatten()
-                .map(|name| NativePlayerRender { name, local: false });
-            let modded = if layers_only {
-                false
-            } else if let Some(who) = who {
-                self.mod_player_geometry(mob, who, alpha as f32, camera, packed, out)
-            } else {
-                !is_player && self.mod_mob_geometry(mob, alpha as f32, camera, packed, out)
-            };
-            if modded {
-                if let Some(rgb) = outline {
-                    self.mark_outline(&out[entity_start..], rgb);
-                    if mob.invisible {
-                        out.truncate(entity_start);
-                        continue;
-                    }
-                }
-                if outline.is_none() {
-                    self.cull_entity_vertices(out, entity_start);
-                }
-                continue;
-            }
+            // Vanilla always renders its own model: no mod geometry to substitute.
             if mob.species() == Species::SulfurCube
                 && !industrial_era_client::mobs::trader::is_invisible(mob)
             {
@@ -6732,7 +6589,6 @@ impl Game<'_> {
                 let skin = (skinning && silhouette_on_gpu).then_some(&mut skinned);
                 self.mob_block_geometry(mob, camera, alpha, packed, skin, out);
                 // `native_mob_layer`: a native mod's layer, over the vanilla ones.
-                self.mod_mob_layer_geometry(mob, who, alpha as f32, camera, packed, out);
             }
             if let Some(rgb) = outline {
                 self.mark_outline(&out[entity_start..], rgb);

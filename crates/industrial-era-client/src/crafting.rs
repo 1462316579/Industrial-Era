@@ -28,28 +28,24 @@ use std::{
 /// leaves the list empty and the recipe fails, as an unknown kind does.
 /// API 166.
 #[inline(never)]
+/// No mod ingredient kinds remain after native mods were removed.
 pub fn native_ingredient(
-    kind: &str,
-    data: &serde_json::Map<String, Value>,
-    items: &mut Vec<String>,
+    _kind: &str,
+    _data: &serde_json::Map<String, Value>,
+    _items: &mut Vec<String>,
 ) {
-    crate::native_client_hooks::ingredient(kind, data, items);
+    // No ingredient kinds to add: keep items as-is.
 }
 
-/// A mod's own ingredient kind, matching a concrete stack at craft time:
-/// the ingredient's `test` calls here with the kind, its JSON and the
-/// stack being matched, `accept` already true (the load-time list named
-/// the item). Set `accept` to false to refuse the stack — its components
-/// are the usual reason. The hook may be called many times a craft; the
-/// answer must be the same for the same stack. API @API:ingredient_test@.
-#[inline(never)]
+/// A mod's own ingredient kind: no mod hooks remain.
 pub fn native_ingredient_test(
-    kind: &str,
-    data: &serde_json::Map<String, Value>,
-    stack: &ItemStack,
+    _kind: &str,
+    _data: &serde_json::Map<String, Value>,
+    _stack: &ItemStack,
     accept: &mut bool,
 ) {
-    crate::native_client_hooks::ingredient_test(kind, data, stack, accept);
+    // No mod tests: keep accept as-is.
+    let _ = accept;
 }
 
 /// Keep first-seen order, drop the rest.
@@ -1429,7 +1425,7 @@ impl Recipes {
         for file in &crate::json_folder::read(&root.join("data/minecraft/recipe"))?.files {
             sources.push((file.name.clone(), file.bytes()?.to_vec()));
         }
-        for namespace in crate::mod_content::namespaces(root) {
+        for namespace in ["minecraft"] {
             let dir = root.join(format!("data/{namespace}/recipe"));
             if dir.is_dir() {
                 for file in &crate::json_folder::read(&dir)?.files {

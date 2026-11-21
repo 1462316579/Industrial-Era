@@ -33,9 +33,7 @@ impl Game<'_> {
             return None;
         }
         // The mods hear a server player's totem before it is used up.
-        if let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_totem(uuid, &name);
-        }
+        if let (Some(uuid), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
         let p = self.player.as_mut()?;
         p.health.totem_used = false;
         let _ = p.set_health(1.0, false);

@@ -718,11 +718,7 @@ impl Game<'_> {
     // The epoch starts at world open; failures before that send no lifecycle event.
     pub(super) fn run_dedicated(&mut self) -> Result<()> {
         let result = self.run_dedicated_inner();
-        if let Err(error) = &result {
-            self.native_players_leaving();
-            self.native_lifecycle_world_failed(&error.to_string());
-            self.native_lifecycle_close_failed(&error.to_string());
-        }
+        if let Err(error) = &result {}
         result
     }
 
@@ -845,8 +841,6 @@ impl Game<'_> {
         log("INFO", &format!("Preparing level \"{level_name}\""));
         let folder = world_dir.to_string_lossy().into_owned();
         // MinecraftServer.loadLevel's start: nothing is loaded yet.
-        self.native_server_about_to_start(true);
-        self.native_lifecycle_open_started();
         // The registries the server sends are read while the world prepares.
         let sync = super::lan::preload_sync_data(&self.options.resources);
         self.load_world(WorldRequest::new(
@@ -1053,7 +1047,6 @@ impl Game<'_> {
             host.hub.entity_range_percent = props.entity_broadcast_range_percentage;
         }
         // The dedicated server's open is complete before its first tick.
-        self.native_lifecycle_world_ready();
         let mut state = ServerState {
             lists,
             console,
@@ -1302,7 +1295,6 @@ impl Game<'_> {
             .iter()
             .map(|e| (e.user.id, e.level as u8))
             .collect();
-        self.resend_commands_filtered();
     }
 
     /// A player on the server, by name.
@@ -1736,11 +1728,7 @@ impl Game<'_> {
             _ => {
                 // The game's dispatcher, captured for the console.
                 self.chat_capture = Some(Vec::new());
-                // A command a native mod registered goes to the mods first,
-                // looked up by the same first word the match above read.
-                if !self.perform_native_console_command(line.trim()) {
-                    self.as_console(|g| g.run_command(line));
-                }
+                self.as_console(|g| g.run_command(line));
                 for text in self.chat_capture.take().unwrap_or_default() {
                     self.console_reply(text);
                 }
@@ -1845,9 +1833,7 @@ impl Game<'_> {
             changed
         };
         self.store_property("white-list", on.to_string());
-        if changed {
-            self.native_whitelist_state_update(on);
-        }
+        if changed {}
     }
 
     /// `DedicatedServer.setMaxPlayers`: the live login limit, and `max-players` in
@@ -2026,25 +2012,18 @@ impl Game<'_> {
                 "The panic interrupted a player's turn: that player keeps the last saved file",
             );
         }
-        self.native_lifecycle.begin_close();
         log("INFO", "Saving worlds");
         self.save_game()?;
         self.log_saved_levels();
-        self.native_lifecycle_world_closed();
         self.lan_close(false);
         Err(format!("the server thread panicked: {message}").into())
     }
 
     fn stop_dedicated(&mut self) -> Result<()> {
-        // The close request starts before player and world saves.
-        self.native_lifecycle.begin_close();
         // MinecraftServer.stopServer's start: everyone is still here.
-        self.native_server_stopping(true);
         log("INFO", "Stopping server");
-        self.native_players_leaving();
         log("INFO", "Saving players");
         if let Some(mut host) = self.lan.take() {
-            self.flush_native_net(&mut host);
             // PlayerList.removeAll: each player's file, with the vehicle it
             // alone rides, then its records.
             self.save_leaving_guests(&mut host);
@@ -2066,7 +2045,6 @@ impl Game<'_> {
         self.save_game()?;
         self.log_saved_levels();
         // Only a successful final save closes the epoch; storage is still held.
-        self.native_lifecycle_world_closed();
         self.lan_close(false);
         Ok(())
     }

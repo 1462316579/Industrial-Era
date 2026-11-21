@@ -2578,8 +2578,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 dependencies = [
  "foldhash",
- "serde",
- "serde_core",
 ]
 
 [[package]]
@@ -2946,7 +2944,6 @@ dependencies = [
  "industrial-era-core",
  "industrial-era-friends",
  "industrial-era-mcp",
- "industrial-era-mods",
  "industrial-era-port-pack",
  "industrial-era-prepare",
  "industrial-era-protocol",
@@ -2989,25 +2986,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "industrial-era-mods"
-version = "0.1.0"
-dependencies = [
- "industrial-era-shader-api",
- "log",
- "minisign-verify",
- "serde",
- "serde_json",
- "sha2",
- "toml 1.1.8+spec-1.1.0",
- "wasmparser",
- "zip",
-]
-
-[[package]]
 name = "industrial-era-port-pack"
 version = "0.1.0"
 dependencies = [
- "industrial-era-mods",
  "serde",
  "serde_json",
  "sha1",
@@ -3050,20 +3031,6 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "ring",
-]
-
-[[package]]
-name = "industrial-era-shader-api"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "naga",
- "png 0.18.1",
- "serde",
- "serde_json",
- "sha2",
- "toml 1.1.8+spec-1.1.0",
- "zip",
 ]
 
 [[package]]
@@ -3518,12 +3485,6 @@ checksum = "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
 dependencies = [
  "autocfg",
 ]
-
-[[package]]
-name = "minisign-verify"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "871285dc19d8d0ebe0eef3d0e99a205f2a71363b122632cbbfa4a6c370a960ce"
 
 [[package]]
 name = "miniz_oxide"
@@ -6311,19 +6272,6 @@ dependencies = [
  "js-sys",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "wasmparser"
-version = "0.254.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5ff8685b587722894b6f25958fc608d315b93b8d23647bfb567664e7006d757"
-dependencies = [
- "bitflags 2.13.2",
- "hashbrown 0.17.1",
- "indexmap",
- "semver",
- "serde",
 ]
 
 [[package]]

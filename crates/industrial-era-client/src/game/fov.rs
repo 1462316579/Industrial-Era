@@ -91,7 +91,6 @@ impl Game<'_> {
         let target = self.fov_player().map_or(1.0, |player| {
             let base = field_of_view_modifier(&player, first_person, effect);
             let mut modifier = base;
-            self.native_compute_fov_modifier(&player, base, &mut modifier);
             valid_fov_modifier(modifier, base)
         });
         let target = self.zoomed_fov_target(target);
@@ -142,7 +141,6 @@ impl Game<'_> {
         );
         let vanilla = self.zoomed_fov_degrees(fov);
         let mut degrees = vanilla;
-        self.native_compute_fov(partial, camera, &mut degrees);
         if degrees.is_finite() && (1.0..=179.0).contains(&degrees) {
             degrees
         } else {
@@ -178,8 +176,8 @@ impl Game<'_> {
             )),
         };
         let tilt = self.settings.file.double("damageTiltStrength");
-        glam::Mat4::from_cols_array(&bob_matrix(&state, tilt, self.settings.view_bobbing).m)
-            * self.native_shake_matrix(partial)
+        let _ = &bob_matrix(&state, tilt, self.settings.view_bobbing);
+glam::Mat4::from_cols_array(&bob_matrix(&state, tilt, self.settings.view_bobbing).m)
     }
     /// `AbstractClientPlayer.tick` and `aiStep` (`ClientAvatarState.tick`,
     /// `updateBob`), `rideTick`'s `resetBob` and `LocalPlayer.move`'s walked

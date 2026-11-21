@@ -1,7 +1,7 @@
 # Mod files
 
 The rules a `.hmod` or `.hnmod` follows, in one place, for tools that make or read them. The readers are
-`horizon_mods::Package` and `horizon_mods::Content` (content), and `horizon_mods::index::native::Bundle` (native
+`industrial_era_mods::Package` and `industrial_era_mods::Content` (content), and `industrial_era_mods::index::native::Bundle` (native
 code). Level: content is preview, native code experimental ([data-formats.md](data-formats.md)).
 
 ## The zip
@@ -42,7 +42,7 @@ A JSON object. Unknown fields refuse the file.
 | `id` | string | the mod id, `[a-z0-9_]{1,64}`, the same as `mixins/<id>/` and its `industrial-era-mixin.toml` `[mod] id` |
 | `version` | string | not empty, the same as `industrial-era-mixin.toml` `[mod] version` |
 | `game` | string | not empty, the Minecraft version (`"26.3"`) |
-| `industrial-era` | string | the exact Industrial Era commit, 40 lowercase hex characters, the same as `[compatibility] horizon_revision` |
+| `industrial-era` | string | the exact Industrial Era commit, 40 lowercase hex characters, the same as `[compatibility] industrial_era_revision` |
 | `mixins` | string | the exact industrial-era-mixins commit, 40 lowercase hex characters |
 | `hooks` | number, optional | the native hook points' version it needs, at least `1` ([native-mods.md](../native-mods.md#mods-on-the-hook-points)) |
 

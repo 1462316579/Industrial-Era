@@ -97,7 +97,6 @@ impl Game<'_> {
         {
             let mut points = loss as i32;
             let mut cancel = false;
-            self.native_item_damaged(uuid, &name, &stack.item, &mut points, &mut cancel);
             loss = if cancel { 0 } else { points.max(0) as u32 };
         }
         if loss > 0 {
@@ -256,9 +255,7 @@ impl Game<'_> {
         for (effect, level) in mob_effects {
             self.apply_mob_effect(mob, &effect, level);
         }
-        for (id, kind_of, data, level) in hook_calls {
-            self.native_enchant_effect(&id, &kind_of, &data, level, victim);
-        }
+        for (id, kind_of, data, level) in hook_calls {}
         self.post_attack_bursts(&held, &kind);
     }
     /// `EnchantmentHelper.doPostPiercingAttackEffects`: the
@@ -390,7 +387,6 @@ impl Game<'_> {
         if let Some(id) = super::potions::mob_effect_id(ids[pick]) {
             let (new, entity) = (!m.has_effect(id), m.id as i32);
             m.add_effect(id, ticks, amplifier);
-            self.mod_effect_added(id, Some(entity), amplifier, new);
         }
     }
     /// `minecraft:post_attack` explode effects on the attacker (wind burst):
@@ -561,10 +557,7 @@ impl Game<'_> {
                 amount as f32,
             ) as u32;
             let vanilla_repair = to_repair_xp;
-            if self.serving.is_some() || self.options.dedicated.is_some() {
-                let player = self.native_acting_id();
-                self.native_mending_repair(player, &stack, amount, &mut to_repair_xp);
-            }
+            if self.serving.is_some() || self.options.dedicated.is_some() {}
             // A hook can re-enter experience granting or replace the slot. Only
             // repair the same eligible stack, using its current damage.
             let Some(current) = self.mend_slot_mut(slot).as_mut() else {
@@ -588,20 +581,11 @@ impl Game<'_> {
             }
             current.damage -= repaired;
             let item = current.item.to_string();
-            let player = (self.serving.is_some() || self.options.dedicated.is_some())
-                .then(|| self.native_acting_id());
+            let player = (self.serving.is_some() || self.options.dedicated.is_some()).then(|| self);
             let remaining = amount.saturating_sub(
                 (u64::from(repaired) * u64::from(amount) / u64::from(to_repair_xp)) as u32,
             );
-            if let Some(player) = player
-                && let Some(name) = self
-                    .native_server_players()
-                    .into_iter()
-                    .find(|p| p.uuid == player)
-                    .map(|p| p.name)
-            {
-                self.native_player_item_mend(player, &name, &item, repaired, amount);
-            }
+            let _ = player;
             if remaining == 0 {
                 return 0;
             }
@@ -875,15 +859,7 @@ impl Game<'_> {
             .collect();
         stand.enchantment_equipment.clone_from(&stand.equipment);
         if self.remote.is_none() && !self.options.execution_role.is_client() {
-            for (slot, from, to) in told {
-                self.native_living_equipment_change(
-                    id,
-                    "minecraft:armor_stand",
-                    slot,
-                    from.as_ref(),
-                    to.as_ref(),
-                );
-            }
+            for (slot, from, to) in told {}
         }
         let stand = &self.armor_stands[index];
         let at = [stand.position.x, stand.position.y, stand.position.z];

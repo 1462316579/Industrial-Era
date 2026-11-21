@@ -254,7 +254,6 @@ impl Game<'_> {
                     let ready = m.extra.boarding_cooldown <= 0;
                     if room
                         && ready
-                        && self.native_mob_may_ride(mob, id, true)
                         && let Some(m) = self.mobs.iter_mut().find(|m| m.id == mob)
                     {
                         m.extra.mount = Some(id);

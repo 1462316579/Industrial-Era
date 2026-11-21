@@ -71,7 +71,7 @@ Failed harnesses' logs are uploaded as the `parity-logs` artifact.
 different results on macOS for a reason that is not a Industrial Era bug (the reason is printed). `parity.py` skips it on
 other platforms unless it is named on the command line. Today it holds only `save_roundtrip` (it needs `vscreen`):
 `options`, `chunk_generation`, `world_border_render` and `mob_ai`, which once differed on macOS through the
-platform's libm, pass on the Mac mini since `horizon_core::jmath` computes what HotSpot computes (checked
+platform's libm, pass on the Mac mini since `industrial_era_core::jmath` computes what HotSpot computes (checked
 2026-10-14).
 
 **Pull requests from forks** never run code on the Mac mini by themselves. A maintainer who has read the change

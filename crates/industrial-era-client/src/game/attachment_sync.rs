@@ -49,31 +49,14 @@ impl Game<'_> {
                 .get(&id)
                 .and_then(|uuid| self.entity_attachments.get(uuid))
                 .map(|map| map.synced()),
-            _ => self
-                .attachment_map_quiet(holder)
-                .ok()
-                .map(|map| map.synced()),
+            _ => None,
         }
         .unwrap_or_default();
-        let mut holders = vec![(holder, changes)];
-        if let Holder::Chunk([x, z]) = holder {
-            holders.extend(
-                self.world
-                    .block_entities
-                    .chunk_attachments(x, z)
-                    .into_iter()
-                    .map(|((x, y, z), map)| (Holder::BlockEntity([x, y, z]), map.synced())),
-            );
-        }
-        holders
-            .into_iter()
-            .filter(|(holder, changes)| !changes.is_empty() || matches!(holder, Holder::Player(_)))
-            .map(|(holder, changes)| Message {
-                holder,
-                replace: true,
-                changes,
-            })
-            .collect()
+        vec![Message {
+            holder,
+            replace: true,
+            changes,
+        }]
     }
 
     /// The holders players started seeing are sent whole to them, in the pass
@@ -107,23 +90,7 @@ impl Game<'_> {
                 guest.send_attachment_sync(&message);
             }
         }
-        for holder in std::mem::take(&mut self.world.attachment_syncs) {
-            let Ok(map) = self.attachment_map_quiet(holder) else {
-                continue;
-            };
-            let changes = map.take_sync_changes();
-            if changes.is_empty() {
-                continue;
-            }
-            let message = Message {
-                holder,
-                replace: false,
-                changes,
-            };
-            for guest in recipients(hub, holder) {
-                guest.send_attachment_sync(&message);
-            }
-        }
+        // No mod attachment syncing while mods are removed.
     }
 }
 

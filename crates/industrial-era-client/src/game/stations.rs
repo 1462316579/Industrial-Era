@@ -932,16 +932,13 @@ impl Game<'_> {
             match &*name {
                 "minecraft:anvil" => {
                     let _ = self.set_state_named(pos, "minecraft:chipped_anvil", &["facing"]);
-                    self.native_anvil_damaged(self.dim.id(), pos, &name, "minecraft:chipped_anvil");
                 }
                 "minecraft:chipped_anvil" => {
                     let _ = self.set_state_named(pos, "minecraft:damaged_anvil", &["facing"]);
-                    self.native_anvil_damaged(self.dim.id(), pos, &name, "minecraft:damaged_anvil");
                 }
                 _ => {
                     let _ = self.world.set(pos[0], pos[1], pos[2], self.world.air);
                     self.world.modified.insert((pos[0] >> 4, pos[2] >> 4));
-                    self.native_anvil_damaged(self.dim.id(), pos, &name, "minecraft:air");
                     self.level_event_at(1029, pos, 0);
                     return true;
                 }
@@ -987,7 +984,6 @@ impl Game<'_> {
             xp.progress = 0.0;
             xp.total = 0;
         }
-        self.native_player_level_changed(old_level);
     }
     /// Whether the result slot may be taken (`mayPickup`).
     fn may_take_result(&self) -> bool {
@@ -2550,9 +2546,7 @@ impl Game<'_> {
         }
         // Native mods last, once getTooltipLines has built every line; a
         // tooltip the stack hides stays hidden.
-        if !nested && !lines.is_empty() {
-            self.native_tooltip(stack, &mut lines);
-        }
+        if !nested && !lines.is_empty() {}
         lines
     }
     /// Menu state for the control socket.
@@ -2645,7 +2639,6 @@ impl Game<'_> {
     ) {
         let (mut background, mut border_top, mut border_bottom) =
             (0xf0100010, 0x505000ff, 0x5028007f);
-        self.native_tooltip_color(stack, &mut background, &mut border_top, &mut border_bottom);
         let convert = |color: u32| {
             let [a, r, g, b] = color.to_be_bytes();
             rgba(r, g, b, a)
@@ -2723,7 +2716,6 @@ impl Game<'_> {
             industrial_era_client::bundle::tooltip_layout(self.items(), stack, 0.0, 0.0, 96.0);
         let bundle_extra = probe.as_ref().map_or(0.0, |l| l.height + 2.0);
         let mut component = None;
-        self.native_tooltip_component(stack, &mut component);
         let component = tooltip_component_size(component);
         let extra = bundle_extra + component.map_or(0.0, |size| size[1] + 2.0);
         let min_width = (if probe.is_some() { 96.0_f32 } else { 0.0 })
@@ -2749,14 +2741,7 @@ impl Game<'_> {
             self.draw_bundle_tooltip(batch, &layout);
             self.draw_bundle_selected_name(batch, &layout, x, y + text_h + 2.0, w);
         }
-        if let Some(size) = component {
-            self.native_tooltip_component_draw(
-                stack,
-                batch,
-                [x, y + text_h + bundle_extra + 2.0],
-                size,
-            );
-        }
+        if let Some(size) = component {}
     }
     /// `ClientBundleTooltip.extractSelectedItemTooltip`: the selected item's
     /// name in a box of its own, centred over the grid (less 12) and 15 above
@@ -2954,17 +2939,14 @@ impl Game<'_> {
         let ingredient = started.then(|| b.ingredient.clone()).flatten();
         if consumed_fuel && let Some(item) = fuel_item {
             let (x, y, z) = pos;
-            self.native_brewing_fuel([x, y, z], &item);
         }
         if let Some(ingredient) = ingredient {
             let (x, y, z) = pos;
-            self.native_brewing_start([x, y, z], &ingredient);
         }
         if out != brewing::BrewTick::default() {
             let (x, y, z) = pos;
             self.world.modified.insert((x >> 4, z >> 4));
             if out.brewed {
-                self.native_brewing_complete([x, y, z]);
                 self.play_at("minecraft:block.brewing_stand.brew", [x, y, z], 1.0, 1.0);
             }
             for d in out.drops {

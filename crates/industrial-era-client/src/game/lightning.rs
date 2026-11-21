@@ -259,7 +259,6 @@ impl Game<'_> {
         cause: &str,
     ) -> bool {
         let mut cancel = false;
-        self.native_lightning_strike(player, pos, cause, &mut cancel);
         !cancel
     }
     /// `ClientLevel.addEntity` for a server's lightning bolt: on a client it
@@ -313,9 +312,6 @@ impl Game<'_> {
                 b.can_survive(level, ticks, at, fire).then_some(fire)
             });
             if let Some(fire) = fire {
-                if !self.native_block_ignite_allowed(at, "lightning") {
-                    continue;
-                }
                 let _ = self.level_set(p, fire);
                 set += 1;
             }
@@ -616,9 +612,7 @@ impl Game<'_> {
         if !events.is_empty() {
             let _ = self.handle_mob_events(events);
         }
-        for entity in powered {
-            self.native_creeper_power(entity, [at[0], at[1], at[2]]);
-        }
+        for entity in powered {}
         // Cushion.thunderHit: a cushion whose box meets the strike box breaks and drops its item
         // (the bolt is no player, so no creative spare). Last first, since
         // break_cushion removes the entry.
@@ -660,7 +654,6 @@ impl Game<'_> {
                 _ => {}
             }
         }
-        self.native_leaves_flush();
         // Every player in the box, the server's players too (0.6 x 1.8).
         let strike_players = move |g: &mut Self| {
             if let Some(p) = g.player.as_ref().map(|p| p.position)
@@ -696,7 +689,6 @@ impl Game<'_> {
                 self.dropped.remove(i);
             }
         }
-        self.native_leaves_flush();
         struck
     }
     /// `LightningBolt.shouldRenderAtSqrDistance`: a bolt is drawn within 64

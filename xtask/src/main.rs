@@ -17,8 +17,6 @@
 //! into every size the platforms and the website use, and packs `packaging/icons/industrial-era.ico`
 //! and `industrial-era.icns`. `docs/media/brand/README.md` lists what goes where.
 
-mod mod_api;
-
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, ExitCode};
@@ -54,8 +52,6 @@ fn main() -> ExitCode {
         [task, engine, out] if task == "package-server" => {
             package_server(Path::new(engine), Path::new(out))
         }
-        [task] if task == "mod-api" => mod_api::run(false),
-        [task, check] if task == "mod-api" && check == "--check" => mod_api::run(true),
         [task] if task == "tokens" => tokens(),
         [task] if task == "icons" => icons(),
         _ => Err(USAGE.to_string()),
@@ -89,7 +85,8 @@ fn git(repo: &Path, args: &[&str]) -> Result<Vec<u8>, String> {
 fn tokens() -> Result<(), String> {
     let path =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial-era-theme/tokens.css");
-    fs::write(&path, horizon_theme::css()).map_err(|e| format!("{}: {e}", path.display()))?;
+    fs::write(&path, industrial_era_theme::css())
+        .map_err(|e| format!("{}: {e}", path.display()))?;
     println!("wrote crates/industrial-era-theme/tokens.css");
     Ok(())
 }

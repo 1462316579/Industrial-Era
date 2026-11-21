@@ -502,8 +502,7 @@ impl StationRecipes {
     pub fn load(root: &Path, items: &Items, overlay: &PackOverlay) -> Self {
         // Vanilla's recipes, then the content mods' (docs/modpacks.md).
         let mut files = Vec::new();
-        let namespaces =
-            std::iter::once("minecraft".to_owned()).chain(crate::mod_content::namespaces(root));
+        let namespaces = std::iter::once("minecraft".to_owned());
         // NeoForge's load conditions: a file whose don't hold is silently
         // absent (`mod_loaded` asks which mods' data is in this root).
         let mods: Vec<String> = {

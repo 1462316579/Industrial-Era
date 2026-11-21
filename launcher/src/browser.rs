@@ -3,9 +3,8 @@
 //! matches (docs/mod-browser.md).
 //!
 //! Offered: Java mods (Fabric, NeoForge, Forge), whose content IndustrialEra ports and whose jar is
-//! checked before install ([`java`]), modpacks (imported and ported), resource packs
-//! (`resourcepacks/`) and data packs (into a world, [`installed::install_datapack`]). Java code
-//! itself doesn't run in IndustrialEra (docs/mods.md).
+//! checked before install ([`java`]), resource packs (`resourcepacks/`) and data packs
+//! (`installed::install_datapack`). Java code itself doesn't run in IndustrialEra (docs/mods.md).
 pub mod curseforge;
 pub mod details;
 pub mod download;
@@ -26,43 +25,33 @@ pub const GAME: &str = "26.3";
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Kind {
-    ResourcePack,
-    Modpack,
     /// A Java mod: its content is ported ([`java`]).
     Mod,
     /// One of IndustrialEra's own shader packs (`.hshader`, docs/shaders.md), from IndustrialEra's registry
     /// only.
     Shader,
-    /// A data pack: it goes into one world's `datapacks/` (`crate::datapacks`).
-    DataPack,
+    /// A resource pack: into `resourcepacks/` of the selected instance.
+    ResourcePack,
 }
 
 impl Kind {
-    pub const ALL: [Kind; 5] = [
-        Kind::Mod,
-        Kind::Modpack,
-        Kind::ResourcePack,
-        Kind::Shader,
-        Kind::DataPack,
-    ];
+    pub const ALL: [Kind; 3] = [Kind::Mod, Kind::ResourcePack, Kind::Shader];
 
     pub fn label(self) -> &'static str {
         match self {
             Kind::Mod => "Mods",
             Kind::ResourcePack => "Resource packs",
-            Kind::Modpack => "Modpacks",
             Kind::Shader => "Shader packs",
-            Kind::DataPack => "Data packs",
         }
     }
 
-    /// The folder beside `options.txt` the file goes in; a modpack is imported, a mod ported
-    /// and a data pack put in a world instead.
+    /// The folder beside `options.txt` the file goes in; a resource pack into its folder,
+    /// a shader pack into shaderpacks.
     pub fn folder(self) -> Option<&'static str> {
         match self {
             Kind::ResourcePack => Some("resourcepacks"),
             Kind::Shader => Some("shaderpacks"),
-            Kind::Modpack | Kind::Mod | Kind::DataPack => None,
+            Kind::Mod => None,
         }
     }
 }

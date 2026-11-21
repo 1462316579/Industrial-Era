@@ -736,13 +736,12 @@ impl Game<'_> {
     pub(super) fn tick_boats(&mut self) {
         // ServerLevel.tick: only entities in entity-ticking chunks tick.
         let ticking = self.entity_ticking_area();
-        let mut round = self.native_tick_round();
         // A server player's boat is driven by its client (lan_vehicles.rs).
         let driven = self.guest_vehicles();
         // EntityTickEvent.Post comes once AbstractBoat.tick is over, after the
         // passes of `boat_server_passes` (lava, ejection, bubbles, contacts),
         // and before the next boat ticks, as `ServerLevel.tickNonPassenger`.
-        // A pass (lava breaks a boat) or a mod's hook may remove boats: the next one is found
+        // A pass (lava breaks a boat) may remove boats: the next one is found
         // after this one by its id, so none is skipped or ticked twice.
         let mut i = 0;
         while i < self.boats.len() {
@@ -759,29 +758,13 @@ impl Game<'_> {
                         self.tick_boat_leash(&mut b);
                         self.boats[i] = b;
                     }
-                    self.boat_server_passes(id, &driven, &ticking, &round);
+                    self.boat_server_passes(id, &driven, &ticking);
                     break 'boat;
                 }
-                let kind = if round.listening() {
-                    self.boats[i].entity_type()
-                } else {
-                    String::new()
-                };
-                if !self.native_tick_pre_one(&mut round, id, &kind) {
-                    self.boat_server_passes(id, &driven, &ticking, &round);
-                    break 'boat;
-                }
-                // The hook may have removed boats.
-                let Some(i) = Some(i)
-                    .filter(|&i| self.boats.get(i).is_some_and(|b| b.id == id))
-                    .or_else(|| self.boats.iter().position(|b| b.id == id))
-                else {
-                    break 'boat;
-                };
+                // No hook runs anymore: the boat is still there.
                 let b = self.boats[i].clone();
                 self.boats[i] = self.tick_boat(b, false);
-                self.boat_server_passes(id, &driven, &ticking, &round);
-                self.native_tick_post_one(&round, id, &kind);
+                self.boat_server_passes(id, &driven, &ticking);
             }
             i = match self.boats.get(i) {
                 Some(b) if b.id == id => i + 1,
@@ -797,18 +780,12 @@ impl Game<'_> {
     /// client-driven ones too: `applyEffectsFromBlocks` (lava breaks a boat
     /// at once), the passengers of one under water too long get out, and it
     /// picks up or pushes what it touches.
-    fn boat_server_passes(
-        &mut self,
-        id: u32,
-        driven: &[u32],
-        ticking: &impl Fn(i32, i32) -> bool,
-        round: &super::native_ticks::TickRound,
-    ) {
+    fn boat_server_passes(&mut self, id: u32, driven: &[u32], ticking: &impl Fn(i32, i32) -> bool) {
         let Some(i) = self.boats.iter().position(|b| b.id == id) else {
             return;
         };
         let p = self.boats[i].position;
-        if !ticking(p.x.floor() as i32, p.z.floor() as i32) || round.canceled(id) {
+        if !ticking(p.x.floor() as i32, p.z.floor() as i32) {
             return;
         }
         if Some(id) != self.riding && self.boat_lava_tick(i) {
@@ -1067,7 +1044,7 @@ impl Game<'_> {
     /// floor there, else on top of the boat.
     pub(super) fn dismount(&mut self, i: usize) {
         let id = self.boats[i].id;
-        if self.riding == Some(id) && !self.native_may_leave(id) {
+        if self.riding == Some(id) {
             return;
         }
         self.riding = None;
@@ -1121,16 +1098,7 @@ impl Game<'_> {
         );
         self.world.modified.insert(key);
         self.boats.push(boat);
-        if self.serving.is_some() || self.options.dedicated.is_some() {
-            self.native_vehicle_create(
-                self.boats.last().unwrap().entity_type().as_str(),
-                [
-                    self.boats.last().unwrap().position.x,
-                    self.boats.last().unwrap().position.y,
-                    self.boats.last().unwrap().position.z,
-                ],
-            );
-        }
+        if self.serving.is_some() || self.options.dedicated.is_some() {}
         if !self.creative {
             self.consume_held();
         }
@@ -1276,9 +1244,6 @@ impl Game<'_> {
         {
             return false;
         }
-        if !self.native_may_board(self.boats[i].id) {
-            return true;
-        }
         self.riding = Some(self.boats[i].id);
         self.yaw = self.boats[i].yaw;
         // ServerPlayer.startRiding.
@@ -1358,7 +1323,6 @@ impl Game<'_> {
     /// a creative hit discards it. True when the boat was removed.
     pub(super) fn hurt_boat(&mut self, i: usize, mut damage: f32, creative: bool) -> bool {
         let mut cancel = false;
-        self.native_vehicle_damage("boat", &mut damage, &mut cancel);
         if cancel {
             return false;
         }
@@ -1369,7 +1333,6 @@ impl Game<'_> {
         let destroyed = creative || b.damage > 40.0;
         if destroyed {
             let at = [b.position.x, b.position.y, b.position.z];
-            self.native_vehicle_destroy("boat", at);
             self.eject_boat_mobs(i, true);
             let id = self.boats[i].id;
             self.release_vehicle_container(id);

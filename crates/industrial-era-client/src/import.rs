@@ -21,9 +21,6 @@ pub enum Kind {
     DataPack,
     ShaderPack,
     World,
-    Mod,
-    /// A native mod (`industrial-era-native.json`): for `industrial-era-native-mods/`, compiled from there.
-    NativeMod,
     /// A folder industrial_era-prepare made (`industrial-era-resources.json`), zipped.
     Resources,
     /// Bedrock Edition content (.mcpack, .mcaddon, .mcworld, .mctemplate).
@@ -67,18 +64,6 @@ pub fn classify(path: &Path) -> (Kind, String) {
     let found = |marker: &str| marker_prefix(&names, marker);
     if let Some(prefix) = found("industrial-era-resources.json") {
         return (Kind::Resources, prefix);
-    }
-    if names
-        .iter()
-        .any(|n| n == industrial_era_mods::index::native::MANIFEST)
-    {
-        return (Kind::NativeMod, String::new());
-    }
-    if let Some(prefix) = found("industrial-era-mod.toml") {
-        return (Kind::Mod, prefix);
-    }
-    if ext == "hmod" {
-        return (Kind::Mod, String::new());
     }
     if let Some(prefix) = found("level.dat") {
         return (Kind::World, prefix);
@@ -198,27 +183,6 @@ pub fn install(path: &Path, name: &str, places: &Places) -> Result<Installed, St
             extract_into(path, &prefix, &unique(&dir, &title, ""), &["session.lock"])
                 .map_err(fail)?;
             format!("World \"{title}\" added to Singleplayer")
-        }
-        Kind::Mod => {
-            let dir = places.game.join("industrial-era-mods");
-            fs::create_dir_all(&dir).map_err(fail)?;
-            if prefix.is_empty() {
-                copy_file(path, &unique(&dir, &title, ".hmod")).map_err(fail)?;
-            } else {
-                extract_into(path, &prefix, &unique(&dir, &title, ""), &[]).map_err(fail)?;
-            }
-            format!(
-                "Mod \"{title}\" added: turn it on in Options > Mods, or, if it adds blocks or items, pick it for a new world in Create New World > More > Mods & Data Packs"
-            )
-        }
-        Kind::NativeMod => {
-            let bundle = industrial_era_mods::index::native::Bundle::read(path)
-                .map_err(|e| format!("{name} can't be added: {e}"))?;
-            let id = bundle.manifest.id;
-            let dir = places.game.join("industrial-era-native-mods");
-            fs::create_dir_all(&dir).map_err(fail)?;
-            copy_file(path, &dir.join(format!("{id}.hnmod"))).map_err(fail)?;
-            format!("Native mod \"{id}\" added: compile it in Options > Mods")
         }
         Kind::Resources => {
             install_resources(path, &prefix, &places.resources)?;
@@ -538,12 +502,6 @@ mod tests {
                 &[("26.3/industrial-era-resources.json", b"{}")],
                 Kind::Resources,
                 "26.3/",
-            ),
-            (
-                "m.zip",
-                &[("industrial-era-mod.toml", b""), ("mod.wasm", b"")],
-                Kind::Mod,
-                "",
             ),
             ("notes.zip", &[("readme.txt", b"")], Kind::Unknown, ""),
         ];

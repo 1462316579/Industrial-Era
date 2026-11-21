@@ -592,7 +592,7 @@ pub fn game_dispatcher_with_features(features: &[String]) -> &'static Dispatcher
     let dev = std::env::var_os("HORIZON_DEV_COMMANDS").is_some();
     let industrial_era = HORIZON_COMMANDS.load(std::sync::atomic::Ordering::Relaxed);
     let dedicated = DEDICATED_COMMANDS.load(std::sync::atomic::Ordering::Relaxed);
-    TREES[usize::from(dev) | usize::from(industrial - era) << 1 | usize::from(dedicated) << 2]
+    TREES[usize::from(dev) | usize::from(industrial_era) << 1 | usize::from(dedicated) << 2]
         .get_or_init(|| {
             let mut d = build_for_features(dev, dedicated, true);
             if industrial_era {
@@ -626,11 +626,11 @@ pub fn set_industrial_era_commands(on: bool) {
 pub const PREGEN_PROPERTY: &str = "industrial-era-pregen";
 pub(crate) fn game_tree(dev: bool, industrial_era: bool, dedicated: bool) -> &'static Dispatcher {
     static TREES: [std::sync::OnceLock<Dispatcher>; 8] = [const { std::sync::OnceLock::new() }; 8];
-    match (dev, industrial - era, dedicated) {
+    match (dev, industrial_era, dedicated) {
         (true, false, false) => dispatcher(),
         (false, false, false) => release_dispatcher(),
         _ => TREES
-            [usize::from(dev) | usize::from(industrial - era) << 1 | usize::from(dedicated) << 2]
+            [usize::from(dev) | usize::from(industrial_era) << 1 | usize::from(dedicated) << 2]
             .get_or_init(|| {
                 let mut d = build_for(dev, dedicated);
                 if industrial_era {

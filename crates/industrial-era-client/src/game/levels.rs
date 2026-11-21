@@ -346,7 +346,6 @@ impl Game<'_> {
             if opened {
                 // The new streaming's radius and meshing options.
                 self.apply_settings();
-                self.native_level_opened(target);
             }
         }
         let host = match host {
@@ -422,9 +421,7 @@ impl Game<'_> {
         let running = (!paused && !self.agent.hold_server).then(|| self.clock.world_runs());
         if let Some(running) = running
             && (self.serving.is_some() || self.options.dedicated.is_some())
-        {
-            self.native_lifecycle_server_tick_start(running);
-        }
+        {}
         let observe_level =
             running.is_some() && (self.serving.is_some() || self.options.dedicated.is_some());
         let dims = self.levels_to_tick();
@@ -442,9 +439,7 @@ impl Game<'_> {
                 running,
                 packets_drained: false,
             };
-            if observe_level {
-                self.native_level_tick_pre(dim.id());
-            }
+            if observe_level {}
             self.update_dedicated_streaming();
             self.update_world();
             result = industrial_era_client::block_contact::in_level(
@@ -467,9 +462,7 @@ impl Game<'_> {
             if result.is_err() {
                 break;
             }
-            if observe_level {
-                self.native_level_tick_post(dim.id());
-            }
+            if observe_level {}
             self.publish_server_debug(dim);
             // An entity that crossed into a level that already ticked this
             // server tick is in it when the tick ends (`addDuringTeleport`).
@@ -490,16 +483,14 @@ impl Game<'_> {
         }
         self.level_pass = Pass::default();
         if result.is_err() {
-            self.native_lifecycle.cancel_server_tick();
+            return Err(result.unwrap_err());
         }
         result?;
         if let Err(error) = self.close_idle_levels() {
-            self.native_lifecycle.cancel_server_tick();
             return Err(error);
         }
         // `ServerTickEnd`: an errored tick or an idle-close failure (at
         // the `?` above) never reaches this site.
-        self.native_lifecycle_server_tick_end(paused);
         Ok(())
     }
 
@@ -606,8 +597,6 @@ impl Game<'_> {
                         .is_some_and(|p| !p.streaming.forced.is_empty())
                 };
                 guests.iter().any(|g| g.dimension == d.id())
-                    // A viewer count not yet told to 0 (`tick_mod_container_viewers`).
-                    || self.mod_container_viewers.keys().any(|(k, _)| *k == d.id())
                     || self.player_bed_levels().any(|b| b == *d)
                     || forced
                     // A game test runs in its own level, players or not.
@@ -670,7 +659,6 @@ impl Game<'_> {
             self.enter_level(None, dim)?;
             // Its chunks leave with it: the mods hear before its last save.
             let chunks: Vec<_> = self.world.chunks.values().cloned().collect();
-            self.native_chunks_changed(&chunks);
             self.save_level(true)?;
             // Its entities' attachments are saved with them; they leave memory too.
             for uuid in self.persist.uuids.values() {
@@ -678,7 +666,6 @@ impl Game<'_> {
             }
             self.enter_level(None, back)?;
             self.levels.parked.remove(&dim);
-            self.native_level_closed(dim);
         }
         Ok(())
     }
@@ -692,7 +679,6 @@ impl Game<'_> {
             return;
         }
         self.levels.heard_open.push(dim);
-        self.native_level_load(dim.id());
     }
 
     /// The mods hear `dim`'s level close (`LevelEvent.Unload`), once for
@@ -702,16 +688,13 @@ impl Game<'_> {
             return;
         };
         self.levels.heard_open.remove(i);
-        self.native_level_unload(dim.id());
     }
 
     /// Every level still open closes with the server, however it ends
     /// (`MinecraftServer.stopServer`'s `level.close()` loop), in vanilla's
     /// order of its levels: the Overworld, the Nether, the End.
     pub(super) fn native_levels_closing(&mut self) {
-        for dim in [Dim::Overworld, Dim::Nether, Dim::End] {
-            self.native_level_closed(dim);
-        }
+        for dim in [Dim::Overworld, Dim::Nether, Dim::End] {}
     }
 
     /// Save every parked level (`MinecraftServer.saveAllChunks`); the level

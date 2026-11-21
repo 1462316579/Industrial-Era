@@ -299,7 +299,6 @@ impl Game<'_> {
             let dir = direction([feet[0], feet[1] + entity.explosion_eye_height(), feet[2]]);
             let mut push = [dir[0] * power, dir[1] * power, dir[2] * power];
             let id = Some(entity.id());
-            self.native_explosion_knockback(self.dim.id(), center, blocks, id, &mut push);
             entity.push_from_explosion(Vec3::new(push[0], push[1], push[2]));
         });
         self.restore_entities(entities);
@@ -356,7 +355,6 @@ impl Game<'_> {
         } else {
             eye.map(|d| d / l * power)
         };
-        self.native_explosion_knockback(self.dim.id(), center, blocks, None, &mut push);
         let p = self.player.as_mut()?;
         p.velocity = Vec3::new(
             p.velocity.x + push[0],

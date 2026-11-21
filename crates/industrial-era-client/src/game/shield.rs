@@ -263,7 +263,6 @@ impl Game<'_> {
         if ticks > 0 {
             if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
             {
-                self.native_player_shield_disable(player, &name, ticks);
             }
             let item = self
                 .using
@@ -272,9 +271,7 @@ impl Game<'_> {
             let mut cancel = false;
             if let (Some(player), Some(name), Some(item)) =
                 (self.lan_acting_uuid, self.lan_acting_name.clone(), item)
-            {
-                self.native_player_item_cooldown(player, &name, &item, ticks as i32, &mut cancel);
-            }
+            {}
             if !cancel {
                 self.shield_cooldown = ticks;
             }

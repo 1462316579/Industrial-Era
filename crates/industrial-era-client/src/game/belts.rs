@@ -48,7 +48,9 @@ impl Segment {
     pub(super) fn of(
         props: &industrial_era_world::block_state_properties::BlockProperties,
     ) -> Option<Self> {
-        let facing = industrial_era_mods::content::direction(props.get("facing")?)?;
+        let facing =
+            industrial_era_world::level::states::direction_from_name(props.get("facing")?)?
+                .normal();
         let slope = match props.get("slope").map(String::as_str) {
             Some("upward") => Slope::Upward,
             Some("downward") => Slope::Downward,

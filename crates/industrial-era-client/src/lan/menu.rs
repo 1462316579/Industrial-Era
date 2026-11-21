@@ -24,6 +24,10 @@ pub trait Rules {
     }
 }
 
+/// The y of the key a chest minecart's or chest boat's items are kept under
+/// while a menu shows them.
+pub const VEHICLE_KEY_Y: i32 = -100_000;
+
 /// An open block container.
 pub struct Menu {
     pub window: i32,
@@ -50,28 +54,6 @@ pub struct Menu {
     pub mod_type: Option<&'static crate::containers::ModMenuType>,
 }
 
-/// What a guest did with a native mod's menu (`Slots::Native`), for the game
-/// to tell the mod once the hub is back in its hands.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum NativeMenuEvent {
-    /// A click (`ServerboundContainerClickPacket`): the menu's slot (its own
-    /// first, then the player's 36; -999 outside), the button and the mode.
-    Click {
-        uuid: u128,
-        window: i32,
-        slot: i32,
-        button: i32,
-        mode: i32,
-    },
-    /// The menu closed: by the player, by the server, another opened, or
-    /// the player left.
-    Closed { uuid: u128, window: i32 },
-}
-
-/// The y of the key a chest minecart's or chest boat's items are kept under
-/// while a menu shows them.
-pub const VEHICLE_KEY_Y: i32 = -100_000;
-
 /// Where the slots of a container menu live.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Slots {
@@ -82,9 +64,6 @@ pub enum Slots {
     Double((i32, i32, i32), (i32, i32, i32)),
     /// The player's own ender chest inventory (`PlayerEnderChestContainer`).
     Ender,
-    /// A native mod's menu (`Guest::native_menu`): items to look at, which no
-    /// click moves; the clicks go to the mod.
-    Native,
 }
 
 impl Slots {
@@ -92,7 +71,7 @@ impl Slots {
         match self {
             Slots::Block(k) => vec![k],
             Slots::Double(a, b) => vec![a, b],
-            Slots::Ender | Slots::Native => Vec::new(),
+            Slots::Ender => Vec::new(),
         }
     }
     /// Whether the block entities behind the slots are still there
@@ -108,7 +87,6 @@ impl Slots {
     pub fn still_valid(self, world: &World, guest: &Guest, at: Option<(i32, i32, i32)>) -> bool {
         let blocks = match self {
             Slots::Ender => at.into_iter().collect(),
-            Slots::Native => Vec::new(),
             _ => self.halves(),
         };
         // A vehicle's container is kept under a key, not a block: the game
@@ -122,9 +100,6 @@ impl Slots {
     pub fn get(self, world: &World, guest: &Guest, mut n: usize) -> Option<ItemStack> {
         if self == Slots::Ender {
             return guest.ender_items.get(n).cloned().flatten();
-        }
-        if self == Slots::Native {
-            return guest.native_menu.get(n).cloned().flatten();
         }
         for k in self.halves() {
             let slots = shown(world, k)?;
@@ -140,9 +115,6 @@ impl Slots {
         if self == Slots::Ender {
             return Some(guest.ender_items.clone());
         }
-        if self == Slots::Native {
-            return Some(guest.native_menu.clone());
-        }
         let mut items = Vec::new();
         for k in self.halves() {
             items.extend_from_slice(shown(world, k)?);
@@ -153,10 +125,6 @@ impl Slots {
     pub fn write(self, world: &mut World, guest: &mut Guest, items: Vec<Option<ItemStack>>) {
         if self == Slots::Ender {
             guest.ender_items = items;
-            return;
-        }
-        if self == Slots::Native {
-            // Only the mod changes what it shows.
             return;
         }
         let mut rest = items.into_iter();

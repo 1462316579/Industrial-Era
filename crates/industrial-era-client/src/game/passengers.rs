@@ -49,11 +49,8 @@ impl Game<'_> {
     pub(super) fn mount_mob(&mut self, rider: u32, vehicle: u32) {
         self.try_mount_mob(rider, vehicle);
     }
-    /// `Entity.startRiding` for two mobs: false when a mod canceled it.
+    /// `Entity.startRiding` for two mobs.
     pub(super) fn try_mount_mob(&mut self, rider: u32, vehicle: u32) -> bool {
-        if !self.native_mob_may_ride(rider, vehicle, true) {
-            return false;
-        }
         riders::link(&mut self.mobs, rider, vehicle);
         true
     }

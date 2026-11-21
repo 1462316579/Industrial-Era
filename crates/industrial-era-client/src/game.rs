@@ -66,7 +66,6 @@ mod beds;
 mod beehives;
 mod belts;
 mod block_editor;
-mod block_edits;
 mod block_entity_anims;
 mod block_entity_ticks;
 mod block_items;
@@ -211,53 +210,13 @@ mod mob_looting;
 mod mob_sounds;
 #[cfg(target_os = "android")]
 mod mobile_controls;
-mod mod_api_host;
-mod mod_assets;
-#[cfg(target_os = "android")]
-mod mod_catalog;
-mod mods;
 mod mount_menu;
 mod mounts;
 mod moving_pistons;
 mod music;
 mod names;
 mod narrator;
-mod native_biome_colors;
-pub mod native_block_entity_draw;
-#[cfg(target_os = "android")]
-mod native_builds;
-mod native_claimed_items;
-mod native_components;
-mod native_criteria;
-mod native_data_maps;
-mod native_entities;
-mod native_entity_refs;
-mod native_explosions;
-mod native_falling;
-mod native_hooks;
-mod native_inventories;
-mod native_item_container;
-mod native_item_energy;
-mod native_item_fluids;
-mod native_lifecycle;
-mod native_menus;
-mod native_mob_draw;
-mod native_mobs;
-mod native_motion;
-mod native_mounts;
-mod native_net;
-mod native_panel;
-mod native_panel_recipes;
-mod native_projectiles;
-mod native_quick_move;
-mod native_recipes;
-mod native_server;
 mod native_shaders;
-mod native_ticks;
-mod native_visuals;
-mod native_world_columns;
-mod native_world_edit;
-mod native_world_read;
 mod natural_spawning;
 mod nautili;
 mod net_harness;
@@ -436,17 +395,6 @@ use industrial_era_world::{
     },
     registry::BlockStateId,
 };
-pub use maps::{NativeMapDecoration, NativeMapInfo};
-pub use native_block_entity_draw::BlockEntityDraw;
-pub use native_claimed_items::{NativeHeldItem, NativeHit, NativeModEvent};
-pub use native_data_maps::NativeDataMapType;
-pub use native_falling::NativeFalling;
-pub use native_hooks::{NativeClock, NativeShake};
-pub use native_item_energy::ItemEnergyBuffer;
-pub use native_mob_draw::{NativeMobRender, NativePlayerRender};
-pub use native_server::NativeExperienceOrb;
-pub use native_world_columns::NativeColumnBlocks;
-pub use native_world_edit::{NativeBlockEdit, NativeBlockRun, NativeHeightmap};
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
@@ -533,8 +481,6 @@ struct Options {
     dedicated: Option<Vec<String>>,
     /// `--benchmark SCENARIO`: run the benchmark, write its report and quit.
     benchmark: Option<String>,
-    /// `--dev-mod PATH` (repeatable): content mods always on.
-    dev_mods: Vec<PathBuf>,
     /// What this Game executes; independent of its current server connection.
     execution_role: execution_role::ExecutionRole,
     /// `--fullscreen` (vanilla's): the window opens fullscreen whatever options.txt says,
@@ -674,7 +620,6 @@ impl Options {
                 .filter(|n| !n.is_empty()),
             dedicated: None,
             benchmark: None,
-            dev_mods: Vec::new(),
             execution_role: execution_role::ExecutionRole::Client,
             fullscreen: false,
             game_dir: None,
@@ -686,7 +631,7 @@ impl Options {
             match arg.as_str() {
                 "--help" | "-h" => {
                     println!(
-                        "Industrial Era — Minecraft Java Edition {} in Rust\n\n  --resources PATH        Prepared resources (industrial-era-prepare)\n  --render-distance N     Chunks, 2..128 (default 12)\n  --world NAME            World folder under saves/ (default \"New World\")\n  --seed N                World seed for new worlds (default 0)\n  --width N, --height N   Window size (default 1280 x 720)\n  --creative              Creative mode (default survival)\n  --test-terrain          Simple test terrain instead of vanilla generation\n  --frames N              Exit after N frames (testing)\n  --world-frames N        Exit after N frames drawn in the world (testing)\n  --smoke-report PATH     Write a JSON report on exit\n  --benchmark SCENARIO    Run a benchmark (standard, village, forest, ocean, mountain), write its report to benchmarks/ and quit\n  --control               Accept industrial_era-ctl commands on a local socket\n  --control-socket PATH   Control socket path (default $XDG_RUNTIME_DIR/industrial-era-control.sock)\n  --server HOST[:PORT]    Join a multiplayer server (offline mode) at start\n  --quickPlaySingleplayer WORLD  Open this world of saves/ at start, only if it exists (vanilla's)\n  --quickPlayMultiplayer HOST[:PORT]  The same as --server (vanilla's name)\n  --name NAME             Player name for multiplayer (default: generated once, kept in industrial_era-player.txt)\n  --session-file PATH     Signed-in account from the launcher (read once, then deleted)\n  --session-stdin         The same account as JSON on standard input\n  --game-dir DIR          Game folder: saves, options.txt, packs, mods (default: the working directory)\n  --home DIR              Logs and crash reports (default $HORIZON_HOME, else the platform data folder)\n  --player-dir DIR        This player's own files when several play in one game folder: options.txt, logs, industrial-era-player.txt, servers.dat, screenshots\n  --fullscreen            Open the window fullscreen\n  --launch-api            Print the Launch API version and options as JSON (docs/api/launch.md)\n  --dev-mod PATH          A content mod (.hmod or folder) to develop: always on\n  --pregen                Add Industrial Era's /pregen command (docs/pregeneration.md)\n\nControls: mouse look, WASD move, Space jump, Left Shift sneak, Left Ctrl sprint,\nleft click break, right click place/use, 1-9/scroll hotbar, E inventory,\nQ drop, F3 debug, Esc pause.",
+                        "Industrial Era — Minecraft Java Edition {} in Rust\n\n  --resources PATH        Prepared resources (industrial-era-prepare)\n  --render-distance N     Chunks, 2..128 (default 12)\n  --world NAME            World folder under saves/ (default \"New World\")\n  --seed N                World seed for new worlds (default 0)\n  --width N, --height N   Window size (default 1280 x 720)\n  --creative              Creative mode (default survival)\n  --test-terrain          Simple test terrain instead of vanilla generation\n  --frames N              Exit after N frames (testing)\n  --world-frames N        Exit after N frames drawn in the world (testing)\n  --smoke-report PATH     Write a JSON report on exit\n  --benchmark SCENARIO    Run a benchmark (standard, village, forest, ocean, mountain), write its report to benchmarks/ and quit\n  --control               Accept industrial_era-ctl commands on a local socket\n  --control-socket PATH   Control socket path (default $XDG_RUNTIME_DIR/industrial-era-control.sock)\n  --server HOST[:PORT]    Join a multiplayer server (offline mode) at start\n  --quickPlaySingleplayer WORLD  Open this world of saves/ at start, only if it exists (vanilla's)\n  --quickPlayMultiplayer HOST[:PORT]  The same as --server (vanilla's name)\n  --name NAME             Player name for multiplayer (default: generated once, kept in industrial_era-player.txt)\n  --session-file PATH     Signed-in account from the launcher (read once, then deleted)\n  --session-stdin         The same account as JSON on standard input\n  --game-dir DIR          Game folder: saves, options.txt, packs, mods (default: the working directory)\n  --home DIR              Logs and crash reports (default $HORIZON_HOME, else the platform data folder)\n  --player-dir DIR        This player's own files when several play in one game folder: options.txt, logs, industrial-era-player.txt, servers.dat, screenshots\n  --fullscreen            Open the window fullscreen\n  --launch-api            Print the Launch API version and options as JSON (docs/api/launch.md)\n  --pregen                Add Industrial Era's /pregen command (docs/pregeneration.md)\n\nControls: mouse look, WASD move, Space jump, Left Shift sneak, Left Ctrl sprint,\nleft click break, right click place/use, 1-9/scroll hotbar, E inventory,\nQ drop, F3 debug, Esc pause.",
                         industrial_era_core::VANILLA_VERSION
                     );
                     return Ok(None);
@@ -780,7 +725,6 @@ impl Options {
                             "--home" => {}
                             // ...and this player's own folder (logging::set_player_dir).
                             "--player-dir" => {}
-                            "--dev-mod" => o.dev_mods.push(std::path::absolute(&value)?),
                             "--benchmark" => {
                                 if industrial_era_client::benchmark::scenes(&value).is_none() {
                                     return Err(format!(
@@ -854,9 +798,6 @@ enum Screen {
     Win,
     /// DebugOptionsScreen, F3+F6 (game/debug_options.rs).
     DebugOptions,
-    /// A screen of a native mod's own (`native_mod_screen_open`): it draws and
-    /// takes its input through the screen hooks.
-    Mod,
 }
 impl Screen {
     /// The id native mods see for this screen (`NativeScreenView.id`, the
@@ -884,7 +825,6 @@ impl Screen {
             Screen::DialogWarning => "dialog_warning",
             Screen::Win => "win",
             Screen::DebugOptions => "debug_options",
-            Screen::Mod => "mod",
         }
     }
 }
@@ -1010,9 +950,6 @@ struct GameLevel<'w> {
     /// `Level.isClientSide`: a client's copy of the level (a guest of a LAN
     /// world, a window on its server thread, a dedicated server's client).
     client_side: bool,
-    /// Only the integrated or dedicated server dispatches native observations.
-    native_authoritative: bool,
-    native_player: Option<u128>,
     /// `Level.isDebug`: `setBlock` changes nothing.
     debug: bool,
     native_sounds: &'w mut Vec<creatures::NativeSound>,
@@ -1164,318 +1101,169 @@ impl LevelAccess for GameLevel<'_> {
     fn redstone_experiments(&self) -> bool {
         self.redstone_experiments
     }
-    fn allow_hopper_pickup_item(&self, pos: BlockPos, item: &str, count: u32) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_hopper_pickup_item(self.dimension, pos, item, count, &mut cancel);
-        }
-        !cancel
+    fn allow_hopper_pickup_item(&self, _pos: BlockPos, _item: &str, _count: u32) -> bool {
+        true
     }
-    fn observe_block_changed(&self, pos: BlockPos, old: BlockStateId, new: BlockStateId) {
-        if self.native_authoritative {
-            self.native_block_changed(self.dimension, pos, old, new);
-        }
-    }
+    fn observe_block_changed(&self, _pos: BlockPos, _old: BlockStateId, _new: BlockStateId) {}
     fn observe_neighbor_changed(
         &self,
-        pos: BlockPos,
-        state: BlockStateId,
-        changed: industrial_era_world::level::BlockId,
-        moved: bool,
+        _pos: BlockPos,
+        _state: BlockStateId,
+        _changed: industrial_era_world::level::BlockId,
+        _moved: bool,
     ) {
-        if self.native_authoritative {
-            self.native_neighbor_changed(self.dimension, pos, state, changed, moved);
-        }
     }
     fn allow_spread(
         &self,
-        kind: industrial_era_world::level::Spread,
-        from: BlockPos,
-        to: BlockPos,
+        _kind: industrial_era_world::level::Spread,
+        _from: BlockPos,
+        _to: BlockPos,
     ) -> bool {
-        let mut canceled = false;
-        if self.native_authoritative {
-            let kind = match kind {
-                industrial_era_world::level::Spread::Fluid => "fluid",
-                industrial_era_world::level::Spread::Fire => "fire",
-            };
-            self.native_block_spread(self.dimension, kind, from, to, &mut canceled);
-        }
-        !canceled
+        true
     }
     fn allow_fluid_level_change(
         &self,
-        pos: BlockPos,
-        fluid: &'static str,
-        from: i32,
-        to: i32,
+        _pos: BlockPos,
+        _fluid: &'static str,
+        _from: i32,
+        _to: i32,
     ) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_fluid_level_change(self.dimension, pos, fluid, from, to, &mut cancel);
-        }
-        !cancel
+        true
     }
-    fn allow_block_ignite(&self, pos: BlockPos, cause: &'static str) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_block_ignite(self.dimension, self.native_player, pos, cause, &mut cancel);
-        }
-        !cancel
+    fn allow_block_ignite(&self, _pos: BlockPos, _cause: &'static str) -> bool {
+        true
     }
-    fn allow_block_burn(&self, pos: BlockPos) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_block_burn(self.dimension, pos, &mut cancel);
-        }
-        !cancel
+    fn allow_block_burn(&self, _pos: BlockPos) -> bool {
+        true
     }
-    fn allow_leaves_decay(&self, pos: BlockPos) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_leaves_decay(self.dimension, pos, &mut cancel);
-        }
-        !cancel
+    fn allow_leaves_decay(&self, _pos: BlockPos) -> bool {
+        true
     }
-    fn allow_moisture_change(&self, pos: BlockPos, from: i32, to: i32) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_moisture_change(self.dimension, pos, from, to, &mut cancel);
-        }
-        !cancel
+    fn allow_moisture_change(&self, _pos: BlockPos, _from: i32, _to: i32) -> bool {
+        true
     }
-    fn observe_sponge_absorb(&self, pos: BlockPos) {
-        if self.native_authoritative {
-            self.native_sponge_absorb(self.dimension, pos);
-        }
+    fn observe_sponge_absorb(&self, _pos: BlockPos) {}
+    fn allow_block_fade(&self, _pos: BlockPos, _from: BlockStateId, _to: BlockStateId) -> bool {
+        true
     }
-    fn allow_block_fade(&self, pos: BlockPos, from: BlockStateId, to: BlockStateId) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_block_fade(self.dimension, pos, from, to, &mut cancel);
-        }
-        !cancel
+    fn allow_block_form(&self, _pos: BlockPos, _from: BlockStateId, _to: BlockStateId) -> bool {
+        true
     }
-    fn allow_block_form(&self, pos: BlockPos, from: BlockStateId, to: BlockStateId) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_block_form(self.dimension, pos, from, to, &mut cancel);
-        }
-        !cancel
+    fn allow_note_play(&self, _pos: BlockPos, _instrument: &str, _note: i32) -> bool {
+        true
     }
-    fn allow_note_play(&self, pos: BlockPos, instrument: &str, note: i32) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_note_play(
-                self.dimension,
-                self.native_player,
-                pos,
-                instrument,
-                note,
-                &mut cancel,
-            );
-        }
-        !cancel
-    }
-    fn allow_bell_ring(&self, pos: BlockPos) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_bell_ring(self.dimension, self.native_player, pos, &mut cancel);
-        }
-        !cancel
+    fn allow_bell_ring(&self, _pos: BlockPos) -> bool {
+        true
     }
     fn allow_cauldron_level_change(
         &self,
-        pos: BlockPos,
-        from: i32,
-        to: i32,
-        reason: &'static str,
+        _pos: BlockPos,
+        _from: i32,
+        _to: i32,
+        _reason: &'static str,
     ) -> bool {
-        let mut cancel = false;
-        if self.native_authoritative {
-            self.native_cauldron_level_changed(
-                self.dimension,
-                self.native_player,
-                pos,
-                from,
-                to,
-                reason,
-                &mut cancel,
-            );
-        }
-        !cancel
+        true
     }
     fn allow_piston_move(
         &self,
-        piston: BlockPos,
-        direction: industrial_era_core::geometry::Direction,
-        push: &[BlockPos],
-        destroy: &[BlockPos],
+        _piston: BlockPos,
+        _direction: industrial_era_core::geometry::Direction,
+        _push: &[BlockPos],
+        _destroy: &[BlockPos],
     ) -> bool {
-        let mut canceled = false;
-        if self.native_authoritative {
-            let step = direction.normal();
-            self.native_piston_move(self.dimension, piston, step, push, destroy, &mut canceled);
-        }
-        !canceled
+        true
     }
-    fn adjust_signal_source(&self, state: BlockStateId, vanilla: bool) -> bool {
-        let mut source = vanilla;
-        if self.native_authoritative {
-            self.native_is_signal_source(state, &mut source);
-        }
-        source
+    fn adjust_signal_source(&self, _state: BlockStateId, vanilla: bool) -> bool {
+        vanilla
     }
     fn adjust_signal(
         &self,
-        pos: BlockPos,
-        state: BlockStateId,
-        direction: Direction,
-        direct: bool,
+        _pos: BlockPos,
+        _state: BlockStateId,
+        _direction: Direction,
+        _direct: bool,
         vanilla: i32,
     ) -> i32 {
-        let mut signal = vanilla;
-        if self.native_authoritative {
-            let face = direction.opposite();
-            self.native_block_signal(self.dimension, pos, state, face, direct, &mut signal);
-        }
-        signal.clamp(0, 15)
+        vanilla.clamp(0, 15)
     }
-    fn adjust_has_analog_output(&self, state: BlockStateId, vanilla: bool) -> bool {
-        let mut output = vanilla;
-        if self.native_authoritative {
-            self.native_has_analog_output(state, &mut output);
-        }
-        output
+    fn adjust_has_analog_output(&self, _state: BlockStateId, vanilla: bool) -> bool {
+        vanilla
     }
     fn adjust_analog_output(
         &self,
-        pos: BlockPos,
-        state: BlockStateId,
-        direction: Direction,
+        _pos: BlockPos,
+        _state: BlockStateId,
+        _direction: Direction,
         vanilla: i32,
     ) -> i32 {
-        let mut output = vanilla;
-        if self.native_authoritative {
-            self.native_analog_output(self.dimension, pos, state, direction, &mut output);
-        }
-        output.clamp(0, 15)
+        vanilla.clamp(0, 15)
     }
     fn before_random_tick(
         &mut self,
-        ticks: &mut Ticks,
-        pos: BlockPos,
-        state: &mut BlockStateId,
-        handled: &mut bool,
+        _ticks: &mut Ticks,
+        _pos: BlockPos,
+        _state: &mut BlockStateId,
+        _handled: &mut bool,
     ) {
-        if self.native_authoritative {
-            // Any block the hook writes moves the world's revision on.
-            let revision = self.world.revision;
-            self.native_random_tick(ticks, self.dimension, pos, *state, handled);
-            if !*handled && self.world.revision != revision {
-                *state = self.block_state(pos);
-            }
-        }
     }
     fn before_tick_block(
         &mut self,
-        ticks: &mut Ticks,
-        pos: BlockPos,
-        state: &mut BlockStateId,
-        handled: &mut bool,
+        _ticks: &mut Ticks,
+        _pos: BlockPos,
+        _state: &mut BlockStateId,
+        _handled: &mut bool,
     ) {
-        if self.native_authoritative {
-            // Any block the hook writes moves the world's revision on.
-            let revision = self.world.revision;
-            self.native_tick_block(ticks, self.dimension, pos, *state, handled);
-            if !*handled && self.world.revision != revision {
-                *state = self.block_state(pos);
-            }
-        }
     }
     fn before_update_shape(
         &self,
-        ticks: &mut Ticks,
-        pos: BlockPos,
-        state: BlockStateId,
-        direction: Direction,
-        neighbour_pos: BlockPos,
-        neighbour: BlockStateId,
-        new: &mut Option<BlockStateId>,
+        _ticks: &mut Ticks,
+        _pos: BlockPos,
+        _state: BlockStateId,
+        _direction: Direction,
+        _neighbour_pos: BlockPos,
+        _neighbour: BlockStateId,
+        _new: &mut Option<BlockStateId>,
     ) {
-        if self.native_authoritative {
-            self.native_update_shape(
-                ticks,
-                self.dimension,
-                pos,
-                state,
-                direction,
-                neighbour_pos,
-                neighbour,
-                new,
-            );
-        }
     }
     #[allow(clippy::option_option)]
     fn before_state_for_placement(
         &self,
-        state: BlockStateId,
-        context: &PlacementContext,
-        fluid: FluidState,
+        _state: BlockStateId,
+        _context: &PlacementContext,
+        _fluid: FluidState,
         answer: &mut Option<Option<BlockStateId>>,
     ) {
-        if self.native_authoritative {
-            self.native_state_for_placement(self.dimension, state, context, fluid, answer);
-        }
+        *answer = None;
     }
-    fn before_can_survive(&self, pos: BlockPos, state: BlockStateId, survives: &mut Option<bool>) {
-        if self.native_authoritative {
-            self.native_can_survive(self.dimension, pos, state, survives);
-        }
+    fn before_can_survive(
+        &self,
+        _pos: BlockPos,
+        _state: BlockStateId,
+        survives: &mut Option<bool>,
+    ) {
+        *survives = None;
     }
     fn before_may_place_on(
         &self,
-        state: BlockStateId,
-        ground: BlockStateId,
-        ground_pos: BlockPos,
+        _state: BlockStateId,
+        _ground: BlockStateId,
+        _ground_pos: BlockPos,
         may: &mut Option<bool>,
     ) {
-        if self.native_authoritative {
-            self.native_may_place_on(self.dimension, state, ground, ground_pos, may);
-        }
+        *may = None;
     }
     fn is_client_side(&self) -> bool {
         self.client_side
     }
-    fn is_valid_bonemeal_target(&self, pos: BlockPos, state: BlockStateId) -> Option<bool> {
-        // Asked on both sides, as vanilla asks `isValidBonemealTarget`: a
-        // client predicts the use with it. Only a mod answers.
-        let mut valid = None;
-        self.native_is_valid_bonemeal_target(self.dimension, pos, state, &mut valid);
-        valid
+    fn is_valid_bonemeal_target(&self, _pos: BlockPos, _state: BlockStateId) -> Option<bool> {
+        None
     }
-    fn is_bonemeal_success(&mut self, pos: BlockPos, state: BlockStateId) -> bool {
-        let mut success = false;
-        if self.native_authoritative {
-            self.native_is_bonemeal_success(self.dimension, pos, state, &mut success);
-        }
-        success
+    fn is_bonemeal_success(&mut self, _pos: BlockPos, _state: BlockStateId) -> bool {
+        false
     }
-    fn perform_bonemeal(&mut self, ticks: &mut Ticks, pos: BlockPos, state: BlockStateId) {
-        if self.native_authoritative {
-            self.native_perform_bonemeal(ticks, self.dimension, pos, state);
-        }
-    }
-    fn before_fire_odds(&self, state: BlockStateId, odds: &mut Option<(i32, i32)>) {
-        if self.native_authoritative {
-            self.native_fire_odds(self.dimension, state, odds);
-        }
-    }
-    fn before_smoke_source(&self, state: BlockStateId, smoke: &mut Option<bool>) {
-        if self.native_authoritative {
-            self.native_smoke_source(self.dimension, state, smoke);
-        }
-    }
+    fn perform_bonemeal(&mut self, _ticks: &mut Ticks, _pos: BlockPos, _state: BlockStateId) {}
+    fn before_fire_odds(&self, _state: BlockStateId, _odds: &mut Option<(i32, i32)>) {}
+    fn before_smoke_source(&self, _state: BlockStateId, _smoke: &mut Option<bool>) {}
     fn world_surface(&self, x: i32, z: i32) -> i32 {
         self.world.world_surface(x, z, |s| self.facts.is_air(s))
     }
@@ -1963,9 +1751,6 @@ struct WorldTables {
     items: Items,
     recipes: Recipes,
     stations: industrial_era_client::stations::StationData,
-    /// The values of the data map types native mods registered
-    /// (`native_data_map_types`).
-    data_maps: native_data_maps::DataMaps,
 }
 
 impl Resources {
@@ -2098,7 +1883,7 @@ impl UiResources {
                     industrial_era_client::gfx::panorama::Faces::load(root, defaults)
                 })
             });
-            let mod_image = !industrial_era_client::mod_api::mods().is_empty();
+            let mod_image = false;
             let atlas = startup::time("ui.atlas", || {
                 HudAtlas::build_over_with_image(root, defaults, mod_image)
             });
@@ -2508,7 +2293,6 @@ struct Game<'a> {
     /// `industrial-era-ctl gpu-passes`: time Industrial Era's own passes on the GPU with F3 shut.
     gpu_passes: bool,
     screen: Screen,
-    observed_screen: Option<native_hooks::ObservedScreen>,
     window: Option<Arc<Window>>,
     renderer: Option<Renderer>,
     /// Avoid an endless rebuild loop if the new device is lost as well.
@@ -2562,9 +2346,6 @@ struct Game<'a> {
     /// The glint clock and options, read once at the start of each frame
     /// (game/item_draw.rs).
     glint_frame: industrial_era_client::item_render::GlintFrame,
-    /// Mod block entities' geometry their mods kept
-    /// (game/native_block_entity_draw.rs).
-    kept_block_entities: std::cell::RefCell<native_block_entity_draw::KeptGeometry>,
     /// `item_level` for one frame, game time, day time and dimension.
     item_level_cache: std::cell::RefCell<
         Option<(
@@ -2834,7 +2615,6 @@ struct Game<'a> {
     /// Where this game simulates the world: its drills and crushing wheels at work
     /// (game/kinetic_machines.rs).
     machines: kinetic_machines::Machines,
-    native_camera_frame: Option<industrial_era_client::mod_api::NativeCamera>,
     /// `LocalPlayer.postEffects`: the chains the server has the screen run
     /// (`ClientboundPostEffectsPacket`), in order.
     post_effects: Vec<String>,
@@ -2930,10 +2710,6 @@ struct Game<'a> {
     bee_stinger_model: Option<industrial_era_client::mobs::Part>,
     tnts: Vec<tnt::PrimedTnt>,
     hoppers: HashMap<(i32, i32, i32), machines::HopperState>,
-    /// The screen of a mod block's menu open on this client (`native_screen`).
-    mod_screen: Option<native_hooks::OpenNativeScreen>,
-    /// The players with each mod container open, by level (`tick_mod_container_viewers`).
-    mod_container_viewers: HashMap<(&'static str, (i32, i32, i32)), u32>,
     /// Where item entities are, while the block entities tick (hoppers).
     item_columns: Option<machines::ItemColumns>,
     creative_screen: Creative,
@@ -2958,13 +2734,7 @@ struct Game<'a> {
     imports: imports::Imports,
     /// The offer of the Starling folder in shared storage (game/files_offer.rs).
     #[cfg(target_os = "android")]
-    files_offer: files_offer::FilesOffer,
-    #[cfg(target_os = "android")]
     update_offer: update_offer::UpdateOffer,
-    #[cfg(target_os = "android")]
-    native_builds: native_builds::NativeBuilds,
-    #[cfg(target_os = "android")]
-    catalog: mod_catalog::Catalog,
     /// Bedrock Inventory with the pointer on its inventory window: the item tab the other window
     /// shows (the creative screen's selected tab is then the Survival Inventory, so every click
     /// works as it does there).
@@ -2977,24 +2747,10 @@ struct Game<'a> {
     /// A new world's folder, until its level.dat is there to keep its content mods beside
     /// (world_content.rs).
     content_record: Option<String>,
-    /// Industrial Era's extras (minimap, auto-reconnect; mods' counters): `game/extras.rs`.
+    /// Industrial Era's extras (minimap, auto-reconnect): `game/extras.rs`.
     extras: extras::ExtrasState,
-    /// Industrial Era mods (`game/mods.rs`), none running unless turned on.
-    mods: mods::ModsState,
-    /// Every item and recipe, for mods (`game/native_recipes.rs`), made once.
-    recipe_tables: native_recipes::RecipeTables,
-    /// The item panel beside container screens (`game/native_panel.rs`).
-    panel: native_panel::Panel,
     /// Industrial Era's own shader pack, while one is picked (`game/native_shaders.rs`).
     native_shaders: native_shaders::NativeShaders,
-    /// The items native client mods claim and the events they haven't polled (game/native_claimed_items.rs).
-    native_input: native_claimed_items::ModInput,
-    /// The native lifecycle bookkeeping.
-    native_lifecycle: native_lifecycle::NativeLifecycle,
-    /// Native mods' messages waiting (`game/native_net.rs`).
-    native_net: native_net::NativeNet,
-    /// The mod whose own screen is open (`Screen::Mod`).
-    native_mod_screen: Option<String>,
     /// Meshed sections waiting for an upload budget (Industrial Era settings).
     pending_uploads: Vec<((i32, i32, i32), industrial_era_client::mesher::SectionMesh)>,
     /// This frame's view frustum, for culling entities and block entities.
@@ -3954,13 +3710,11 @@ impl Game<'_> {
     /// Item entity `i` leaves the level (`Entity.discard`); mods hear it.
     pub(super) fn remove_dropped(&mut self, i: usize) -> ItemEntity {
         let e = self.dropped.remove(i);
-        self.native_entity_left(e.id);
         e
     }
     /// Experience orb `i` leaves the level (`Entity.discard`); mods hear it.
     pub(super) fn remove_orb(&mut self, i: usize) -> ExperienceOrb {
         let o = self.orbs.remove(i);
-        self.native_entity_left(o.id);
         o
     }
     /// The item entity `spawn_item` just added, unless a native mod kept it
@@ -4003,10 +3757,6 @@ impl Game<'_> {
             needs_sync: false,
             stuck: Vec3::ZERO,
         });
-        // ServerLevel.addFreshEntity.
-        if self.native_joins_flush(false, self.next_entity) {
-            self.native_item_spawn(self.next_entity, &item, count, position);
-        }
     }
     /// The block entity at `pos` saved with its id and position
     /// (`saveWithFullMetadata`), or the saved one Industrial Era keeps as loaded:
@@ -4079,8 +3829,6 @@ impl Game<'_> {
                 ),
             }
         });
-        let player = self.native_acting_id();
-        self.native_block_drops(pos, state, Some(player), held, None, &mut drops);
         drops
     }
     /// Block.popResource
@@ -4122,8 +3870,6 @@ impl Game<'_> {
         // Player.drop: the drop statistics.
         self.award_stat("dropped", &thrown.item, thrown.count as i32);
         self.award_custom_stat("drop", 1);
-        let player = self.native_acting_id();
-        self.native_item_dropped(player, &thrown.item, thrown.count);
         self.throw_from_eyes(thrown, eye, true);
     }
     /// `Player.createItemStackToDrop`: an item entity thrown from the eyes
@@ -4160,29 +3906,9 @@ impl Game<'_> {
         }
     }
     fn tick_items(&mut self) {
-        // EntityTickEvent.Pre for the items about to tick, and the Post after them.
-        let mut round = self.native_tick_round();
-        if round.listening() {
-            let ticking = self.entity_ticking_area();
-            let merging = self.remote.is_none();
-            let mut i = 0;
-            while let Some(item) = self.dropped.get(i) {
-                let (id, x, z) = (
-                    item.id,
-                    item.position.x.floor() as i32,
-                    item.position.z.floor() as i32,
-                );
-                if !(merging && id > self.ticked_entities_through) && ticking(x, z) {
-                    let kind = native_ticks::TickKind::Fixed("minecraft:item");
-                    self.native_tick_pre_batch(&mut round, id, kind);
-                }
-                i += 1;
-            }
-        }
-        self.tick_dropped_items(&mut round);
-        self.native_tick_post_batch(round);
+        self.tick_dropped_items();
     }
-    fn tick_dropped_items(&mut self, round: &mut native_ticks::TickRound) {
+    fn tick_dropped_items(&mut self) {
         let mut items = std::mem::take(&mut self.dropped);
         // ServerLevel.tick: only entities in entity-ticking chunks tick.
         let ticking = self.entity_ticking_area();
@@ -4197,7 +3923,6 @@ impl Game<'_> {
         for i in 0..items.len() {
             if removed[i] {
                 // Merged into an earlier item before its own tick: it never ticked.
-                round.not_ticked(items[i].id);
                 continue;
             }
             let item = &mut items[i];
@@ -4210,8 +3935,7 @@ impl Game<'_> {
             if !ticking(
                 item.position.x.floor() as i32,
                 item.position.z.floor() as i32,
-            ) || round.canceled(item.id)
-            {
+            ) {
                 continue;
             }
             // ItemEntity.tick's noPhysics (servers only): out of a block
@@ -4278,17 +4002,10 @@ impl Game<'_> {
             let mut alive = alive || (item.age < 6000 && item.position.y > -128.0);
             if merging && !removed[i] && item.age >= 6000 && item.position.y > -128.0 {
                 let mut extra_life = 0;
-                self.native_item_expire(item.id, &item.stack, &mut extra_life);
                 if extra_life > 0 {
                     item.age = 6000 - extra_life.min(32766);
                     alive = true;
                 } else if self.serving.is_some() || self.options.dedicated.is_some() {
-                    self.native_item_despawn(
-                        item.id,
-                        &item.stack.item,
-                        item.stack.count as i32,
-                        [item.position.x, item.position.y, item.position.z],
-                    );
                 }
             }
             if !alive || removed[i] {
@@ -4355,11 +4072,6 @@ impl Game<'_> {
                 && b.max_position().z > min[2];
             // ItemEntity.playerTouch: no pickup delay, and the target (if any) is this player.
             if touching && item.pickup_delay == 0 && item.target.is_none_or(|t| t == own) {
-                if self.native_pickup_refused(&item.stack) {
-                    item.pickup_delay = 10;
-                    kept.push(item);
-                    continue;
-                }
                 let before = item.stack.count;
                 let kind = item.stack.item.clone();
                 let thrower = item.thrower;
@@ -4500,7 +4212,6 @@ impl Game<'_> {
             .iter()
             .map(|b| point_box(b.at, 0.0, 0.0))
             .collect();
-        let native_authoritative = self.native_authoritative();
         let mut level = GameLevel {
             redstone_experiments: self
                 .level
@@ -4557,8 +4268,6 @@ impl Game<'_> {
             random_tick_sections: &mut self.random_tick_sections,
             lid_openers: &self.lid_openers,
             client_side: self.remote.is_some(),
-            native_authoritative,
-            native_player: self.lan_acting_uuid,
             debug: self.world_debug,
             native_sounds: &mut self.creatures.lan_sounds,
             native_particles: &mut self.creatures.lan_particles,
@@ -4570,13 +4279,6 @@ impl Game<'_> {
             self.flush_native_sounds();
         }
         result
-    }
-    pub(super) fn native_block_ignite_allowed(
-        &mut self,
-        pos: BlockPos,
-        cause: &'static str,
-    ) -> bool {
-        self.with_level(|_, level, _| level.allow_block_ignite(pos, cause))
     }
     pub(super) fn native_cauldron_level_change_allowed(
         &mut self,
@@ -5663,9 +5365,6 @@ impl Game<'_> {
             if first {
                 self.container_edge_sound(key, true);
             }
-        } else if self.open_mod_menu(key) {
-            // A mod block's container (`native_block_entity_container`).
-            self.container = Some(key);
         } else if self.open_station(pos, &name) {
             // Workstation menus: game/stations.rs.
         } else {
@@ -5971,7 +5670,6 @@ impl Game<'_> {
         // Native mods, once the game allowed the break: a canceled one keeps
         // the block, and a guest's acknowledgement puts it back in its world.
         let mut canceled = false;
-        self.native_destroy_block(pos, state, &mut canceled);
         if canceled {
             return Ok(());
         }
@@ -6233,7 +5931,6 @@ impl Game<'_> {
             let kind = self.target_type(entity);
             let stack = self.held().cloned();
             let mut claimed = false;
-            self.native_interact_entity(id, &kind, stack.as_ref(), &mut claimed);
             if claimed {
                 self.swing_arm();
                 return Ok(true);
@@ -6263,22 +5960,7 @@ impl Game<'_> {
             return;
         };
         let group = industrial_era_client::cooldowns::group(stack, default.as_ref());
-        let mut cancel = false;
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_item_cooldown(
-                player,
-                &name,
-                &stack.item,
-                component.ticks(),
-                &mut cancel,
-            );
-        }
-        if !cancel {
-            self.add_cooldown(group, component.ticks());
-        } else if self.lan_acting.is_some() {
-            // The guest's client started the cooldown itself; 0 ends it there.
-            self.guest_cooldowns.push((group, 0));
-        }
+        self.add_cooldown(group, component.ticks());
     }
     /// `ItemCooldowns.addCooldown` (a guest also gets the packet).
     pub(super) fn add_cooldown(&mut self, group: Arc<str>, ticks: i32) {
@@ -6300,7 +5982,6 @@ impl Game<'_> {
         // canceled click does nothing (a guest's block is sent back).
         if let Some(hit) = block_hit {
             let mut canceled = false;
-            self.native_right_click_block(hit.pos, hit.face, &mut canceled);
             if canceled {
                 // Nothing was used, so nothing consumed the action.
                 self.use_failed = true;
@@ -6463,13 +6144,6 @@ impl Game<'_> {
                     self.award_stat("used", &used.item, 1);
                     self.award_custom_stat("pot_flower", 1);
                     self.consume_held();
-                    if let (Some(player), Some(name)) =
-                        (self.lan_acting_uuid, self.lan_acting_name.clone())
-                    {
-                        self.native_player_flower_pot_manipulate(
-                            player, &name, hit.pos, &used.item,
-                        );
-                    }
                 }
                 // NoteBlock.useWithoutItem (tuned) and BellBlock.onHit (rung).
                 if result == industrial_era_world::level::InteractionResult::Success {
@@ -6527,12 +6201,8 @@ impl Game<'_> {
         // UseItemOn reaches only useOn, its UseItem only use.
         let on_block = matches!(self.guest_use, Some(GuestUse::OnBlock(_)));
         let mut claimed = false;
-        if let Some(hit) = block_hit {
-            self.native_use_item_on(&stack, hit.pos, hit.face, &mut claimed);
-        }
-        if !claimed && !on_block {
-            self.native_use_item(&stack, &mut claimed);
-        }
+        if let Some(hit) = block_hit {}
+        if !claimed && !on_block {}
         if claimed {
             self.swing_arm();
             return Ok(true);
@@ -6647,7 +6317,6 @@ impl Game<'_> {
                 industrial_era_client::lan::playerdata::ints_uuid(self.acting_player_uuid());
             let name = self.acting_player_name().to_owned();
             let (hand, mut cancel) = (self.hand, false);
-            self.native_arrow_nock(player, &name, &stack, hand, has_ammo, &mut cancel);
             if has_ammo && !cancel {
                 self.start_using_item();
             }
@@ -6781,7 +6450,6 @@ impl Game<'_> {
         // BlockItem.place: the used statistic and the placed_block trigger.
         self.award_stat("used", &stack.item, 1);
         self.trigger_block("minecraft:placed_block", target, &stack);
-        self.native_place_block(&stack, target, state);
         self.check_wither_spawn(target)?;
         self.check_golem_spawn(target)?;
         self.consume_held();
@@ -6804,7 +6472,6 @@ impl Game<'_> {
             _ => "minecraft:water",
         };
         let mut cancel = false;
-        self.native_bucket_empty(uuid, &name, pos, fluid, &mut cancel);
         cancel
     }
     /// The player as a block's `useItemOn` / `useWithoutItem` sees them.
@@ -6930,9 +6597,7 @@ impl Game<'_> {
                 self.audio.play(sound, at, 1.0, 1.0);
             }
             // A mod's own kind: the owning mod's hook answers.
-            ConsumeEffect::Native { kind, data } => {
-                self.native_consume_effect(kind, data);
-            }
+            ConsumeEffect::Native { kind, data } => {}
         }
     }
     fn consume_held(&mut self) {
@@ -7128,9 +6793,7 @@ impl Game<'_> {
             "minecraft:spyglass" if spyglass => self.stop_spyglass(),
             _ => {}
         }
-        if release {
-            self.mod_release_using(stack, ticks);
-        }
+        if release {}
     }
     /// `ServerPlayerGameMode.tick` while a player digs: level event 2020 every
     /// fourth tick since the START (the hit sound), else 2019 (the crack only),
@@ -7464,7 +7127,6 @@ impl Game<'_> {
         // the activated item counts down.
         self.boss_overlay.tick_darken(running);
         self.tick_item_activation();
-        self.native_inventory_ticks();
         if running {
             self.world.game_time += 1;
             if self.ui.rules.bool("advance_weather") {
@@ -7509,15 +7171,12 @@ impl Game<'_> {
         self.tick_totem();
         self.update_totem_ready();
         self.tick_command_extras();
-        self.native_tick();
-        self.tell_native_now();
         self.tick_world(running)
     }
     /// What the tick runs after the local player's own update: effects, the
     /// world's entities and blocks, and the network hub.
     fn tick_world(&mut self, running: bool) -> Result<()> {
         // Entities added since the last tick join the level before it ticks.
-        self.native_joins_flush(false, 0);
         self.share_spawn_conditions();
         industrial_era_client::mobs::sulfur_cube::set_tnt_explodes(
             self.ui.rules.bool("tnt_explodes"),
@@ -7545,7 +7204,6 @@ impl Game<'_> {
             industrial_era_client::spans::time("tick_blocks", || self.tick_blocks())?;
             // What the blocks spawned (a dispensed minecart, a lit TNT, a
             // placed boat) joins before the entities tick.
-            self.native_joins_flush(false, 0);
             self.lan_mark_synced();
         }
         if running {
@@ -7585,8 +7243,6 @@ impl Game<'_> {
                 self.hoppers_catch_items();
             }
             // Merged, burnt, despawned or picked up.
-            self.native_leaves_flush();
-            self.native_joins_flush(false, 0);
             industrial_era_client::spans::time("touch_arrows", || self.touch_arrows());
         }
         industrial_era_client::spans::time("spawn_loaded_entities", || {
@@ -7597,22 +7253,14 @@ impl Game<'_> {
         if running {
             industrial_era_client::spans::time("tick_mobs", || self.tick_mobs())?;
             // Dead, despawned or gone into a hive.
-            self.native_leaves_flush();
-            industrial_era_client::spans::time("recheck_golem_openers", || {
-                self.recheck_golem_openers()
-            });
-            self.tick_mod_container_viewers();
             industrial_era_client::spans::time("tick_experience", || self.tick_experience());
             // Merged, despawned or picked up.
-            self.native_leaves_flush();
             industrial_era_client::spans::time("entity_portals", || {
                 self.find_entity_portals();
                 self.resolve_arrivals();
             });
         }
         // The rest of the tick's spawns join, and what left is told of.
-        self.native_joins_flush(false, 0);
-        self.native_leaves_flush();
         industrial_era_client::spans::time("tick_lan", || self.tick_lan(false));
         self.tick_friends();
         industrial_era_client::spans::time("tick_hand", || self.tick_hand());
@@ -8278,7 +7926,6 @@ impl Game<'_> {
             .map(|c| c.bar())
             .unwrap_or_else(|| hud_overlays::damage_bar(stack.damage as i32, max_damage));
         // Client-only: a mod may replace or hide the bar vanilla just chose.
-        self.native_item_bar(stack, &mut bar);
         let decorations = hud_overlays::ItemDecorations {
             count: stack.count,
             count_text,
@@ -8296,7 +7943,6 @@ impl Game<'_> {
         ));
         draws.push(hud_layout::GuiDraw::Pop);
         hud_layout::paint(batch, &self.gui.atlas, &draws);
-        self.native_item_decorations(stack, x, y, batch);
     }
     // A function of its own: native mods can't hook one with a `cfg` in its body, and mods hook `hud`.
     #[cfg(target_os = "android")]
@@ -8304,7 +7950,6 @@ impl Game<'_> {
         self.draw_files_offer(batch);
         self.draw_update_offer(batch);
         self.draw_catalog(batch);
-        self.draw_native_builds(batch);
     }
     #[cfg(not(target_os = "android"))]
     fn draw_phone_offers(&mut self, _batch: &mut HudBatch) {}
@@ -8367,9 +8012,6 @@ impl Game<'_> {
         }
         if self.screen == Screen::Win {
             self.draw_win_screen(&mut batch);
-            // The early return skips the match below: the hook still sees the
-            // screen, after its own drawing.
-            self.fire_screen_render_post(&mut batch);
             return batch;
         }
         if self.screen == Screen::Options {
@@ -8378,7 +8020,6 @@ impl Game<'_> {
                 self.update_remote_skins();
             }
             self.draw_options(&mut batch);
-            self.fire_screen_render_post(&mut batch);
             self.draw_split_hud(&mut batch, true);
             return batch;
         }
@@ -8416,10 +8057,6 @@ impl Game<'_> {
                 );
             }
             self.draw_title_player(&mut batch);
-            // ScreenEvent.Render.Post over the title's own screens: a mod draws
-            // over them here (a pack browser over Create New World, say), and the
-            // toasts still come after, as over any screen.
-            self.fire_title_screen_render_post(&mut batch);
             self.draw_toasts(&mut batch, false);
             self.draw_tutorial_toasts(&mut batch, false);
             self.draw_pack_toasts(&mut batch, false);
@@ -8468,57 +8105,9 @@ impl Game<'_> {
                 });
                 let draws = hud_layout::crosshair(wi, hi, attack, full);
                 // Under one creative window it hides; Bedrock Inventory has a gap at the middle.
-                if self.screen != Screen::Creative || CREATIVE_SHIFT.get() == 0.0 {
-                    self.gui_layer("minecraft:crosshair", &mut batch, |g, batch| {
-                        hud_layout::paint(batch, &g.gui.atlas, &draws);
-                    });
-                }
+                if self.screen != Screen::Creative || CREATIVE_SHIFT.get() == 0.0 {}
             }
-            self.gui_layer("minecraft:hotbar", &mut batch, |g, batch| {
-                if spectator {
-                    g.draw_spectator_hotbar(batch);
-                } else {
-                    let partial = g.clock.fraction() as f32;
-                    let inputs = hud_layout::HotbarInputs {
-                        selected: g.selected as i32,
-                        right_handed: !g.settings.main_hand_left,
-                        offhand: g.offhand.is_some(),
-                        slots: std::array::from_fn(|i| {
-                            g.inventory[i]
-                                .as_ref()
-                                .map(|_| (f32::from(g.hotbar_pop[i]) - partial).max(0.0))
-                        }),
-                        offhand_pop: (f32::from(g.hotbar_pop[9]) - partial).max(0.0),
-                        attack: (indicator == 2).then_some(strength),
-                    };
-                    let draws = hud_layout::hotbar_with_attack_side(
-                        wi,
-                        hi,
-                        &inputs,
-                        MOBILE_PLATFORM.then_some(g.settings.touch.attack_indicator_left),
-                    );
-                    hud_layout::paint(batch, &g.gui.atlas, &draws);
-                    for d in &draws {
-                        if let hud_layout::GuiDraw::Item { slot, x, y, .. } = *d {
-                            let stack = if slot == 40 {
-                                g.offhand.as_ref()
-                            } else {
-                                g.inventory[slot as usize].as_ref()
-                            };
-                            if let Some(stack) = stack {
-                                g.draw_item(batch, stack, x as f32, y as f32);
-                            }
-                        }
-                    }
-                }
-            });
-            self.gui_layer("minecraft:effects", &mut batch, |g, batch| {
-                g.draw_effect_icons(batch);
-            });
             // Hud: the action bar and titles draw over the hotbar (nextStratum).
-            self.gui_layer("minecraft:boss_overlay", &mut batch, |g, batch| {
-                g.draw_boss_bars(batch);
-            });
             self.draw_extras(&mut batch);
         }
         if show_hud {
@@ -8544,42 +8133,6 @@ impl Game<'_> {
             // The one bar above the hotbar: the mount's jump bar, the locator
             // bar (with its background) or the experience bar, with the level
             // number that a survival player always has.
-            self.gui_layer("minecraft:contextual_info_bar", &mut batch, |g, batch| {
-                if contextual == ContextualBar::JumpableVehicle {
-                    g.draw_jump_bar(batch, wi, hi);
-                }
-                if contextual == ContextualBar::Locator {
-                    let (sprite, [x, y, w, h]) =
-                        industrial_era_client::locator_bar::background(wi, hi);
-                    industrial_era_client::ui::nine_slice(
-                        batch,
-                        &g.gui.atlas,
-                        sprite,
-                        x as f32,
-                        y as f32,
-                        w as f32,
-                        h as f32,
-                        u32::MAX,
-                    );
-                }
-                if has_experience && g.player.is_some() {
-                    let atlas = &g.gui.atlas;
-                    let width = |s: &str| HudBatch::text_width(atlas, s) as i32;
-                    let draws = hud_layout::experience(
-                        wi,
-                        hi,
-                        g.experience.progress,
-                        g.experience.level,
-                        contextual == ContextualBar::Experience,
-                        &width,
-                    );
-                    hud_layout::paint(batch, atlas, &draws);
-                }
-                if contextual == ContextualBar::Locator {
-                    let draws = g.locator_bar_draws(wi, hi);
-                    hud_layout::paint(batch, &g.gui.atlas, &draws);
-                }
-            });
             if !self.creative
                 && !spectator
                 && let Some(p) = &mut self.player
@@ -8623,16 +8176,12 @@ impl Game<'_> {
                 // The native mods' health HUD (`native_health_hud`): a mod
                 // that answers draws every row instead.
                 let mut native_health_hud = None;
-                self.native_health_hud(&inputs, wi, hi, &mut native_health_hud);
                 let draws = match native_health_hud {
                     Some(draws) => draws,
                     None => self.health_hud.layout(&inputs, wi, hi),
                 };
                 // The rows draw in one pass here, so a mod's `player_health`
                 // layer stands for the armor, food and air rows too.
-                self.gui_layer("minecraft:player_health", &mut batch, |g, batch| {
-                    hud_layout::paint(batch, &g.gui.atlas, &draws);
-                });
                 bar_height = self
                     .health_hud
                     .left_height
@@ -8650,31 +8199,11 @@ impl Game<'_> {
                     self.audio.capture = capture;
                 }
             }
-            if !spectator {
-                self.gui_layer("minecraft:selected_item_name", &mut batch, |g, batch| {
-                    g.draw_selected_name(batch, bar_height, !g.creative);
-                });
-            }
+            if !spectator {}
         }
         // Hud.extractSleepOverlay: over all health/food bars, under titles and chat.
         let draws = hud_overlays::sleep_overlay(wi, hi, self.sleep_timer as i32);
-        self.gui_layer("minecraft:sleep_overlay", &mut batch, |g, batch| {
-            hud_layout::paint(batch, &g.gui.atlas, &draws);
-        });
-        if show_hud {
-            self.gui_layer("minecraft:overlay_message", &mut batch, |g, batch| {
-                g.draw_overlay_message(batch, bar_height);
-            });
-            self.gui_layer("minecraft:title", &mut batch, |g, batch| {
-                g.draw_title(batch);
-            });
-            self.gui_layer("minecraft:scoreboard_sidebar", &mut batch, |g, batch| {
-                g.draw_scoreboard(batch);
-            });
-            self.gui_layer("minecraft:subtitle_overlay", &mut batch, |g, batch| {
-                g.draw_subtitles(batch);
-            });
-        }
+        if show_hud {}
         let atlas = &self.gui.atlas;
         if show_hud
             && let Some((text, at)) = &self.message
@@ -8685,10 +8214,6 @@ impl Game<'_> {
         }
         // The chat screen draws the focused chat itself; F1 hides the rest.
         if show_hud && self.screen != Screen::Chat {
-            self.gui_layer("minecraft:chat", &mut batch, |g, batch| g.draw_chat(batch));
-            self.gui_layer("minecraft:tab_list", &mut batch, |g, batch| {
-                g.draw_tab_list(batch);
-            });
         } else {
             self.draw_chat(&mut batch);
             self.draw_tab_list(&mut batch);
@@ -8725,7 +8250,6 @@ impl Game<'_> {
             Screen::Dead => self.draw_death_screen(&mut batch),
             Screen::Stats => self.draw_stats(&mut batch),
             Screen::Advancements => self.draw_advancements(&mut batch),
-            Screen::Mod => {}
             Screen::WorldOptions => self.draw_world_options(&mut batch),
             Screen::Friends => self.draw_friends_screen(&mut batch),
             Screen::Social => self.draw_social_screen(&mut batch),
@@ -8737,7 +8261,6 @@ impl Game<'_> {
             Screen::DebugOptions => self.draw_debug_options(&mut batch),
             Screen::Inventory => {
                 self.draw_inventory(&mut batch);
-                self.draw_mod_browser(&mut batch);
             }
             Screen::Creative => {
                 self.draw_creative(&mut batch);
@@ -8746,10 +8269,7 @@ impl Game<'_> {
             Screen::Playing | Screen::Options | Screen::Win => {}
         }
         // ScreenEvent.Render.Post: the open screen has drawn itself and its
-        // tooltips, so a native mod draws over it here. Never `Playing`: the
-        // prompts, books and sign editors drawn over gameplay keep it, draw
-        // after this point and so over what a mod drew.
-        self.fire_screen_render_post(&mut batch);
+        // tooltips.
         self.draw_saving_indicator(&mut batch);
         // ToastManager.extractRenderState: F1 hides the toasts too.
         self.draw_toasts(&mut batch, !show_hud);
@@ -8762,37 +8282,6 @@ impl Game<'_> {
             self.draw_book(&mut batch);
         }
         batch
-    }
-    /// `native_screen_render_post` (`ScreenEvent.Render.Post`) for the open
-    /// screen, once a frame; the Win and Options screens call this on their
-    /// own path. Reads `self.screen`, the one `hud_layers` drew. Not while
-    /// playing with no screen, nor while the server pack prompt hides the
-    /// open screen (`hud_layers` draws `Playing` then). Client only,
-    /// read-only: what a mod draws is its own.
-    fn fire_screen_render_post(&self, batch: &mut HudBatch) {
-        let screen = self.screen;
-        if screen == Screen::Playing || self.server_packs.prompt.is_some() || self.book.is_some() {
-            return;
-        }
-        // slot_count mirrors slots() without allocating; keep them in step.
-        debug_assert_eq!(self.slot_count(), self.slots().len());
-        let view = self.screen_view(batch, screen);
-        self.native_screen_render_post(batch, &view);
-    }
-    /// `native_screen_render_post` (`ScreenEvent.Render.Post`) for the title's
-    /// own screen (`title`, `world_select`, `world_create`, `multiplayer`…),
-    /// once a frame, after it has drawn and before the toasts. Not when a
-    /// screen of the game's own is over the title (Options draws and fires
-    /// its own), nor while a dialog, a prompt or a connect or load hides it.
-    /// Client only, read-only: what a mod draws is its own.
-    fn fire_title_screen_render_post(&self, batch: &mut HudBatch) {
-        if self.screen != Screen::Playing || self.screen_over_playing() || self.remote_loading() {
-            return;
-        }
-        let Some(view) = self.title_screen_view(batch) else {
-            return;
-        };
-        self.native_screen_render_post(batch, &view);
     }
     /// `CreativeModeInventoryScreen.hasPermissions` (`canUseGameMasterBlocks`
     /// and the Operator Items Tab option) given to `tryRefreshInvalidatedTabs`,
@@ -8813,7 +8302,7 @@ impl Game<'_> {
         if self.screen == Screen::Creative {
             return Self::creative_origin(batch);
         }
-        let width = self.native_screen_width().unwrap_or(176.0);
+        let width = 176.0;
         let (x, y) = batch.centered_origin(width, self.screen_height());
         (x + self.recipe_book_shift(batch.width), y)
     }
@@ -8841,10 +8330,6 @@ impl Game<'_> {
             return v;
         }
         let mut v: Vec<usize> = (0..36).collect();
-        if let Some(shown) = self.native_screen_slots() {
-            v.extend(shown);
-            return v;
-        }
         match self.container_kind() {
             Some(BlockEntity::Chest(_)) => v.extend((0..self.container_size()).map(|i| 300 + i)),
             Some(BlockEntity::Furnace(_)) => v.extend(300..303),
@@ -8912,9 +8397,6 @@ impl Game<'_> {
             return n;
         }
         let inventory = 36;
-        if let Some(shown) = self.native_screen_slot_count() {
-            return inventory + shown;
-        }
         let container = match self.container_kind() {
             Some(BlockEntity::Chest(_)) => self.container_size(),
             Some(BlockEntity::Furnace(_)) => 3,
@@ -8970,9 +8452,6 @@ impl Game<'_> {
         }
         if let Some(p) = self
             .station_slot_position(i)
-            .or_else(|| {
-                Self::stock_machine_slot(self.machine_slot_position(i), self.native_screen_shown())
-            })
             .or_else(|| self.crafter_slot_position(i))
             .or_else(|| self.mount_slot_position(i))
         {
@@ -8982,12 +8461,11 @@ impl Game<'_> {
         // ContainerScreen (3 rows) shifts the player inventory down by one pixel.
         // ChestMenu: the inventory sits `18 * (rows - 3) + 1` lower than the
         // 3-row layout of the other menus.
-        let shift = match (self.chest_rows(), self.native_screen_inventory_y()) {
-            (_, Some(y)) => y - 84.0,
-            (Some(rows), None) => 1.0 + (rows as f32 - 3.0) * 18.0,
-            (None, None) => 0.0,
+        let shift = match self.chest_rows() {
+            Some(rows) => 1.0 + (rows as f32 - 3.0) * 18.0,
+            None => 0.0,
         };
-        let inventory_x = self.native_screen_inventory_x().unwrap_or(8.0);
+        let inventory_x = 8.0;
         match i {
             0..9 => (inventory_x + i as f32 * 18.0, 142.0 + shift),
             9..36 => (
@@ -8997,7 +8475,6 @@ impl Game<'_> {
             500..504 => (8.0, 8.0 + (i - 500) as f32 * 18.0),
             // InventoryMenu: the shield slot.
             504 => (77.0, 62.0),
-            300..500 if let Some(p) = self.native_screen_slot(i - 300) => p,
             300..500 => match self.container_kind() {
                 Some(BlockEntity::Furnace(_)) => {
                     [(56.0, 17.0), (56.0, 53.0), (116.0, 35.0)][(i - 300).min(2)]
@@ -9025,17 +8502,7 @@ impl Game<'_> {
             }
         }
     }
-    /// The stock hopper/dispenser slot layout, unless a mod screen is shown for
-    /// that menu: a mod screen places its own container slots
-    /// (`native_screen_slot`) and the player's inventory (`native_screen_inventory_y`),
-    /// and this layout answers first in `slot_position`, which kept a mod's screen
-    /// on a hopper or a dispenser on the stock grid (#5141). The rest of those
-    /// menus is already the mod's: `draw_native_screen` owns the background and
-    /// `screen_height` its height.
-    fn stock_machine_slot(stock: Option<(f32, f32)>, mod_screen_shown: bool) -> Option<(f32, f32)> {
-        if mod_screen_shown { None } else { stock }
-    }
-
+    /// The stock hopper/dispenser slot layout.
     fn slot_at(&self, batch: &HudBatch, x: f32, y: f32) -> Option<usize> {
         if self.book_covers_menu(batch.width) {
             return None;
@@ -9211,7 +8678,6 @@ impl Game<'_> {
                 .container
                 .and_then(|k| self.world.block_entities.get(&k))
             {
-                Some(_) if self.draw_native_screen(batch, ox, oy) => {}
                 Some(BlockEntity::Chest(_)) if self.draw_machine_screen(batch, ox, oy) => {}
                 Some(BlockEntity::Chest(_)) => self.draw_chest_screen(batch, ox, oy),
                 Some(BlockEntity::Furnace(f)) => {
@@ -9341,7 +8807,6 @@ impl Game<'_> {
         };
         self.draw_carried(batch);
         self.draw_slot_tooltip(batch);
-        self.draw_native_screen_tooltip(batch);
         if let Some(lines) = effect_tip {
             self.draw_tooltip_lines(batch, &lines, self.cursor.0, self.cursor.1);
         }
@@ -9363,7 +8828,6 @@ impl Game<'_> {
         // key that closed the container (Tab bound to the inventory) has
         // already moved the focus, and it must not outlive the screen.
         self.pad_clear_focus();
-        self.mod_browser_closed();
         self.reset_inventory_clicks();
         self.close_station();
         self.mount_closed();
@@ -10177,14 +9641,7 @@ impl Game<'_> {
     fn inventory_press(&mut self, right: bool) {
         use industrial_era_client::container_screen::Target;
         use industrial_era_client::menu::Input;
-        if self.mod_browser_press(right) {
-            return;
-        }
         if !right && self.sort_press() {
-            return;
-        }
-        if self.native_screen_press(right) {
-            self.inv_clicks.skip_release();
             return;
         }
         // AbstractRecipeBookScreen lets the book handle its buttons before
@@ -10419,7 +9876,7 @@ impl Game<'_> {
             let (shift, width) = match self.station.as_ref().map(|s| s.kind) {
                 Some(stations::Kind::Merchant) => (-50.0, 276),
                 Some(stations::Kind::Beacon) => (beacon::SHIFT, 230),
-                _ => (0.0, self.native_screen_width().map_or(176, |w| w as i32)),
+                _ => (0.0, 176),
             };
             (shift, width, self.screen_height() as i32)
         };
@@ -10595,7 +10052,7 @@ impl Game<'_> {
         }
     }
     fn click_inventory(&mut self, right: bool) {
-        if self.mod_browser_press(right) || self.mount_click(right) {
+        if self.mount_click(right) {
             return;
         }
         if self.recipe_book_click(right) {
@@ -10708,8 +10165,6 @@ impl Game<'_> {
                 crafted += 1;
                 // `ResultSlot.onTake`: the recipe and the stack taken
                 // (native_item_crafted).
-                let player = self.native_acting_id();
-                self.native_item_crafted(player, &format!("minecraft:{recipe}"), &taken);
                 self.award_stat("crafted", &made.0, made.1 as i32);
                 self.award_crafted(&[(format!("minecraft:{recipe}"), ingredients)]);
                 if !shift || crafted >= 64 {
@@ -10968,8 +10423,7 @@ impl Game<'_> {
         self.mark_translucent_entity(out.len(), "minecraft:entity_shadow");
         // A native shader pack's sun shadows already fall under the entities in the Overworld:
         // the round blob would be a second one. The Nether and the End have no sun to cast them.
-        let pack_shadows =
-            self.dim == Dim::Overworld && self.renderer.as_ref().is_some_and(|r| r.native_shadow());
+        let pack_shadows = self.dim == Dim::Overworld && self.renderer.is_some_and(|r| true);
         let shadow_sprite = (self.settings.entity_shadows && !pack_shadows)
             .then(|| self.gui.atlas.sprites.get("misc/shadow").copied())
             .flatten();
@@ -11169,26 +10623,6 @@ impl Game<'_> {
                         &mut out,
                     );
             }
-            // Mod block entities: their mods draw them (`native_block_entity_submit`),
-            // culled by the bounds they give. A world without any (`has_mods`) has none
-            // to find among its other unrendered block entities (furnaces, hoppers...).
-            let mods = self
-                .world
-                .block_entities
-                .has_mods()
-                .then(|| {
-                    r.visible_block_entities(self.settings.chunk_fade)
-                        .filter(|(_, state)| !self.res.block_entity_render().renders(*state))
-                })
-                .into_iter()
-                .flatten();
-            let untemplated = self.untemplated_mod_block_entities(camera);
-            self.mod_block_entity_geometry(
-                mods.chain(untemplated.iter()),
-                camera,
-                alpha as f32,
-                &mut out,
-            );
             self.mark_stage(out.len(), "DESTROY");
             for &(pos, stage) in &cracks {
                 let state = self.world.block(pos[0], pos[1], pos[2]);
@@ -11534,9 +10968,7 @@ impl Game<'_> {
         let vanilla_crit = living && self.critical_attack(scale);
         let mut crit = vanilla_crit;
         let mut multiplier = if vanilla_crit { 1.5 } else { 1.0 };
-        if living && damaging {
-            self.native_critical_hit(target_kind, vanilla_crit, &mut crit, &mut multiplier);
-        }
+        if living && damaging {}
         if crit {
             amount *= multiplier;
         }
@@ -11753,9 +11185,7 @@ impl Game<'_> {
             ),
         };
         let landed = self.hurt_by_player(index, amount, source);
-        if landed && old_health > 0.0 && !self.mobs[index].alive() {
-            self.native_kill_event(index);
-        }
+        if landed && old_health > 0.0 && !self.mobs[index].alive() {}
         if landed {
             let victim = self.mob_entity(&self.mobs[index]);
             self.player_hit(
@@ -11926,10 +11356,7 @@ impl Game<'_> {
     }
     fn tick_mobs(&mut self) -> Result<()> {
         self.tick_creatures()?;
-        if !self.entity_attachments.is_empty() {
-            self.prune_entity_attachments();
-        }
-        self.native_mobs_equipment();
+        if !self.entity_attachments.is_empty() {}
         self.position_rider();
         self.tick_stats();
         self.tick_scoreboard();
@@ -12298,8 +11725,6 @@ impl Game<'_> {
         );
         // TagsUpdatedEvent (SERVER_DATA_LOAD): the world's data is in, before
         // its chunks and players are.
-        self.native_server_data_loaded(false);
-        self.sync_recipe_content();
         self.bosses = Default::default();
         reset_world_progress(&mut self.adv, &mut self.stats);
         self.prefetch_advancement_tree();
@@ -12431,7 +11856,6 @@ impl Game<'_> {
         self.streaming.nether_shading = dim == Dim::Nether;
         self.load_world_state();
         // The level the world opens in, before any of its chunks.
-        self.native_level_opened(dim);
         Ok(())
     }
     /// PortalShape: an obsidian frame around 2..=21 by 3..=21 empty blocks.
@@ -12642,7 +12066,6 @@ impl Game<'_> {
         self.boss_overlay.reset();
         // GameRenderer.resetData (Minecraft.clearClientLevel).
         self.item_activation.reset();
-        self.kept_block_entities.get_mut().clear();
         self.bosses = Default::default();
         self.streaming.paused = true;
         self.world = World::new(self.res.facts().air, 0);
@@ -13209,14 +12632,7 @@ impl Game<'_> {
         let Some(new_state) = registry.state(new).cloned() else {
             return;
         };
-        if !self.native_cauldron_level_change_allowed(
-            pos,
-            level(&old),
-            level(&new_state),
-            "extinguishing",
-        ) {
-            return;
-        }
+        let _ = (pos, old, new_state);
         if self.level_set(at, new).is_ok() {
             self.post_block_game_event("minecraft:block_change", at, None, Some(new));
         }
@@ -13313,7 +12729,6 @@ impl Game<'_> {
                 return Ok(UseResult::Fail);
             }
             let mut canceled = false;
-            self.native_fill_bucket(stack, hit.pos, &mut canceled);
             if canceled {
                 return Ok(UseResult::Fail);
             }
@@ -13365,14 +12780,11 @@ impl Game<'_> {
             }
             let target = self.bucket_target(content, &hit);
             let mut canceled = false;
-            self.native_fill_bucket(stack, target, &mut canceled);
             // `mayUseItemAt(blockPos2)`: a block that refuses the fluid passes
             // it to the block beside, so a mod hears that block too (powder
             // snow places like a block and never goes there).
             let beside_too = content != BucketContent::Powder && hit.beside() != target;
-            if !canceled && beside_too {
-                self.native_fill_bucket(stack, hit.beside(), &mut canceled);
-            }
+            if !canceled && beside_too {}
             if canceled
                 || self.bucket_empty_cancelled(stack, target)
                 || beside_too && self.bucket_empty_cancelled(stack, hit.beside())
@@ -13582,19 +12994,10 @@ impl Game<'_> {
     ) -> bool {
         let dimension = self.dim.id();
         let mut can_merge = vanilla;
-        self.native_experience_orb_can_merge(
-            dimension,
-            into,
-            from,
-            into_value,
-            from_value,
-            &mut can_merge,
-        );
         if !can_merge {
             return false;
         }
         let mut canceled = false;
-        self.native_experience_orb_merge(dimension, into, from, from_value, &mut canceled);
         !canceled
     }
     /// `ExperienceOrb.scanForMerges`, run by each orb on `tickCount % 20 == 1`:
@@ -13664,7 +13067,6 @@ impl Game<'_> {
             health: 5,
         });
         // ServerLevel.addFreshEntity.
-        self.native_joins_flush(false, 0);
     }
     fn can_place_used_fire(&mut self, target: [i32; 3]) -> bool {
         let pos = BlockPos::new(target[0], target[1], target[2]);
@@ -13864,7 +13266,6 @@ impl Game<'_> {
         let at = self.eye_position();
         let old_level = self.experience.level;
         let gave = self.experience.give(gained as i32);
-        self.native_player_level_changed(old_level);
         // Player.giveExperienceLevels runs per level, so the first multiple of 5
         // crossed plays the sound (and starts the cooldown for the rest).
         if let Some(level) = gave
@@ -13881,7 +13282,6 @@ impl Game<'_> {
         let ammo = self.get_projectile(stack);
         let mut charge = i32::try_from(ticks).unwrap_or(i32::MAX);
         let mut canceled = false;
-        self.native_arrow_loose(stack, ammo.is_some(), &mut charge, &mut canceled);
         let power = item_use::bow_release_power(ammo.is_some(), charge, canceled);
         let (Some(power), Some(ammo)) = (power, ammo) else {
             return;
@@ -13944,7 +13344,6 @@ impl Game<'_> {
             self.acting_player_name().to_owned(),
             self.next_entity,
         );
-        self.native_entity_shoot_bow(player, &name, projectile, power * 3.0);
         self.player_projectile_shot();
         let pitch = 1.0 / (self.world.random.next_float() * 0.4 + 1.2) + power * 0.5;
         self.audio
@@ -14062,39 +13461,17 @@ impl Game<'_> {
             let inverse_height =
                 industrial_era_client::first_person::equip_displacement(heights[i], scale);
             let mut canceled = false;
-            self.native_render_hand(
-                hand,
-                item.as_ref(),
-                a,
-                attack,
-                inverse_height,
-                &mut canceled,
-            );
             if canceled {
                 continue;
             }
             let (mut x, mut y, mut z, mut pitch, mut yaw, mut roll, mut pose_scale) =
                 (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-            self.native_render_hand_pose(
-                hand,
-                item.as_ref(),
-                a,
-                attack,
-                inverse_height,
-                &mut x,
-                &mut y,
-                &mut z,
-                &mut pitch,
-                &mut yaw,
-                &mut roll,
-                &mut pose_scale,
-            );
             // No mod moved the hand (always so without one): no matrices to build.
             let pose = [x, y, z, pitch, yaw, roll, pose_scale];
             let to_world = if pose == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0] {
                 to_world
             } else {
-                to_world * native_hooks::hand_pose_matrix(pose)
+                to_world
             };
             // The main hand on its arm, the off hand on the other one.
             let left = self.settings.main_hand_left != (hand == Hand::Off);
@@ -14199,7 +13576,6 @@ impl Game<'_> {
                         .map_or(industrial_era_world::consumable::UseAnimation::None, |c| {
                             industrial_era_client::first_person::consumable_animation(c)
                         });
-                    self.native_use_animation(&stack, &mut animation);
                     item_use::use_pose(
                         animation,
                         owner.use_item_remaining_ticks as f32,
@@ -14319,7 +13695,6 @@ impl Game<'_> {
         self.skin_slots.forget();
         self.maps.slots.forget();
         self.map_patches.clear();
-        self.kept_block_entities.get_mut().clear();
         industrial_era_client::ui_theme::reset_atlas();
         self.clear_lod();
         self.pending_uploads.clear();
@@ -14610,21 +13985,7 @@ impl Game<'_> {
             let moved = self
                 .respawn_config
                 .is_none_or(|c| (c.dim, c.pos) != (config.dim, config.pos));
-            let mut cancel = false;
-            if moved
-                && let (Some(player), Some(name)) =
-                    (self.lan_acting_uuid, self.lan_acting_name.clone())
-            {
-                self.native_player_spawn_point_set(
-                    player,
-                    &name,
-                    self.dim.id(),
-                    head,
-                    "bed",
-                    &mut cancel,
-                );
-            }
-            if !cancel {
+            if moved {
                 self.respawn_config = Some(config);
                 if moved {
                     self.tell_sleeper("block.minecraft.set_spawn", "Respawn point set", false);
@@ -14679,13 +14040,6 @@ impl Game<'_> {
                 "No amount of rest can pass this night",
                 true,
             );
-        }
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            let mut cancel = false;
-            self.native_player_bed_enter(player, &name, head, &mut cancel);
-            if cancel {
-                return;
-            }
         }
         self.stop_mining();
         self.left = false;
@@ -14742,9 +14096,7 @@ impl Game<'_> {
             self.pitch = 0.0;
             self.snap_player_model_pitch();
         }
-        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {
-            self.native_player_bed_leave(player, &name, head);
-        }
+        if let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone()) {}
     }
     fn tick_sleep(&mut self) {
         self.sleep_timer = tick_sleep_timer(self.sleep_timer, self.sleeping.is_some());
@@ -14789,12 +14141,10 @@ impl Game<'_> {
                 // SleepFinishedTimeEvent: the mods may move the wake-up time,
                 // never before now (`setTimeAddition` refuses a lower one).
                 let mut asked = target;
-                self.native_sleep_finished_time(self.dim.id(), t, &mut asked);
                 if asked >= t {
                     target = asked;
                 }
                 let mut cancel = false;
-                self.native_time_skip(self.dim.id(), t, target, "sleep", &mut cancel);
                 if !cancel {
                     self.world.day_time = target;
                 }
@@ -15566,7 +14916,6 @@ impl Game<'_> {
                 self.save_game_metadata()
             })?;
         }
-        self.native_world_saved(wait);
         if dedicated {
             dedicated::events::record_server("saved", serde_json::json!({}));
         }
@@ -15593,8 +14942,10 @@ impl Game<'_> {
         )?;
         // PlayerEvent.SaveToFile for the owner, once level.dat is written.
         if let Some((uuid, name)) = stored_owner {
+            let _ = uuid;
+            let _ = name;
             let directory = industrial_era_client::lan::playerdata::directory(&self.world_root);
-            self.native_player_save_to_file(uuid, &name, &directory);
+            let _ = directory;
         }
         // PlayerList.saveAll: every placed player saves with the server, to
         // their own file (`PlayerDataStorage.save`); the owner is also in the
@@ -15609,9 +14960,7 @@ impl Game<'_> {
             let mut host = host;
             let directory = industrial_era_client::lan::playerdata::directory(&self.world_root);
             for g in host.hub.guests.iter_mut().filter(|g| g.placed) {
-                self.guest_attachments_into(g);
                 industrial_era_client::lan::playerdata::save(g, &self.world_root);
-                self.native_player_save_to_file(g.uuid, &g.name, &directory);
             }
             self.lan = Some(host);
         }
@@ -15698,7 +15047,6 @@ impl Game<'_> {
         if self.renderer.as_mut().is_some_and(|r| r.display_changed()) {
             self.apply_ui_settings();
         }
-        self.observe_screen();
         // Minecraft.doWorldLoad: the LevelLoadingScreen while single player's
         // server starts, with the server's chunk map and progress.
         if let Some(starting) = &self.integrated_starting {
@@ -15908,18 +15256,10 @@ impl Game<'_> {
         let g = self.debug_gizmos(alpha as f32, camera.to_array());
         lines.extend(g.lines);
         let on_top = g.on_top;
-        let colored_lights = if self.title.is_none() {
-            self.native_frame_visuals(camera, alpha, &mut lines)
-        } else {
-            Vec::new()
-        };
+        let colored_lights: Vec<industrial_era_client::dynamic_light::Colored> = Vec::new();
         let emissive_layers = if self.title.is_none() {
-            let mut requests = Vec::new();
-            self.native_emissive(&mut requests);
-            // Native mods' overlays first, then the packs' OptiFine emissive blocks.
             industrial_era_client::native_emissive::table(
                 &self.pack.render.sprite_layers,
-                requests,
                 &self.pack.render.emissive,
             )
         } else {
@@ -15963,7 +15303,6 @@ impl Game<'_> {
                 .filter(|h| {
                     let state = self.world.block(h.pos[0], h.pos[1], h.pos[2]);
                     let mut canceled = false;
-                    self.native_block_highlight(h.pos, state, alpha as f32, &mut canceled);
                     !canceled
                 })
                 .map(|h| {
@@ -16046,32 +15385,6 @@ impl Game<'_> {
         let distance = (terrain_distance * 16) as f32;
         let depth_far =
             industrial_era_client::camera::depth_far(terrain_distance, self.settings.cloud_range);
-        // Only native mods read it: no matrices or allocation per frame without one.
-        let mods_read_camera = !industrial_era_client::mod_api::mods().is_empty();
-        self.native_camera_frame = (mods_read_camera && !title).then(|| {
-            let partial = camera_alpha as f32;
-            industrial_era_client::mod_api::NativeCamera {
-                position: camera.to_array(),
-                eye_height: self.view.eye_height_old
-                    + (self.view.eye_height - self.view.eye_height_old) * partial,
-                partial_tick: partial,
-                yaw,
-                pitch,
-                fov_degrees,
-                near: 0.05,
-                far: depth_far,
-                view: (bob * spin * industrial_era_client::camera::view_matrix(yaw, pitch))
-                    .to_cols_array(),
-                projection: glam::Mat4::perspective_rh(
-                    fov_degrees.to_radians(),
-                    size[0] as f32 / size[1].max(1) as f32,
-                    depth_far,
-                    0.05,
-                )
-                .to_cols_array(),
-                dimension: self.dim.id().to_string(),
-            }
-        });
         self.view_frustum = self
             .renderer
             .as_ref()
@@ -16534,7 +15847,6 @@ impl Game<'_> {
                 Screen::Chat => self.close_chat(chat::ChatExit::Intentional),
                 Screen::Win => self.close_win_screen()?,
                 Screen::DebugOptions => self.close_debug_options(),
-                Screen::Mod => self.close_mod_screen(),
             },
             // `checkHotbarKeyPressed`: the keys the controls bind to the off
             // hand and the hotbar slots, so a rebound key swaps instead of
@@ -17007,7 +16319,6 @@ impl Game<'_> {
         self.streaming.extra.truncate(areas);
         self.spawn_fresh_chunks();
         // Before the unloaded chunks' block entities are written and dropped.
-        self.native_chunks_changed(&unloaded);
         if let Some(lod) = &mut self.lod {
             self.lod_observe
                 .extend(uploads.iter().map(|(key, _)| (key.0, key.2)));
@@ -17281,9 +16592,7 @@ impl ApplicationHandler for Game<'_> {
             None
         };
         self.handle_window_event(event_loop, id, event, input_trace::InputOrigin::User);
-        if let Some((event, modifiers)) = key {
-            self.native_input_key(&event, modifiers);
-        }
+        if let Some((event, modifiers)) = key {}
     }
     fn device_event(&mut self, _: &ActiveEventLoop, _: DeviceId, event: DeviceEvent) {
         if let DeviceEvent::MouseMotion { delta: (x, y) } = event {
@@ -17393,15 +16702,12 @@ impl Game<'_> {
         };
         if let Some((button, pressed, modifiers)) = mouse {
             let mut canceled = false;
-            self.native_mouse_button_pre(button, pressed, modifiers, &mut canceled);
             if canceled {
                 return;
             }
         }
         self.handle_window_event_inner(event_loop, event);
-        if let Some((button, pressed, modifiers)) = mouse {
-            self.native_mouse_button_post(button, pressed, modifiers);
-        }
+        if let Some((button, pressed, modifiers)) = mouse {}
     }
     fn handle_window_event_inner(&mut self, event_loop: &dyn EventLoopCtl, mut event: WindowEvent) {
         if self.platform_keypad_event(event_loop, &mut event) {
@@ -17616,68 +16922,6 @@ impl Game<'_> {
             }
             return;
         }
-        // ScreenEvent.KeyPressed.Pre: the open screen hears of the key before
-        // it acts on it, and a cancelled press goes no further — no focus
-        // move, no Escape-close, no inventory or hotbar key, no typing by the
-        // key itself, no `native_key`. It fires after the window's own
-        // shortcuts (fullscreen, screenshot, the debug keys, the narrator) so
-        // those keep working with a mod that cancels; the key's release still
-        // comes through.
-        //
-        // A key's characters are a separate callback of GLFW's, and it comes
-        // after the key callback (`KeyboardHandler.charTyped`): they are taken
-        // off the key here and dispatched once the screen has acted on it, on
-        // the screen that is open then (`ScreenEvent.CharacterTyped.Pre`).
-        // Options keeps its text on the key: its own key path routes a key's
-        // text between its boxes and its key-bind capture, and no key that
-        // carries text closes that screen or moves its focus. The title's
-        // screens keep theirs for the same reason: their key path types into
-        // the world name, the seed and a server's address.
-        let mut typed: Option<String> = None;
-        if let WindowEvent::KeyboardInput {
-            event: key_event, ..
-        } = &mut event
-            && key_event.state == ElementState::Pressed
-        {
-            if self.screen_hooks_open()
-                && self.screen != Screen::Options
-                && !control::title_owns_text(&self.screen, self.title.is_some())
-            {
-                typed = key_event.text.take().map(|text| text.to_string());
-            }
-            let canceled = match key_event.physical_key {
-                PhysicalKey::Code(key) => self.screen_key_pressed(key, key_event.repeat),
-                PhysicalKey::Unidentified(_) => false,
-            };
-            if self.screen == Screen::Options && self.screen_hooks_open() {
-                // The hook after the key's own, then the text the key path
-                // types in place (its own routing keeps it).
-                if let Some(text) = key_event.text.as_deref() {
-                    let left = self.screen_text_typed(text);
-                    if left.as_deref() != Some(text) {
-                        key_event.text = left.map(Into::into);
-                    }
-                }
-            }
-            if canceled {
-                // charTyped is a separate callback: the characters still
-                // reach the text box, without the key's own effects. Options'
-                // characters already passed the hook in place.
-                if let Some(text) = typed.as_deref() {
-                    self.screen_chars_typed(Some(text));
-                } else if self.screen == Screen::Options
-                    && let Some(text) = key_event.text.as_deref()
-                    && self.types_text()
-                {
-                    let text: String = text.chars().filter(|c| !c.is_control()).collect();
-                    if !text.is_empty() {
-                        // Err only says no box of the screen takes it.
-                        let _ = self.type_chars_into_screen(&text);
-                    }
-                }
-                return;
-            }
-        }
         // Screen.keyPressed: Tab, the arrows and Enter move and press the
         // menu's focus, unless the focused widget or the screen keeps them.
         if let WindowEvent::KeyboardInput {
@@ -17689,57 +16933,9 @@ impl Game<'_> {
         {
             // The keyboard's focus took the key; its characters are a separate
             // callback and still come (`KeyboardHandler.charTyped`).
-            self.screen_chars_typed(typed.as_deref());
             return;
         }
         let result: Result<()> = (|| {
-            if let WindowEvent::MouseInput { state, button, .. } = &event
-                && !self.pad_synthetic_input()
-            {
-                self.track_drag_button(*button, *state == ElementState::Pressed);
-            }
-            if let WindowEvent::KeyboardInput { event, .. } = &event
-                && event.state == ElementState::Released
-                && let PhysicalKey::Code(key) = event.physical_key
-                && self.screen_key_released(key)
-            {
-                // Screen cancellation must not leave a held keyboard mapping down.
-                self.keys.remove(&key);
-                self.mapped_key_event(key, false, false)?;
-                return Ok(());
-            }
-            // ScreenEvent.MouseButtonPressed.Pre / MouseButtonReleased.Pre:
-            // the open screen hears of the press before anything reads it, and
-            // a cancelled one goes no further — no hotbar key, no slot, no
-            // button, no sort, no drag. First in the event, so none of the
-            // arms below (which hold the container hotkey and the sort and
-            // header buttons too) see it. A click the pad or the keyboard's
-            // focus made up is not the mouse: it fires nothing.
-            if let WindowEvent::MouseInput { state, button, .. } = &event
-                && !self.pad_synthetic_input()
-                && let Some(screen) = self.screen_view_now()
-            {
-                let (button, modifiers) = (glfw_button(*button), glfw_modifiers(self.modifiers));
-                let mut canceled = false;
-                if *state == ElementState::Pressed {
-                    self.native_screen_mouse_button_pressed_pre(
-                        &screen,
-                        button,
-                        modifiers,
-                        &mut canceled,
-                    );
-                } else {
-                    self.native_screen_mouse_button_released_pre(
-                        &screen,
-                        button,
-                        modifiers,
-                        &mut canceled,
-                    );
-                }
-                if canceled {
-                    return Ok(());
-                }
-            }
             self.key_focus_mouse_press(&event);
             match event {
                 WindowEvent::CloseRequested => {
@@ -17809,11 +17005,7 @@ impl Game<'_> {
                 WindowEvent::CursorMoved { position, .. } => {
                     if let Some(r) = &self.renderer {
                         let b = HudBatch::new([r.config.width, r.config.height]);
-                        let previous = self.cursor;
                         self.cursor = (position.x as f32 / b.scale, position.y as f32 / b.scale);
-                        if self.screen_mouse_dragged(previous) {
-                            return Ok(());
-                        }
                         if self.dialog_open() {
                             self.dialog_drag();
                         }
@@ -17873,27 +17065,6 @@ impl Game<'_> {
                         }) * wheel_sensitivity
                     };
                     let d = scaled(raw_y) as f32;
-                    // ScreenEvent.MouseScrolled.Pre: the open screen hears of
-                    // the wheel before anything scrolls, and a cancelled turn
-                    // scrolls nothing — no bundle, no list, slider or
-                    // scrollbar. The hotbar below reads the wheel only while
-                    // playing, which the gate excludes. A wheel the pad or the
-                    // keyboard's focus made up is not the mouse: it fires
-                    // nothing.
-                    if !self.pad_synthetic_input()
-                        && let Some(screen) = self.screen_view_now()
-                    {
-                        let mut canceled = false;
-                        self.native_screen_mouse_scrolled_pre(
-                            &screen,
-                            [scaled(raw_x), scaled(raw_y)],
-                            glfw_modifiers(self.modifiers),
-                            &mut canceled,
-                        );
-                        if canceled {
-                            return Ok(());
-                        }
-                    }
                     if self.dialog_open() {
                         self.dialog_scroll(d);
                     } else if self.code_of_conduct.is_some() {
@@ -17916,25 +17087,13 @@ impl Game<'_> {
                         && !self.screen_over_playing()
                         && self.sleeping.is_none()
                         && self.player.is_some()
-                        && !self.native_wheel_event(d)
+                        && !self
                         && let Some((wheel, (horizontal_steps, vertical_steps))) = self
                             .mouse
                             .on_scroll(raw_x, raw_y, discrete, wheel_sensitivity)
                     {
                         if !self.pad_synthetic_input() {
                             let mut canceled = false;
-                            self.native_mouse_scrolling(
-                                [scaled(raw_x), scaled(raw_y)],
-                                [horizontal_steps, vertical_steps],
-                                [
-                                    self.physical_buttons.contains(&MouseButton::Left),
-                                    self.physical_buttons.contains(&MouseButton::Middle),
-                                    self.physical_buttons.contains(&MouseButton::Right),
-                                ],
-                                [self.cursor.0, self.cursor.1],
-                                glfw_modifiers(self.modifiers),
-                                &mut canceled,
-                            );
                             if canceled {
                                 return Ok(());
                             }
@@ -18350,9 +17509,7 @@ impl Game<'_> {
                     if let PhysicalKey::Code(key) = event.physical_key
                         && self.search_tab_hotbar_key(key)
                     {
-                        // The hovered slot took the key, and its characters
-                        // go nowhere (`ignoreTextInput`).
-                        typed = None;
+                        // The hovered slot took the key (`ignoreTextInput`).
                     } else if let Some(shortcut) = self.edit_shortcut(&event) {
                         self.creative_search_shortcut(shortcut);
                     } else if let PhysicalKey::Code(key) = event.physical_key {
@@ -18377,14 +17534,6 @@ impl Game<'_> {
                 {
                     // The recipe book's search box takes every key but Escape.
                     self.recipe_key(&event);
-                }
-                WindowEvent::KeyboardInput { event, .. }
-                    if self.mod_browser_typing()
-                        && event.state == ElementState::Pressed
-                        && !matches!(event.physical_key, PhysicalKey::Code(KeyCode::Escape)) =>
-                {
-                    // A mod's item panel's search box, as the recipe book's.
-                    self.mod_browser_key(&event);
                 }
                 WindowEvent::KeyboardInput { event, .. }
                     if self.station_typing()
@@ -18443,9 +17592,7 @@ impl Game<'_> {
                         && self.pause_menu
                         && !matches!(event.physical_key, PhysicalKey::Code(KeyCode::Escape)) =>
                 {
-                    if let PhysicalKey::Code(key) = event.physical_key {
-                        self.native_key_event(key, true, event.repeat);
-                    }
+                    if let PhysicalKey::Code(key) = event.physical_key {}
                     if let PhysicalKey::Code(key) = event.physical_key {
                         self.pause_key(key)?;
                     }
@@ -18453,9 +17600,7 @@ impl Game<'_> {
                 WindowEvent::KeyboardInput { event, .. }
                     if self.screen == Screen::Dead && event.state == ElementState::Pressed =>
                 {
-                    if let PhysicalKey::Code(key) = event.physical_key {
-                        self.native_key_event(key, true, event.repeat);
-                    }
+                    if let PhysicalKey::Code(key) = event.physical_key {}
                     if let PhysicalKey::Code(key) = event.physical_key {
                         self.death_key(key)?;
                     }
@@ -18555,7 +17700,6 @@ impl Game<'_> {
                     let PhysicalKey::Code(key) = event.physical_key else {
                         return Ok(());
                     };
-                    self.native_key_event(key, event.state == ElementState::Pressed, event.repeat);
                     // Screen.keyPressed sees the physical key, repeats included.
                     if event.state == ElementState::Pressed
                         && self.screen == Screen::Inventory
@@ -18859,7 +18003,6 @@ impl Game<'_> {
         // ScreenEvent.CharacterTyped.Pre: GLFW's char callback comes after its
         // key callback, so a key's characters reach the screen the key left
         // open, after the key's own effects (`KeyboardHandler.charTyped`).
-        self.screen_chars_typed(typed.as_deref());
         if let Err(e) = result {
             self.error = Some(e);
             self.exit_on_error(event_loop);
@@ -18941,7 +18084,6 @@ impl Game<'_> {
         {
             self.poll_files_offer();
             self.poll_update_offer();
-            self.poll_native_builds();
             self.poll_catalog();
         }
         industrial_era_client::spans::time("pads", || self.poll_pads(event_loop));
@@ -19165,7 +18307,6 @@ impl<'a> Game<'a> {
             debug: false,
             gpu_passes: false,
             screen: Screen::Playing,
-            observed_screen: None,
             window: None,
             renderer: None,
             last_device_recovery: None,
@@ -19197,7 +18338,6 @@ impl<'a> Game<'a> {
             )),
             frames: 0,
             glint_frame: Default::default(),
-            kept_block_entities: Default::default(),
             item_level_cache: Default::default(),
             world_frames: 0,
             fps: 0.0,
@@ -19354,7 +18494,6 @@ impl<'a> Game<'a> {
             locator_camera: None,
             kinetics: Default::default(),
             machines: Default::default(),
-            native_camera_frame: None,
             post_effects: Vec::new(),
             spectated_post_effect: None,
             experience_display: Default::default(),
@@ -19420,8 +18559,6 @@ impl<'a> Game<'a> {
             bee_stinger_model: prepared.bee_stinger_model,
             tnts: Vec::new(),
             hoppers: HashMap::new(),
-            mod_screen: None,
-            mod_container_viewers: HashMap::new(),
             item_columns: None,
             creative_screen: prepared.creative_screen,
             control: None,
@@ -19448,27 +18585,14 @@ impl<'a> Game<'a> {
             stats_overlay: Default::default(),
             imports: Default::default(),
             #[cfg(target_os = "android")]
-            files_offer: Default::default(),
-            #[cfg(target_os = "android")]
             update_offer: Default::default(),
-            #[cfg(target_os = "android")]
-            native_builds: Default::default(),
-            #[cfg(target_os = "android")]
-            catalog: Default::default(),
             bedrock_items: None,
             bedrock_held: false,
             creative_hovered: None,
             creative_effect_tip: None,
             content_record: None,
             extras: Default::default(),
-            mods: Default::default(),
-            recipe_tables: Default::default(),
-            panel: Default::default(),
             native_shaders: Default::default(),
-            native_input: Default::default(),
-            native_lifecycle: Default::default(),
-            native_net: Default::default(),
-            native_mod_screen: None,
             sky_darken_memo: Default::default(),
             water_plane_memo: Default::default(),
             water_plane_scan: Default::default(),
@@ -19883,10 +19007,14 @@ impl Game<'_> {
             None => self.res.items(),
         }
     }
+    /// `Block.newBlockEntity` for the block `name` just placed.
+    pub(super) fn new_block_entity(&mut self, name: &str) -> Option<BlockEntity> {
+        BlockEntity::for_block(name)
+    }
     fn recipes(&self) -> &Recipes {
         match &self.world_tables {
             Some(t) => &t.recipes,
-            None => self.synced_recipes().unwrap_or_else(|| self.res.recipes()),
+            None => self.res.recipes(),
         }
     }
     fn stations(&self) -> &industrial_era_client::stations::StationData {
@@ -19923,8 +19051,7 @@ impl Game<'_> {
     fn build_world_tables(&self) -> Option<WorldTables> {
         // The ask of this load, both here and on `/reload`: a native mod
         // recomputes the pack files it contributes every time.
-        let mut contributed = Vec::new();
-        self.native_data_pack_files(&mut contributed);
+        let contributed = Vec::new();
         let files = functions::overlay_files(
             &self.world_root,
             &self.options.resources,
@@ -19956,20 +19083,11 @@ impl Game<'_> {
             }
         };
         let stations = industrial_era_client::stations::StationData::load(root, &items, &overlay);
-        let mut data_map_types = Vec::new();
-        self.native_data_map_types(&mut data_map_types);
-        let data_maps = native_data_maps::DataMaps::load(
-            &data_map_types,
-            &files,
-            &items.item_tags,
-            &items.block_tags,
-        );
         Some(WorldTables {
             files,
             items,
             recipes,
             stations,
-            data_maps,
         })
     }
     /// Reload the content tables with the world's packs, as
@@ -19979,10 +19097,8 @@ impl Game<'_> {
             return;
         }
         self.world_tables = self.build_world_tables();
-        self.recipe_tables.categories = None;
         industrial_era_client::structure_blocks::forget_loot_data();
         // Before the players are sent the reloaded data below.
-        self.sync_recipe_content();
         // PlayerList.reloadResources: the tags and recipes go to the players
         // and their advancements reload. The synchronized registries (the
         // dialogs, and the commands' ids of them) stay the hub's.
@@ -20011,7 +19127,6 @@ impl Game<'_> {
             &overlay,
         ));
         self.adv.reset_tree();
-        self.native_server_data_loaded(true);
     }
 
     fn join_world_rest(&mut self) -> Result<()> {
@@ -21149,12 +20264,6 @@ fn start_game<'a>(
         game.options.no_pause = true;
     }
     game.apply_settings();
-    // Benchmarks measure the game alone.
-    if game.options.benchmark.is_none() {
-        game.mods.dev = game.options.dev_mods.clone();
-        game.start_mods();
-    }
-    // After the mods: their templates are among the ids it lists.
     game.preload_registries();
     game.start_agent_control()?;
     if let Some(scenario) = game.options.benchmark.clone() {
@@ -22150,9 +21259,6 @@ pub fn run_with() -> Result<()> {
     {
         return Ok(());
     }
-    let _ = industrial_era_client::health::HURT_SERVER.set(native_hooks::hurt_server);
-    let _ = industrial_era_client::block_contact::HOOK.set(native_hooks::block_contact);
-    let _ = industrial_era_client::health::KNOCKBACK.set(native_hooks::knockback);
     // Before any worker starts: on Linux they go behind the server thread
     // and the render thread.
     industrial_era_threads::put_helpers_behind();
@@ -22211,8 +21317,6 @@ pub fn run_with() -> Result<()> {
             log::warn!("could not add the official server to servers.dat: {e}");
         }
     }
-    mods::register_components(&vanilla_root)?;
-    mods::register_standalone_models();
     // Bedrock's touch buttons, fetched from Mojang once (bedrock_touch.rs) where the resources
     // came without them (prepared on a computer, or no network then): drawn from the next start,
     // or this one's if they come before its GUI atlas.
@@ -22283,13 +21387,6 @@ pub fn run_with() -> Result<()> {
             pack_error = Some(e.to_string());
             vanilla_root.clone()
         });
-    options.resources = mods::content_root(
-        &options.resources,
-        &early_settings.mods.enabled,
-        &options.dev_mods,
-        world_content::next_start().map(|next| &next.content),
-        &mut |_| {},
-    );
     let loaded = load_resources(
         options.resources.clone(),
         launch_world(&options),
@@ -22821,18 +21918,6 @@ mod tests {
     /// (`native_screen_slot`) and its `inventory_y` (#5141). Without a mod
     /// screen the stock layout answers exactly as before, which is what keeps
     /// this invisible to players who run no native mods.
-    #[test]
-    fn a_mod_screen_on_a_machine_menu_takes_the_stock_layout_out() {
-        let stock = Some((8.0, 109.0));
-        // A mod screen is open: the stock grid does not answer.
-        assert_eq!(Game::stock_machine_slot(stock, true), None);
-        // No mod screen: the hopper and dispenser layouts are untouched.
-        assert_eq!(Game::stock_machine_slot(stock, false), stock);
-        // Other menus have no stock layout to stand back from.
-        assert_eq!(Game::stock_machine_slot(None, true), None);
-        assert_eq!(Game::stock_machine_slot(None, false), None);
-    }
-
     /// A falling block is drawn moved by its column's model offset, as
     /// `ModelBlockRenderer.tesselateBlock` does with `BlockState.getOffset`
     /// of `BlockPos.containing(x, maxY, z)`: a pointed dripstone that breaks

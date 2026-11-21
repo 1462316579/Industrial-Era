@@ -5,9 +5,6 @@
 use super::{Game, storage::is_shulker_box};
 
 mod crafter;
-pub(in crate::game) mod native_energy;
-pub(in crate::game) mod native_fluids;
-pub(in crate::game) mod native_items;
 use industrial_era_client::{
     Result,
     containers::{BlockEntity, HOPPER_SLOTS, ModContainer},
@@ -837,7 +834,6 @@ impl Game<'_> {
         if self.hoppers.get(&pos).is_some_and(|h| h.cooldown > 0) || !enabled {
             return;
         }
-        self.native_prepare_hopper_transfer([pos.0, pos.1, pos.2]);
         let mut changed = false;
         if !c.is_empty(&view) {
             changed = self.hopper_eject(pos, &view);
@@ -974,11 +970,6 @@ impl Game<'_> {
         let c = self.containers();
         let face = facing.opposite();
         if let Some(target) = c.view(front, false) {
-            self.native_hopper_inventory_search(
-                [pos.0, pos.1, pos.2],
-                Some([front.0, front.1, front.2]),
-                None,
-            );
             return self.eject_into(pos, hopper, &target, face);
         }
         let Some(id) = self.entity_container_at([
@@ -988,7 +979,6 @@ impl Game<'_> {
         ]) else {
             return false;
         };
-        self.native_hopper_inventory_search([pos.0, pos.1, pos.2], None, Some(id));
         self.with_entity_container(id, |g, target| g.eject_into(pos, hopper, target, face))
             .unwrap_or(false)
     }
@@ -1058,20 +1048,11 @@ impl Game<'_> {
         source: &View,
         destination: &View,
     ) -> bool {
-        if industrial_era_client::mod_api::mods().is_empty() {
-            return false;
-        }
         let containers = self.containers();
         let Some(stack) = containers.get(holder, slot) else {
             return false;
         };
         let mut cancel = false;
-        self.native_inventory_move_item(
-            self.container_world_pos(source),
-            self.container_world_pos(destination),
-            &stack.item,
-            &mut cancel,
-        );
         cancel
     }
     /// The rest of `HopperBlockEntity.ejectItems`: one item into `target`.
@@ -1177,27 +1158,9 @@ impl Game<'_> {
         let c = self.containers();
         let Some(source) = c.view(above, false) else {
             let id = self.entity_container_at(at)?;
-            self.native_hopper_inventory_search(
-                [
-                    hopper.parts[0].0.0,
-                    hopper.parts[0].0.1,
-                    hopper.parts[0].0.2,
-                ],
-                None,
-                Some(id),
-            );
             return self
                 .with_entity_container(id, |g, source| g.suck_from_slots(None, source, hopper));
         };
-        self.native_hopper_inventory_search(
-            [
-                hopper.parts[0].0.0,
-                hopper.parts[0].0.1,
-                hopper.parts[0].0.2,
-            ],
-            Some([above.0, above.1, above.2]),
-            None,
-        );
         if let Kind::Composter(level) = source.kind {
             if level != 8 {
                 return Some(false);
@@ -1208,14 +1171,8 @@ impl Game<'_> {
             // room, the setItem putting the bone meal back into the detached
             // container (whose bone meal is lost with it).
             let bone_meal = c.bone_meal.clone();
-            if !industrial_era_client::mod_api::mods().is_empty() {
+            {
                 let mut cancel = false;
-                self.native_inventory_move_item(
-                    [above.0, above.1, above.2],
-                    self.container_world_pos(hopper),
-                    &bone_meal.item,
-                    &mut cancel,
-                );
                 if cancel {
                     return Some(false);
                 }
@@ -1550,10 +1507,6 @@ enum Screen {
 impl Game<'_> {
     fn machine_screen(&self) -> Option<Screen> {
         let key = self.container?;
-        // A mod's screen over a hopper or dispenser menu lays out its own slots.
-        if self.native_screen_inventory_y().is_some() {
-            return None;
-        }
         // A server's menu shows by its type, whatever block (or minecart) holds it.
         if let Some(menu) = self.remote_menu_type() {
             return match menu {
@@ -1576,7 +1529,7 @@ impl Game<'_> {
     }
     /// `imageHeight` of the open screen (HopperScreen is 133 tall).
     pub(super) fn screen_height(&self) -> f32 {
-        if let Some(height) = self.native_screen_height() {
+        if let Some(height) = self {
             return height;
         }
         if self

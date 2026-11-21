@@ -126,16 +126,6 @@ impl Launcher {
                         tr("Update available").into(),
                     ),
                     (None, Some(_), _) if !prepared => (Tone::Warn, tr("Needs preparing").into()),
-                    (None, Some(tag), _) if self.native_build_of(tag).is_some() => {
-                        let build = self.native_build_of(tag).unwrap_or_default();
-                        (
-                            Tone::Live,
-                            trf(
-                                "Native build · {version}",
-                                &[("version", &build.industrial_era_short())],
-                            ),
-                        )
-                    }
                     (None, Some(tag), Some(_)) => (Tone::Live, format!("{} · {tag}", tr("Ready"))),
                     (None, Some(_), None) => (Tone::Live, tr("Ready").into()),
                 }

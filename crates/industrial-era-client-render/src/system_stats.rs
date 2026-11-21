@@ -286,7 +286,7 @@ mod tests {
 
     #[test]
     fn proc_fields_are_read_in_kib() {
-        let status = "Name:\thorizon\nVmHWM:\t    3840 kB\nVmRSS:\t  828000 kB\n";
+        let status = "Name:\tindustrial-era\nVmHWM:\t    3840 kB\nVmRSS:\t  828000 kB\n";
         assert_eq!(kib_field(status, "VmRSS:"), Some(828_000));
         assert_eq!(
             kib_field("Rss: 5012 kB\nPss: 1092 kB\n", "Pss:"),
@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn the_memory_note_says_the_process_its_address_space_and_the_device() {
-        let status = "Name:\thorizon\nVmSize:\t 1874000 kB\nVmRSS:\t  421888 kB\n";
+        let status = "Name:\tindustrial-era\nVmSize:\t 1874000 kB\nVmRSS:\t  421888 kB\n";
         let meminfo =
             "MemTotal:        1925120 kB\nMemFree:  80000 kB\nMemAvailable:     655360 kB\n";
         assert_eq!(
@@ -309,7 +309,7 @@ mod tests {
             memory_text("VmRSS:\t 2048 kB\n", "").as_deref(),
             Some("process 2 MiB")
         );
-        assert_eq!(memory_text("Name:\thorizon\n", meminfo), None);
+        assert_eq!(memory_text("Name:\tindustrial-era\n", meminfo), None);
     }
 
     #[test]

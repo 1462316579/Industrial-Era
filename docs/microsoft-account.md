@@ -288,7 +288,7 @@ player renderer. Until a skin arrives the default skin for the UUID shows (as to
 26.3's dedicated servers default to `enforce-secure-profile=true`. A client without a chat session
 can join and play, but every chat message and signed command argument is refused with "Chat
 disabled due to missing profile public key. Please try reconnecting." (`SignedMessageChain.Decoder.unsigned`).
-To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `horizon_protocol::secure_chat`):
+To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `industrial_era_protocol::secure_chat`):
 
 - fetches the profile key pair from the services `player/getCertificates` endpoint with the Minecraft
   token, on a background thread at start and on each join (AccountProfileKeyPairManager): the PKCS#8

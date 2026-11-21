@@ -10,27 +10,18 @@ use industrial_era_launcher::browser::{
     self, industrial_era, installed, java, java_instance, Kind as PackKind, Project, Query,
     SourceId, Support,
 };
-use industrial_era_launcher::modpacks;
-use industrial_era_launcher::native_status;
-use industrial_era_port_pack::check::Check;
 use java_instance::Target;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// The kinds, as the Mods page's tabs: name and icon. Only [`SHOWN`]'s have a tab.
-const KINDS: [(PackKind, &str, &str); 5] = [
-    (PackKind::Mod, "Mods", "box"),
-    (PackKind::Modpack, "Modpacks", "archive"),
+const KINDS: [(PackKind, &str, &str); 2] = [
     (PackKind::ResourcePack, "Resource packs", "image"),
     (PackKind::Shader, "Shader packs", "zap"),
-    (PackKind::DataPack, "Data packs", "notes"),
 ];
-/// The kinds with a tab: IndustrialEra's registry's, and Modrinth's resource packs. Modrinth's mods and
-/// data packs aren't usable yet; the Modpacks tab shows while the sidebar has it open.
-const SHOWN: [PackKind; 3] = [PackKind::Mod, PackKind::ResourcePack, PackKind::Shader];
-/// Java mods checked at once.
+/// Resource packs checked at once.
 const CHECKING: usize = 2;
-/// The sources to pick from on the Resource packs and Modpacks tabs; CurseForge is shown beside them as coming soon.
+/// The sources to pick from on the Resource packs tab.
 const SOURCES: [(SourceId, &str); 2] = [
     (SourceId::Modrinth, "Modrinth"),
     (SourceId::IndustrialEra, "IndustrialEra"),
@@ -94,12 +85,6 @@ pub(super) struct Mods {
     pub(super) message: Option<Result<String, String>>,
     pub(super) updates: HashMap<(SourceId, String), String>,
     confirm_remove: Option<String>,
-    /// A native mod's Install waiting for the one-time trust notice (`native_status::NOTICE`).
-    native_notice: Option<(SourceId, String, Option<Project>)>,
-    /// The selected instance's native build state, and the `native_status::fingerprint` it was
-    /// read for: read again only when that changes.
-    native_state: std::cell::RefCell<Option<(String, native_status::State)>>,
-    native_files: std::cell::RefCell<Option<(String, Vec<native_status::Installed>)>>,
     /// Java mods' checks, by source and project.
     pub(super) checks: HashMap<(SourceId, String), Checking>,
     /// IndustrialEra registry projects' trust and capabilities, by id ([`industrial_era::trust_and_capabilities`]).
@@ -177,9 +162,6 @@ impl Mods {
             world: None,
             busy: None,
             message: None,
-            native_notice: None,
-            native_state: Default::default(),
-            native_files: Default::default(),
             updates: HashMap::new(),
             confirm_remove: None,
             checks: HashMap::new(),
@@ -675,15 +657,6 @@ impl Launcher {
         if self.mods.busy.is_some() {
             return;
         }
-        // The first native mod: the trust notice, before anything is installed.
-        let first_native = source == SourceId::IndustrialEra
-            && !self.settings.native_mods_noticed
-            && industrial_era::is_native_mod(&id);
-        if first_native {
-            self.mods.native_notice = Some((source, id, known));
-            return;
-        }
-        self.mods.native_notice = None;
         self.mods.message = None;
         self.mods.busy = Some((id.clone(), format!("Asking {}…", source.label()), 0.));
         self.mods.updates.remove(&(source, id.clone()));
@@ -745,59 +718,11 @@ impl Launcher {
                             done.coverage.summary()
                         ));
                     }
-                    modpack = p.kind == PackKind::Modpack;
-                    if modpack && p.source == SourceId::IndustrialEra {
-                        let pack = industrial_era::pack::install(&p.id, &progress)?;
-                        if let Some(url) = &p.icon {
-                            industrial_era_launcher::instances::adopt_icon(
-                                &industrial_era::pack::home(&pack.work),
-                                url,
-                            );
-                        }
-                        return Ok(format!(
-                            "Installed {} {} as its own profile with {}, each checked. Play it \
-                             from the list above.",
-                            pack.name,
-                            pack.version,
-                            pack.mods.join(", ")
-                        ));
-                    }
-                    if modpack {
-                        let folder = modpacks::ports_dir().join("downloads");
-                        let file = installed::fetch_modpack(&*source, &p, &folder, &|f| {
-                            progress(&p.title, f)
-                        })?;
-                        let log = |line: String| progress(&line, 1.);
-                        let pack = modpacks::import_and_port(&file, resources.as_deref(), &log)?;
-                        if let Some(url) = &p.icon {
-                            industrial_era_launcher::instances::adopt_icon(
-                                &modpacks::profile_home(&pack.work),
-                                url,
-                            );
-                        }
-                        return Ok(format!(
-                            "{} Play it from the list above.",
-                            modpacks::outcome(&pack)
-                        ));
-                    }
                     let done = installed::install(&*source, &p, everything, &home, &progress)?;
                     let names: Vec<String> = done
                         .iter()
                         .map(|e| format!("{} {}", e.title, e.number))
                         .collect();
-                    if done.iter().any(|e| native_status::is_native_file(&e.file)) {
-                        return Ok(format!(
-                            "Installed {} into {instance}. Build to play with it.",
-                            names.join(", ")
-                        ));
-                    }
-                    if p.source == SourceId::IndustrialEra && p.kind == PackKind::Mod {
-                        return Ok(format!(
-                            "Installed {} into industrial_era-mods and turned it on, checksum checked \
-                             (Options > Mods in the game).",
-                            names.join(", ")
-                        ));
-                    }
                     if p.kind == PackKind::Mod {
                         let skipped = done.last().map_or(0, |e| e.skipped.len());
                         return Ok(format!(
@@ -817,7 +742,7 @@ impl Launcher {
                         names.join(", ")
                     ))
                 });
-            let _ = tx.send(Event::Done(result, modpack));
+            let _ = tx.send(Event::Done(result, false));
         });
     }
 
@@ -985,7 +910,6 @@ impl Launcher {
                 .child(header)
                 .child(div().flex().flex_col().child(kinds).child(body))
         };
-        let body = body.children(self.native_notice(cx));
         if let Some(project) = self.mods_project_page(cx) {
             return page(body.children(self.mods_busy_plate()).child(project));
         }
@@ -997,10 +921,6 @@ impl Launcher {
                 .child(section_title("Browse modpacks", "search", &t));
         }
         body = body.child(controls);
-        // Native mods from a GitHub link: IndustrialEra instances, on the Mods tab.
-        if self.mods.kind == PackKind::Mod && self.mods.java.is_none() {
-            body = body.child(self.github_panel(cx));
-        }
         body = body.children(registry_sort);
         if let Some(list) = self.mods_installed_list(cx) {
             body = body.child(list);
@@ -1073,48 +993,6 @@ impl Launcher {
     /// The install under way and the last install's answer.
     /// The one-time notice before the first native mod is installed: native mods aren't
     /// sandboxed, and what the build takes. Its button installs the mod.
-    fn native_notice(&self, cx: &mut Context<Self>) -> Option<Div> {
-        self.mods.native_notice.as_ref()?;
-        let t = self.theme;
-        Some(
-            plate(&t)
-                .flex()
-                .flex_col()
-                .gap(px(10.))
-                .p(px(16.))
-                .text_size(px(theme::UI.px))
-                .text_color(t.ink)
-                .child(tr(native_status::NOTICE).to_string())
-                .child(
-                    div()
-                        .flex()
-                        .gap(px(8.))
-                        .child(
-                            button("native-notice-install", "Install", Kind::Primary, &t).on_click(
-                                cx.listener(|this, _: &ClickEvent, _, cx| {
-                                    this.settings.native_mods_noticed = true;
-                                    this.save_settings();
-                                    if let Some((source, id, known)) =
-                                        this.mods.native_notice.take()
-                                    {
-                                        this.mods_install(source, id, known);
-                                    }
-                                    cx.notify();
-                                }),
-                            ),
-                        )
-                        .child(
-                            button("native-notice-cancel", "Cancel", Kind::Secondary, &t).on_click(
-                                cx.listener(|this, _: &ClickEvent, _, cx| {
-                                    this.mods.native_notice = None;
-                                    cx.notify();
-                                }),
-                            ),
-                        ),
-                ),
-        )
-    }
-
     pub(super) fn mods_busy_plate(&self) -> Vec<Div> {
         let t = self.theme;
         let mut out = Vec::new();
@@ -1154,18 +1032,6 @@ impl Launcher {
         out
     }
 
-    /// Re-read local/GitHub files when the folder changes, not on every frame.
-    fn native_files(&self) -> Vec<native_status::Installed> {
-        let home = self.mods.home();
-        let key = native_status::fingerprint(&home, None);
-        let mut memo = self.mods.native_files.borrow_mut();
-        if memo.as_ref().is_none_or(|(k, _)| *k != key) {
-            *memo = Some((key, native_status::untracked(&home)));
-            self.mods.installed_list.reset();
-        }
-        memo.as_ref().unwrap().1.clone()
-    }
-
     fn mods_installed_list(&mut self, cx: &mut Context<Self>) -> Option<Div> {
         let t = self.theme;
         let kind = self.mods.kind;
@@ -1192,28 +1058,17 @@ impl Launcher {
             .iter()
             .filter(|e| e.kind == kind)
             .collect();
-        let native_entries = if kind == PackKind::Mod && self.mods.java.is_none() {
-            self.native_files()
-        } else {
-            Vec::new()
-        };
+        let native_entries = Vec::new();
         if entries.is_empty() && native_entries.is_empty() {
             return None;
         }
         let busy = self.mods.busy.is_some();
-        let native = !native_entries.is_empty()
-            || self.mods.java.is_none()
-                && entries
-                    .iter()
-                    .any(|e| native_status::is_native_file(&e.file));
+        let native = false;
         let instance = self.selected_instance().map(|i| i.name.clone());
         let row = |i: usize| {
-            if i >= entries.len() {
-                return self.native_mod_row(&native_entries[i - entries.len()], busy, cx);
-            }
             let e = entries[i];
             let key = (e.source, e.project.clone());
-            let is_native = self.mods.java.is_none() && native_status::is_native_file(&e.file);
+            let is_native = false;
             let mut right = div().flex().items_center().gap(px(8.));
             if let Some(number) = self.mods.updates.get(&key) {
                 let mut update = button(
@@ -1296,21 +1151,6 @@ impl Launcher {
                             this.mods_switch(&entry);
                             cx.notify();
                         })),
-                );
-            }
-            if is_native {
-                let folder = self.mods.home().join(native_mods::INSTALLED);
-                right = right.child(
-                    button(
-                        SharedString::from(format!("mods-folder-{}", e.project)),
-                        "Open folder",
-                        Kind::Ghost,
-                        &t,
-                    )
-                    .on_click(move |_, _, cx| {
-                        let _ = std::fs::create_dir_all(&folder);
-                        cx.open_with_system(&folder);
-                    }),
                 );
             }
             right = right.child(remove);
@@ -1403,194 +1243,11 @@ impl Launcher {
                         .child(caps(tr("Installed")).text_color(t.muted))
                         .children(update_all),
                 )
-                .children(native.then(|| self.native_build(cx)).flatten())
                 .child(list),
         )
     }
 
-    /// The selected instance's native build (docs/native-mods.md): which build it plays, the
-    /// IndustrialEra it was built on, and whether it holds the native mods turned on (Up to date,
-    /// Needs rebuild, Not built), with Build, and Update when a newer IndustrialEra is installed. Both
-    /// open the trust warning first (`native_warning`). A build under way, or its error, shows
-    /// only on the instance it is for.
-    pub(super) fn native_build(&self, cx: &mut Context<Self>) -> Option<Div> {
-        use native_status::State;
-        let t = self.theme;
-        let instance = self.selected_instance()?;
-        let version = self.version_of(instance).cloned();
-        let home = self.mods.home();
-        let key = native_status::fingerprint(&home, version.as_deref());
-        let mut memo = self.mods.native_state.borrow_mut();
-        let state = match memo.as_ref() {
-            Some((k, state)) if *k == key => *state,
-            _ => {
-                let built = version.as_deref().and_then(native_status::built);
-                let state = native_status::state(&native_status::enabled(&home), built.as_deref());
-                *memo = Some((key, state));
-                state
-            }
-        };
-        let build = version.as_deref().and_then(|v| self.native_build_of(v));
-        let update = build
-            .as_ref()
-            .filter(|_| state != State::NoMods)
-            .and_then(|b| native_mods::newer_than(&b.base, &self.installed));
-        let mine = self.native_for.as_deref() == Some(instance.id.as_str());
-        let step = self.native_step.as_ref().filter(|_| mine);
-        let error = self.native_error.as_ref().filter(|_| mine);
-        let name = [("instance", instance.name.as_str())];
-        let line = |s: String| div().child(s);
-        let (status, badge) = match (step, error, state) {
-            (Some(step), _, _) => (
-                line(format!(
-                    "{step} - {}",
-                    native_mods::duration_label(
-                        self.native_started.map_or(0, |(s, _)| s.elapsed().as_secs())
-                    )
-                ))
-                .text_color(t.accent),
-                Some((tr("Building"), t.accent)),
-            ),
-            (None, Some(e), _) => (line(e.clone()).text_color(t.danger), None),
-            (None, None, State::NoMods) => (line(tr("No native mod is turned on.").into()), None),
-            (None, None, State::NotBuilt) => (
-                line(trf(
-                    "{instance} doesn't play its native mods yet: build the game with them.",
-                    &name,
-                )),
-                Some((tr("Not built"), t.warn)),
-            ),
-            (None, None, State::Outdated) => (
-                line(trf(
-                    "The native mods turned on changed since {instance} was built: build again to play them.",
-                    &name,
-                )),
-                Some((tr("Needs rebuild"), t.warn)),
-            ),
-            (None, None, State::UpToDate) => (
-                line(trf("Up to date: {instance} plays these mods.", &name)),
-                Some((tr("Up to date"), t.success)),
-            ),
-        };
-        let mut detail = div().flex().flex_col().gap(px(4.)).child(status);
-        if let Some(done) = self.native_done.as_ref().filter(|_| mine && step.is_none()) {
-            detail = detail.child(div().text_color(t.muted).child(done.clone()));
-        }
-        if let (Some(tag), Some(build)) = (&version, &build) {
-            detail = detail.child(div().text_color(t.muted).child(trf(
-                "Plays {build}, built on IndustrialEra {version}.",
-                &[("build", tag), ("version", &build.industrial_era())],
-            )));
-        }
-        if self.native_step.is_some() && !mine {
-            let other = self
-                .native_for
-                .as_deref()
-                .and_then(|id| self.instances.list.iter().find(|i| i.id == id));
-            detail = detail.child(div().text_color(t.muted).child(trf(
-                "{instance} is building: one build at a time.",
-                &[("instance", other.map_or("", |i| i.name.as_str()))],
-            )));
-        }
-        let mismatch = self
-            .native_step
-            .is_none()
-            .then_some(self.native_mismatch.as_ref())
-            .flatten();
-        let idle =
-            self.native_step.is_none() && self.native_confirm.is_none() && mismatch.is_none();
-        let can_build =
-            idle && (error.is_some() || matches!(state, State::NotBuilt | State::Outdated));
-        let mut right = div()
-            .flex()
-            .items_center()
-            .gap(px(8.))
-            .children(badge.map(|(label, color)| blocks::badge(label.to_string(), color, &t)));
-        if let Some(newer) = update.filter(|_| idle) {
-            right = right.child(
-                button(
-                    "native-update",
-                    trf(
-                        "Rebuild on IndustrialEra {version}",
-                        &[("version", &native_status::industrial_era_label(&newer))],
-                    ),
-                    Kind::Secondary,
-                    &t,
-                )
-                .on_click(cx.listener(move |this, _: &ClickEvent, _, cx| {
-                    this.native_update = Some(newer.clone());
-                    this.native_confirm = Some(this.native_mods_to_build().map(|(_, b)| b));
-                    cx.notify();
-                })),
-            );
-        }
-        if can_build {
-            right = right.child(button("native-build", "Build", Kind::Primary, &t).on_click(
-                cx.listener(|this, _: &ClickEvent, _, cx| {
-                    this.native_update = None;
-                    this.native_confirm = Some(this.native_mods_to_build().map(|(_, b)| b));
-                    cx.notify();
-                }),
-            ));
-        }
-        let profile = native_mods::Profile::chosen(&self.settings);
-        let picker = segments(
-            "native-profile",
-            &[
-                (native_mods::Profile::Performance, "Performance build"),
-                (native_mods::Profile::Dev, "Dev build"),
-                (native_mods::Profile::Release, "Release build"),
-            ],
-            profile,
-            &t,
-            {
-                let this = cx.entity().downgrade();
-                move |choice, _, cx| {
-                    let _ = this.update(cx, |this, cx| {
-                        this.settings.native_profile = Some(choice);
-                        this.settings.native_release = false;
-                        this.native_done = None;
-                        this.save_settings();
-                        cx.notify();
-                    });
-                }
-            },
-        );
-        let said = match profile {
-            native_mods::Profile::Performance => tr("The everyday build for playing with mods"),
-            native_mods::Profile::Dev => {
-                tr("For developing a mod: about 6× faster to rebuild a mod edit, game logic up to about twice as slow")
-            }
-            native_mods::Profile::Release => {
-                tr("Release build: slower to build, slightly faster game")
-            }
-        };
-        detail = detail.child(
-            div()
-                .flex()
-                .items_center()
-                .gap(px(8.))
-                .child(picker)
-                .child(said),
-        );
-        if let Some(list) = mismatch {
-            detail = detail.child(self.native_mismatch_panel(list, cx));
-        }
-        if let Some(mods) = &self.native_confirm {
-            detail = detail.child(self.native_warning(mods, cx));
-        }
-        Some(index_row(
-            0,
-            trf("Native build of {instance}", &name),
-            Some(detail.into_any_element()),
-            Some(right.into_any_element()),
-            &t,
-        ))
-    }
-
     fn mods_results(&mut self, cx: &mut Context<Self>) -> Div {
-        let t = self.theme;
-        let m = &self.mods;
         if let Some(e) = &m.error {
             return div().child(notice(e.clone(), &t));
         }

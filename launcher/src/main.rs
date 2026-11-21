@@ -44,7 +44,6 @@ mod modpacks_page;
 mod mods_page;
 mod mods_project;
 mod multiplayer_page;
-mod native_log_page;
 mod new_instance;
 mod owner_page;
 mod packs_page;
@@ -81,8 +80,6 @@ use industrial_era_launcher::backend::{self, Job, Msg, Release, Running, Setting
 use industrial_era_launcher::build_import;
 use industrial_era_launcher::i18n::{self, tr, trf};
 use industrial_era_launcher::instances;
-use industrial_era_launcher::native_mods;
-use industrial_era_launcher::native_status;
 use industrial_era_launcher::telemetry;
 use scrollbar::Scrollbar;
 use std::borrow::Cow;
@@ -211,30 +208,6 @@ struct Launcher {
     /// and why the last one failed.
     importing_build: bool,
     import_error: Option<String>,
-    /// Native mods (`native_mods`, on the Mods page): the build's step while it runs, why it
-    /// failed, and the warning before a build while it is open, with the mods it names.
-    native_step: Option<String>,
-    /// When the running native build started, and the whole seconds last drawn (the status shows
-    /// the time it has taken).
-    native_started: Option<(Instant, u64)>,
-    /// How the last native build ended ("Built in 42 s (fast, incremental)", or "Up to date").
-    native_done: Option<String>,
-    native_error: Option<String>,
-    native_confirm: Option<Result<Vec<native_mods::Bundle>, String>>,
-    /// The instance (id) the build under way, or the last one's error, is for.
-    native_for: Option<String>,
-    /// The newer IndustrialEra the open warning's build moves to (Update), else None: a build stays
-    /// on the IndustrialEra the instance plays.
-    native_update: Option<String>,
-    /// What each installed native build was made from, by version. A build's version names its
-    /// contents, so an entry never goes stale.
-    native_builds:
-        std::cell::RefCell<std::collections::HashMap<String, Option<native_status::Build>>>,
-    /// The mods of a build made for other IndustrialEra versions (`native_mods::MISMATCH`): the build
-    /// waits for "Build anyway".
-    native_mismatch: Option<String>,
-    /// The top bar's Build log panel (`native_log_page.rs`).
-    native_log: native_log_page::NativeLog,
     confirm_remove: Option<String>,
     picker_open: bool,
     /// Where the accent picker's hue strip is on screen (`themes_page.rs`), to map a click to a
@@ -370,17 +343,6 @@ struct Launcher {
     play_pressed: Option<Instant>,
     /// `industrial_era-launcher benchmark` started this window to measure it.
     bench: Option<perf::Bench>,
-    /// The Modpacks page: the imported packs (read when the page first opens), the one shown,
-    /// the report's filter, and the pipeline step running now with its log.
-    packs: Vec<industrial_era_launcher::modpacks::Imported>,
-    /// Modpacks installed from IndustrialEra's registry, each its own profile.
-    registry_packs: Vec<industrial_era_launcher::browser::industrial_era::pack::Installed>,
-    packs_loaded: Option<Instant>,
-    pack_open: Option<String>,
-    pack_filter: Option<industrial_era_port_pack::report::Status>,
-    pack_busy: bool,
-    pack_log: VecDeque<String>,
-    pack_error: Option<String>,
     /// The game starting now plays this pack's profile (its work folder).
     starting_pack: Option<std::path::PathBuf>,
     /// The Mods page: the browser's search, installs and updates (`mods_page.rs`).
@@ -517,16 +479,6 @@ impl Launcher {
             install_error: None,
             importing_build: false,
             import_error: None,
-            native_step: None,
-            native_started: None,
-            native_done: None,
-            native_error: None,
-            native_confirm: None,
-            native_for: None,
-            native_update: None,
-            native_builds: Default::default(),
-            native_mismatch: None,
-            native_log: Default::default(),
             confirm_remove: None,
             picker_open: false,
             hue_area: std::rc::Rc::new(std::cell::Cell::new(None)),
@@ -815,74 +767,6 @@ impl Launcher {
     }
 
     /// The native mods turned on in the instance Play starts, unpacked and checked, with their
-    /// bundles: what the warning names and the build compiles.
-    fn native_mods_to_build(
-        &self,
-    ) -> Result<(std::path::PathBuf, Vec<native_mods::Bundle>), String> {
-        let folder = native_mods::installed_mods(&instances::selected().home)?;
-        let found = native_mods::bundles(&folder)?;
-        Ok((folder, found))
-    }
-
-    /// What installed native build `version` was made from (`native_status::Build`), read once.
-    fn native_build_of(&self, version: &str) -> Option<native_status::Build> {
-        if !native_mods::is_native(version) {
-            return None;
-        }
-        self.native_builds
-            .borrow_mut()
-            .entry(version.to_owned())
-            .or_insert_with(|| native_status::Build::read(version))
-            .clone()
-    }
-
-    /// Builds the selected instance's native mods, once the player accepted the warning. The
-    /// build stays on the IndustrialEra the instance plays (`native_mods::base_for`), unless the
-    /// warning was Update's: then it moves to that newer IndustrialEra.
-    /// `anyway`: the player agreed to build mods made for other IndustrialEra versions together.
-    fn build_native(&mut self, anyway: bool) {
-        if self.native_step.is_some() {
-            return;
-        }
-        self.native_confirm = None;
-        self.native_error = None;
-        self.native_mismatch = None;
-        // This attempt's own log, starting empty: an open panel shows it rather than the last
-        // attempt's (`native_log_page`).
-        self.native_log_reset();
-        let instance = instances::selected();
-        self.native_for = Some(instance.id.clone());
-        let plays = self.version_of(&instance).cloned();
-        let base = match self.native_update.take() {
-            Some(newer) => Some(newer),
-            None => native_mods::base_for(plays.as_deref(), &self.installed, false),
-        };
-        let Some(base) = base else {
-            let error = tr("Install IndustrialEra first.").to_string();
-            self.native_log_preflight(&error);
-            self.native_error = Some(error);
-            return;
-        };
-        let folder = match self.native_mods_to_build() {
-            Ok((folder, _)) => folder,
-            Err(e) => {
-                self.native_log_preflight(&e);
-                self.native_error = Some(e);
-                return;
-            }
-        };
-        self.native_step = Some(tr("Starting the build").into());
-        self.native_started = Some((Instant::now(), 0));
-        self.native_done = None;
-        let profile = native_mods::Profile::chosen(&self.settings);
-        let tx = self.tx.clone();
-        std::thread::spawn(move || {
-            let result = native_mods::build(&base, &folder, &instance, anyway, profile, |step| {
-                let _ = tx.send(Msg::NativeProgress(step.label()));
-            });
-            let _ = tx.send(Msg::Native(result));
-        });
-    }
 
     fn fetch_releases(&mut self) {
         self.releases = Load::Loading;
@@ -925,11 +809,11 @@ impl Launcher {
             Some(perf::Step::Quit) => cx.quit(),
             Some(perf::Step::Wait) | None => {}
         }
-        // The running build's clock moves on each second.
-        if let Some((started, shown)) = &mut self.native_started {
-            if started.elapsed().as_secs() != *shown {
-                *shown = started.elapsed().as_secs();
-                changed = true;
+        // Play pressed before the version was prepared plays now.
+        if let Some(tag) = self.play_when_prepared.take() {
+            if error.is_none() && backend::is_prepared(&tag) {
+                self.starting_pack = None;
+                self.start_client(tag);
             }
         }
         while let Ok(msg) = self.rx.try_recv() {
@@ -1046,15 +930,9 @@ impl Launcher {
                         cmd.envs(self.accounts.look_env());
                         // A pack's Play button plays that pack; Play plays the selected instance.
                         let (profile, run) = match self.starting_pack.take() {
-                            Some(work) => {
-                                let id = instances::list()
-                                    .into_iter()
-                                    .find(|i| i.work == work)
-                                    .map(|i| i.id);
-                                let applied = industrial_era_launcher::modpacks::apply_profile(
-                                    &mut cmd, &work,
-                                );
-                                (applied, id)
+                            Some(_) => {
+                                self.starting_pack = None;
+                                (instances::apply(&mut cmd, &instances::selected()), None)
                             }
                             None => {
                                 let instance = instances::selected();
@@ -1179,25 +1057,6 @@ impl Launcher {
                     }
                 }
                 Msg::Updates(Err(e)) => self.update_error = Some(e),
-                Msg::NativeProgress(step) => self.native_step = Some(step),
-                Msg::Native(result) => {
-                    // The last step of a build that worked says how it went.
-                    let last = self.native_step.take();
-                    self.native_started = None;
-                    self.native_done = result.is_ok().then_some(last).flatten();
-                    self.installed = backend::installed();
-                    self.reload_instances();
-                    // A build attempt ended: an open panel reads the log it left.
-                    self.native_log.stale = true;
-                    match result.map_err(|e| match e.strip_prefix(native_mods::MISMATCH) {
-                        Some(list) => Ok(list.to_owned()),
-                        None => Err(e),
-                    }) {
-                        Err(Ok(list)) => self.native_mismatch = Some(list),
-                        Err(Err(e)) => self.native_error = Some(e),
-                        Ok(_) => {}
-                    }
-                }
                 Msg::LauncherProgress(p) => {
                     if let SelfUpdate::Downloading(_, f) = &mut self.self_update {
                         *f = p;
@@ -1331,7 +1190,6 @@ impl Launcher {
         changed |= self.servers_tick();
         changed |= self.mods_tick();
         changed |= self.github_tick();
-        changed |= self.native_log_read(cx);
         if let Some(sign_in) = &self.sign_in {
             if let Some(state) = sign_in_change(&mut self.sign_in_state, sign_in.state()) {
                 if let SignInState::Done(Ok(ref account)) = state {
@@ -2543,15 +2401,6 @@ impl Launcher {
             this.go(Page::Settings);
             cx.notify();
         }));
-        // The last native build's log, when there is one (`native_log_page`).
-        let build_log = self.native_log.available.then(|| {
-            tab_action("topbar-native-log", "Build log", &t).on_click(cx.listener(
-                |this, _: &ClickEvent, _, cx| {
-                    this.native_log_open();
-                    cx.notify();
-                },
-            ))
-        });
         div()
             .flex()
             .flex_none()
@@ -3579,103 +3428,6 @@ impl Launcher {
             .children(self.dev_options_section(cx))
     }
 
-    /// The warning before a native build: what the mods can do and which mods. The build starts
-    /// only from its button.
-    fn native_warning(
-        &self,
-        mods: &Result<Vec<native_mods::Bundle>, String>,
-        cx: &mut Context<Self>,
-    ) -> Div {
-        let t = self.theme;
-        let list = match mods {
-            Ok(found) => found
-                .iter()
-                .map(|b| format!("{} {}", b.id, b.version))
-                .collect::<Vec<_>>()
-                .join(", "),
-            Err(e) => e.clone(),
-        };
-        let panel = div()
-            .flex()
-            .flex_col()
-            .gap(px(6.))
-            .mt(px(8.))
-            .p(px(12.))
-            .bg(t.well)
-            .child(div().text_color(t.danger).child(tr("These mods will run with full access to your computer").to_string()))
-            .child(tr("They can read, change or delete your files, and use your accounts and network, like any program you run. Build them only if you trust their authors: the Mods page names them.").to_string())
-            .child(trf("Mods: {mods}", &[("mods", &list)]))
-            .child(tr("The build compiles the game: 20 to 30 minutes and a few GB of disk the first time (it downloads Rust), a few minutes after that.").to_string())
-            .children(self.native_update.as_ref().map(|newer| {
-                div().text_color(t.warn).child(trf(
-                    "This moves the instance to IndustrialEra {version}. It compiles the game from scratch, so it takes longer than a normal rebuild: up to 30 minutes.",
-                    &[("version", &native_status::industrial_era_label(newer))],
-                ))
-            }));
-        let mut buttons = div().flex().gap(px(8.)).mt(px(4.));
-        if mods.is_ok() {
-            buttons = buttons.child(
-                button(
-                    "native-trust",
-                    "I trust these mods: build",
-                    Kind::Primary,
-                    &t,
-                )
-                .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                    this.build_native(false);
-                    cx.notify();
-                })),
-            );
-        }
-        panel.child(buttons.child(
-            button("native-cancel", "Cancel", Kind::Secondary, &t).on_click(cx.listener(
-                |this, _: &ClickEvent, _, cx| {
-                    this.native_confirm = None;
-                    this.native_update = None;
-                    cx.notify();
-                },
-            )),
-        ))
-    }
-
-    /// Mods made for other IndustrialEra versions: which, and the version the build uses. They often
-    /// still work, so the player may build anyway.
-    fn native_mismatch_panel(&self, list: &str, cx: &mut Context<Self>) -> Div {
-        let t = self.theme;
-        div()
-            .flex()
-            .flex_col()
-            .gap(px(6.))
-            .mt(px(8.))
-            .p(px(12.))
-            .bg(t.well)
-            .child(div().text_color(t.danger).child(tr("These mods were made for different IndustrialEra versions").to_string()))
-            .child(list.to_owned())
-            .child(tr("They often still work together. If the build fails, install versions made for the same Nightly.").to_string())
-            .child(
-                div()
-                    .flex()
-                    .gap(px(8.))
-                    .mt(px(4.))
-                    .child(
-                        button("native-anyway", "Build anyway", Kind::Primary, &t).on_click(
-                            cx.listener(|this, _: &ClickEvent, _, cx| {
-                                this.build_native(true);
-                                cx.notify();
-                            }),
-                        ),
-                    )
-                    .child(
-                        button("native-mismatch-cancel", "Cancel", Kind::Secondary, &t).on_click(
-                            cx.listener(|this, _: &ClickEvent, _, cx| {
-                                this.native_mismatch = None;
-                                cx.notify();
-                            }),
-                        ),
-                    ),
-            )
-    }
-
     /// Settings' Game arguments row: the extra arguments the game starts with, kept in
     /// `settings.json` and appended to the launcher's own (quotes group a word with spaces).
     fn game_args_row(&self, n: usize, cx: &mut Context<Self>) -> Div {
@@ -4157,9 +3909,6 @@ impl Launcher {
         let t = self.theme;
         let selected = self.selected().map(String::as_str) == Some(tag);
         let mut meta = Vec::new();
-        if let Some(about) = native_mods::about(tag) {
-            meta.push(trf("Built on {base}", &[("base", &about.base)]));
-        }
         if let Some(about) = build_import::about(tag) {
             let base = industrial_era_launcher::nightly::label(&about.base).unwrap_or(about.base);
             meta.push(trf("Game files from {base}", &[("base", &base)]));
@@ -4321,13 +4070,6 @@ impl Launcher {
             .children(self.import_error.clone().map(|e| notice(e, &t)));
         // Builds made here, not downloaded, are listed apart from the releases.
         let page = page
-            .children(self.local_builds(
-                "Native mod builds",
-                native_mods::is_native,
-                None,
-                &on_disk,
-                cx,
-            ))
             .children(self.local_builds(
                 "Imported builds",
                 build_import::is_imported,
@@ -4761,7 +4503,6 @@ impl Render for Launcher {
                             window.focus_next(cx);
                         }
                     }
-                    "escape" if this.native_log_escape() => {}
                     "escape" if this.servers_escape() => {}
                     "escape" if this.instance_escape() => {}
                     "escape" if this.screenshot_escape() => {}
@@ -4840,9 +4581,6 @@ impl Render for Launcher {
         root = root.children(self.import_note(cx));
         if let Some(dialog) = self.instance_dialog(cx) {
             root = root.child(dialog);
-        }
-        if let Some(panel) = self.native_log_panel(cx) {
-            root = root.child(panel);
         }
         if self.page == Page::Play {
             if let Some(viewer) = self.screenshot_viewer(cx) {

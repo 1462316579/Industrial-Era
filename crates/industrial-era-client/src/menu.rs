@@ -458,15 +458,18 @@ fn tidy(slot: &mut Option<ItemStack>) {
 /// click, drag and shift-click that puts an item in a slot, several times for
 /// one shift-click: answer from `stack` alone, and fast. API
 /// 130.
+/// No mod hooks remain after native mods were removed.
 #[inline(always)]
 pub fn native_menu_slot_rules(
-    menu: &str,
-    slot: usize,
-    stack: &ItemStack,
+    _menu: &str,
+    _slot: usize,
+    _stack: &ItemStack,
     may_place: &mut bool,
     max_stack: &mut u32,
 ) {
-    crate::native_client_hooks::menu_slot_rules(menu, slot, stack, may_place, max_stack);
+    // No mod slot rules: keep vanilla answers.
+    let _ = max_stack;
+    let _ = may_place;
 }
 
 /// An index outside the slot list: vanilla's `IndexOutOfBoundsException`.
@@ -3560,36 +3563,6 @@ pub(crate) mod tests {
             chest.click(env, 0, 0, Input::QuickMove).unwrap();
             assert!(chest.equipped.is_empty());
         });
-    }
-
-    #[test]
-    fn installed_slot_rules_change_mod_menu_placement() {
-        let installed =
-            crate::native_client_hooks::install(crate::native_client_hooks::NativeClientHooks {
-                menu_slot_rules: |menu, slot, _, may_place, max_stack| {
-                    if menu == "test:rules" && slot == 0 {
-                        *may_place = false;
-                        *max_stack = 7;
-                    }
-                },
-                living_heal: |_, _, _| {},
-                living_breathe: |_, _, _, _, _| {},
-                living_drown: |_, _, _, _, _, _| {},
-                living_fall: |_, _, _, _, _| {},
-                living_jump: |_, _| {},
-                ingredient: |_, _, _| {},
-                ingredient_test: |_, _, _, _| {},
-            });
-        assert!(installed.is_ok());
-        let kind = Kind::Mod(Box::leak(Box::new(crate::containers::ModMenuType {
-            id: "test:rules",
-            slots: 1,
-            data_slots: 0,
-            results: vec![],
-        })));
-        let menu = Menu::new(kind);
-        let stack = ItemStack::new("minecraft:stone", 1);
-        assert_eq!(menu.mod_slot(0, &stack), (false, 7));
     }
 
     /// A cancelled `AnvilCraftEvent.Pre` refuses the take: the result sits in

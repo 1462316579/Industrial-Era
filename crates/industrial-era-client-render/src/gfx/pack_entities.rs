@@ -483,7 +483,7 @@ mod tests {
     }
 
     #[test]
-    fn runs_split_the_list_between_pack_and_horizon() {
+    fn runs_split_the_list_between_pack_and_industrial_era() {
         let v = |layer| Vertex {
             layer,
             ..bytemuck::Zeroable::zeroed()

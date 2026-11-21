@@ -29,30 +29,12 @@ pub struct Breath {
 /// Asked on servers for players and for mobs, except those with a
 /// `WaterAnimal`'s or an axolotl's own air logic. API 144.
 #[inline(never)]
-pub fn native_living_breathe(
-    entity: u32,
-    kind: &str,
-    can_breathe: &mut bool,
-    consume: &mut i32,
-    refill: &mut i32,
-) {
-    crate::native_client_hooks::living_breathe(entity, kind, can_breathe, consume, refill);
-}
-
-/// `vanilla`'s breathing after the mods have had their say.
-pub fn breathe(entity: u32, kind: &str, vanilla: Breath) -> Breath {
-    let mut now = vanilla;
-    native_living_breathe(
-        entity,
-        kind,
-        &mut now.can_breathe,
-        &mut now.consume,
-        &mut now.refill,
-    );
+/// `vanilla`'s breathing: no mod hooks remain after native mods were removed.
+pub fn breathe(_entity: u32, _kind: &str, vanilla: Breath) -> Breath {
     Breath {
-        can_breathe: now.can_breathe,
-        consume: now.consume.max(0),
-        refill: now.refill.max(0),
+        can_breathe: vanilla.can_breathe,
+        consume: vanilla.consume.max(0),
+        refill: vanilla.refill.max(0),
     }
 }
 
@@ -63,21 +45,16 @@ pub fn breathe(entity: u32, kind: &str, vanilla: Breath) -> Breath {
 /// servers, for the entities `native_living_breathe` is. API 356.
 #[inline(never)]
 pub fn native_living_drown(
-    entity: u32,
-    kind: &str,
+    _entity: u32,
+    _kind: &str,
     is_drowning: &mut bool,
     damage_amount: &mut f32,
     bubble_count: i32,
     cancel: &mut bool,
 ) {
-    crate::native_client_hooks::living_drown(
-        entity,
-        kind,
-        is_drowning,
-        damage_amount,
-        bubble_count,
-        cancel,
-    );
+    // Native mods removed: never cancel drowning.
+    *cancel = false;
+    let _ = (is_drowning, damage_amount, bubble_count);
 }
 
 /// A drowning tick as the mods left it.

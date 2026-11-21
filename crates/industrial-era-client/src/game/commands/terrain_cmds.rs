@@ -282,9 +282,7 @@ impl Game<'_> {
         if remaining > 0
             && self.border.remaining_ticks() == 0
             && (self.serving.is_some() || self.options.dedicated.is_some())
-        {
-            self.native_world_border_bounds_change_finish();
-        }
+        {}
         self.player_border();
         self.border_damage();
     }
@@ -373,7 +371,6 @@ impl Game<'_> {
                         &[shown],
                     ));
                 }
-                self.native_world_border_bounds_changed();
                 Ok((distance - current) as i32)
             }
             "worldborder.center" => {
@@ -391,7 +388,6 @@ impl Game<'_> {
                     ));
                 }
                 self.border.set_center([x, z]);
-                self.native_world_border_center_changed();
                 self.feedback(Text::translate(
                     "commands.worldborder.center.success",
                     &[Text::literal(float2(x)), Text::literal(float2(z))],

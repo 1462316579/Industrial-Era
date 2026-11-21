@@ -1489,7 +1489,6 @@ fn with_diagnostics<const N: usize>(
 /// draws its own (`pack_screen`).
 fn catalog_shelf(page: Page) -> Option<CatalogShelf> {
     match page {
-        Page::Mods => Some(CatalogShelf::Mods),
         Page::ShaderPacks => Some(CatalogShelf::ShaderPacks),
         _ => None,
     }
@@ -1509,9 +1508,6 @@ fn graphics_api_tooltip(s: &Settings) -> Text {
     }
     Text::literal(lines.join("\n"))
 }
-
-/// `selected_key` while a native mod's key waits (`selected_native_key`).
-const NATIVE_KEY: &str = "industrial-era.nativeModKey";
 
 /// Which long list a custom button's page opened.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -1735,9 +1731,6 @@ pub enum Page {
     Language,
     Font,
     Packs,
-    Mods,
-    /// A native mod's settings page: its index in `mods.installed`.
-    NativeMod(usize),
     /// Industrial Era's shader packs, either kind (`shader_pack_list`): one on or none, and a
     /// `shaders/` pack's profile.
     ShaderPacks,
@@ -1801,7 +1794,6 @@ enum Act {
     PadKey(&'static str),
     ResetPadKey(&'static str),
     ResetPadKeys,
-    ToggleMod(usize),
     /// Pick `s.shader_packs[i]`, or turn it off when it is the pick (None: Off).
     PickShaderPack(Option<usize>),
     /// The next profile of the chosen pack, on the Shader Packs page.
@@ -1823,7 +1815,6 @@ enum Act {
     CustomInput(u32, &'static str),
     /// A native mod's key (the mod's index in the installed list, the key's in its page) as the
     /// button's keyboard key: the key the player has set for it now.
-    CustomModKey(u32, usize, usize),
     CustomIcon(u32, Option<&'static str>),
     /// Its own image, and what the drawing page does to the canvas.
     CustomDraw(u32),
@@ -1844,13 +1835,6 @@ enum Act {
     ShaderScreen(String),
     ShaderProfile,
     ShaderReset,
-    /// The installed native mod's settings page.
-    ModSettings(usize),
-    /// A native mod's key (mod, key) waits for a key; a button of its page.
-    NativeKey(usize, usize),
-    NativeButton(usize, usize),
-    /// A button of the Mods page's game with native mods.
-    NativeGame(crate::mod_list::NativeGameAct),
     OpenModFolder,
     OpenCatalog(CatalogShelf),
     /// The creative screen with the inventory beside it, or as the game draws it.
@@ -2004,27 +1988,16 @@ pub enum Event {
     ListShaderPacks,
     /// The Mods page opened: the native mods folder read again, for a mod copied in meanwhile.
     ListMods,
-    /// Installed mod `.0` was turned on or off (after `Changed`, which saved it).
-    ModToggled(usize),
-    /// Android: a button of the Mods page's game with native mods (`ModList::native_game`).
-    NativeGame(crate::mod_list::NativeGameAct),
     /// A shader pack or its profile was picked, or the pack turned off: save and apply it.
     ShaderPack,
+    /// The Shader Packs page's pack options changed: re-render the pack's options page.
+    NativePackOptions(usize),
     /// The Shader Packs page's folder (on a phone without the Starling folder, its offer).
     OpenShaderPackFolder,
     /// The Shader Options page opened: read the picked pack's options into `shader_options`.
     OpenShaderOptions,
     /// The Shader Options page closed with changes: save them and load the pack again.
     ShaderOptions,
-    /// The options of `shader_packs[.0]`, a Industrial Era pack, changed: save them (the pack reloads
-    /// with them).
-    NativePackOptions(usize),
-    /// Native mod `.0`'s page opened: the game asks the mod for its labels
-    /// again (they were made with the list, maybe in another language).
-    NativeSettings(usize),
-    /// Button `.1` of native mod `.0`'s page was pressed: the game tells the
-    /// mod and refreshes the page.
-    NativeButton(usize, usize),
     /// Close the options and edit the touch controls' layout over the world.
     TouchLayout,
     /// The Custom Buttons page opened: `Settings::custom_buttons` takes what the layout has.
@@ -2119,11 +2092,8 @@ pub struct OptionsUi {
     slider_value: Option<(Opt, f32, Instant)>,
     /// The pointer's last y while a scrollbar is held.
     pub(crate) scrollbar_drag_y: Option<f32>,
-    /// Key Binds: the mapping waiting for a key ([`NATIVE_KEY`]: a native
-    /// mod's, `selected_native_key`).
+    /// Key Binds: the mapping waiting for a key.
     pub selected_key: Option<&'static str>,
-    /// The native mod's key waiting: (mod, key) in `mods.installed`.
-    selected_native_key: Option<(usize, usize)>,
     /// Controller Binds: the action waiting for a pad button.
     pub selected_pad_action: Option<&'static str>,
     /// The glyphs the binds list shows (the setting, else the pad's family).
@@ -2264,7 +2234,6 @@ impl Default for OptionsUi {
             slider_value: None,
             scrollbar_drag_y: None,
             selected_key: None,
-            selected_native_key: None,
             selected_pad_action: None,
             pad_style: GlyphStyle::Xbox,
             languages: Vec::new(),
@@ -2311,61 +2280,6 @@ impl Default for OptionsUi {
             skin: SkinPage::default(),
         }
     }
-}
-/// The longest line of a Mods page note, in characters: about a button's width.
-const NOTE_CHARS: usize = 52;
-
-/// `text` in lines of at most `max` characters, broken between words.
-fn wrap_words(text: &str, max: usize) -> Vec<String> {
-    let mut lines = Vec::new();
-    let mut line = String::new();
-    for word in text.split_whitespace() {
-        if !line.is_empty() && line.chars().count() + 1 + word.chars().count() > max {
-            lines.push(std::mem::take(&mut line));
-        }
-        if !line.is_empty() {
-            line.push(' ');
-        }
-        line.push_str(word);
-    }
-    if !line.is_empty() {
-        lines.push(line);
-    }
-    lines
-}
-
-/// Android: the Mods page's game with native mods (`ModList::native_game`): its lines, cut to the
-/// list's width, its buttons two to a row, and a gap before the mods.
-fn native_game_rows(s: &Settings) -> Vec<Row> {
-    let Some(game) = &s.mods.native_game else {
-        return Vec::new();
-    };
-    let mut rows = Vec::new();
-    for (text, warning) in &game.lines {
-        for line in wrap_words(text, NOTE_CHARS) {
-            rows.push(if *warning {
-                Row::Warning(line)
-            } else {
-                Row::Note(line)
-            });
-        }
-    }
-    let widget = |(label, act): &(String, crate::mod_list::NativeGameAct), w: f32| {
-        button(
-            0.0,
-            0.0,
-            w,
-            Text::literal(label.clone()),
-            Act::NativeGame(*act),
-        )
-    };
-    for pair in game.buttons.chunks(2) {
-        rows.push(match pair {
-            [a, b] => Row::Buttons(widget(a, 150.0), Some(widget(b, 150.0))),
-            _ => Row::Buttons(widget(&pair[0], 310.0), None),
-        });
-    }
-    rows
 }
 
 fn button(x: f32, y: f32, w: f32, label: Text, act: Act) -> Widget {
@@ -2428,7 +2342,6 @@ fn industrial_era_page_tooltip(page: Page) -> Option<&'static str> {
         Page::Agent => "industrial-era.pages.agent.tooltip",
         Page::SplitProfiles => "industrial-era.pages.split_profiles.tooltip",
         Page::ShaderPacks => "industrial-era.pages.shader_packs.tooltip",
-        Page::Mods => "industrial-era.pages.mods.tooltip",
         Page::SplitSetup => "industrial-era.pages.split_setup.tooltip",
         Page::Music => "industrial-era.pages.music.tooltip",
         _ => return None,
@@ -2630,17 +2543,6 @@ fn tooltip_text(s: &Settings, wd: &Widget) -> Option<Text> {
     }
     match act {
         Act::Cycle(opt) if !opt.available() => Some(tr("industrial-era.options.unavailable")),
-        Act::ToggleMod(i) => match s.mods.installed.get(*i) {
-            Some(installed) => {
-                let description = match installed.problem.as_deref() {
-                    Some(crate::mod_list::NOT_BUILT) => lang::get(crate::mod_list::NOT_BUILT_TIP),
-                    Some(problem) => problem.to_owned(),
-                    None => installed.description.clone(),
-                };
-                Some(Text::literal(format!("{}\n{description}", installed.title)))
-            }
-            None => tip,
-        },
         Act::Key(name) => {
             let conflicts = s.keys.conflicts(name);
             if conflicts.is_empty() {
@@ -3227,8 +3129,6 @@ impl OptionsUi {
             Page::Language => "options.language.title",
             Page::Font => "options.font.title",
             Page::Packs => "resourcePack.title",
-            Page::Mods => "industrial-era.pages.mods",
-            Page::NativeMod(_) => "Mod Settings",
             Page::ShaderPacks => "industrial-era.pages.shader_packs",
             Page::ShaderOptions | Page::NativePackOptions(..) => {
                 "industrial-era.pages.shader_options"
@@ -3297,43 +3197,6 @@ impl OptionsUi {
             }
         }
         filtered
-    }
-
-    /// A native mod's page: its name, its keys as Key Binds rows (the
-    /// player's choice, else the default), then its buttons.
-    fn native_rows(&self, s: &Settings, i: usize) -> Vec<Row> {
-        let Some(m) = s.mods.installed.get(i) else {
-            return Vec::new();
-        };
-        let mut rows = vec![Row::Note(m.title.clone())];
-        let Some(page) = &m.native else {
-            return rows;
-        };
-        let chosen = s.mods.keys.get(&m.id);
-        for (k, [name, label, default]) in page.keys.iter().enumerate() {
-            let key = chosen.and_then(|c| c.get(name)).unwrap_or(default);
-            let mut message = keybinds::display_name(key);
-            if self.selected_native_key == Some((i, k)) {
-                message = Text::literal("> ")
-                    .append(message.with_color(text::WHITE))
-                    .append(" <")
-                    .with_color(text::YELLOW);
-            }
-            let caption = button(0.0, 0.0, 150.0, Text::literal(label.clone()), Act::None);
-            let change = button(0.0, 0.0, 150.0, message, Act::NativeKey(i, k));
-            rows.push(Row::Buttons(inactive(caption), Some(change)));
-        }
-        for (b, label) in page.buttons.iter().enumerate() {
-            let widget = button(
-                0.0,
-                0.0,
-                310.0,
-                Text::literal(label.clone()),
-                Act::NativeButton(i, b),
-            );
-            rows.push(Row::Buttons(widget, None));
-        }
-        rows
     }
 
     fn list_rows(&self, s: &Settings) -> Vec<Row> {
@@ -3454,7 +3317,6 @@ impl OptionsUi {
                     ),
                     Row::Buttons(
                         open("industrial-era.pages.open.extras", Page::Extras),
-                        Some(open("industrial-era.pages.open.mods", Page::Mods)),
                     ),
                     Row::Buttons(
                         open(
@@ -4008,71 +3870,6 @@ impl OptionsUi {
                 rows
             }
             Page::Font => pairs(&[Opt::ForceUnicode, Opt::JapaneseGlyphs]),
-            Page::Mods => {
-                // Android: which game runs, above the mods.
-                let mut rows = native_game_rows(s);
-                if s.mods.installed.is_empty() {
-                    rows.push(Row::Header("industrial-era.mods.empty"));
-                    return rows;
-                }
-                let mods = s.mods.installed.iter().enumerate().map(|(i, installed)| {
-                    let on = s.mods.is_on(i);
-                    let not_built =
-                        installed.problem.as_deref() == Some(crate::mod_list::NOT_BUILT);
-                    // Android: a native mod is chosen for the next build (the page's top Compile),
-                    // so its row is a box ticked or not; one chosen and not in this game says so
-                    // beside it.
-                    let compiled_here = not_built && installed.native.is_some();
-                    let chosen_box = installed.native.is_some() && !installed.id.is_empty();
-                    let mut label = if chosen_box {
-                        let tick = if on { '\u{2611}' } else { '\u{2610}' };
-                        Text::literal(format!("{tick} {}", installed.title))
-                    } else {
-                        Text::literal(format!("{}: ", installed.title)).append(on_off(on))
-                    };
-                    if not_built {
-                        if !compiled_here {
-                            label = label.append(tr("industrial-era.mods.not_built"));
-                        }
-                    } else if installed.problem.is_some() {
-                        label = label.append(tr("industrial-era.mods.stopped"));
-                    } else if installed.dev {
-                        label = label.append(tr("industrial-era.mods.dev"));
-                    }
-                    let dead = installed.dev || installed.id.is_empty();
-                    // Beside it: a warning, as Java's, for a native mod chosen and not in this
-                    // game (nothing to press: Compile is the page's), Settings for one in it that
-                    // has settings.
-                    let side = if compiled_here {
-                        on.then(|| {
-                            let warning = Text::literal(format!(
-                                "\u{a7}e\u{26a0} {}",
-                                lang::get("starling.mods.native.not_compiled")
-                            ));
-                            inactive(button(0.0, 0.0, 150.0, warning, Act::NativeButton(i, 0)))
-                        })
-                    } else {
-                        installed
-                            .native
-                            .as_ref()
-                            .is_some_and(|page| !page.keys.is_empty() || !page.buttons.is_empty())
-                            .then(|| {
-                                let settings = tr("industrial-era.mods.settings");
-                                button(0.0, 0.0, 150.0, settings, Act::ModSettings(i))
-                            })
-                    };
-                    if let Some(side) = side {
-                        let toggle = button(0.0, 0.0, 150.0, label, Act::ToggleMod(i));
-                        Row::Buttons(if dead { inactive(toggle) } else { toggle }, Some(side))
-                    } else {
-                        let widget = button(0.0, 0.0, 310.0, label, Act::ToggleMod(i));
-                        Row::Buttons(if dead { inactive(widget) } else { widget }, None)
-                    }
-                });
-                rows.extend(mods);
-                rows
-            }
-            Page::NativeMod(i) => self.native_rows(s, i),
             Page::ShaderPacks => {
                 use crate::shader_pack_list::Kind as PackKind;
                 let choice = s.industrial_era.shader_choice();
@@ -4124,7 +3921,7 @@ impl OptionsUi {
                         .iter()
                         .position(|p| p.file == *pack && p.kind == PackKind::IndustrialEra);
                     if let Some(i) =
-                        industrial - era.filter(|&i| !s.shader_packs[i].options.is_empty())
+                        industrial_era.filter(|&i| !s.shader_packs[i].options.is_empty())
                     {
                         let label = tr("industrial-era.shader_options.open");
                         let act = Act::NativePackOptions(i);
@@ -4168,7 +3965,7 @@ impl OptionsUi {
                         PackKind::IndustrialEra => format!(
                             "{}{}",
                             pack.title,
-                            lang::get("industrial-era.shader_packs.kind_horizon")
+                            lang::get("industrial-era.shader_packs.kind_industrial_era")
                         ),
                         PackKind::Classic => pack.title.clone(),
                     };
@@ -4295,7 +4092,7 @@ impl OptionsUi {
                     ca.cmp(&cb)
                         .then_with(|| lang::get(a.0).cmp(&lang::get(b.0)))
                 });
-                let mut rows: Vec<Row> = mappings
+                let rows: Vec<Row> = mappings
                     .into_iter()
                     .map(|(name, _)| {
                         let label = Text::literal(lang::get(name));
@@ -4305,19 +4102,6 @@ impl OptionsUi {
                         )
                     })
                     .collect();
-                // The keys native mods register, after the game's own.
-                for (i, m) in s.mods.installed.iter().enumerate() {
-                    let Some(page) = &m.native else {
-                        continue;
-                    };
-                    for (k, [_, label, _]) in page.keys.iter().enumerate() {
-                        let label = Text::literal(format!("{}: {label}", m.title));
-                        rows.push(Row::Buttons(
-                            button(0.0, 0.0, 310.0, label, Act::CustomModKey(id, i, k)),
-                            None,
-                        ));
-                    }
-                }
                 rows
             }
             Page::CustomPick(id, CustomPick::Keyboard) => keybinds::keyboard_keys()
@@ -4488,7 +4272,6 @@ impl OptionsUi {
                         "industrial-era.pages.open.industrial_era_settings",
                         Some(Page::IndustrialEra),
                     ),
-                    ("industrial-era.pages.open.mods", Some(Page::Mods)),
                     ("options.credits_and_attribution", Some(Page::Credits)),
                 ];
                 let entries = with_diagnostics(entries);
@@ -5110,7 +4893,6 @@ impl OptionsUi {
                 content = y + self.scroll - top + 2.0;
                 out[list_start..].iter_mut().for_each(|w| w.list = true);
                 let folder = match page {
-                    Page::Mods => Some(("industrial-era.mods.open_folder", Act::OpenModFolder)),
                     Page::ShaderPacks => Some(("pack.openFolder", Act::OpenShaderPackFolder)),
                     Page::ShaderOptions => Some(("controls.reset", Act::ShaderReset)),
                     Page::NativePackOptions(i, _) => {
@@ -5966,9 +5748,6 @@ impl OptionsUi {
                                 events.push(Event::ListShaderPacks);
                                 self.refresh_shader_profiles(s);
                             }
-                            if p == Page::Mods {
-                                events.push(Event::ListMods);
-                            }
                             if p == Page::Music {
                                 events.push(Event::ListMusicTracks);
                             }
@@ -6072,17 +5851,6 @@ impl OptionsUi {
                             events.push(Event::Changed);
                             events.push(Event::ModToggled(i));
                         }
-                        Act::ModSettings(i) => {
-                            events.push(Event::ButtonClick);
-                            self.push(Page::NativeMod(i));
-                            events.push(Event::NativeSettings(i));
-                        }
-                        Act::NativeKey(i, k) => {
-                            self.selected_key = Some(NATIVE_KEY);
-                            self.selected_native_key = Some((i, k));
-                        }
-                        Act::NativeButton(i, b) => events.push(Event::NativeButton(i, b)),
-                        Act::NativeGame(act) => events.push(Event::NativeGame(act)),
                         Act::OpenModFolder => events.push(Event::OpenModFolder),
                         Act::OpenCatalog(shelf) => events.push(Event::OpenCatalog(shelf)),
                         Act::OpenShaderPackFolder => events.push(Event::OpenShaderPackFolder),
@@ -6144,21 +5912,6 @@ impl OptionsUi {
                         Act::CustomInput(id, name) => {
                             if let Some(b) = s.custom_buttons.iter_mut().find(|b| b.id == id) {
                                 b.action = crate::settings::CustomAction::Input(name.to_owned());
-                            }
-                            self.custom_send.set_value("");
-                            self.custom_send.focused = false;
-                            events.extend(self.back(s));
-                        }
-                        Act::CustomModKey(id, i, k) => {
-                            let key = s.mods.installed.get(i).and_then(|m| {
-                                let [name, _, default] = m.native.as_ref()?.keys.get(k)?;
-                                let chosen = s.mods.keys.get(&m.id).and_then(|c| c.get(name));
-                                Some(chosen.unwrap_or(default).clone())
-                            });
-                            if let Some(key) = key
-                                && let Some(b) = s.custom_buttons.iter_mut().find(|b| b.id == id)
-                            {
-                                b.action = crate::settings::CustomAction::Input(key);
                             }
                             self.custom_send.set_value("");
                             self.custom_send.focused = false;
@@ -6841,25 +6594,12 @@ impl OptionsUi {
             s.keypad.set(name, value);
             return vec![Event::Changed];
         }
-        if name == NATIVE_KEY {
-            let (i, k) = self.selected_native_key.take().unwrap_or_default();
-            let Some(m) = s.mods.installed.get(i) else {
-                return Vec::new();
-            };
-            let Some([key, ..]) = m.native.as_ref().and_then(|p| p.keys.get(k)) else {
-                return Vec::new();
-            };
-            let keys = s.mods.keys.entry(m.id.clone()).or_default();
-            keys.insert(key.clone(), value);
-            return vec![Event::Changed];
-        }
         if !s.extras.set_key(name, value.clone()) && !s.industrial_era.set_key(name, value.clone())
         {
             s.keys.set(name, &value);
         }
         vec![Event::Changed]
     }
-    /// Mouse bindings use the same settings and persistence as keyboard bindings.
     pub fn bind_mouse(
         &mut self,
         s: &mut Settings,
@@ -7285,19 +7025,6 @@ impl OptionsUi {
                             events.push(Event::Changed);
                             events.push(Event::ModToggled(i));
                         }
-                        Act::ModSettings(i) => {
-                            self.focus = None;
-                            self.focus_from_keyboard = false;
-                            self.can_change_value = false;
-                            self.push(Page::NativeMod(i));
-                            events.push(Event::NativeSettings(i));
-                        }
-                        Act::NativeKey(i, k) => {
-                            self.selected_key = Some(NATIVE_KEY);
-                            self.selected_native_key = Some((i, k));
-                        }
-                        Act::NativeButton(i, b) => events.push(Event::NativeButton(i, b)),
-                        Act::NativeGame(act) => events.push(Event::NativeGame(act)),
                         Act::OpenModFolder => events.push(Event::OpenModFolder),
                         Act::OpenCatalog(shelf) => events.push(Event::OpenCatalog(shelf)),
                         Act::PickShaderPack(i) => {
@@ -7388,7 +7115,6 @@ impl OptionsUi {
                         | Act::CustomDelete(_)
                         | Act::CustomKey(..)
                         | Act::CustomInput(..)
-                        | Act::CustomModKey(..)
                         | Act::CustomIcon(..)
                         | Act::CustomDraw(_)
                         | Act::CustomToggle(_)
@@ -8009,338 +7735,27 @@ mod tests {
     }
 
     #[test]
-    fn opening_a_native_mods_page_asks_the_game_for_its_labels_again() {
+    fn mods_page_shows_installed_mod_rows() {
         let atlas = atlas();
         let mut s = Settings::default();
         let mut ui = OptionsUi::default();
         let size = (480.0, 240.0);
-        s.mods.installed.push(crate::mod_list::Installed {
-            id: "native".into(),
-            title: "Native 1.0".into(),
-            description: String::new(),
-            problem: None,
-            dev: false,
-            native: Some(crate::mod_list::NativePage {
-                buttons: vec!["Setting".into()],
-                ..Default::default()
-            }),
-        });
-        ui.show(Page::Mods);
-        let (widgets, ..) = ui.layout(&s, size.0, size.1);
-        let settings = widgets
-            .iter()
-            .find(|w| {
-                matches!(
-                    w.kind,
-                    WKind::Button {
-                        act: Act::ModSettings(0),
-                        ..
-                    }
-                )
-            })
-            .expect("a native mod's row has a Settings button");
-        let events = ui.click(
-            &mut s,
-            &atlas,
-            settings.x + 1.0,
-            settings.y + 1.0,
-            size,
-            [480, 240],
-            false,
-            false,
-        );
-        // Its labels were made with the list, maybe in another language.
-        assert_eq!(events.last(), Some(&Event::NativeSettings(0)));
-        assert_eq!(ui.page(), Page::NativeMod(0));
-    }
-
-    #[test]
-    fn native_mod_without_settings_has_only_a_full_width_toggle() {
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let mut ui = OptionsUi::default();
-        s.mods.installed.push(crate::mod_list::Installed {
-            id: "no_settings".into(),
-            title: "Native 1.0".into(),
-            description: String::new(),
-            problem: None,
-            dev: false,
-            native: Some(crate::mod_list::NativePage::default()),
-        });
-        ui.show(Page::Mods);
-        let (widgets, ..) = ui.layout(&s, 480.0, 240.0);
-        assert!(!widgets.iter().any(|w| matches!(
-            w.kind,
-            WKind::Button {
-                act: Act::ModSettings(_),
-                ..
-            }
-        )));
-        let toggle = widgets
-            .iter()
-            .find(|w| {
-                matches!(
-                    w.kind,
-                    WKind::Button {
-                        act: Act::ToggleMod(0),
-                        ..
-                    }
-                )
-            })
-            .unwrap();
-        assert_eq!(toggle.w, 310.0);
-        let events = ui.click(
-            &mut s,
-            &atlas,
-            toggle.x + 1.0,
-            toggle.y + 1.0,
-            (480.0, 240.0),
-            [480, 240],
-            false,
-            false,
-        );
-        assert!(events.contains(&Event::Changed));
-        // The game hears which: a native mod changes the next start's build.
-        assert!(events.contains(&Event::ModToggled(0)));
-        assert!(!s.mods.is_on(0));
-        assert!(s.mods.disabled.contains("no_settings"));
-    }
-
-    #[test]
-    fn the_mods_page_says_which_game_runs_above_the_mods_and_its_buttons_act() {
-        use crate::mod_list::{NativeGame, NativeGameAct};
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let mut ui = OptionsUi::default();
-        let size = (480.0, 400.0);
-        let now = "Now: Starling 0.8.0 from the APK, without native mods.";
-        let old = "The build with Wrench was made for an earlier install of Starling, so it no \
-                   longer loads. Compile again.";
-        s.mods.native_game = Some(NativeGame {
-            lines: vec![(now.into(), false), (old.into(), true)],
-            buttons: vec![
-                ("Compile".into(), NativeGameAct::Compile),
-                ("Use GitHub (slower)".into(), NativeGameAct::CompileOnGithub),
-                (
-                    "Play without native mods".into(),
-                    NativeGameAct::PlayWithout,
-                ),
-            ],
-        });
-        s.mods.installed.push(crate::mod_list::Installed {
-            id: "wrench".into(),
-            title: "Wrench 0.1.0".into(),
-            description: String::new(),
-            problem: Some(crate::mod_list::NOT_BUILT.into()),
-            dev: false,
-            native: Some(crate::mod_list::NativePage::default()),
-        });
-        ui.show(Page::Mods);
-        let (widgets, ..) = ui.layout(&s, size.0, size.1);
-        // Each line in pieces that fit a button's width, red for the build that no longer loads.
-        let lines = |color: u32| -> Vec<String> {
-            widgets
-                .iter()
-                .filter_map(|w| match &w.kind {
-                    WKind::Text { text, color: c, .. } if *c == color => Some(text.plain()),
-                    _ => None,
-                })
-                .filter(|line| !line.is_empty())
-                .collect()
-        };
-        let grey = lines(0xFFA0A0A0);
-        let red = lines(rgba(255, 85, 85, 255));
-        assert!(grey.len() > 1 && red.len() > 1, "{grey:?} {red:?}");
-        for line in wrap_words(old, NOTE_CHARS) {
-            assert!(
-                line.chars().count() <= NOTE_CHARS && red.contains(&line),
-                "{line}"
-            );
-        }
-        assert!(grey.join(" ").contains(now), "{grey:?}");
-        let old_words = old.split_whitespace().collect::<Vec<_>>().join(" ");
-        assert!(red.join(" ").contains(&old_words), "{red:?}");
-        let shown = |act: NativeGameAct| {
-            widgets
-                .iter()
-                .find(
-                    |w| matches!(w.kind, WKind::Button { act: Act::NativeGame(a), .. } if a == act),
-                )
-                .unwrap_or_else(|| panic!("{act:?}'s button"))
-        };
-        // Two to a row; the one left over takes the row.
-        assert_eq!(shown(NativeGameAct::Compile).w, 150.0);
-        assert_eq!(shown(NativeGameAct::CompileOnGithub).w, 150.0);
-        let without = shown(NativeGameAct::PlayWithout);
-        assert_eq!(without.w, 310.0);
-        let (x, y) = (without.x + 1.0, without.y + 1.0);
-        let events = ui.click(&mut s, &atlas, x, y, size, [480, 400], false, false);
-        assert_eq!(
-            events.last(),
-            Some(&Event::NativeGame(NativeGameAct::PlayWithout))
-        );
-        // Above the mods. The mod is chosen and not in this game: its row is a ticked box, without
-        // "(Not built)" after it, and beside it a warning that presses nothing (Compile is the
-        // page's, at the top).
-        // The row's toggle (where, how wide, its label) and the button beside it, if any.
-        let row = |widgets: &[Widget]| {
-            let toggle = widgets
-                .iter()
-                .find_map(|w| match &w.kind {
-                    WKind::Button {
-                        label,
-                        act: Act::ToggleMod(0),
-                        ..
-                    } => Some(([w.x, w.y, w.w], label.plain())),
-                    _ => None,
-                })
-                .expect("the mod's row");
-            let side = widgets.iter().find_map(|w| match &w.kind {
-                WKind::Button {
-                    act: Act::NativeButton(0, 0),
-                    ..
-                } => Some([w.x, w.y, w.w]),
-                _ => None,
-            });
-            (toggle, side)
-        };
-        let ((toggle, label), warning) = row(&widgets);
-        assert!(toggle[1] > without.y);
-        assert!(label.starts_with('\u{2611}'), "{label}");
-        assert!(
-            !label.contains(&tr("industrial-era.mods.not_built").plain()),
-            "{label}"
-        );
-        let warning = warning.expect("the warning beside the row");
-        assert_eq!(
-            (toggle[2], warning[2], warning[1]),
-            (150.0, 150.0, toggle[1])
-        );
-        let (x, y) = (warning[0] + 1.0, warning[1] + 1.0);
-        let events = ui.click(&mut s, &atlas, x, y, size, [480, 400], false, false);
-        assert!(!events.contains(&Event::NativeButton(0, 0)), "{events:?}");
-        // Not chosen, it has nothing to compile: the row is the box alone.
-        let (x, y) = (toggle[0] + 1.0, toggle[1] + 1.0);
-        ui.click(&mut s, &atlas, x, y, size, [480, 400], false, false);
-        assert!(!s.mods.is_on(0));
-        let (widgets, ..) = ui.layout(&s, size.0, size.1);
-        let ((toggle, label), warning) = row(&widgets);
-        assert!(label.starts_with('\u{2610}'), "{label}");
-        assert!(warning.is_none());
-        assert_eq!(toggle[2], 310.0);
-    }
-
-    #[test]
-    fn a_tapped_row_keeps_no_tooltip_once_the_finger_lifts() {
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let size = (480.0, 400.0);
         s.mods.installed.push(crate::mod_list::Installed {
             id: "zoom".into(),
             title: "Zoom 2.0.0".into(),
             description: "Zooms in.".into(),
             problem: None,
             dev: false,
-            native: Some(crate::mod_list::NativePage::default()),
         });
-        let mut tapped = OptionsUi::default();
-        tapped.show(Page::Mods);
-        let mut never = OptionsUi::default();
-        never.show(Page::Mods);
-        let (widgets, ..) = tapped.layout(&s, size.0, size.1);
-        let toggle = widgets
-            .iter()
-            .find(|w| {
-                matches!(
-                    w.kind,
-                    WKind::Button {
-                        act: Act::ToggleMod(0),
-                        ..
-                    }
-                )
-            })
-            .expect("the mod's row");
-        let (x, y) = (toggle.x + 1.0, toggle.y + 1.0);
-        tapped.click(&mut s, &atlas, x, y, size, [480, 400], false, false);
-        // The finger went away (the game draws with no pointer then).
-        let away = (-10_000.0, -10_000.0);
-        let drawn = |ui: &mut OptionsUi| {
-            let mut batch = HudBatch::new([480, 400]);
-            ui.draw(&s, &mut batch, &atlas, away);
-            batch.vertices
-        };
-        let plain = drawn(&mut never);
-        // A click's focus keeps the row's tooltip beside it, wherever the pointer went...
-        assert!(drawn(&mut tapped).len() > plain.len());
-        // ...which a lifted finger lets go of.
-        tapped.drop_pointer_focus();
-        let after = drawn(&mut tapped);
-        assert_eq!(
-            bytemuck::cast_slice::<_, u8>(&after),
-            bytemuck::cast_slice::<_, u8>(&plain)
-        );
-    }
-
-    #[test]
-    fn a_native_mods_key_shows_and_keeps_the_key_pressed() {
-        // #3539: Zoom's key set to R showed another key.
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let mut ui = OptionsUi::default();
-        let size = (480.0, 240.0);
-        s.mods.installed.push(crate::mod_list::Installed {
-            id: "zoom".into(),
-            title: "Zoom 2.0.0".into(),
-            description: String::new(),
-            problem: None,
-            dev: false,
-            native: Some(crate::mod_list::NativePage {
-                keys: vec![["zoom".into(), "Zoom key".into(), "key.keyboard.z".into()]],
-                buttons: Vec::new(),
-            }),
-        });
-        ui.show(Page::NativeMod(0));
-        let key_label = |ui: &mut OptionsUi, s: &Settings| {
-            let (widgets, ..) = ui.layout(s, size.0, size.1);
-            widgets.into_iter().find_map(|w| match w.kind {
-                WKind::Button {
-                    label,
-                    act: Act::NativeKey(0, 0),
-                    ..
-                } => Some((label.plain(), w.x, w.y)),
-                _ => None,
-            })
-        };
-        let (label, x, y) = key_label(&mut ui, &s).expect("the key's row");
-        assert_eq!(label, "Z");
-        ui.click(
-            &mut s,
-            &atlas,
-            x + 1.0,
-            y + 1.0,
-            size,
-            [480, 240],
-            false,
-            false,
-        );
-        assert_eq!(
-            ui.key(&mut s, &atlas, winit::keyboard::KeyCode::KeyR, Some("r")),
-            vec![Event::Changed]
-        );
-        assert_eq!(key_label(&mut ui, &s).unwrap().0, "R");
-        let saved = crate::mod_list::ModList::parse(&s.mods.serialize());
-        assert_eq!(saved.keys_of("zoom"), vec![("zoom", "key.keyboard.r")]);
-    }
-
-    fn mode(width: i32, rate: f32) -> crate::window::VideoMode {
-        crate::window::VideoMode {
-            width,
-            height: width * 9 / 16,
-            red_bits: 8,
-            green_bits: 8,
-            blue_bits: 8,
-            refresh_rate: rate,
-        }
+        ui.show(Page::Mods);
+        let (widgets, ..) = ui.layout(&s, size.0, size.1);
+        assert!(widgets.iter().any(|w| matches!(
+            w.kind,
+            WKind::Button {
+                act: Act::ToggleMod(0),
+                ..
+            }
+        )));
     }
 
     #[test]
@@ -8376,6 +7791,17 @@ mod tests {
         assert_eq!(at(Opt::ImprovedTransparency) + 1, at(Opt::TextureFiltering));
         assert_eq!(at(Opt::TextureFiltering) + 1, at(Opt::MaxAnisotropy));
         assert_eq!(at(Opt::MaxAnisotropy) + 1, at(Opt::WeatherRadius));
+    }
+
+    fn mode(width: i32, rate: f32) -> crate::window::VideoMode {
+        crate::window::VideoMode {
+            width,
+            height: width * 9 / 16,
+            red_bits: 8,
+            green_bits: 8,
+            blue_bits: 8,
+            refresh_rate: rate,
+        }
     }
 
     #[test]

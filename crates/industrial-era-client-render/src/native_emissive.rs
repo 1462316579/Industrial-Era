@@ -1,32 +1,11 @@
 //! Optional, texture-matched overlays drawn full bright over their base texture in the same
-//! terrain fragment: native mods' (`<ns>:emissive/...`) and OptiFine's emissive block textures
-//! (`block/stone_e.png` beside `block/stone.png`). No extra draw calls or world light changes.
+//! terrain fragment: OptiFine's emissive block textures (`block/stone_e.png` beside
+//! `block/stone.png`). No extra draw calls or world light changes.
 use crate::sprites::Sprites;
 use std::{collections::BTreeMap, path::Path};
 
 /// Overlay pairs the terrain shader reads (`Globals.emissive_layers`, terrain.wgsl).
 pub const MAX: usize = 128;
-/// Native mods' own `emissive/` textures, as their API documents.
-const NATIVE: usize = 32;
-
-/// Load only bounded, explicitly named emissive textures from the active pack.
-pub fn load(root: &Path, sprites: &mut Sprites) {
-    let mut names: Vec<_> = crate::atlas_sources::list_textures(root)
-        .into_iter()
-        .filter(|name| {
-            name.split_once(':')
-                .is_some_and(|(_, p)| p.starts_with("emissive/"))
-        })
-        .take(NATIVE)
-        .collect();
-    names.sort();
-    for name in names {
-        let file = crate::atlas_sources::texture_path(root, &name, "textures");
-        if std::fs::metadata(file).is_ok_and(|m| m.len() <= 1 << 20) {
-            let _ = sprites.insert(root, &name);
-        }
-    }
-}
 
 /// A connected-texture tile's sprite name without `.png`: tiles outside `textures/` are named by
 /// their resource path (`Sprites::insert_file`, which only they use), block sprites by an id.
@@ -39,8 +18,7 @@ fn tile_file(name: &str) -> Option<&str> {
 /// items draw from the HUD atlas): for each
 /// `<ns>:block/<name>`, or connected-texture tile `assets/<ns>/.../<name>.png`, whose
 /// `<name><suffix>.png` sits beside it, the overlay is loaded too and paired with it, blocks
-/// first, then tiles, each by name, at most [`MAX`] - [`NATIVE`] (native mods keep their share of
-/// the table). A pack without such files adds nothing.
+/// first, then tiles, each by name, at most [`MAX`]. A pack without such files adds nothing.
 pub fn load_optifine(root: &Path, sprites: &mut Sprites) -> Vec<(String, String)> {
     let suffix = industrial_era_optifine::emissive::suffix(root);
     // Blocks with identical pixels share a layer (and the shader pairs by layer): a shared
@@ -80,10 +58,10 @@ pub fn load_optifine(root: &Path, sprites: &mut Sprites) -> Vec<(String, String)
         if !std::fs::metadata(&file).is_ok_and(|m| m.is_file()) {
             continue;
         }
-        if pairs.len() == MAX - NATIVE {
+        if pairs.len() == MAX {
             log::warn!(
                 "Industrial Era: more than {} emissive block overlays: {overlay} and later skipped",
-                MAX - NATIVE
+                MAX
             );
             break;
         }
@@ -109,18 +87,10 @@ pub fn load_optifine(root: &Path, sprites: &mut Sprites) -> Vec<(String, String)
 /// where its alpha is at least 0.1 (OptiFine renders SOLID textures' overlays as CUTOUT).
 pub const CUTOUT: u32 = 1 << 31;
 
-/// The frame's overlay table: native mods' pairs (at most [`NATIVE`] requested), then the packs'
-/// OptiFine pairs flagged [`CUTOUT`] (at most [`MAX`] - [`NATIVE`], as [`load_optifine`] loads),
-/// one per base layer with native mods' first, sorted by base layer for the shader's early exit.
-pub fn table<'a>(
-    layers: &BTreeMap<String, u32>,
-    native: impl IntoIterator<Item = (&'a str, &'a str)>,
-    optifine: &'a [(String, String)],
-) -> Vec<[u32; 4]> {
+/// The frame's overlay table: the packs' OptiFine pairs flagged [`CUTOUT`] (at most [`MAX`], as
+/// [`load_optifine`] loads), one per base layer, sorted by base layer for the shader's early exit.
+pub fn table(layers: &BTreeMap<String, u32>, optifine: &[(String, String)]) -> Vec<[u32; 4]> {
     let mut by_base: BTreeMap<u32, [u32; 4]> = BTreeMap::new();
-    for pair in mappings(layers, native.into_iter().take(NATIVE)) {
-        by_base.insert(pair[0], pair);
-    }
     let optifine = optifine.iter().map(|(b, o)| (b.as_str(), o.as_str()));
     for [b, o, z, w] in mappings(layers, optifine) {
         by_base.entry(b).or_insert([b, o | CUTOUT, z, w]);

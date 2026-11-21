@@ -130,15 +130,14 @@ impl Game<'_> {
         self.watched_vehicles = kept;
         // The rider's state is swapped in for the call, so the helpers reach
         // them; a vehicle nobody rides is told of with nobody swapped in.
-        for (rider, kind, from, to) in moved {
+        for (rider, _kind, _from, _to) in moved {
             let Some((conn, uuid)) = rider else {
-                self.native_vehicle_moved(None, &kind, from, to);
                 continue;
             };
             let Some(mut host) = self.lan.take() else {
                 continue;
             };
-            let hook = |game: &mut Self| game.native_vehicle_moved(Some(uuid), &kind, from, to);
+            let hook = |_game: &mut Self| {};
             if self.lan_acting == Some(conn) {
                 hook(self);
             } else {

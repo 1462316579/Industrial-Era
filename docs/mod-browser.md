@@ -176,7 +176,7 @@ launcher reads its `index.json` (`browser/industrial-era.rs`; `HORIZON_MOD_INDEX
 registry instead, whose files may then be on disk) at most every ten minutes, and keeps the last copy in
 `mod-browser/industrial-era-index.json`. Before a result is installed it shows whether its files are signed and, for a mod,
 what it may do, in the words of the game's Options > Mods. A download goes to `mod-browser/downloads/` and is moved
-into place only after `horizon_mods::index::check_file` passes (size, SHA-256, the author's signature when the project
+into place only after `industrial_era_mods::index::check_file` passes (size, SHA-256, the author's signature when the project
 has a key, the file's own manifest against the index). A content mod becomes `industrial-era-mods/<id>.hmod`, turned on; a native mod becomes
 `industrial-era-native-mods/<id>.hnmod`, and the launcher builds it into the game ([native-mods.md](native-mods.md));
 `mods disable` and `mods enable` switch it in `industrial-era-mods.txt`. When the index takes a file down, the launcher turns
@@ -187,7 +187,7 @@ like any registry mod and turned on or off as the pack says; its overrides (sett
 settings) are copied in on the first install only, so the player's changes survive updates. A pack whose mod was taken
 down installs nothing. It is listed on the Modpacks tab with **Play** and **Remove**, and plays like an imported pack
 (`modpacks::apply_profile`). A shader pack goes to `shaderpacks/<file>` once `check_file` has run the game's own
-check on it (`horizon_shader_api::check`); a taken-down one is named, for the player to remove.
+check on it (`industrial_era_shader_api::check`); a taken-down one is named, for the player to remove.
 A registry `.hmod` with any capability besides `registries` is neither listed nor installed alone. A modpack that
 requires one still installs, and the launcher lists the mod as not running, with that reason, and leaves out its code.
 

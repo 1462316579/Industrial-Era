@@ -351,7 +351,6 @@ impl Game<'_> {
                 // An End gateway's traveller never left the level: nothing joins.
                 let moved = take_moved(&mut tag);
                 // Whatever was added since the last tick joins before this one.
-                self.native_joins_flush(false, 0);
                 let kind = entity_nbt::kind(&tag).unwrap_or_default();
                 let uuid = entity_nbt::uuid(&tag);
                 if uuid.is_some_and(|u| self.restored_vehicle(u).is_some()) {
@@ -684,12 +683,9 @@ impl Game<'_> {
                 // PersistentEntitySectionManager.addEntity: every kind that
                 // just joined tells the mods; a moved one does not join.
                 if moved {
-                    self.native_joins_skip();
                 } else {
-                    self.native_joins_flush(from_disk, 0);
                 }
             }
-            self.native_entities_load(self.dim.id(), [key.0, key.1], count);
         }
     }
     /// A saved mob and, under `Passengers`, the mobs riding it.
@@ -1370,7 +1366,6 @@ impl Game<'_> {
             });
             self.orbs.retain(|o| !gone(o.position));
             // Unloaded with their chunk: PersistentEntitySectionManager.stopTracking.
-            self.native_leaves_flush();
             // the ones saved with the chunk go with it (a trident too, unsaved).
             self.creatures.projectiles.retain(|p| {
                 let leaves = entity_nbt::saved_with_chunk(p) || p.arrow.is_some();
@@ -1466,9 +1461,7 @@ impl Game<'_> {
         if let Err(e) = self.save.save_entities_later(chunks) {
             log::warn!("Industrial Era: failed to save entities: {e}");
         }
-        for (chunk, count) in counts {
-            self.native_entities_unload(self.dim.id(), [chunk.0, chunk.1], count);
-        }
+        for (chunk, count) in counts {}
     }
 }
 impl Game<'_> {

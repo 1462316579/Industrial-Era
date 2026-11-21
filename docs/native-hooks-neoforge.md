@@ -60,7 +60,7 @@ Each `native-hooks.json` entry gains three optional fields:
 {
   "name": "server_tick_pre",
   "version": 1,
-  "target": "horizon_client::game::native_hooks::Game<'_>::native_server_tick_pre",
+  "target": "industrial_era_client::game::native_hooks::Game<'_>::native_server_tick_pre",
   "neoforge": "ServerTickEvent.Pre",
   "side": "server",
   "cancellable": false

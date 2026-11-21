@@ -2211,7 +2211,7 @@ impl Launcher {
         let running = status.running();
         if self.servers.config.is_none() {
             return div().child(centered(
-                if self.older_horizon() {
+                if self.older_industrial_era() {
                     tr(
                         "This server's IndustrialEra is too old to show its settings here. Update it on \
                      the Backups tab, then they appear.",
@@ -2640,7 +2640,7 @@ impl Launcher {
 
     /// The server's details came back without its settings: its industrial_era-server predates
     /// `config` (and `backups --json`).
-    fn older_horizon(&self) -> bool {
+    fn older_industrial_era(&self) -> bool {
         self.servers.service.is_some() && self.servers.config.is_none()
     }
 

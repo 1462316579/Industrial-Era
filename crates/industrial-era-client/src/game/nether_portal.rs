@@ -465,7 +465,6 @@ impl Game<'_> {
                 "minecraft:overworld"
             };
             let corner = exit.min_corner;
-            self.native_portal_create(dim, [corner.x, corner.y, corner.z]);
             // A portal built for the entity: the ticket goes on the chunk it
             // arrives in (`TeleportTransition.PLACE_PORTAL_TICKET`).
             let (at, _) = self.arrival(plan, exit);
@@ -1081,9 +1080,7 @@ impl Game<'_> {
             self.portals.arrivals.push(Arrival { plan, tag });
             self.portals.dirty = true;
         }
-        if self.portals.arrivals.len() > arrivals {
-            self.native_entity_portal(self.dim.id(), id, [entry.x, entry.y, entry.z]);
-        }
+        if self.portals.arrivals.len() > arrivals {}
     }
     /// Removes the mobs riding `vehicle`, and those riding them, from the
     /// level: `Entity.teleportCrossDimension` takes the whole tree with its

@@ -29,14 +29,17 @@ use std::{collections::BTreeMap, fs, path::Path};
 /// change the distance and damage multiplier, or cancel fall handling.
 /// 357.
 #[inline(never)]
+/// No mod hooks remain after native mods were removed.
 pub fn native_living_fall(
-    entity: u32,
-    kind: &str,
+    _entity: u32,
+    _kind: &str,
     distance: &mut f64,
     multiplier: &mut f32,
     cancel: &mut bool,
 ) {
-    crate::native_client_hooks::living_fall(entity, kind, distance, multiplier, cancel);
+    // No mod hooks: never cancel fall handling.
+    *cancel = false;
+    let _ = (distance, multiplier);
 }
 
 pub fn load(root: &Path, properties: &MovementProperties<'_>) -> Result<BlockLandingRegistry> {
@@ -288,9 +291,7 @@ impl MotionWorld<'_, '_, '_> {
         // Player.causeFallDamage exempts players with the mayfly ability,
         // including creative players who are currently walking.
         if self.player.may_fly {
-            if let Some((state, position, original_distance)) = contact {
-                self.mod_block_fall(state, position, original_distance, 0.0);
-            }
+            if let Some((_state, _position, _original_distance)) = contact {}
             return Ok(false);
         }
         // Record centimeters before delegating to LivingEntity.
@@ -318,9 +319,7 @@ impl MotionWorld<'_, '_, '_> {
         }
         // A canceled fall still lands on the block (`Block.fallOn`).
         if cancel {
-            if let Some((state, position, original_distance)) = contact {
-                self.mod_block_fall(state, position, original_distance, 0.0);
-            }
+            if let Some((_state, _position, _original_distance)) = contact {}
             return Ok(false);
         }
         living_fall::cause_living_fall_damage(
@@ -369,14 +368,7 @@ impl FallDamageWorld for MotionWorld<'_, '_, '_> {
             .landing
             .fall_on(self, state, position, LandingEntityKind::Player, distance)
             .map_err(|e| e.to_string().into());
-        let pending = self.player.block_landing.take();
         self.player.block_landing = previous;
-        if result.is_ok()
-            && let Some((state, position, distance)) = pending
-        {
-            // Some landing rules never call causeFallDamage.
-            self.mod_block_fall(state, position, distance, 0.0);
-        }
         result
     }
 

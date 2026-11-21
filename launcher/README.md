@@ -328,7 +328,7 @@ Generate shell completions without opening the window:
 
 ```sh
 industrial-era-launcher completions bash > industrial-era-launcher.bash
-industrial-era-launcher completions zsh > _horizon-launcher
+industrial-era-launcher completions zsh > _industrial-era-launcher
 industrial-era-launcher completions fish > industrial-era-launcher.fish
 ```
 

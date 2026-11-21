@@ -501,9 +501,6 @@ impl Game<'_> {
                     self.settings.shader_packs =
                         industrial_era_client::shader_pack_list::scan(&Self::shader_packs_dir());
                 }
-                Event::ListMods => self.list_copied_native_mods(),
-                Event::ModToggled(i) => self.mod_toggled(i),
-                Event::NativeGame(act) => self.native_game_button(act),
                 // Saved; the next frame's `shader_pack_inputs` loads the pick.
                 Event::ShaderPack => self.settings.save(&Self::options_path()),
                 Event::OpenCustomButtons => self.open_custom_buttons(),
@@ -517,23 +514,7 @@ impl Game<'_> {
                 Event::ImportButtonImage(id) => self.pick_button_image(id),
                 Event::OpenShaderOptions => self.open_shader_options(),
                 Event::ShaderOptions => self.save_shader_options(),
-                Event::NativePackOptions(i) => {
-                    if let Some(pack) = self.settings.shader_packs.get(i) {
-                        pack.save_values(&Self::shader_packs_dir());
-                    }
-                }
                 Event::OpenShaderPackFolder => self.open_game_folder(&Self::shader_packs_dir()),
-                Event::NativeButton(i, b) => {
-                    // Android: the Native mods row's button opens its card (native_builds.rs).
-                    #[cfg(target_os = "android")]
-                    let card = self.native_builds_button(i);
-                    #[cfg(not(target_os = "android"))]
-                    let card = false;
-                    if !card {
-                        self.native_settings_event(i, b);
-                    }
-                }
-                Event::NativeSettings(i) => self.native_settings_refresh(i),
                 Event::Credits => self.open_win_screen(false, super::win::Finish::Options),
                 Event::Narrator => self.narrator_status_changed(),
             }
@@ -731,12 +712,6 @@ impl Game<'_> {
                 .battery_limit(limit, self.title.is_none(), self.focused);
         // A native mod may only lower it (`native_framerate_limit`).
         let mut hooked = limit;
-        self.native_framerate_limit(
-            self.focused,
-            context.iconified,
-            self.title.is_none(),
-            &mut hooked,
-        );
         if hooked >= 1 {
             hooked.min(limit)
         } else {

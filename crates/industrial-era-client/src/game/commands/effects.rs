@@ -76,7 +76,6 @@ impl Game<'_> {
                         let new = !m.has_effect(name);
                         // `new MobEffectInstance(effect, duration, amplifier, false, particles)`.
                         m.add_effect_with(name, duration, amplifier, false, particles);
-                        self.mod_effect_added(name, Some(id as i32), amplifier, new);
                         true
                     }
                     None => false,

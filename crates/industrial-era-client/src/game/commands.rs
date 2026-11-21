@@ -166,18 +166,13 @@ impl Game<'_> {
     pub(super) fn native_player_level_changed(&mut self, from: i32) {
         let to = self.experience.level;
         if from != to
-            && !industrial_era_client::mod_api::mods().is_empty()
             && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            self.native_player_level_change(player, &name, from, to);
         }
     }
 
     /// Commands.performCommand for a line without its slash.
     pub(super) fn run_command(&mut self, command: &str) -> bool {
-        if self.client_mod_command(command) {
-            return true;
-        }
         let d = vanilla::game_dispatcher_with_features(&self.level.enabled_features);
         let parse = d.parse(command, &self.ui.registries);
         let result = match parse.executable() {
@@ -1178,13 +1173,6 @@ impl Game<'_> {
         if let Some(uuid) = self.lan_acting_uuid {
             let name = self.acting_player_name().to_owned();
             let mut cancel = false;
-            self.native_player_game_mode_changed(
-                uuid,
-                &name,
-                self.mode_id(),
-                super::game_mode::mode_id_of(mode),
-                &mut cancel,
-            );
             if cancel {
                 return false;
             }
@@ -1628,9 +1616,7 @@ impl Game<'_> {
         if self.options.dedicated.is_some()
             && let (Some(entity), Some(from), Some(to)) =
                 (self.network_entity_id(t), from, self.target_position(t))
-        {
-            self.native_entity_teleport(self.dim.id(), entity as u32, from, to);
-        }
+        {}
     }
 
     /// A server's player teleported into another level than theirs
@@ -1855,7 +1841,6 @@ impl Game<'_> {
                     return Err(err("commands.time.set.already_at_time", &[&clock, &t]));
                 }
                 let mut cancel = false;
-                self.native_time_skip(self.dim.id(), total, t, "command", &mut cancel);
                 if !cancel {
                     self.world.day_time = t;
                     self.ui.clock.partial = 0.0;
@@ -1881,7 +1866,6 @@ impl Game<'_> {
                 }
                 let target = m.resolve(total);
                 let mut cancel = false;
-                self.native_time_skip(self.dim.id(), total, target, "command", &mut cancel);
                 if !cancel {
                     self.world.day_time = target;
                     self.ui.clock.partial = 0.0;
@@ -1896,7 +1880,6 @@ impl Game<'_> {
                 let t = i64::from(Self::int(ctx, "time").unwrap_or(0));
                 let target = (total + t).max(0);
                 let mut cancel = false;
-                self.native_time_skip(self.dim.id(), total, target, "command", &mut cancel);
                 if !cancel {
                     self.world.day_time = target;
                 }
@@ -2016,11 +1999,9 @@ impl Game<'_> {
             self.world.weather.thundering,
         );
         let mut cancel = false;
-        self.native_weather_change(self.dim.id(), raining, thundering, &mut cancel);
         let old_thundering = self.world.weather.thundering;
         let old_thunder_time = self.world.weather.thunder_time;
         let mut cancel_thunder = false;
-        self.native_thunder_change(self.dim.id(), thundering, &mut cancel_thunder);
         if cancel {
             let w = &mut self.world.weather;
             (
@@ -2124,7 +2105,6 @@ impl Game<'_> {
         }
         // The orbs marked for removal are gone (Entity.kill removes them).
         self.orbs.retain(|o| o.age < u32::MAX / 2);
-        self.native_leaves_flush();
     }
     fn cmd_kill(&mut self, ctx: &Context) -> R<i32> {
         let targets = if ctx.get("targets").is_some() {
@@ -2232,9 +2212,6 @@ impl Game<'_> {
                             health: 5,
                         });
                     // tryAddFreshEntityWithPassengers refused: ERROR_DUPLICATE_UUID.
-                    if !self.native_joins_flush(false, self.next_entity) {
-                        return Err(err("commands.summon.failed.uuid", &[]));
-                    }
                     name = Text::translate("entity.minecraft.experience_orb", &[]);
                 }
                 "lightning_bolt" => {
@@ -2262,9 +2239,6 @@ impl Game<'_> {
                         invulnerable: false,
                     });
                     // tryAddFreshEntityWithPassengers refused: ERROR_DUPLICATE_UUID.
-                    if !self.native_joins_flush(false, self.next_entity) {
-                        return Err(err("commands.summon.failed.uuid", &[]));
-                    }
                     name = Text::translate("entity.minecraft.end_crystal", &[]);
                 }
                 k if super::minecarts::CartKind::from_id(&kind).is_some() => {
@@ -2286,9 +2260,6 @@ impl Game<'_> {
                     }
                     let id = cart.id;
                     self.carts.push(cart);
-                    if !self.native_joins_flush(false, id) {
-                        return Err(err("commands.summon.failed.uuid", &[]));
-                    }
                     name = Text::translate(&format!("entity.minecraft.{k}"), &[]);
                 }
                 // SummonCommand.createEntity: any other type from an empty compound.
@@ -3010,7 +2981,6 @@ impl Game<'_> {
             }
             self.experience.progress = amount as f32 / needed as f32;
         }
-        self.native_player_level_changed(old_level);
         true
     }
     /// `GameRules.set` as the `/gamerule` command and the management protocol call it: the rule changes, the
@@ -3112,7 +3082,6 @@ impl Game<'_> {
         }
         if from != i {
             let (from, to) = difficulty_names(from, i);
-            self.native_difficulty_changed(from, to);
         }
     }
     fn cmd_spawnpoint(&mut self, ctx: &Context) -> R<i32> {
@@ -3141,20 +3110,7 @@ impl Game<'_> {
         let level = self.dim;
         for &t in &targets {
             self.for_player(t, |g| {
-                let mut cancel = false;
-                if let (Some(player), Some(name)) = (g.lan_acting_uuid, g.lan_acting_name.clone()) {
-                    g.native_player_spawn_point_set(
-                        player,
-                        &name,
-                        level.id(),
-                        pos,
-                        "command",
-                        &mut cancel,
-                    );
-                }
-                if cancel {
-                    return;
-                }
+                let _ = (level, pos);
                 if level == Dim::Overworld {
                     g.spawn = Some(Vec3::new(
                         f64::from(pos[0]) + 0.5,
@@ -3211,7 +3167,6 @@ impl Game<'_> {
         // LevelData.setRespawnData: the world's spawn (level.dat `spawn`).
         let old = self.level.world_spawn.replace(pos);
         self.level.world_spawn_angle = rot;
-        self.native_spawn_change(pos, rot);
         // A player whose fallback is the world spawn (no spawnpoint of its
         // own; a bed or an anchor that is gone falls back to it) respawns at
         // the new one.

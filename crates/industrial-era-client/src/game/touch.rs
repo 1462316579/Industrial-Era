@@ -739,10 +739,7 @@ impl Game<'_> {
         self.last_input = Instant::now();
         // The offer of the Starling folder, over the title, takes the touches while it shows.
         #[cfg(target_os = "android")]
-        if self.files_offer_touch(t)
-            || self.update_offer_touch(t)
-            || self.native_builds_touch(t)
-            || self.catalog_touch(t)
+        if self.files_offer_touch(t) || self.update_offer_touch(t) || self || self.catalog_touch(t)
         {
             return true;
         }

@@ -255,7 +255,6 @@ impl RenderAssets {
         };
         let mut emissive = Vec::new();
         let connected = if draws {
-            crate::native_emissive::load(root, &mut sprites);
             // A side's sprite, for rules that connect by tile: the first quad facing it.
             let catalog = &models.catalog;
             let mut found = Vec::new();

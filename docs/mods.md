@@ -80,7 +80,7 @@ effects, entity types and menu types (each below) in `creative_tab/`, `mob_effec
 them. LAN and dedicated server players play with them when they run the same mods: a client whose mods add different
 content is refused when it joins, with the reason.
 
-A server that has content mods on also checks them one by one (`horizon_protocol::mod_list`, channel
+A server that has content mods on also checks them one by one (`industrial_era_protocol::mod_list`, channel
 `industrial-era:mod_list`): in the configuration phase it sends the id, version and SHA-256 of each `.hmod` with
 `side = "both"`, the client answers with its own, and a client that differs is refused with the mods named: missing,
 not on this server, or another version or file. Only `side = "both"` mods are compared and sent: a `client` mod (a
@@ -349,7 +349,7 @@ recipes, names and loot. Blocks, items, creative tabs, mob effects, entity types
 the other's): the game keeps the first in load order and leaves the other's content out, with "mods A and B both use
 the namespace N; turn one of them off" in the log. Paths use vanilla's resource characters, at most 65,536 files, 16
 MiB each and 512 MiB in all. A mod whose content is refused is left out, with the reason in the log. The game reads
-this content into its block and item tables (`horizon_client::mod_content`, [modpacks.md](modpacks.md)). A tag entry
+this content into its block and item tables (`industrial_era_client::mod_content`, [modpacks.md](modpacks.md)). A tag entry
 naming an id nobody registers (a block a port left out, another mod's item) is dropped, so the rest of the tag still
 loads; vanilla would drop the whole tag.
 

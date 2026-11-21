@@ -8,7 +8,13 @@
 //! Installing copies the carried-over folder mod into `industrial_era-mods/<mod id>/` beside
 //! `options.txt` and turns it on in `industrial_era-mods.txt`, where the game's Options > Mods reads it.
 use super::{installed::Entry, pick, FileRef, Kind, Project, Source, Support, Version};
-use industrial_era_port_pack::check::{self, Check, Verdict};
+use crate::browser::{installed, mods_page, java_instance, Kind};
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
+/// A Java mod's check isn't supported anymore: mods are removed.
+pub(super) struct Check;
 use std::fs;
 use std::path::{Path, PathBuf};
 

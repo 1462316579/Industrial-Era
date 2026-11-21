@@ -452,7 +452,7 @@ fn done_title(kind: Kind) -> &'static str {
         Kind::ResourcePack => "Resource pack imported",
         Kind::DataPack => "Data pack imported",
         Kind::ShaderPack => "Shader pack imported",
-        Kind::Mod | Kind::NativeMod => "Mod imported",
+        Kind::Unknown => "Imported",
         Kind::Skin => "Skin imported",
         Kind::Resources => "Minecraft resources imported",
         Kind::Bedrock | Kind::Unknown => "Imported",
@@ -597,7 +597,6 @@ fn icon(kind: Kind) -> &'static [&'static str] {
     match kind {
         Kind::World => WORLD,
         Kind::ResourcePack | Kind::DataPack | Kind::ShaderPack => PACK,
-        Kind::Mod | Kind::NativeMod => GEAR,
         Kind::Skin => FACE,
         Kind::Resources | Kind::Bedrock | Kind::Unknown => BOX,
     }
@@ -654,7 +653,7 @@ impl super::Game<'_> {
                 ),
                 Some(Kind::ResourcePack) => self.refresh_pack_lists(),
                 // The Mods page lists it at once; a mod with code runs as soon as it is turned on.
-                Some(Kind::Mod | Kind::NativeMod) => self.start_mods(),
+                Some(Kind::Unknown) => self.start_mods(),
                 // A skin is worn at once (Skin Customization's Choose a File...).
                 Some(Kind::Skin) => {
                     if let Some(path) = self.imports.skin.take() {

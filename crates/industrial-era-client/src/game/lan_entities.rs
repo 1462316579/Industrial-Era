@@ -111,21 +111,7 @@ impl Game<'_> {
             for e in batch.events {
                 let (id, kind) = (e.entity as u32, &*e.tracked.kind);
                 if e.start {
-                    self.native_player_start_tracking(
-                        batch.player,
-                        &batch.name,
-                        id,
-                        e.tracked.uuid,
-                        kind,
-                    );
                 } else {
-                    self.native_player_stop_tracking(
-                        batch.player,
-                        &batch.name,
-                        id,
-                        e.tracked.uuid,
-                        kind,
-                    );
                 }
             }
         }

@@ -1,7 +1,7 @@
 # Compiled density evaluation
 
 Industrial Era targets the repository-pinned Minecraft Java Edition **26.3**. The
-`horizon_core::density` module implements selected compiled samplers and an initial
+`industrial_era_core::density` module implements selected compiled samplers and an initial
 integrated graph compiler. Complete graph coverage and terrain generation remain pending.
 
 Implemented samplers:

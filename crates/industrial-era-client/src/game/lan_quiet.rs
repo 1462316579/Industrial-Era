@@ -126,7 +126,6 @@ impl Game<'_> {
         // The mods hear it as they hear a typed command; the batch is quiet,
         // so their replies go nowhere.
         let mut canceled = false;
-        self.native_player_command(uuid, &name, command, &mut canceled, &mut Vec::new());
         if canceled {
             return false;
         }

@@ -7,7 +7,6 @@ use industrial_era_client::{
     items::ItemStack,
     mesher::Vertex,
     mobs::leash::{self, Holder, Pending},
-    mod_api::NativeLootDrops,
 };
 use industrial_era_world::nbt::Tag;
 
@@ -141,16 +140,14 @@ impl Game<'_> {
             Some((
                 m.alive(),
                 [m.position.x, m.position.y, m.position.z],
-                super::native_hooks::mob_kind(m),
+                m.kind.clone(),
             ))
         }) else {
             return;
         };
-        self.native_entity_unleash(id, &kind);
         if used
             && let (Some(player), Some(name)) = (self.lan_acting_uuid, self.lan_acting_name.clone())
         {
-            self.native_player_unleash_entity(player, &name, id);
         }
         // Leashable.tickLeash gates a dying entity's lead drop on entity_drops.
         let drop = drop && (alive || self.ui.rules.bool("entity_drops"));
@@ -160,30 +157,12 @@ impl Game<'_> {
         if !drop {
             return;
         }
-        // The mods' say when a player is behind it: the user, else the
-        // killer of a mob that died leashed.
-        let player = if used {
-            Some(self.native_acting_id())
-        } else {
-            killer
-        };
-        let Some(player) = player else {
+        // No mods: the killer of a mob that died leashed.
+        let Some(player) = killer else {
             self.drop_lead_item(at);
             return;
         };
         let mut drops = vec![ItemStack::new("minecraft:lead", 1)];
-        let context = NativeLootDrops {
-            table: "",
-            dimension: self.dim.id(),
-            origin: at,
-            block: None,
-            entity: Some((id, &kind)),
-            player: Some(player),
-            tool: None,
-            explosion: None,
-            used,
-        };
-        self.native_loot_drops(&context, &mut drops);
         for stack in drops {
             if stack.count > 0 && &*stack.item != "minecraft:air" {
                 let v = super::dispenser::new_item_motion();

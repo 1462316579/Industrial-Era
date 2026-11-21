@@ -93,11 +93,6 @@ pub(super) struct GuestPlay {
     pub(super) mount_window: Option<super::lan_mount_menu::GuestMount>,
     /// The lectern the guest reads (game/lan_stations.rs).
     pub(super) lectern: Option<super::lan_stations::GuestLectern>,
-    /// The menu the mods last heard this guest open (`tick_player_menus`).
-    pub(super) menu_heard: Option<super::native_menus::HeardMenu>,
-    /// The equipment the mods last heard this guest wear (`native_players_equipment`), by
-    /// `EquipmentSlot`: main hand, off hand, feet, legs, chest, head.
-    pub(super) equipment_heard: Option<Box<[Option<crate::items::ItemStack>; 6]>>,
     /// What the guest's body was given for its effects and enchantments.
     potions: super::potions::BodyPotions,
     /// `ServerPlayer.getStats` and the inventory `inventory_changed` last saw.
@@ -683,7 +678,6 @@ impl Game<'_> {
         {
             let (uuid, name, from, saturation) = (g.uuid, g.name.clone(), g.food, g.saturation);
             let (mut to, mut cancel) = (now, false);
-            self.native_food_level_changed(uuid, &name, from, &mut to, &mut cancel);
             if let Some(p) = self.player.as_mut() {
                 if cancel {
                     p.health.food.food = from;
@@ -770,11 +764,7 @@ impl Game<'_> {
             }
         }
         let guest = &host.hub.guests[i];
-        let listening = !industrial_era_client::mod_api::mods().is_empty();
         for projectile in projectiles..self.creatures.projectiles.len() {
-            if !listening {
-                break;
-            }
             let item = match &self.creatures.projectiles[projectile].kind {
                 industrial_era_client::projectiles::ProjectileKind::Snowball => {
                     Some("minecraft:snowball".to_owned())
@@ -793,9 +783,7 @@ impl Game<'_> {
                 }
                 _ => None,
             };
-            if let Some(item) = item {
-                self.native_player_launch_projectile(guest.uuid, &guest.name, &item);
-            }
+            if let Some(item) = item {}
         }
         // The guest's swings are theirs: the host's own count stays the host's.
         play.swings += self.swings_started.wrapping_sub(swings);
@@ -1160,31 +1148,6 @@ impl Game<'_> {
         self.creative = self.mode == GameMode::Creative;
     }
 
-    /// Whether the mods let the guest open the menu `kind` (`native_container_opened`),
-    /// heard with the guest's state swapped in. Asked before the menu that
-    /// was open closes.
-    pub(super) fn guest_may_open(
-        &mut self,
-        host: &mut LanHost,
-        conn: u32,
-        kind: &str,
-        pos: Option<[i32; 3]>,
-    ) -> bool {
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
-            return true;
-        };
-        let mut cancel = false;
-        let mut hook =
-            |game: &mut Self| game.native_container_opened(uuid, &name, kind, pos, &mut cancel);
-        // The guest whose turn it is is in place already.
-        if self.lan_acting == Some(conn) {
-            hook(self);
-        } else {
-            self.as_guest(host, conn, hook);
-        }
-        !cancel
-    }
-
     /// Hand a container the guest opened over (ServerPlayer.openMenu);
     /// false when it is not one a guest can open.
     fn lan_open_container(&mut self, host: &mut LanHost, conn: u32, pos: (i32, i32, i32)) -> bool {
@@ -1224,8 +1187,6 @@ impl Game<'_> {
                 Slots::Double(other, pos)
             };
             ("minecraft:generic_9x6", halves)
-        } else if let Some(menu) = self.mod_menu_at(pos) {
-            (menu, Slots::Block(pos))
         } else {
             let Some(BlockEntity::Chest(items)) = self.world.block_entities.get(&pos) else {
                 return false;
@@ -1249,19 +1210,12 @@ impl Game<'_> {
                 industrial_era_client::containers::double_chest_name(custom(first), custom(second))
             }
             Slots::Block(k) => {
-                // A mod block's container is named after its block
-                // (`Block.getDescriptionId`).
                 let key = match industrial_era_client::containers::default_name_key(name) {
                     Some(key) => key.to_owned(),
-                    None if self.mod_menu_at(k).is_some() => {
-                        format!("block.{}", name.replace(':', "."))
-                    }
                     None => return false,
                 };
                 industrial_era_client::containers::display_name(custom(k), &key)
             }
-            // Opened by a mod (`native_open_menu`), never here.
-            Slots::Native => return false,
         };
         let Some(items) = host
             .hub
@@ -1299,7 +1253,6 @@ impl Game<'_> {
         let mut locked = false;
         for key in halves.iter().flatten().copied() {
             let mut check = self.container_locked_for(key, spectator, hand.as_ref());
-            self.native_block_lock_check(uuid, &name, [key.0, key.1, key.2], &mut check);
             locked |= check;
         }
         if locked {
@@ -1343,23 +1296,10 @@ impl Game<'_> {
         if !industrial_era_client::containers::menu_reaches(brand, menu) {
             return false;
         }
-        // The mods may stop the menu; the click is spent.
-        if !self.guest_may_open(host, conn, menu, Some([pos.0, pos.1, pos.2])) {
-            return true;
-        }
-        let mut cancel = false;
-        self.native_inventory_block_start(uuid, &name, [pos.0, pos.1, pos.2], &mut cancel);
-        if cancel {
-            return false;
-        }
         // ServerPlayer.openMenu closes the menu that was open.
         self.guest_close_all(host, conn);
-        let hidden = self.native_hidden_slots(pos, items.len());
         host.hub
             .open_container(conn, menu, title, pos, slots, items);
-        if !hidden.is_empty() {
-            host.hub.hide_menu_slots(conn, hidden);
-        }
         // The opener count was already raised by the guest's use of the block
         // (`open_menu`, through `BlockEntity.triggerEvent`/`startOpen`); raising
         // it again here counted one player twice. Only the last closer would
@@ -1405,10 +1345,6 @@ impl Game<'_> {
         else {
             return false;
         };
-        // The mods may stop the menu; the click is spent.
-        if !self.guest_may_open(host, conn, menu, None) {
-            return true;
-        }
         // ServerPlayer.openMenu closes the menu that was open.
         self.guest_close_all(host, conn);
         host.hub
@@ -1462,7 +1398,6 @@ impl Game<'_> {
         self.lan_mount_closed(host, conn, None);
         self.guest_carried_back(host, gi);
         // `PlayerContainerEvent.Close`, after the menu's `removed`.
-        self.player_menu_closing(host, conn);
     }
 
     /// `ContainerEntity`'s `Container.stopOpen` when a vehicle menu closes
@@ -1704,32 +1639,6 @@ impl Game<'_> {
         );
     }
 
-    /// A guest's client started or stopped flying (the hub applied it): the
-    /// mods hear it with the guest's state swapped in, and when one cancels,
-    /// the guest keeps what they had and is sent their abilities again, as
-    /// vanilla answers what it refuses.
-    pub(super) fn lan_flight_toggled(&mut self, host: &mut LanHost, conn: u32, flying: bool) {
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
-            return;
-        };
-        let mut cancel = false;
-        // With the guest's state swapped in, so that the helpers reach them.
-        self.as_guest(host, conn, |g| {
-            g.native_player_toggle_flight(uuid, &name, flying, &mut cancel);
-        });
-        if !cancel {
-            return;
-        }
-        if let Some(g) = host.hub.guest_mut(conn) {
-            g.flying = !flying;
-            g.send(&C::PlayerAbilities(play::PlayerAbilities {
-                flags: g.ability_flags(),
-                flying_speed: 0.05,
-                walking_speed: 0.1,
-            }));
-        }
-    }
-
     /// A packet from a guest that the hub does not handle itself.
     pub(super) fn lan_guest_packet(&mut self, host: &mut LanHost, conn: u32, packet: S) {
         let Some(gi) = host.hub.guests.iter().position(|g| g.conn == conn) else {
@@ -1785,18 +1694,6 @@ impl Game<'_> {
                         return;
                     }
                     let face = direction(i32::from(a.direction));
-                    // Native mods, once the dig may start: a canceled click
-                    // attacks, digs and breaks nothing (the ack puts the
-                    // block back on the client).
-                    let canceled = self.as_guest(host, conn, |g| {
-                        let state = g.world.block(a.pos[0], a.pos[1], a.pos[2]);
-                        let mut canceled = false;
-                        g.native_left_click_block(a.pos, face, state, &mut canceled);
-                        canceled
-                    });
-                    if canceled == Some(true) {
-                        return;
-                    }
                     let play = host.play.entry(conn).or_default();
                     play.digging = Some((a.pos, face));
                     play.dig_start = host.hub.ticks;
@@ -1882,7 +1779,6 @@ impl Game<'_> {
                         Some(conn),
                     );
                     let guest = &host.hub.guests[gi];
-                    self.native_block_damage_abort(guest.uuid, &guest.name, a.pos);
                 }
                 4 | 5 => {
                     if !spectator {
@@ -1892,13 +1788,6 @@ impl Game<'_> {
                 // RELEASE_USE_ITEM: ServerPlayer.releaseUsingItem, with the
                 // hand of the item in use acting.
                 6 => {
-                    let listening = !industrial_era_client::mod_api::mods().is_empty();
-                    let (uuid, name) = if listening {
-                        let guest = &host.hub.guests[gi];
-                        (guest.uuid, guest.name.clone())
-                    } else {
-                        (0, String::new())
-                    };
                     self.as_guest(host, conn, |g| {
                         let Some(hand) = g.used_hand() else {
                             return;
@@ -1907,18 +1796,7 @@ impl Game<'_> {
                             if let Some((slot, ticks)) = g.using.take()
                                 && let Some(stack) = g.stack_in(slot).cloned()
                             {
-                                if listening
-                                    && &*stack.item == "minecraft:bow"
-                                    && let Some(arrow) = g
-                                        .projectile_slot("minecraft:bow")
-                                        .and_then(|slot| g.stack_in(slot).map(|s| s.item.clone()))
-                                {
-                                    g.native_player_ready_arrow(uuid, &name, &arrow);
-                                }
                                 g.release_used_item(&stack, ticks, false);
-                                if listening {
-                                    g.native_player_stop_using_item(uuid, &name);
-                                }
                             }
                         });
                     });
@@ -1926,25 +1804,6 @@ impl Game<'_> {
                 // SWAP_ITEM_WITH_OFFHAND: the hands swap and the item in use stops
                 // (ServerGamePacketListenerImpl.handlePlayerAction), not for spectators.
                 7 if !spectator => {
-                    // The mods hear the swap first, and may stop it: the
-                    // client, which swapped at once, gets its slots back.
-                    let (uuid, name) = {
-                        let g = &host.hub.guests[gi];
-                        (g.uuid, g.name.clone())
-                    };
-                    // With the player's state swapped in, so that the helpers
-                    // reach them.
-                    let cancel = self
-                        .as_guest(host, conn, |g| {
-                            let mut cancel = false;
-                            g.native_player_swap_hands(uuid, &name, &mut cancel);
-                            cancel
-                        })
-                        .unwrap_or(false);
-                    if cancel {
-                        host.hub.send_inventory(gi);
-                        return;
-                    }
                     let g = &mut host.hub.guests[gi];
                     let slot = g.selected;
                     std::mem::swap(&mut g.inventory[slot], &mut g.offhand);
@@ -1958,7 +1817,6 @@ impl Game<'_> {
                         g.player_on_equip("mainhand", offhand.as_ref(), main.as_ref());
                     });
                     let guest = &host.hub.guests[gi];
-                    self.native_player_swap_with_equipment_slot(guest.uuid, &guest.name, "offhand");
                 }
                 // STAB: `PiercingWeapon.attack` of a left click with a spear.
                 8 if !spectator => self.guest_jab(host, conn),
@@ -1979,13 +1837,6 @@ impl Game<'_> {
                 };
                 if old_slot != p.slot as usize {
                     let mut cancel = false;
-                    self.native_player_item_held(
-                        uuid,
-                        &name,
-                        old_slot as i32,
-                        i32::from(p.slot),
-                        &mut cancel,
-                    );
                     if cancel {
                         host.hub.send_to(
                             conn,
@@ -2021,8 +1872,6 @@ impl Game<'_> {
                     g.swing_hand(Hand::Main, SwingAnimation::DEFAULT);
                     g.reset_attack_strength();
                 });
-                self.native_player_attack_cooldown_reset(player, &name);
-                self.native_player_arm_swing(player, &name, "mainhand");
             }
             S::UseItemOn(p) => {
                 host.hub.ack(conn, p.sequence);
@@ -2240,9 +2089,6 @@ impl Game<'_> {
                 if !self.creative_stack_valid(host, gi, &stack) {
                     return;
                 }
-                if !self.guest_may_set_creative_slot(host, conn, i32::from(p.slot), Some(&stack)) {
-                    return;
-                }
                 let play = host.play.entry(conn).or_default();
                 if play.creative_drops >= 1480 {
                     eprintln!(
@@ -2269,12 +2115,6 @@ impl Game<'_> {
                 {
                     return;
                 }
-                if !self.guest_may_set_creative_slot(host, conn, i32::from(p.slot), item.as_ref()) {
-                    // The creative client already holds the stack it sent: treat that as
-                    // what it was told, so the next broadcast sends the real slot back.
-                    host.hub.guests[gi].menu_sent[p.slot as usize] = item;
-                    return;
-                }
                 let slot = p.slot as usize;
                 let g = &mut host.hub.guests[gi];
                 let old = g.menu_slot(slot);
@@ -2294,8 +2134,6 @@ impl Game<'_> {
                     });
                 }
             }
-            // AbstractContainerMenu.quickMoveStack of a mod container: the mods first.
-            S::ContainerClick(p) if self.lan_mod_quick_move(host, conn, &p) => {}
             S::ContainerClick(p) if self.lan_merchant_click(host, conn, &p) => {}
             S::ContainerClick(p) if self.lan_inventory_click(host, conn, &p) => {}
             S::ContainerClick(p) if self.lan_crafting_click(host, conn, &p) => {}
@@ -2315,22 +2153,6 @@ impl Game<'_> {
                 });
             }
             S::PlayerCommand(p) if p.action == 6 => self.lan_start_gliding(host, conn),
-            // ServerboundResourcePackPacket in play: the server has nothing to
-            // do with it (a declined required pack is handled on the connection).
-            S::ResourcePack(r) => {
-                let (uuid, name) = (host.hub.guests[gi].uuid, host.hub.guests[gi].name.clone());
-                self.as_guest(host, conn, |g| {
-                    g.native_resource_pack_status(uuid, &name, r.action);
-                });
-            }
-            // START_SPRINTING and STOP_SPRINTING: the hub has set the sprint
-            // and sends the packet on when it changed it.
-            S::PlayerCommand(p) if matches!(p.action, 1 | 2) => {
-                let (uuid, name) = (host.hub.guests[gi].uuid, host.hub.guests[gi].name.clone());
-                self.as_guest(host, conn, |g| {
-                    g.native_player_sprint(uuid, &name, p.action == 1);
-                });
-            }
             S::ContainerButtonClick(p) => {
                 self.lan_station_button(host, conn, p.container, p.button);
             }
@@ -2371,7 +2193,6 @@ impl Game<'_> {
                     host.hub
                         .select_bundle_item(conn, slot, p.index, &mut self.world);
                     let guest = &host.hub.guests[gi];
-                    self.native_player_bundle_item_select(guest.uuid, &guest.name, p.slot, p.index);
                 }
             }
             S::ContainerClick(p) => {
@@ -2424,9 +2245,6 @@ impl Game<'_> {
             S::ChatCommand(c) => self.guest_chat_command(host, conn, &c.command),
             S::CustomPayload(p) if p.channel == industrial_era_protocol::quiet::CHANNEL => {
                 self.guest_quiet_commands(host, conn, &p.data)
-            }
-            S::CustomPayload(p) if p.channel == industrial_era_protocol::mod_net::CHANNEL => {
-                self.guest_native_net(host, conn, &p.data)
             }
             S::CustomPayload(p) if p.channel == industrial_era_client::lod_net::CHANNEL => {
                 self.guest_far_terrain(host, conn, &p.data)
@@ -2481,12 +2299,6 @@ impl Game<'_> {
                 for entry in p.entries {
                     if self.ui.rules.set_string(&entry.name, &entry.value) {
                         let guest = &host.hub.guests[gi];
-                        self.native_world_game_rule_change(
-                            guest.uuid,
-                            &guest.name,
-                            &entry.name,
-                            &entry.value,
-                        );
                         let message = industrial_era_client::text::Text::tr(
                             "commands.gamerule.set",
                             &[&entry.name, &entry.value],
@@ -2677,22 +2489,17 @@ impl Game<'_> {
         &mut self,
         host: &mut LanHost,
         conn: u32,
-        from_entity: bool,
-        pos: [i32; 3],
-        entity_id: i32,
+        _from_entity: bool,
+        _pos: [i32; 3],
+        _entity_id: i32,
         stack: impl FnOnce(&mut Self) -> Option<ItemStack>,
     ) {
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
+        let Some(_) = host.hub.guest(conn) else {
             return;
         };
         let picked = self.as_guest(host, conn, |g| {
             let stack = stack(g)?;
             let infinite = g.creative;
-            let mut cancel = false;
-            g.native_player_pick_item(uuid, &name, from_entity, pos, entity_id, &mut cancel);
-            if cancel {
-                return None;
-            }
             industrial_era_client::pick_item::pick(
                 &mut g.inventory[..36],
                 &mut g.selected,
@@ -2711,32 +2518,6 @@ impl Game<'_> {
                 }),
             );
         }
-    }
-
-    /// Whether the mods let a creative player set `slot` to `stack`
-    /// (`native_creative_slot`), heard with the guest's state swapped in.
-    fn guest_may_set_creative_slot(
-        &mut self,
-        host: &mut LanHost,
-        conn: u32,
-        slot: i32,
-        stack: Option<&ItemStack>,
-    ) -> bool {
-        let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) else {
-            return true;
-        };
-        let (item, count) = stack.map_or(("minecraft:air", 0), |s| (&*s.item, s.count as i32));
-        let mut cancel = false;
-        let mut hook = |game: &mut Self| {
-            game.native_creative_slot(uuid, &name, slot, item, count, &mut cancel)
-        };
-        // The guest whose turn it is is in place already.
-        if self.lan_acting == Some(conn) {
-            hook(self);
-        } else {
-            self.as_guest(host, conn, hook);
-        }
-        !cancel
     }
 
     /// What ServerboundSetCreativeModeSlotPacket asks of a stack. Its codec
@@ -3032,32 +2813,6 @@ impl Game<'_> {
         {
             return;
         }
-        // Native mods, where Player.attack starts: a canceled blow does
-        // nothing (game/native_hooks.rs).
-        let aimed = if let Some(g) = host
-            .hub
-            .guests
-            .iter()
-            .find(|g| g.entity_id == id && g.conn != conn && host.hub.here(g))
-        {
-            Some(("minecraft:player".to_owned(), g.position))
-        } else {
-            self.level_entity(id).map(|t| {
-                (
-                    self.target_type(t),
-                    self.target_position(t).unwrap_or_default(),
-                )
-            })
-        };
-        if let Some((kind, at)) = aimed
-            && self.as_guest(host, conn, |g| {
-                let mut canceled = false;
-                g.native_attack_entity(id, &kind, at, &mut canceled);
-                canceled
-            }) == Some(true)
-        {
-            return;
-        }
         if let Some(victim) = Self::pvp_victim(host, conn, id) {
             if let Some(Some(strike)) = self.as_guest(host, conn, |g| g.pvp_strike())
                 && self.pvp_land(host, victim, &strike)
@@ -3164,30 +2919,7 @@ impl Game<'_> {
         command: &str,
         signed: Option<Vec<(String, industrial_era_client::lan::hub::chat::ChatMessage)>>,
     ) {
-        // The mods hear every command first, and may stop it.
-        let mut canceled = false;
-        let mut replies = Vec::new();
-        if let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone())) {
-            self.native_player_command(
-                uuid,
-                &name,
-                command.trim_start_matches('/'),
-                &mut canceled,
-                &mut replies,
-            );
-        }
-        for line in replies {
-            host.hub.send_to(
-                conn,
-                &C::SystemChat(play::SystemChat {
-                    content: industrial_era_client::lan::data::component_nbt(&line.component()),
-                    overlay: false,
-                }),
-            );
-        }
-        if canceled {
-            return;
-        }
+        // No mods: run every command directly.
         if self.guest_message_command(host, conn, command, signed.as_ref()) {
             return;
         }
@@ -3209,26 +2941,11 @@ impl Game<'_> {
             self.guest_mute_command(host, conn, &words);
             return;
         }
-        // A native mod's command, for every player its level allows,
-        // whether the world allows commands or not (game/native_server.rs).
-        let integrated = host.hub.config.integrated;
-        if let Some(level) = Self::native_command_level(host, command.trim_start_matches('/'))
-            && let Some(permission) = host.hub.guest(conn).map(|g| g.permission)
-            && permission >= level
-        {
-            host.commands.push(GuestCommand {
-                conn,
-                command: command.trim_start_matches('/').to_owned(),
-                permission,
-                integrated,
-                quiet: false,
-            });
-            return;
-        }
         // An integrated server runs every player's commands at their own
         // permission level (`CommandSourceStack.permissions`); a LAN world
         // follows its Allow Commands, and a dedicated server leaves it to
         // the ops list (the guest's permission level).
+        let integrated = host.hub.config.integrated;
         let allowed = self.options.dedicated.is_some() || self.allow_commands();
         if !integrated && (!host.settings.guest_commands || !allowed) {
             host.hub.send_to(
@@ -3285,9 +3002,7 @@ impl Game<'_> {
         self.lan = Some(host);
         self.chat_capture = Some(Vec::new());
         let level = std::mem::replace(&mut self.ui.registries.permission, c.permission);
-        let ok = if self.perform_native_command(c.conn, c.permission, &c.command) {
-            true
-        } else if c.quiet {
+        let ok = if c.quiet {
             self.run_command_quietly(&c.command)
         } else {
             self.run_command(&c.command)
@@ -3422,13 +3137,6 @@ impl Game<'_> {
         let parse = d.parse(command, &self.ui.registries);
         let ((start, end), mut suggestions) =
             d.suggestions(&parse, command.len(), &self.ui.registries);
-        self.native_tab_complete(
-            player_uuid,
-            &player_name,
-            command,
-            [start, end],
-            &mut suggestions,
-        );
         let reg = &mut self.ui.registries;
         reg.permission = level;
         reg.players = own_players;
@@ -3491,11 +3199,6 @@ impl Game<'_> {
         // count) falls instead of staying up for a player who is gone.
         self.guest_container_closed(host, conn);
         host.hub.close_container(conn);
-        // PlayerList.respawn builds a new `ServerPlayer`, whose `lastEquipmentItems` starts
-        // empty: the mods hear each worn item again from empty (`native_players_equipment`).
-        if let Some(play) = host.play.get_mut(&conn) {
-            play.equipment_heard = None;
-        }
         // PlayerList.respawn: a server's player comes back in its respawn
         // point's level: the Overworld, where the world spawn and beds are,
         // or another one's anchor or forced point, which its block resolves
@@ -3561,7 +3264,6 @@ impl Game<'_> {
         // PlayerEvent.Clone, at the end of `restoreFrom`: the data is copied,
         // the new player not yet placed.
         let (cloned, name) = (g.uuid, g.name.clone());
-        self.native_player_clone(cloned, &name, true);
         let clock_rate = self.network_clock_rate();
         let ctx = TickCtx {
             world: &mut self.world,
@@ -3587,9 +3289,7 @@ impl Game<'_> {
                 (g.uuid, g.name.clone(), g.game_mode)
             };
             let mut cancel = false;
-            if from != SPECTATOR {
-                self.native_player_game_mode_changed(uuid, &name, from, SPECTATOR, &mut cancel);
-            }
+            if from != SPECTATOR {}
             if !cancel {
                 host.hub
                     .set_game_mode(conn, SPECTATOR, &self.world, Some(self.collision));
@@ -3626,20 +3326,9 @@ impl Game<'_> {
             }
             host.hub.teleport(i, Some(at));
         }
-        // PlayerRespawnEvent, at the end of PlayerList.respawn: the player is
-        // placed, in their respawn level, with their state swapped in so the
-        // helpers reach them (as for native_perform_command).
-        let (respawned, name) = (host.hub.guests[i].uuid, host.hub.guests[i].name.clone());
-        self.as_guest(host, conn, |g| g.native_player_respawned(respawned, &name));
-        // The player left another level for the respawn point's: placed for
-        // good they tell the mods now, else the trip that is still carrying
-        // them (a bed or anchor in another level, the world spawn's free
-        // column) does when it arrives (`arrive_server_trips`).
         if away {
             if let Some(trip) = self.server_trips.iter_mut().find(|t| t.is(conn)) {
                 trip.left = Some(left);
-            } else {
-                self.tell_mods_changed_dimension(host, conn, Some(left), level);
             }
         }
         if away && let Err(e) = self.enter_level(Some(host), back) {
@@ -3655,8 +3344,6 @@ impl Game<'_> {
         self.lan_tables_tick(host);
         self.lan_containers_tick(host);
         self.tick_lan_mount_menus(host);
-        self.tick_player_menus(host);
-        self.native_players_equipment(host);
         self.announce_guest_advancements(host);
         let conns: Vec<u32> = host
             .hub
@@ -3777,13 +3464,10 @@ impl Game<'_> {
                 g.tick_fishing();
                 g.tick_maps();
                 g.tick_lodestone_compasses();
-                g.native_inventory_ticks();
                 g.count_tick_stats(sleeping);
                 g.tick_advancements();
                 g.update_player_attributes();
                 g.record_player_scores(&mut recorded);
-                // Native mods, at the end of ServerPlayer.tick.
-                g.native_player_tick();
             });
             host.play.entry(conn).or_default().score_recorded = recorded;
             self.lan_map_updates(host, conn);
@@ -3823,7 +3507,6 @@ impl Game<'_> {
             let drops =
                 (g.game_mode != SPECTATOR).then(|| [at[0], at[1] + g.eye_height() - 0.3, at[2]]);
             let cause = host.play.get_mut(&conn).and_then(|p| p.death_cause.take());
-            self.native_player_died(uuid, cause.as_deref());
             // ServerPlayer.die: the neutral mobs near a guest in this level
             // forget their anger at them.
             if here {
@@ -3913,7 +3596,6 @@ impl Game<'_> {
             let g = &host.hub.guests[gi];
             (g.uuid, g.name.clone())
         };
-        self.native_player_bed_leave(player, &name, head);
         let Some((stand, yaw)) = self.bed_wake_pose(head, yaw) else {
             return;
         };
@@ -3976,9 +3658,7 @@ impl Game<'_> {
                 }
             }
         }
-        if let Some((player, name)) = identity {
-            self.native_player_deep_sleep(player, &name);
-        }
+        if let Some((player, name)) = identity {}
     }
 
     /// `SleepStatus.update`'s counts over the host's player and the guests:
@@ -4136,7 +3816,6 @@ impl Game<'_> {
         let (sneaking, sleeping) = (g.sneaking, g.sleeping);
         let riding = g.vehicle.is_some();
         let mut soul = None;
-        let mut jumps = 0;
         let events = self.as_guest(host, conn, |game| {
             let (rules, motion) = (game.world.health_rules, game.motion);
             let health = &motion.health;
@@ -4197,7 +3876,6 @@ impl Game<'_> {
                     // ServerGamePacketListenerImpl.handlePlayerPositionChange:
                     // the server's copy jumps with the player, so the velocity
                     // it sends them keeps the jump.
-                    jumps += 1;
                     let _ = w.jump_from_ground();
                 }
                 let landed = (|| -> industrial_era_client::Result<()> {
@@ -4313,16 +3991,6 @@ impl Game<'_> {
         let Some((events, marked)) = events else {
             return;
         };
-        if jumps > 0
-            && !industrial_era_client::mod_api::mods().is_empty()
-            && let Some((uuid, name)) = host.hub.guest(conn).map(|g| (g.uuid, g.name.clone()))
-        {
-            self.as_guest(host, conn, |game| {
-                for _ in 0..jumps {
-                    game.native_player_jump(uuid, &name);
-                }
-            });
-        }
         if let Some((at, velocity)) = soul {
             super::lan_particles::send_soul_particle(host, at, velocity);
         }
@@ -4438,7 +4106,6 @@ impl Game<'_> {
             }
         }
         if let (Some(v), Some(g)) = (marked, host.hub.guest(conn)) {
-            self.native_player_velocity(g.uuid, &g.name, [v.x, v.y, v.z]);
             g.send(&C::SetEntityMotion(play::SetEntityMotion {
                 id: g.entity_id,
                 velocity: [v.x, v.y, v.z],
@@ -4469,9 +4136,7 @@ impl Game<'_> {
                 changed = Some((g.uuid, g.name.clone(), gliding));
             }
         }
-        if let Some((uuid, name, gliding)) = changed {
-            self.native_entity_toggle_glide(uuid, &name, gliding);
-        }
+        if let Some((uuid, name, gliding)) = changed {}
     }
 
     /// `Player.canGlide`: not flying, airborne, not riding, no levitation, and
@@ -4646,7 +4311,6 @@ impl Game<'_> {
         if progress != play.last_progress && progress >= 0 {
             play.last_progress = progress;
             let guest = &host.hub.guests[gi];
-            self.native_block_break_progress_update(guest.uuid, &guest.name, pos, progress);
             // The host player sees it too (on the server thread its window is a guest).
             self.destroy_block_progress(host.hub.guests[gi].entity_id, pos, progress);
             host.hub.broadcast_near(
@@ -4732,20 +4396,9 @@ impl Game<'_> {
             .collect();
         let mut taken = Vec::new();
         for item_id in near.into_iter().rev() {
-            let Some(item) = self.dropped.iter().find(|d| d.id == item_id) else {
-                continue;
-            };
-            let stack = item.stack.clone();
-            let refused =
-                self.as_guest(host, conn, |g| g.native_pickup_refused(&stack)) == Some(true);
-            // The hook can remove or change any item entity.
             let Some(i) = self.dropped.iter().position(|d| d.id == item_id) else {
                 continue;
             };
-            if refused {
-                self.dropped[i].pickup_delay = 10;
-                continue;
-            }
             let stack = self.dropped[i].stack.clone();
             let before = stack.count;
             let thrower = self.dropped[i].thrower;
@@ -4840,9 +4493,7 @@ impl Game<'_> {
         });
         self.creatures.projectiles = projectiles;
         for shot in picked {
-            if let Some(arrow) = shot.arrow.as_ref() {
-                self.native_player_pickup_arrow(player, &name, shot.id, &arrow.pickup_item.item);
-            }
+            if let Some(arrow) = shot.arrow.as_ref() {}
             host.hub.take_item(shot.id as i32, id, 1, at);
         }
     }
@@ -4860,7 +4511,6 @@ impl Game<'_> {
         let play = host.play.entry(conn).or_default();
         if play.xp_delay > 0 {
             play.xp_delay -= 1;
-            self.native_player_exp_cooldown_change(player, &name, play.xp_delay);
         }
         if unable || play.xp_delay > 0 {
             return;
@@ -4894,41 +4544,13 @@ impl Game<'_> {
             .unwrap_or(0) as usize;
         // A merged orb gives its value once per count and goes at zero.
         let index = touching[pick];
-        let mut orb = self.orbs[index].clone();
-        let mut canceled = false;
-        // Swapping the guest in costs: only when a mod hears the pickup.
-        let mut listened = false;
-        if self.serving.is_some() || self.options.dedicated.is_some() {
-            self.native_experience_orb_pickup_listened(&mut listened);
-        }
-        if listened {
-            let dimension = self.dim.id();
-            let called = self.as_guest(host, conn, |game| {
-                let player = game.native_acting_id();
-                game.native_experience_orb_pickup(
-                    player,
-                    dimension,
-                    orb.id,
-                    &mut orb.value,
-                    &mut orb.count,
-                    &mut canceled,
-                );
-            });
-            if called.is_none() || canceled {
-                return;
-            }
-            orb.value = orb.value.clamp(1, i32::MAX as u32);
-            orb.count = orb.count.max(1);
-            self.orbs[index].value = orb.value;
-            self.orbs[index].count = orb.count;
-        }
+        let orb = self.orbs[index].clone();
         if orb.count <= 1 {
             self.remove_orb(index);
         } else {
             self.orbs[index].count -= 1;
         }
         host.play.entry(conn).or_default().xp_delay = 2;
-        self.native_player_exp_cooldown_change(player, &name, 2);
         host.hub.take_item(orb.id as i32, id, 1, at);
         // ClientPacketListener.handleTakeItemEntity's sound, at the orb.
         let pitch = (self.world.random.next_float() - self.world.random.next_float()) * 0.35 + 0.9;
@@ -4943,14 +4565,7 @@ impl Game<'_> {
         self.as_guest(host, conn, |game| {
             let rest = game.mending(value);
             if rest > 0 {
-                let (Some(player), Some(name)) =
-                    (game.lan_acting_uuid, game.lan_acting_name.clone())
-                else {
-                    return;
-                };
-                let mut amount = rest.min(i32::MAX as u32) as i32;
-                game.native_player_exp_change(player, &name, &mut amount);
-                game.give_orb_points(amount.max(0) as u32);
+                game.give_orb_points(rest);
             }
         });
     }

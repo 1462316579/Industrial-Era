@@ -80,14 +80,7 @@ impl Launcher {
                     ),
             ),
         );
-        let native = self.mods.java.is_none()
-            && self.instance_mods.list.iter().any(|r| {
-                r.native.is_some()
-                    || r.entry
-                        .as_ref()
-                        .is_some_and(|e| native_status::is_native_file(&e.file))
-            });
-        body = body.children(native.then(|| self.native_build(cx)).flatten());
+        let native = false;
         let rows: Vec<ModRow> = self
             .instance_mods
             .list

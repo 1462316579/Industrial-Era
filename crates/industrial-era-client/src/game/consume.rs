@@ -320,13 +320,8 @@ impl TeleportConsumeWorld for Teleporter<'_, '_> {
         let from = self.at();
         let mut to = [target.x, target.y, target.z];
         let mut cancel = false;
-        self.0.native_chorus_fruit_teleport(
-            uuid,
-            &name,
-            [from.x, from.y, from.z],
-            &mut to,
-            &mut cancel,
-        );
+        // Vanilla chorus fruit: no mod can cancel or redirect the teleport.
+        let _ = (from, cancel);
         // Keep the mod's spot inside the level as vanilla's own draw is (a
         // huge y would walk down a long way); one that is not a number keeps
         // the draw.

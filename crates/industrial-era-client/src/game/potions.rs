@@ -778,7 +778,6 @@ impl Game<'_> {
                             {
                                 let new = !m.has_effect(name);
                                 m.add_effect(name, duration, amp);
-                                self.mod_effect_added(name, Some(id as i32), amp, new);
                             }
                         }
                     }
@@ -958,7 +957,6 @@ impl Game<'_> {
             let current = p.health.absorption();
             let _ = p.set_health(current.max(target), true);
         }
-        self.mod_effect_added(id, None, amp, new);
         changed
     }
     /// `LivingEntity.addEffect` for a content mod's effect: its
@@ -972,10 +970,7 @@ impl Game<'_> {
         new: bool,
     ) {
         if self.remote.is_none() && brewing::is_mod_effect(effect) {
-            if new {
-                self.native_on_effect_added(effect, entity, amplifier);
-            }
-            self.native_mob_effect_added(effect, entity, amplifier);
+            if new {}
         }
     }
     /// `MobEffectInstance.tickServer` for a content mod's effect: its
@@ -989,11 +984,8 @@ impl Game<'_> {
         amplifier: i32,
     ) -> bool {
         let mut apply = false;
-        self.native_should_apply_effect_tick_this_tick(effect, tick_count, amplifier, &mut apply);
         let mut keep = true;
-        if apply {
-            self.native_apply_effect_tick(effect, self.dim.id(), entity, amplifier, &mut keep);
-        }
+        if apply {}
         keep
     }
     /// The effects' attribute modifiers, armor protection and status flags
@@ -1212,9 +1204,7 @@ impl Game<'_> {
                 attacker: None,
             };
             self.splash(&stack, at, mob, block, age, &owner);
-            if item != "minecraft:experience_bottle" {
-                self.native_potion_splash(&item, [at.x, at.y, at.z]);
-            }
+            if item != "minecraft:experience_bottle" {}
         }
     }
     /// `AreaEffectCloud.tick` for the lingering potions' clouds: the client
@@ -1423,7 +1413,6 @@ impl Game<'_> {
                                     ambient.contains(id),
                                     !hidden.contains(id),
                                 );
-                                self.mod_effect_added(name, Some(mob as i32), *amp, new);
                             }
                         }
                     }
@@ -1633,7 +1622,6 @@ impl Game<'_> {
             let r = &mut self.world.random;
             let value = 3 + r.next_int_bound(5).unwrap_or(0) + r.next_int_bound(5).unwrap_or(0);
             self.spawn_orbs([at.x, at.y, at.z], value as u32);
-            self.native_exp_bottle([at.x, at.y, at.z], value as u32);
             return;
         }
         // Projectile.onHit calls onHitBlock first, then the potion's

@@ -428,7 +428,6 @@ impl Game<'_> {
             Screen::BlockEditor => "block-editor",
             Screen::Win => "win",
             Screen::DebugOptions => "debug-options",
-            Screen::Mod => "mod",
         }
     }
     pub(super) fn inventory_counts(&self) -> BTreeMap<String, i64> {

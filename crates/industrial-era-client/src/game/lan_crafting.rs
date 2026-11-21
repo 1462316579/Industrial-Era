@@ -160,9 +160,9 @@ impl Game<'_> {
         if !item_crafted.is_empty() {
             let conn = host.hub.guests[gi].conn;
             self.as_guest(host, conn, |g| {
-                let player = g.native_acting_id();
+                let player = g;
                 for (recipe, stack) in &item_crafted {
-                    g.native_item_crafted(player, recipe, stack);
+                    g;
                 }
             });
         }
@@ -217,7 +217,6 @@ impl Game<'_> {
         let guest = &host.hub.guests[gi];
         let (uuid, name) = (guest.uuid, guest.name.clone());
         let mut result = menu.slot(0).cloned();
-        self.native_prepare_item_craft(uuid, &name, None, &mut result);
         let env = self.menu_env();
         menu.set_slot(&env, 0, result);
         let g = &mut host.hub.guests[gi];
@@ -359,15 +358,7 @@ impl Game<'_> {
             let at = host.hub.guests[gi].position;
             let guest = &host.hub.guests[gi];
             let output = items[2].as_ref();
-            if let Some(output) = output {
-                self.native_furnace_extract(
-                    guest.uuid,
-                    &guest.name,
-                    [pos.0, pos.1, pos.2],
-                    &output.item,
-                    output.count - count(menu.slot(2)),
-                );
-            }
+            if let Some(output) = output {}
             self.award_furnace_recipes(pos, at);
         }
         // Slot.setChanged on a changed container slot: BlockEntity.setChanged,
@@ -450,7 +441,6 @@ impl Game<'_> {
             return;
         }
         let (player, name) = (g.uuid, g.name.clone());
-        self.native_player_recipe_book_click(player, &name, &id, p.use_max);
         let creative = g.creative();
         let placed = if p.container == 0 {
             let crafting = host.play.entry(conn).or_default();
@@ -496,9 +486,6 @@ impl Game<'_> {
 
     /// The guest opened a crafting table (`CraftingTableBlock.getMenuProvider`).
     pub(super) fn lan_open_crafting(&mut self, host: &mut LanHost, conn: u32, pos: [i32; 3]) {
-        if !self.guest_may_open(host, conn, "minecraft:crafting", Some(pos)) {
-            return;
-        }
         // ServerPlayer.openMenu closes the menu that was open.
         self.guest_close_all(host, conn);
         let title = industrial_era_protocol::text::translatable("container.crafting", &[]);
@@ -549,7 +536,6 @@ impl Game<'_> {
             let (uuid, name) = (guest.uuid, guest.name.clone());
             let mut result = menu.slot(0).cloned();
             let vanilla = result.clone();
-            self.native_prepare_item_craft(uuid, &name, Some(pos), &mut result);
             if result != vanilla && !changed.contains(&0) {
                 changed.push(0);
             }

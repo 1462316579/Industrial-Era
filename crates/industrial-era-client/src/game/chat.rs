@@ -62,7 +62,6 @@ impl Game<'_> {
         base: Option<&industrial_era_client::command::Dispatcher>,
     ) -> industrial_era_client::command::Dispatcher {
         let mut names = Vec::new();
-        self.native_commands(&mut names);
         // The window answers this one itself, as it does a client mod's.
         names.push(industrial_era_client::ram_limit::COMMAND);
         let base = match base {
@@ -990,22 +989,15 @@ impl Game<'_> {
             return;
         }
         self.ui.chat.add_recent(&message);
-        // On a server (single player's own included) the server runs it,
-        // unless a client mod owns the command.
+        // On a server (single player's own included) the server runs it.
         if self.remote.is_some() {
-            if let Some(command) = message.strip_prefix('/')
-                && self.client_mod_command(command)
-            {
-                return;
+            if let Some(command) = message.strip_prefix('/') {
+                self.send_chat(&message);
             }
-            self.send_chat(&message);
             return;
         }
         if let Some(command) = message.strip_prefix('/') {
-            // A native mod's command first.
-            if !self.client_mod_command(command) {
-                self.run_command(command);
-            }
+            self.run_command(command);
         } else {
             let line = Text::translate(
                 "chat.type.text",
@@ -1206,9 +1198,6 @@ impl Game<'_> {
     /// commands take it.
     pub(super) fn click_command(&mut self, command: &str) {
         let command = command.strip_prefix('/').unwrap_or(command);
-        if self.client_mod_command(command) {
-            return;
-        }
         if self.remote.is_some() {
             self.send_unattended_command(command);
         } else {

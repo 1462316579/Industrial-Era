@@ -264,8 +264,6 @@ fn take_tracking(
 }
 
 pub struct Hub {
-    /// Clicks on and closings of native mods' menus, for the game.
-    pub native_menu_events: Vec<super::menu::NativeMenuEvent>,
     /// Kicks waiting for the game thread to notify native mods.
     pending_kicks: Vec<HostEvent>,
     /// The entities players started and stopped tracking, collected by
@@ -647,7 +645,6 @@ impl Hub {
             entity_out: Vec::new(),
             entity_gone: Vec::new(),
             mod_commands: (serde_json::Value::Null, None),
-            native_menu_events: Vec::new(),
             pending_kicks: Vec::new(),
             native_tracking: Vec::new(),
             attachment_snapshots: Vec::new(),
@@ -1821,17 +1818,6 @@ impl Hub {
 
     fn remove_guest(&mut self, i: usize, reason: &str) -> Guest {
         let mut g = self.guests.remove(i);
-        if let Some(m) = g
-            .menu
-            .as_ref()
-            .filter(|m| m.slots == super::menu::Slots::Native)
-        {
-            self.native_menu_events
-                .push(super::menu::NativeMenuEvent::Closed {
-                    uuid: g.uuid,
-                    window: m.window,
-                });
-        }
         if g.left_reason.is_empty() {
             g.left_reason = reason.to_owned();
         }
