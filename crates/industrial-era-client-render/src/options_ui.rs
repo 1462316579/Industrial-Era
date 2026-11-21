@@ -1835,7 +1835,6 @@ enum Act {
     ShaderScreen(String),
     ShaderProfile,
     ShaderReset,
-    OpenModFolder,
     OpenCatalog(CatalogShelf),
     /// The creative screen with the inventory beside it, or as the game draws it.
     BedrockInventory,
@@ -1949,7 +1948,6 @@ fn matches_focus(id: &FocusId, i: usize, wd: &Widget) -> bool {
 /// `starling-catalog`, so the game maps it to the catalog's own (game/options.rs).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CatalogShelf {
-    Mods,
     ResourcePacks,
     ShaderPacks,
 }
@@ -1981,13 +1979,10 @@ pub enum Event {
     OpenPackFolder,
     /// Data Packs' Open Pack Folder: create the folder if needed and open it.
     OpenDataPackFolder(std::path::PathBuf),
-    OpenModFolder,
     /// Android: a page's Catalog button (game/mod_catalog.rs).
     OpenCatalog(CatalogShelf),
     /// The Shader Packs page opened: list `shaderpacks/` into `shader_packs`.
     ListShaderPacks,
-    /// The Mods page opened: the native mods folder read again, for a mod copied in meanwhile.
-    ListMods,
     /// A shader pack or its profile was picked, or the pack turned off: save and apply it.
     ShaderPack,
     /// The Shader Packs page's pack options changed: re-render the pack's options page.
@@ -3315,7 +3310,7 @@ impl OptionsUi {
                             Page::Controller,
                         )),
                     ),
-                    Row::Buttons(open("industrial-era.pages.open.extras", Page::Extras)),
+                    Row::Buttons(open("industrial-era.pages.open.extras", Page::Extras), None),
                     Row::Buttons(
                         open(
                             "industrial-era.pages.open.split_setup",
@@ -5844,12 +5839,7 @@ impl OptionsUi {
                             s.controller.reset_bindings();
                             events.push(Event::Changed);
                         }
-                        Act::ToggleMod(i) => {
-                            s.mods.toggle(i);
-                            events.push(Event::Changed);
-                            events.push(Event::ModToggled(i));
-                        }
-                        Act::OpenModFolder => events.push(Event::OpenModFolder),
+
                         Act::OpenCatalog(shelf) => events.push(Event::OpenCatalog(shelf)),
                         Act::OpenShaderPackFolder => events.push(Event::OpenShaderPackFolder),
                         Act::ShaderResolution => {
@@ -6948,9 +6938,7 @@ impl OptionsUi {
                             if p == Page::ShaderPacks {
                                 events.push(Event::ListShaderPacks);
                             }
-                            if p == Page::Mods {
-                                events.push(Event::ListMods);
-                            }
+
                             if p == Page::Music {
                                 events.push(Event::ListMusicTracks);
                             }
@@ -7018,12 +7006,7 @@ impl OptionsUi {
                             s.controller.reset_bindings();
                             events.push(Event::Changed);
                         }
-                        Act::ToggleMod(i) => {
-                            s.mods.toggle(i);
-                            events.push(Event::Changed);
-                            events.push(Event::ModToggled(i));
-                        }
-                        Act::OpenModFolder => events.push(Event::OpenModFolder),
+
                         Act::OpenCatalog(shelf) => events.push(Event::OpenCatalog(shelf)),
                         Act::PickShaderPack(i) => {
                             let pick = match i {
@@ -8969,7 +8952,7 @@ mod tests {
         let main = pushes(&mut ui);
         assert_eq!(
             &main[main.len() - 3..],
-            [Page::IndustrialEra, Page::Mods, Page::Credits]
+            [Page::IndustrialEra, Page::Credits]
         );
         ui.push(Page::IndustrialEra);
         assert_eq!(
@@ -8980,7 +8963,6 @@ mod tests {
                 Page::ShaderPacks,
                 Page::Controller,
                 Page::Extras,
-                Page::Mods,
                 Page::SplitSetup,
                 Page::Agent,
             ]
@@ -9987,10 +9969,7 @@ mod tests {
         let atlas = atlas();
         let mut s = Settings::default();
         for size in PHONE_GUI {
-            for (page, shelf) in [
-                (Page::Mods, CatalogShelf::Mods),
-                (Page::ShaderPacks, CatalogShelf::ShaderPacks),
-            ] {
+            for (page, shelf) in [(Page::ShaderPacks, CatalogShelf::ShaderPacks)] {
                 let mut ui = OptionsUi {
                     catalog_buttons: true,
                     ..OptionsUi::default()
