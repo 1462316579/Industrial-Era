@@ -19,19 +19,6 @@ pub(super) const CONTROL_HELP: &[&str] = &[
     "graphics-set KEY VALUE         set a Industrial Era graphics setting (resolutionScale 25..200, presentMode, workers...), apply and save it",
 ];
 
-/// The catalog's shelf for a page's Catalog button.
-#[cfg(target_os = "android")]
-fn catalog_shelf(
-    shelf: industrial_era_client::options_ui::CatalogShelf,
-) -> starling_catalog::Shelf {
-    use industrial_era_client::options_ui::CatalogShelf;
-    match shelf {
-        CatalogShelf::Mods => starling_catalog::Shelf::Mods,
-        CatalogShelf::ResourcePacks => starling_catalog::Shelf::ResourcePacks,
-        CatalogShelf::ShaderPacks => starling_catalog::Shelf::ShaderPacks,
-    }
-}
-
 impl Game<'_> {
     /// One of the game's folders (packs, shader packs, mods) in the file manager. On a phone the
     /// Files app shows it through Starling's own provider, wherever the game keeps it. A folder it
