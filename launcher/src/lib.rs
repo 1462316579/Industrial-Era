@@ -30,7 +30,6 @@ pub mod nightly;
 pub mod other_launchers;
 pub mod packs;
 pub mod process;
-pub mod proxy;
 pub mod rust_toolchain;
 pub mod screenshots;
 pub mod server_list;

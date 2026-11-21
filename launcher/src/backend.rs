@@ -669,11 +669,11 @@ pub fn mod_api_level(tag: &str) -> u32 {
 fn program_mod_api_level(path: &Path) -> u32 {
     let program = fs::read(path).unwrap_or_default();
     let mark = b"industrial-era-mod-api-level-0";
-    program
-        .windows(mark.len())
-        .any(|w| w == mark)
-        .then_some(0)
-        .unwrap_or(0)
+    if program.windows(mark.len()).any(|w| w == mark) {
+        0
+    } else {
+        0
+    }
 }
 
 /// Installed versions, newest tag first.
