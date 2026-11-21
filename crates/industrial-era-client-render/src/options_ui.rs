@@ -7600,144 +7600,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn classic_mods_page_toggles_mods_and_keeps_dev_and_invalid_entries_inactive() {
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let mut ui = OptionsUi::default();
-        let size = (480.0, 240.0);
-        assert!(ui.layout(&s, size.0, size.1).0.iter().any(|w| {
-            matches!(
-                w.kind,
-                WKind::Button {
-                    active: true,
-                    act: Act::Push(Page::Mods),
-                    ..
-                }
-            )
-        }));
-        ui.show(Page::Mods);
-        let empty = ui.layout(&s, size.0, size.1).0;
-        assert!(empty.iter().any(|w| {
-            matches!(&w.kind, WKind::Text { text, .. } if text.plain() == "industrial-era.mods.empty")
-        }));
-        // The empty page points at the bundled key; the English line behind it
-        // is what a player reads, so both halves are checked here.
-        let en = crate::lang::Language::load(&[], "en_us");
-        assert!(
-            en.get("industrial-era.mods.empty")
-                .is_some_and(|line| line.contains(".hmod"))
-        );
-        let open_folder = empty
-            .iter()
-            .find(|w| {
-                matches!(
-                    &w.kind,
-                    WKind::Button {
-                        act: Act::OpenModFolder,
-                        ..
-                    }
-                )
-            })
-            .expect("Mods page has an Open Mod Folder button");
-        assert_eq!(
-            ui.click(
-                &mut s,
-                &atlas,
-                open_folder.x + 1.0,
-                open_folder.y + 1.0,
-                size,
-                [480, 240],
-                false,
-                false,
-            ),
-            vec![Event::ButtonClick, Event::OpenModFolder]
-        );
-        for (id, dev) in [("normal", false), ("dev", true), ("", false)] {
-            s.mods.installed.push(crate::mod_list::Installed {
-                id: id.into(),
-                title: id.into(),
-                description: "May show HUD panels.".into(),
-                problem: id.is_empty().then(|| "Invalid package".into()),
-                dev,
-                native: None,
-            });
-        }
-        let (widgets, ..) = ui.layout(&s, size.0, size.1);
-        let rows: Vec<_> = widgets
-            .iter()
-            .filter(|w| {
-                matches!(
-                    w.kind,
-                    WKind::Button {
-                        act: Act::ToggleMod(_),
-                        ..
-                    }
-                )
-            })
-            .collect();
-        assert_eq!(rows.len(), 3);
-        for (i, row) in rows.iter().enumerate() {
-            let events = ui.click(
-                &mut s,
-                &atlas,
-                row.x + 1.0,
-                row.y + 1.0,
-                size,
-                [480, 240],
-                false,
-                false,
-            );
-            if i == 0 {
-                assert!(events.contains(&Event::Changed));
-                assert!(events.contains(&Event::ButtonClick));
-            } else {
-                assert!(events.is_empty());
-            }
-        }
-        assert!(s.mods.is_on(0));
-        assert!(s.mods.is_on(1));
-        assert!(!s.mods.is_on(2));
-        assert_eq!(s.mods.serialize(), "mod.normal:true\n");
-        let row = rows[0];
-        ui.click(
-            &mut s,
-            &atlas,
-            row.x + 1.0,
-            row.y + 1.0,
-            size,
-            [480, 240],
-            false,
-            false,
-        );
-        assert!(!s.mods.is_on(0));
-        assert!(!ui.back(&mut s).contains(&Event::Close));
-        assert_eq!(ui.page(), Page::Main);
-    }
-
-    #[test]
-    fn mods_page_shows_installed_mod_rows() {
-        let atlas = atlas();
-        let mut s = Settings::default();
-        let mut ui = OptionsUi::default();
-        let size = (480.0, 240.0);
-        s.mods.installed.push(crate::mod_list::Installed {
-            id: "zoom".into(),
-            title: "Zoom 2.0.0".into(),
-            description: "Zooms in.".into(),
-            problem: None,
-            dev: false,
-        });
-        ui.show(Page::Mods);
-        let (widgets, ..) = ui.layout(&s, size.0, size.1);
-        assert!(widgets.iter().any(|w| matches!(
-            w.kind,
-            WKind::Button {
-                act: Act::ToggleMod(0),
-                ..
-            }
-        )));
-    }
 
     #[test]
     fn video_page_lists_vanilla_display_and_quality_options_in_order() {
@@ -10045,7 +9907,7 @@ mod tests {
         let mut s = Settings::default();
         let size = (800.0, 360.0);
         let mut ui = OptionsUi::default();
-        for page in [Page::Mods, Page::ShaderPacks] {
+        for page in [Page::ShaderPacks] {
             ui.show(page);
             let (widgets, ..) = ui.layout(&s, size.0, size.1);
             assert!(!widgets.iter().any(|w| matches!(
@@ -10102,7 +9964,6 @@ mod tests {
             pack_infos: vec![pack_info("file/old")],
             ..OptionsUi::default()
         };
-        ui.show(Page::Mods);
         ui.update_pack_infos(vec![pack_info("file/old"), pack_info("file/new")]);
         ui.show(Page::Packs);
         let listed = &ui.packs(&atlas, (800.0, 360.0)).model.unselected;
