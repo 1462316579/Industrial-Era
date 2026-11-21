@@ -45,7 +45,7 @@ fn player_home(home: &Path) {
     put(&home.join("logs/latest.log"), "log");
     put(&home.join("sessions/a.json"), "token");
     put(&home.join("telemetry/consent.json"), "{}");
-    let pack = industrial_era_port_pack::import::Pack {
+    let pack = industrial_era_prepare::import::Pack {
         name: "Small Pack".into(),
         ..Default::default()
     };

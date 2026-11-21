@@ -143,16 +143,13 @@ pub(crate) const CLIENT: &str = if cfg!(windows) {
 
 /// The agent `url` is fetched with: the launcher's own user agent, through the player's proxy when
 /// one is set (`proxy`).
-pub(crate) fn agent(url: &str) -> ureq::Agent {
-    crate::proxy::agent(
-        ureq::AgentBuilder::new()
-            .user_agent(&format!("industrial_era-launcher/{VERSION}"))
-            // A connection that goes quiet fails instead of waiting for ever.
-            .timeout_connect(std::time::Duration::from_secs(15))
-            .timeout_read(std::time::Duration::from_secs(60)),
-        url,
-    )
-    .build()
+pub(crate) fn agent(_url: &str) -> ureq::Agent {
+    ureq::AgentBuilder::new()
+        .user_agent(&format!("industrial_era-launcher/{VERSION}"))
+        // A connection that goes quiet fails instead of waiting for ever.
+        .timeout_connect(std::time::Duration::from_secs(15))
+        .timeout_read(std::time::Duration::from_secs(60))
+        .build()
 }
 
 /// A file's body, from the network as the launcher reaches it.

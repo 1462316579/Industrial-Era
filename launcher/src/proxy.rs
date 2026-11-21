@@ -110,18 +110,20 @@ mod tests {
 
     #[test]
     fn a_local_address_takes_no_proxy() {
-        assert_eq!(spec_for("http://127.0.0.1:8130/api/v1/status"), None);
-        assert_eq!(spec_for("http://localhost/api/v1/status"), None);
+        assert_eq!(parse("http://127.0.0.1:8130/api/v1/status"), None);
+        assert_eq!(parse("http://localhost/api/v1/status"), None);
     }
 
     /// An address the launcher knows nothing about is one nothing is written for either.
     #[test]
     fn a_relative_address_has_no_scheme_to_read_a_proxy_for() {
-        assert_eq!(spec_for("data/a.jar"), None);
+        assert_eq!(parse("data/a.jar"), None);
     }
 
+    /// A proxy address is checked before it is kept.
     #[test]
     fn a_proxy_address_is_checked_before_it_is_kept() {
+        use crate::browser::images::refuse;
         assert_eq!(refuse(""), None);
         assert_eq!(refuse("  "), None);
         assert_eq!(refuse("http://127.0.0.1:7890"), None);
@@ -134,6 +136,7 @@ mod tests {
     /// The reason is shown under the field and printed by `industrial_era-launcher settings set`.
     #[test]
     fn a_refused_address_keeps_its_credentials_to_itself() {
+        use crate::browser::images::refuse;
         let why = refuse("socks5://user:secret@127.0.0.1:7891").unwrap();
         assert!(why.starts_with("socks5://***@127.0.0.1:7891 "), "{why}");
         let why = refuse("http://user:secret@").unwrap();

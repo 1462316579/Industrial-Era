@@ -261,7 +261,7 @@ impl Api {
         if_match: Option<&str>,
     ) -> Result<(Value, Option<String>), String> {
         let url = format!("{}/api/v2{path}", self.base);
-        let agent = crate::proxy::agent(
+        let agent = crate::backend::agent(
             ureq::AgentBuilder::new().timeout(Duration::from_secs(20)),
             &url,
         )

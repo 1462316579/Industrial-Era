@@ -77,7 +77,7 @@ impl Endpoints {
 /// A request to `url`: the launcher's user agent, a 20 s timeout, and the player's proxy when one
 /// is set (`proxy`), since a sign-in has to get out the way downloads do.
 fn request_to(method: &str, url: &str) -> ureq::Request {
-    crate::proxy::agent(
+    crate::backend::agent(
         ureq::AgentBuilder::new()
             .timeout(Duration::from_secs(20))
             .user_agent(&format!(

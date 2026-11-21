@@ -1,6 +1,7 @@
 //! The registry source against the sample index of `industrial_era_mods::index`
 //! (`crates/industrial_era-mods/tests/index/`), its files served from disk.
 use super::*;
+use crate::browser::{Index, Kind, Project, Revoked, Version};
 
 fn fixtures() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../crates/industrial_era-mods/tests/index")
@@ -42,9 +43,9 @@ fn put(index: &Index, local: bool, home: &Path) -> Result<Vec<installed::Entry>,
 
 #[test]
 fn native_registry_entries_are_mods_that_say_they_run_native_code() {
-    assert_eq!(kind_of(&index::Kind::NativeMod), Some(Kind::Mod));
+    assert_eq!(kind_of(&Kind::NativeMod), Some(Kind::Mod));
     let mut index = sample();
-    index.projects[0].kind = index::Kind::NativeMod;
+    index.projects[0].kind = Kind::NativeMod;
     index.projects[0].versions[0].file.name = "coords_hud-0.1.0.hnmod".into();
     let found = search(&index, &Query::new("", Kind::Mod));
     assert!(found.iter().any(|p| p.id == index.projects[0].id));
@@ -96,9 +97,9 @@ fn searches_by_kind_and_words() {
     assert_eq!(found("", Kind::Shader), ["glow"]);
     // The index's download counts, most downloaded first (of native mods: the browser lists them).
     let mut counted = index.clone();
-    counted.projects[0].kind = index::Kind::NativeMod;
+    counted.projects[0].kind = Kind::NativeMod;
     counted.projects[0].versions[0].file.name = "coords_hud-0.1.0.hnmod".into();
-    counted.projects.push(index::Project {
+    counted.projects.push(Project {
         id: "zoom".into(),
         name: "Zoom".into(),
         downloads: 12_345,
@@ -111,7 +112,7 @@ fn searches_by_kind_and_words() {
     // Newest orders by the day a project's first version came out, Updated by its latest.
     let mut dated = counted.clone();
     let base = dated.projects[0].versions[0].clone();
-    let version_on = |day: &str| index::Version {
+    let version_on = |day: &str| Version {
         published: day.into(),
         ..base.clone()
     };
@@ -166,7 +167,7 @@ fn installs_checked_turns_on_and_removes() {
     assert_eq!(again, done);
 
     let mut revoked = index.clone();
-    revoked.revoked.push(index::Revoked {
+    revoked.revoked.push(Revoked {
         id: "coords_hud".into(),
         sha256: None,
         reason: "Test.".into(),
@@ -221,7 +222,7 @@ fn installs_a_shader_pack_into_shaderpacks() {
     assert!(!home.join("industrial_era-mods.txt").exists());
 
     let mut revoked = index.clone();
-    revoked.revoked.push(index::Revoked {
+    revoked.revoked.push(Revoked {
         id: "glow".into(),
         sha256: None,
         reason: "Test.".into(),
@@ -262,7 +263,7 @@ fn refuses_a_changed_file_a_taken_id_and_local_files_from_the_real_registry() {
     assert!(e.contains("already in industrial_era-mods"), "{e}");
 
     let mut taken_down = index.clone();
-    taken_down.revoked.push(index::Revoked {
+    taken_down.revoked.push(Revoked {
         id: "coords_hud".into(),
         sha256: Some(index.projects[0].versions[0].file.sha256.clone()),
         reason: "Test.".into(),
