@@ -34,7 +34,6 @@ pub(super) fn loaders() -> Vec<Loader> {
 fn kind_of(i: &Instance) -> NewKind {
     match &i.java {
         None => NewKind::IndustrialEra,
-        Some(j) if j.loader.is_some() => NewKind::Modded,
         Some(_) => NewKind::Vanilla,
     }
 }
@@ -273,31 +272,14 @@ impl Launcher {
         pin.or_else(|| self.launcher_version().cloned())
     }
 
-    /// The mark an instance shows when nothing is chosen: IndustrialEra's, the grass block, its
-    /// loader's logo.
+    /// The mark an instance shows when nothing is chosen: IndustrialEra's, or its loader's logo.
     fn auto_mark(&mut self, kind: NewKind, loader: Loader, size: f32) -> AnyElement {
-        let mark = match kind {
+        match kind {
             NewKind::IndustrialEra => {
                 return ui::mark_tile(size, self.look.accent_soft).into_any_element()
             }
-            NewKind::Vanilla => self.vanilla_icon().and_then(|grass| {
-                self.icon_image("mark:grass".into(), size, false, || {
-                    std::fs::read(grass).ok()
-                })
-            }),
-            NewKind::Modded => self.loader_logo(loader.id(), size),
-        };
-        match mark {
-            Some(image) if kind == NewKind::Vanilla => {
-                instance_icons::centred(image, size, self.scale).into_any_element()
-            }
-            Some(image) => tile_image(image, size),
-            None => {
-                let name = match kind {
-                    NewKind::Vanilla => "Vanilla",
-                    _ => loader.name(),
-                };
-                letter_tile(white(fill::BUTTON), name, size).into_any_element()
+            NewKind::Vanilla => {
+                return letter_tile(white(fill::BUTTON), "Vanilla", size).into_any_element()
             }
         }
     }
@@ -383,7 +365,6 @@ impl Launcher {
                 None => "IndustrialEra".into(),
             },
             NewKind::Vanilla => format!("{} · {minecraft}", tr("Vanilla")),
-            NewKind::Modded => format!("{} · {minecraft}", loader.name()),
         };
         let group = self.servers.value(Field::InstanceGroup).trim().to_string();
         if !group.is_empty() {
@@ -399,16 +380,7 @@ impl Launcher {
         // An instance keeps its kind: editing shows only its own.
         let kinds: Vec<NewKind> = match editing {
             Some(_) => vec![kind],
-            None => vec![NewKind::IndustrialEra, NewKind::Vanilla, NewKind::Modded],
-        };
-        let names: Vec<&str> = loaders().iter().map(|l| l.name()).collect();
-        let modded = match names.split_last() {
-            Some((last, [])) => last.to_string(),
-            Some((last, rest)) => trf(
-                "{first} or {last}",
-                &[("first", &rest.join(", ")), ("last", last)],
-            ),
-            None => String::new(),
+            None => vec![NewKind::IndustrialEra, NewKind::Vanilla],
         };
         let mut cards = Vec::new();
         for k in kinds {
@@ -423,21 +395,8 @@ impl Launcher {
                     tr("Vanilla"),
                     tr("Minecraft as Mojang ships it").to_string(),
                 ),
-                NewKind::Modded => ("modded", tr("Modded"), modded.clone()),
             };
-            let tile = match k {
-                NewKind::Modded => div()
-                    .flex()
-                    .flex_none()
-                    .items_center()
-                    .justify_center()
-                    .size(px(42.))
-                    .rounded(px(11.))
-                    .bg(white(fill::BUTTON))
-                    .child(ui::icon("puzzle", 21., white(0.85)))
-                    .into_any_element(),
-                _ => self.auto_mark(k, loader, 42.),
-            };
+            let tile = self.auto_mark(k, loader, 42.);
             let card = choice(format!("new-kind-{id}"), k == kind, &t)
                 .items_center()
                 .gap(px(14.))
@@ -476,7 +435,6 @@ impl Launcher {
                 )
                 .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
                     this.instances.dialog = None;
-                    this.show_modpack(None);
                     cx.notify();
                 }))
             });
@@ -559,7 +517,6 @@ impl Launcher {
             (Some(i), _) => trf("Edit {name}", &[("name", &i.name)]),
             (None, NewKind::IndustrialEra) => tr("A new IndustrialEra instance").into(),
             (None, NewKind::Vanilla) => tr("A new vanilla instance").into(),
-            (None, NewKind::Modded) => tr("A new modded instance").into(),
         };
         let sub = match editing {
             Some(_) => tr("Changes apply the next time it starts. Worlds stay where they are."),
@@ -635,9 +592,6 @@ impl Launcher {
             (Some(_), _) => {}
             (None, _) => {
                 body = body.child(self.minecraft_versions(cx));
-                if kind == NewKind::Modded {
-                    body = body.child(self.loader_choice(cx));
-                }
             }
         }
         let name = self
@@ -915,7 +869,7 @@ impl Launcher {
         );
         // Minecraft's grass block from the player's own files, then the loaders' logos: each
         // becomes the instance's picture.
-        let grass = self.vanilla_icon().and_then(|g| std::fs::read(g).ok());
+        let grass = None;
         let mut logos: Vec<(&'static str, Vec<u8>)> = Vec::new();
         if let Some(g) = grass {
             logos.push(("grass", g));

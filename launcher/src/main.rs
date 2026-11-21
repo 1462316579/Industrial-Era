@@ -20,7 +20,6 @@ mod game_tools;
 mod glass;
 mod glass_home;
 mod glass_home_lists;
-mod glass_home_mods;
 mod glass_home_packs;
 mod glass_home_tabs;
 mod glass_instance;
@@ -38,8 +37,6 @@ mod line_edit;
 mod markdown;
 mod mcp;
 mod microsoft;
-mod mods_page;
-mod mods_project;
 mod multiplayer_page;
 mod new_instance;
 mod owner_page;
@@ -91,22 +88,16 @@ use theme::Theme;
 enum Page {
     Play,
     Versions,
-    /// Mods, resource packs and modpacks (imported ones and the browser's).
-    Mods,
     Servers,
     Notes,
     Settings,
 }
 
 impl Page {
-    /// `HORIZON_LAUNCHER_PAGE=mods` (or `modpacks`, `resourcepacks`, `shaders`, `servers`, `versions`, `notes`,
-    /// `settings`) opens on that page, for screenshots; Home otherwise (`getting-ready`: Home
-    /// preparing, `home::getting_ready_preview`; `sign-in`: the owner gate's sheet with a
-    /// made-up code, `owner_page::sign_in_preview`; `new-instance`: Home with the New instance
-    /// dialog open on Modded; `edit-instance`: the selected one's Edit dialog; `worlds`, `packs`...: Home on that tab, `HomeTab::from_env`).
+    /// `HORIZON_LAUNCHER_PAGE=resourcepacks` or `shaders` opens Home on the browser tab; Home otherwise (`getting-ready`: Home preparing, `home::getting_ready_preview`; `sign-in`: the owner gate's sheet with a made-up code, `owner_page::sign_in_preview`; `new-instance`: Home with the New instance dialog open on Modded; `edit-instance`: the selected one's Edit dialog; `worlds`, `packs`...: Home on that tab, `HomeTab::from_env`).
     fn from_env() -> Page {
         match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
-            Ok("mods" | "modpacks" | "resourcepacks" | "shaders" | "datapacks") => Page::Mods,
+            Ok("resourcepacks" | "shaders") => Page::Play,
             Ok("servers") => Page::Servers,
             Ok("versions") => Page::Versions,
             Ok("notes") => Page::Notes,
@@ -117,9 +108,8 @@ impl Page {
 
     /// Every page, with its name and icon: the top bar shows all but Settings, which has its
     /// own button.
-    const ALL: [(Page, &'static str, &'static str); 6] = [
+    const ALL: [(Page, &'static str, &'static str); 5] = [
         (Page::Play, "Home", "home"),
-        (Page::Mods, "Mods", "package"),
         (Page::Servers, "Servers", "server"),
         (Page::Versions, "Versions", "archive"),
         (Page::Notes, "Patch notes", "notes"),
@@ -338,8 +328,6 @@ struct Launcher {
     bench: Option<perf::Bench>,
     /// The game starting now plays this pack's profile (its work folder).
     starting_pack: Option<std::path::PathBuf>,
-    /// The Mods page: the browser's search, installs and updates (`mods_page.rs`).
-    mods: mods_page::Mods,
     /// The instances, for the sidebar and Play, and their dialog (`instances_page.rs`).
     instances: instances_page::Instances,
     /// Home's Worlds section, of the selected instance (`worlds_page.rs`).
@@ -552,16 +540,7 @@ impl Launcher {
             client_since: None,
             play_pressed: None,
             bench: perf::Bench::from_env(),
-            packs: Vec::new(),
-            registry_packs: Vec::new(),
-            packs_loaded: None,
-            pack_open: None,
-            pack_filter: None,
-            pack_busy: false,
-            pack_log: VecDeque::new(),
-            pack_error: None,
             starting_pack: None,
-            mods: mods_page::Mods::new(cx),
             instances: instances_page::Instances::default(),
             worlds: worlds_page::Worlds::default(),
             multiplayer: multiplayer_page::Multiplayer::default(),
@@ -612,7 +591,6 @@ impl Launcher {
         // `HORIZON_LAUNCHER_PAGE=new-instance`: the dialog open on Modded, for screenshots
         // (`new-instance-industrial_era`, `new-instance-vanilla`: on those).
         let kind = match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
-            Ok("new-instance") => Some(new_instance::NewKind::Modded),
             Ok("new-instance-industrial_era") => Some(new_instance::NewKind::IndustrialEra),
             Ok("new-instance-vanilla") => Some(new_instance::NewKind::Vanilla),
             _ => None,
@@ -698,14 +676,10 @@ impl Launcher {
             self.switches += 1;
             self.content_scroll = Scrollbar::default();
             self.long_list = cull::Cull::default();
-            if page == Page::Mods {
-                self.mods.reset_lists();
-            }
+            self.picker_open = false;
+            self.language_menu = false;
+            self.account_menu = false;
         }
-        self.picker_open = false;
-        self.language_menu = false;
-        self.mods.browse.sort_menu = false;
-        self.account_menu = false;
     }
 
     fn check_updates(&mut self) {
@@ -800,7 +774,7 @@ impl Launcher {
         }
         // Play pressed before the version was prepared plays now.
         if let Some(tag) = self.play_when_prepared.take() {
-            if error.is_none() && backend::is_prepared(&tag) {
+            if backend::is_prepared(&tag) {
                 self.starting_pack = None;
                 self.start_client(tag);
             }
@@ -1061,21 +1035,16 @@ impl Launcher {
                         Err(e) => SelfUpdate::Failed(e),
                     };
                 }
-                Msg::PackLine(line) => {
-                    self.pack_log.push_back(line);
-                    if self.pack_log.len() > LOG_LINES {
-                        self.pack_log.pop_front();
-                    }
-                }
-                Msg::PackDone(result) => self.pack_done(result),
-                // Old versions log their session; it never reaches the window.
-                Msg::Line(_, line) if line.contains("Session ID is") => {}
                 Msg::Line(job, line) => {
                     if job == Job::Client && line.starts_with(perf::GAME_FIRST_FRAME) {
                         if let Some(pressed) = self.play_pressed.take() {
                             self.perf
                                 .record_since("launcher.play_to_game_frame_ms", pressed);
                         }
+                    }
+                    // Old versions log their session; it never reaches the window.
+                    if line.contains("Session ID is") {
+                        return;
                     }
                     // The MCP server keeps its own server's log; the launcher's are the preparer's
                     // and the game's.
@@ -1177,8 +1146,6 @@ impl Launcher {
             }
         }
         changed |= self.servers_tick();
-        changed |= self.mods_tick();
-        changed |= self.github_tick();
         if let Some(sign_in) = &self.sign_in {
             if let Some(state) = sign_in_change(&mut self.sign_in_state, sign_in.state()) {
                 if let SignInState::Done(Ok(ref account)) = state {
@@ -2410,7 +2377,6 @@ impl Launcher {
                     .flex_none()
                     .items_center()
                     .gap(px(8.))
-                    .children(build_log)
                     .child(account)
                     .child(settings),
             )
@@ -2421,7 +2387,6 @@ impl Launcher {
     fn sidebar(&mut self, window: &Window, cx: &mut Context<Self>) -> Stateful<Div> {
         let t = self.theme;
         let n = t.night;
-        self.load_packs();
         let heading = |label: String| shell::heading(label, &t);
         let add = shell::icon_button("add-instance", "plus", 24., false, &t).on_click(cx.listener(
             |this, _: &ClickEvent, _, cx| {
@@ -3520,19 +3485,13 @@ impl Launcher {
             }));
         let field = line_edit::mouse(field, cx, |this| &mut this.proxy_input);
         // A half-typed address is no reason to complain; one left behind is.
-        let detail = match (
-            focused,
-            industrial_era_launcher::proxy::refuse(self.proxy_input.text()),
-        ) {
-            (false, Some(why)) => div().text_color(t.danger).child(why).into_any_element(),
-            _ => div()
-                .child(tr(
-                    "Downloads, sign-ins and updates go through this HTTP proxy \
-                     (http://host:port). Empty means none: HTTPS_PROXY is used instead when the \
-                     launcher was started with one.",
-                ))
-                .into_any_element(),
-        };
+        let detail = div()
+            .child(tr(
+                "Downloads, sign-ins and updates go through this HTTP proxy \
+                 (http://host:port). Empty means none: HTTPS_PROXY is used instead when the \
+                 launcher was started with one.",
+            ))
+            .into_any_element();
         index_row(
             n,
             tr("Proxy"),
@@ -3548,7 +3507,6 @@ impl Launcher {
         let value = self.proxy_input.text().trim().to_owned();
         self.settings.proxy = (!value.is_empty()).then_some(value);
         self.save_settings();
-        industrial_era_launcher::proxy::announce(self.settings.proxy.clone());
     }
 
     /// Settings' Microsoft accounts: who is signed in and plays, the sign-in with its code. The
@@ -4413,8 +4371,6 @@ impl Render for Launcher {
         }
         self.servers.note_focus(window, cx);
         self.friend_focused = self.friend_focus.is_focused(window);
-        self.mods.note_focus(window);
-        self.github.note_focus(window);
         self.args_focused = self.args_focus.is_focused(window);
         self.proxy_focused = self.proxy_focus.is_focused(window);
         let size = window.viewport_size();
@@ -4422,7 +4378,6 @@ impl Render for Launcher {
         let content = match self.page {
             Page::Play => self.play_page(cx),
             Page::Versions => self.versions_page(cx),
-            Page::Mods => self.mods_page(cx),
             Page::Servers => self.servers_page(cx),
             Page::Notes => self.notes_page(cx),
             Page::Settings => self.settings_page(cx),
@@ -4766,9 +4721,6 @@ fn main() {
     backend::cleanup_launcher_updates();
     // What the launcher downloads goes through the player's proxy, if they set one: the parts
     // that build their own agents (`industrial_era-port-pack`) are told before anything starts.
-    industrial_era_launcher::proxy::announce(
-        industrial_era_launcher::backend::Settings::load().proxy,
-    );
     if let Some(code) = cli::run() {
         std::process::exit(code);
     }

@@ -130,15 +130,6 @@ impl Launcher {
                     (None, Some(_), None) => (Tone::Live, tr("Ready").into()),
                 }
             }
-            InstanceKind::Port => {
-                let slug = &i.id["port:".len()..];
-                let summary = self.packs.iter().find(|p| p.slug == slug);
-                (
-                    Tone::Live,
-                    summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
-                )
-            }
-            InstanceKind::Pack => (Tone::Off, tr("From IndustrialEra's registry").into()),
         }
     }
 
@@ -146,7 +137,7 @@ impl Launcher {
     fn glass_instances(&mut self, cx: &mut Context<Self>) -> Vec<AnyElement> {
         let t = self.theme;
         let selected = self.selected_instance().map(|i| i.id.clone());
-        let on_packs = self.page == Page::Mods && self.mods.on_modpacks();
+        let on_packs = false;
         let mut out = Vec::new();
         let mut group = None;
         let mut list = div().flex().flex_col().gap(px(4.));
@@ -173,12 +164,8 @@ impl Launcher {
             // pack's page is open: that row is the one shown then.
             let current = match i.kind {
                 InstanceKind::Default | InstanceKind::Own => {
-                    !(on_packs && self.pack_open.is_some()) && selected.as_ref() == Some(&i.id)
+                    !(on_packs && false) && selected.as_ref() == Some(&i.id)
                 }
-                InstanceKind::Port => {
-                    on_packs && self.pack_open.as_deref() == Some(&i.id["port:".len()..])
-                }
-                InstanceKind::Pack => false,
             };
             let state = self.row_state(&i);
             let icon = self.glass_instance_icon(&i, 38.);
@@ -233,10 +220,6 @@ impl Launcher {
                                         this.select_instance(&clicked);
                                         this.go(Page::Play);
                                     }
-                                    InstanceKind::Port => {
-                                        this.show_modpack(Some(clicked.id["port:".len()..].into()))
-                                    }
-                                    InstanceKind::Pack => this.show_modpack(None),
                                 }
                                 cx.notify();
                             })),
@@ -252,7 +235,6 @@ impl Launcher {
     pub(super) fn glass_sidebar(&mut self, window: &Window, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let soft = self.look.accent_soft;
-        self.load_packs();
         let add = ui::icon_button(
             "add-instance",
             "plus-sign",
@@ -660,26 +642,6 @@ impl Launcher {
             cx.notify();
         }));
         // The last native build's log (not in the mockup, kept), as a quiet button.
-        let build_log = self.native_log.available.then(|| {
-            keyboard(
-                div()
-                    .id("topbar-native-log")
-                    .flex()
-                    .items_center()
-                    .h(px(36.))
-                    .px(px(14.))
-                    .rounded(px(radius::CONTROL))
-                    .bg(white(fill::BUTTON))
-                    .hover(|s| s.bg(white(fill::BUTTON_HOVER)))
-                    .cursor_pointer()
-                    .child(ui::text(14., FontWeight::MEDIUM, ink::FULL).child(tr("Build log")))
-                    .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                        this.native_log_open();
-                        cx.notify();
-                    })),
-                &t,
-            )
-        });
         div()
             .flex()
             .flex_none()
@@ -695,7 +657,6 @@ impl Launcher {
                     .flex_none()
                     .items_center()
                     .gap(px(6.))
-                    .children(build_log)
                     .child(account)
                     .children(sign_in)
                     .child(settings),

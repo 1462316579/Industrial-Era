@@ -45,7 +45,7 @@ const MAX: u64 = 1 << 30;
 ///
 /// It is kept between downloads: a fresh agent starts a new connection pool, so one per file would
 /// be a handshake per file, and a modpack brings hundreds.
-pub(super) fn agent(url: &str) -> ureq::Agent {
+pub(super) fn agent(_url: &str) -> ureq::Agent {
     ureq::AgentBuilder::new()
         .user_agent(&format!(
             "industrial_era-rust/industrial_era industrial_era-launcher/{} (github.com/industrial_era-rust/industrial_era)",

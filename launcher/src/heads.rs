@@ -87,14 +87,7 @@ pub fn profile_face(
     let face = profile_face_with(account, cache, resources, &|url| {
         use std::io::Read;
         failed.set(true);
-        let response = crate::backend::agent(
-            ureq::AgentBuilder::new().timeout(std::time::Duration::from_secs(10)),
-            url,
-        )
-        .build()
-        .get(url)
-        .call()
-        .ok()?;
+        let response = crate::backend::agent(url).get(url).call().ok()?;
         let mut bytes = Vec::new();
         response
             .into_reader()

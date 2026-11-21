@@ -7,9 +7,7 @@
 //! chooses about an instance (its name, icon, group) is kept in `instances.json` in the
 //! launcher's data folder, so renaming one never moves a folder.
 use crate::backend;
-use crate::browser::industrial_era::pack as registry_pack;
 use crate::launch::Launch;
-use crate::modpacks;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs;
@@ -29,10 +27,6 @@ pub enum Kind {
     Default,
     /// Made in the launcher: `instances/<slug>/`.
     Own,
-    /// An imported Java modpack (modpacks.rs).
-    Port,
-    /// A modpack from IndustrialEra's registry.
-    Pack,
 }
 
 /// What an instance shows in the sidebar: a block or item texture from the player's prepared
@@ -320,20 +314,6 @@ fn list_in(game_home: &Path, data: &Path) -> Vec<Instance> {
         let dir = game_home.join(OWN).join(&slug);
         found.push((slug.clone(), slug, Kind::Own, dir.clone(), dir));
     }
-    for p in modpacks::list_in(&game_home.join("ports")) {
-        let home = modpacks::profile_home(&p.work);
-        found.push((
-            format!("port:{}", p.slug),
-            p.title().into(),
-            Kind::Port,
-            p.work,
-            home,
-        ));
-    }
-    for p in registry_pack::list_in(&game_home.join("industrial_era-packs")) {
-        let home = registry_pack::home(&p.work);
-        found.push((format!("pack:{}", p.id), p.name, Kind::Pack, p.work, home));
-    }
     let mut out: Vec<Instance> = found
         .into_iter()
         .map(|(id, name, kind, work, home)| {
@@ -502,18 +482,12 @@ fn create_in(
     if all.iter().any(|i| i.name.eq_ignore_ascii_case(name)) {
         return Err(format!("There is already an instance called {name}."));
     }
-    if let Some(from) = from.filter(|f| matches!(f.kind, Kind::Port | Kind::Pack)) {
-        return Err(format!(
-            "{} plays its pack's mods: import the pack again for a second copy.",
-            from.name
-        ));
-    }
-    let base = modpacks::slug(name);
+    let base = name;
     let taken = |s: &str| s == DEFAULT || game_home.join(OWN).join(s).exists();
     let slug = (1..)
         .map(|n| {
             if n == 1 {
-                base.clone()
+                base.to_owned()
             } else {
                 format!("{base}-{n}")
             }
@@ -669,7 +643,6 @@ pub fn apply(cmd: &mut Command, instance: &Instance) -> Result<(), String> {
             cmd.current_dir(&instance.home)
                 .env("HORIZON_HOME", &instance.home);
         }
-        Kind::Port | Kind::Pack => modpacks::apply_profile(cmd, &instance.work)?,
     }
     follow_player(&backend::game_home(), &instance.home);
     Ok(())

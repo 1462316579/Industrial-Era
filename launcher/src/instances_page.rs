@@ -188,7 +188,7 @@ impl Launcher {
     ) -> Vec<AnyElement> {
         let t = self.theme;
         let selected = self.selected_instance().map(|i| i.id.clone());
-        let on_packs = self.page == Page::Mods && self.mods.on_modpacks();
+        let on_packs = false;
         let mut out = Vec::new();
         let mut group = None;
         for i in self.instances.list.clone() {
@@ -214,15 +214,6 @@ impl Launcher {
                         (None, Some(_), None) => tr("Ready").into(),
                     },
                 ),
-                InstanceKind::Port => {
-                    let slug = &i.id["port:".len()..];
-                    let summary = self.packs.iter().find(|p| p.slug == slug);
-                    (
-                        on_packs && self.pack_open.as_deref() == Some(slug),
-                        summary.map_or_else(|| tr("Modpack").into(), |p| p.summary()),
-                    )
-                }
-                InstanceKind::Pack => (false, tr("From IndustrialEra's registry").into()),
             };
             // Java instances have nothing of IndustrialEra's to prepare: no state square.
             let state = (matches!(i.kind, InstanceKind::Default | InstanceKind::Own)
@@ -240,10 +231,6 @@ impl Launcher {
                                 this.select_instance(&clicked);
                                 this.go(Page::Play);
                             }
-                            InstanceKind::Port => {
-                                this.show_modpack(Some(clicked.id["port:".len()..].into()))
-                            }
-                            InstanceKind::Pack => this.show_modpack(None),
                         }
                         cx.notify();
                     }))
@@ -635,7 +622,6 @@ impl Launcher {
                 .mr_auto()
                 .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
                     this.instances.dialog = None;
-                    this.show_modpack(None);
                     cx.notify();
                 }))
         });

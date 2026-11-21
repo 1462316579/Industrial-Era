@@ -7,7 +7,7 @@
 use super::{pick, safe_name, Kind, Project, Source, SourceId, Support, Version};
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 const MANIFEST: &str = "mod-browser.json";
 /// How deep required dependencies are followed.
@@ -99,12 +99,6 @@ pub struct Step {
 /// What installing `project` takes, dependencies first, checked before any byte is downloaded:
 /// every file runs in IndustrialEra and has a version to install.
 pub fn plan(source: &dyn Source, project: &Project, everything: bool) -> Result<Vec<Step>, String> {
-    if project.kind == Kind::Modpack {
-        return Err(format!(
-            "{} is a modpack: it is imported, not installed.",
-            project.title
-        ));
-    }
     if project.kind.folder().is_none() {
         return Err(format!(
             "{} is ported, not installed as a file.",
@@ -173,12 +167,6 @@ pub fn install(
     home: &Path,
     progress: &dyn Fn(&str, f32),
 ) -> Result<Vec<Entry>, String> {
-    if project.source == SourceId::IndustrialEra {
-        return super::industrial_era::install(project, home, progress);
-    }
-    if project.kind == Kind::Mod {
-        return super::java::install(source, project, everything, home, progress);
-    }
     let steps = plan(source, project, everything)?;
     put(
         source,
@@ -272,23 +260,10 @@ pub fn remove(home: &Path, name: &str) -> Result<Entry, String> {
         .lookup(name)
         .cloned()
         .ok_or_else(|| format!("{name} wasn't installed by the browser."))?;
-    if entry.kind == Kind::Mod && entry.source != SourceId::IndustrialEra {
-        super::java::remove(home, &entry)?;
-    } else {
-        match fs::remove_file(home.join(&entry.file)) {
-            Ok(()) => {}
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
-            Err(e) => return Err(format!("{}: {e}", entry.file)),
-        }
-    }
-    if let Some(id) =
-        super::industrial_era::mod_id(&entry).filter(|_| entry.source == SourceId::IndustrialEra)
-    {
-        // The `.hmod` a mod that turned native left behind (industrial_era::install_version).
-        if entry.file.ends_with(".hnmod") {
-            let _ = fs::remove_file(home.join(super::java::MODS_DIR).join(format!("{id}.hmod")));
-        }
-        super::java::set_enabled(home, id, false)?;
+    match fs::remove_file(home.join(&entry.file)) {
+        Ok(()) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+        Err(e) => return Err(format!("{}: {e}", entry.file)),
     }
     installed
         .entries
@@ -304,85 +279,6 @@ pub fn update_for(source: &dyn Source, entry: &Entry) -> Result<Option<Version>,
     Ok(pick(project.kind, &versions, true)
         .filter(|v| v.id != entry.version)
         .cloned())
-}
-
-/// Downloads a modpack's file, checked, into `folder` (kept there: the import reads it).
-pub fn fetch_modpack(
-    source: &dyn Source,
-    project: &Project,
-    folder: &Path,
-    progress: &dyn Fn(f32),
-) -> Result<PathBuf, String> {
-    if project.kind != Kind::Modpack {
-        return Err(format!("{} isn't a modpack.", project.title));
-    }
-    let versions = source.versions(project)?;
-    let version = pick(Kind::Modpack, &versions, true)
-        .ok_or_else(|| format!("{} has no file to download.", project.title))?;
-    let file = version.file().expect("pick keeps versions with a file");
-    source.fetch(file, folder, progress)
-}
-
-/// A data pack installed into a world.
-pub struct DataPackInstall {
-    pub pack: crate::datapacks::DataPack,
-    /// Its version's number.
-    pub number: String,
-    /// What of it runs in IndustrialEra.
-    pub coverage: crate::datapacks::Coverage,
-}
-
-/// Downloads a project's data pack (checksum checked) into the world folder `world`, under a
-/// free name. Refused when nothing in it runs in IndustrialEra yet. It isn't recorded with the
-/// browser's installs: the world's data pack list (Home, `worlds datapack-list`) has it.
-pub fn install_datapack(
-    source: &dyn Source,
-    project: &Project,
-    everything: bool,
-    world: &Path,
-    progress: &dyn Fn(f32),
-) -> Result<DataPackInstall, String> {
-    if project.kind != Kind::DataPack && !project.loaders.iter().any(|l| l == "datapack") {
-        return Err(format!("{} isn't a data pack.", project.title));
-    }
-    let versions = source.versions(project)?;
-    let version = pick(Kind::DataPack, &versions, everything).ok_or_else(|| {
-        format!(
-            "{} has no data pack for {}{}.",
-            project.title,
-            super::GAME,
-            if everything {
-                " or any other version"
-            } else {
-                ""
-            }
-        )
-    })?;
-    let file = version.file().expect("pick keeps versions with a file");
-    let folder = std::env::temp_dir().join(format!(
-        "industrial_era-launcher-datapack-{}-{}",
-        std::process::id(),
-        version.id
-    ));
-    let result = source.fetch(file, &folder, progress).and_then(|zip| {
-        let coverage = crate::datapacks::coverage(&zip)?;
-        if coverage.read.is_empty() {
-            return Err(format!(
-                "{} would change nothing in IndustrialEra yet: it has no functions, predicates or item \
-                 modifiers, and IndustrialEra doesn't read its {} yet.",
-                project.title,
-                coverage.not_read()
-            ));
-        }
-        let pack = crate::datapacks::add(world, &zip)?;
-        Ok(DataPackInstall {
-            pack,
-            number: version.number.clone(),
-            coverage,
-        })
-    });
-    let _ = fs::remove_dir_all(&folder);
-    result
 }
 
 #[cfg(test)]

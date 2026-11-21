@@ -19,6 +19,7 @@ use std::sync::Mutex;
 
 /// The launcher's setting, as `announce` last read it, or None before it has: a request shouldn't
 /// read `settings.json` every time, and an import fetches hundreds of jars.
+#[allow(dead_code)]
 static SET: Mutex<Option<Option<String>>> = Mutex::new(None);
 
 /// The proxy address to reach `url` through: the launcher's setting, else the environment's, unless
@@ -58,18 +59,20 @@ pub fn parse(spec: &str) -> Option<ureq::Proxy> {
     ureq::Proxy::new(spec).ok()
 }
 
+/// `url` as a plain host, or None: `http://host:port/path` -> `host`.
 pub fn host_of(spec: &str) -> Option<String> {
-    let u = url::Url::parse(spec).ok()?;
-    u.host_str().map(|h| h.to_string())
+    let rest = spec.split("://").nth(1).unwrap_or(spec);
+    rest.split('/')
+        .next()
+        .map(|h| h.split(':').next().unwrap_or(h).to_string())
 }
 
-fn socks(spec: &str) -> bool {
-    spec.starts_with("socks")
-}
-
+/// `url` with its userinfo blanked out: `http://user:pass@host` -> `http://***@host`.
 fn redacted(spec: &str) -> String {
-    let u = url::Url::parse(spec).ok()?;
-    format!("{}://***@{}", u.scheme(), u.host_str().unwrap_or(""))
+    let rest = spec.split("://").nth(1).unwrap_or(spec);
+    let host = rest.split('/').next().unwrap_or("");
+    let scheme = spec.split("://").next().unwrap_or("");
+    format!("{}://***@{}", scheme, host)
 }
 
 pub fn set_proxy(_spec: Option<&str>) {

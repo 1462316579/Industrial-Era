@@ -22,10 +22,7 @@ pub struct CurseForge {
 fn class(kind: Kind) -> u64 {
     match kind {
         Kind::ResourcePack => 12,
-        Kind::Modpack => 4471,
-        Kind::Mod => 6,
         Kind::Shader => 6552,
-        Kind::DataPack => 6945,
     }
 }
 
@@ -82,7 +79,7 @@ pub(super) fn search_url(query: &Query) -> String {
     );
     if let Some(v) = &query.filters.game_version {
         url.push_str(&format!("&gameVersion={}", encode(v)));
-    } else if !query.everything && matches!(query.kind, Kind::ResourcePack | Kind::Mod) {
+    } else if !query.everything && query.kind == Kind::ResourcePack {
         url.push_str(&format!("&gameVersion={GAME}"));
     }
     if !query.text.is_empty() {

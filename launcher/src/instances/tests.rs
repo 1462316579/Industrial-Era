@@ -45,13 +45,9 @@ fn player_home(home: &Path) {
     put(&home.join("logs/latest.log"), "log");
     put(&home.join("sessions/a.json"), "token");
     put(&home.join("telemetry/consent.json"), "{}");
-    let pack = industrial_era_prepare::import::Pack {
-        name: "Small Pack".into(),
-        ..Default::default()
-    };
     put(
         &home.join("ports/small-pack/pack.json"),
-        &serde_json::to_string(&pack).unwrap(),
+        r#"{"name":"Small Pack"}"#,
     );
     put(
         &home.join("ports/small-pack/home/saves/Modded/level.dat"),
@@ -396,8 +392,6 @@ fn the_mod_browser_installs_for_the_instance_loader() {
         (target.minecraft.as_str(), target.loader.as_deref()),
         ("1.21.1", Some("quilt"))
     );
-    // A Quilt instance takes Fabric mods too.
-    assert!(target.accepts("fabric") && !target.accepts("neoforge"));
 }
 
 /// A chosen picture is kept scaled to 128 pixels in the instance's folder; removing it moves it

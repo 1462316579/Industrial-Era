@@ -2745,14 +2745,6 @@ impl Launcher {
                     }),
             ),
         );
-        if self.older_horizon() {
-            return tab
-                .child(text(theme::UI).text_color(t.muted).child(tr(
-                    "This server's IndustrialEra is too old to list its backups here: they're in its \
-                     backups folder. Update it below.",
-                )))
-                .child(self.updates_section(status, cx));
-        }
         tab = tab.child(
             div()
                 .flex()

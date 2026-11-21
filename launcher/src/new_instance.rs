@@ -17,7 +17,6 @@ const ROWS: usize = 60;
 pub(super) enum NewKind {
     IndustrialEra,
     Vanilla,
-    Modded,
 }
 
 /// What a new Java instance plays.
@@ -53,10 +52,7 @@ impl JavaChoice {
 
     /// The name it gets when none is typed: "Vanilla 1.21.4", "Fabric 1.21.4".
     pub(super) fn default_name(&self, minecraft: &str) -> String {
-        match self.kind {
-            NewKind::Modded => format!("{} {minecraft}", self.loader.name()),
-            _ => format!("Vanilla {minecraft}"),
-        }
+        format!("Vanilla {minecraft}")
     }
 }
 
@@ -132,7 +128,7 @@ impl Launcher {
         .detach();
     }
 
-    /// The tabs over a new instance's dialog: IndustrialEra, Vanilla, Modded.
+    /// The tabs over a new instance's dialog: IndustrialEra, Vanilla.
     pub(super) fn kind_tabs(&self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let now = self.instances.dialog.as_ref().map(|d| d.java.kind);
@@ -140,7 +136,6 @@ impl Launcher {
             [
                 (NewKind::IndustrialEra, "IndustrialEra"),
                 (NewKind::Vanilla, "Vanilla"),
-                (NewKind::Modded, "Modded"),
             ]
             .map(|(kind, label)| {
                 shell::tab(
@@ -157,8 +152,8 @@ impl Launcher {
         )
     }
 
-    /// A Java kind's part of the dialog: the version (search, kinds, list), the loader for
-    /// Modded, and where the game comes from.
+    /// A Java kind's part of the dialog: the version (search, kinds, list) and where the game
+    /// comes from.
     pub(super) fn java_choice_rows(&mut self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let n = t.night;
@@ -272,50 +267,6 @@ impl Launcher {
             .child(heading("Minecraft version"))
             .child(filters)
             .child(list);
-        if choice.kind == NewKind::Modded {
-            let scale = self.scale;
-            let logos = [Loader::Fabric, Loader::Quilt].map(|l| (l, self.loader_logo(l.id(), 24.)));
-            let card = |loader: Loader| {
-                let logo = logos
-                    .iter()
-                    .find(|(l, _)| *l == loader)
-                    .and_then(|(_, i)| i.clone());
-                let on = choice.loader == loader;
-                shell::action(
-                    SharedString::from(format!("loader-{}", loader.id())),
-                    Action::Raised,
-                    &t,
-                )
-                .h(px(48.))
-                .w(px(180.))
-                .justify_start()
-                .when(on, |d| d.border_2().border_color(c(n.accent_hi)))
-                .gap(px(10.))
-                .children(logo.map(|logo| instance_icons::centred(logo, 24., scale).relative()))
-                .child(
-                    div()
-                        .relative()
-                        .flex()
-                        .flex_col()
-                        .child(loader.name())
-                        .child(
-                            shell::text(night::CAPTION, c(n.muted))
-                                .child(tr("newest stable version").to_string()),
-                        ),
-                )
-                .on_click(cx.listener(move |this, _: &ClickEvent, _, cx| {
-                    this.change(|j| j.loader = loader);
-                    cx.notify();
-                }))
-            };
-            rows = rows.child(heading("Loader")).child(
-                div()
-                    .flex()
-                    .gap(px(10.))
-                    .child(card(Loader::Fabric))
-                    .child(card(Loader::Quilt)),
-            );
-        }
         rows.child(shell::text(night::CAPTION, c(n.muted)).child(
             tr("Play downloads the game from Mojang for your account the first time, with the Java it needs.")
                 .to_string(),
@@ -323,23 +274,13 @@ impl Launcher {
     }
 }
 
-/// Makes a Java instance: `name`, playing `minecraft`, with the newest stable loader for Modded
-/// (asked of its service now, so a version it doesn't support says so here).
+/// Makes a Java instance: `name`, playing `minecraft`.
 pub(super) fn create_java(
-    choice: &JavaChoice,
+    _choice: &JavaChoice,
     name: &str,
     minecraft: &str,
 ) -> Result<instances::Instance, String> {
-    let loader = (choice.kind == NewKind::Modded)
-        .then(|| loaders::choose(choice.loader.id(), minecraft, None))
-        .transpose()?;
-    let made = instances::create_java(name, minecraft)?;
-    match loader {
-        Some(loader) => instances::edit(&made.id, |m| {
-            m.java.get_or_insert_with(Default::default).loader = Some(loader)
-        }),
-        None => Ok(made),
-    }
+    instances::create_java(name, minecraft)
 }
 
 #[cfg(test)]
@@ -348,16 +289,11 @@ mod tests {
 
     #[test]
     fn a_new_java_instance_is_named_after_what_it_plays() {
-        let mut choice = JavaChoice {
+        let choice = JavaChoice {
             kind: NewKind::Vanilla,
             ..Default::default()
         };
         assert_eq!(choice.default_name("1.21.4"), "Vanilla 1.21.4");
-        choice.kind = NewKind::Modded;
-        choice.loader = Loader::Quilt;
-        assert_eq!(choice.default_name("1.21.4"), "Quilt 1.21.4");
         assert_eq!(choice.minecraft(None), None);
-        choice.version = Some("1.20.1".into());
-        assert_eq!(choice.minecraft(None).as_deref(), Some("1.20.1"));
     }
 }

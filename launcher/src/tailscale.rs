@@ -9,7 +9,6 @@
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::process::Command;
-use std::time::Duration;
 
 /// The admin console: sign-in, keys, machines, the access controls.
 pub const ADMIN: &str = "https://login.tailscale.com/admin";
@@ -261,11 +260,7 @@ impl Api {
         if_match: Option<&str>,
     ) -> Result<(Value, Option<String>), String> {
         let url = format!("{}/api/v2{path}", self.base);
-        let agent = crate::backend::agent(
-            ureq::AgentBuilder::new().timeout(Duration::from_secs(20)),
-            &url,
-        )
-        .build();
+        let agent = crate::backend::agent(&url);
         let mut request = agent
             .request(method, &url)
             .set("Authorization", &format!("Bearer {}", self.token))

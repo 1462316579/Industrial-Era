@@ -279,12 +279,9 @@ pub fn modrinth_tags(
     }
 }
 
-/// The loaders a kind lists by default, when no loader is picked: Java mod loaders for mods.
-pub fn default_loaders(kind: Kind) -> Vec<&'static str> {
-    match kind {
-        Kind::Mod => super::java::LOADERS.to_vec(),
-        _ => Vec::new(),
-    }
+/// The loaders a kind lists by default, when no loader is picked.
+pub fn default_loaders(_kind: Kind) -> Vec<&'static str> {
+    Vec::new()
 }
 
 #[cfg(test)]

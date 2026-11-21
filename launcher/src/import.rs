@@ -29,12 +29,8 @@ const OVERRIDES: [&str; 2] = ["overrides/", "client-overrides/"];
 pub enum Dropped {
     /// A shared instance: a new instance is made from it.
     Instance,
-    /// A Java modpack, for the Modpacks import.
-    Modpack,
     /// A resource or shader pack, for the selected instance.
     Pack(packs::Kind),
-    /// A data pack: it goes into a world.
-    DataPack,
 }
 
 fn open(file: &Path) -> Result<zip::ZipArchive<fs::File>, String> {
@@ -73,10 +69,13 @@ pub fn what(file: &Path) -> Result<Dropped, String> {
             let loaders = index["dependencies"]
                 .as_object()
                 .is_some_and(|d| d.keys().any(|k| k != "minecraft"));
-            return Ok(match loaders {
-                true => Dropped::Modpack,
-                false => Dropped::Instance,
-            });
+            return if loaders {
+                Err(format!(
+                    "{name} is a Java modpack: this IndustrialEra build doesn't import modpacks."
+                ))
+            } else {
+                Ok(Dropped::Instance)
+            };
         }
         Some("zip") => {}
         _ => {
@@ -92,14 +91,8 @@ pub fn what(file: &Path) -> Result<Dropped, String> {
         .collect::<Result<_, _>>()
         .map_err(|e| e.to_string())?;
     let under = |p: &str| names.iter().any(|n| n.starts_with(p));
-    if has("manifest.json") && !has("pack.mcmeta") {
-        return Ok(Dropped::Modpack);
-    }
     if has("pack.mcmeta") {
-        return Ok(match under("data/") {
-            true => Dropped::DataPack,
-            false => Dropped::Pack(packs::Kind::Resource),
-        });
+        return Ok(Dropped::Pack(packs::Kind::Resource));
     }
     if under("shaders/") {
         return Ok(Dropped::Pack(packs::Kind::Shader));

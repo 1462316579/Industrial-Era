@@ -273,7 +273,7 @@ impl Launcher {
                 action("home-mods", Action::Quiet, &t)
                     .child(label(tr("Mods").to_string()))
                     .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                        this.go(Page::Mods);
+                        this.go(Page::Play);
                         cx.notify();
                     })),
             )

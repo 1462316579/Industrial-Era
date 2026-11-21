@@ -36,25 +36,18 @@ impl Launcher {
         instance: &Instance,
         size: f32,
     ) -> Option<Arc<RenderImage>> {
-        let loader = match instance.kind {
-            InstanceKind::Port => {
-                let slug = &instance.id["port:".len()..];
-                let pack = self.packs.iter().find(|p| p.slug == slug);
-                pack.map(|p| p.pack.loader.to_ascii_lowercase())
-            }
-            _ => instance
-                .java
-                .as_ref()
-                .and_then(|j| j.loader.as_ref())
-                .map(|l| l.kind.id().to_string()),
-        };
+        let loader = instance
+            .java
+            .as_ref()
+            .and_then(|j| j.loader.as_ref())
+            .map(|l| l.kind.id().to_string());
         if let Some(loader) = loader.filter(|l| LOADERS.contains(&l.as_str())) {
             return self.loader_logo(&loader, size);
         }
         if instance.java.is_some() {
-            let grass = self.vanilla_icon()?;
             return self.icon_image("mark:grass".into(), size, false, || {
-                std::fs::read(grass).ok()
+                // Grass block: absent without prepared files; fall through to IndustrialEra's mark.
+                None
             });
         }
         let industrial_era = || Some(industrial_era_theme::ICON_PNG.to_vec());

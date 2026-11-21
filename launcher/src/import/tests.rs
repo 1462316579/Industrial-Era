@@ -75,7 +75,7 @@ fn says_what_a_dropped_file_is() {
                 "java.mrpack",
                 r#"{"minecraft":"1.21.1","fabric-loader":"0.16"}"#,
             ),
-            Ok(Dropped::Modpack),
+            Err(()),
         ),
         {
             let p = dir.join("cf.zip");
@@ -83,7 +83,7 @@ fn says_what_a_dropped_file_is() {
                 &p,
                 &[("manifest.json", b"{}"), ("overrides/config/a.toml", b"")],
             );
-            (p, Ok(Dropped::Modpack))
+            (p, Err(()))
         },
         {
             let p = dir.join("rp.zip");
@@ -99,7 +99,7 @@ fn says_what_a_dropped_file_is() {
                     ("data/a/function/f.mcfunction", b""),
                 ],
             );
-            (p, Ok(Dropped::DataPack))
+            (p, Ok(Dropped::Pack(packs::Kind::Resource)))
         },
         {
             let p = dir.join("sp.zip");

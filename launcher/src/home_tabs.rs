@@ -7,7 +7,6 @@ use super::*;
 pub(super) enum HomeTab {
     #[default]
     Overview,
-    Mods,
     Worlds,
     Multiplayer,
     Packs,
@@ -16,11 +15,10 @@ pub(super) enum HomeTab {
 }
 
 impl HomeTab {
-    /// `HORIZON_LAUNCHER_PAGE=worlds` (or `instance-mods`, `multiplayer`, `packs`, `screenshots`,
-    /// `console`) opens Home on that tab, for screenshots.
+    /// `HORIZON_LAUNCHER_PAGE=worlds` (or `multiplayer`, `packs`, `screenshots`, `console`) opens
+    /// Home on that tab, for screenshots.
     pub(super) fn from_env() -> Self {
         match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
-            Ok("instance-mods") => HomeTab::Mods,
             Ok("worlds") => HomeTab::Worlds,
             Ok("multiplayer") => HomeTab::Multiplayer,
             Ok("packs") => HomeTab::Packs,
@@ -41,9 +39,6 @@ impl Launcher {
         let mut tabs = vec![(HomeTab::Overview, None)];
         if self.selected_instance().is_none() {
             return tabs;
-        }
-        if self.has_mods_tab() {
-            tabs.push((HomeTab::Mods, self.instance_mods_count(cx)));
         }
         tabs.push((HomeTab::Worlds, self.worlds_count(cx)));
         tabs.push((HomeTab::Multiplayer, Some(self.servers_count())));
@@ -75,7 +70,6 @@ impl Launcher {
             .children(tabs.into_iter().map(|(tab, count)| {
                 let name = match tab {
                     HomeTab::Overview => tr("Overview"),
-                    HomeTab::Mods => tr("Mods"),
                     HomeTab::Worlds => tr("Worlds"),
                     HomeTab::Multiplayer => tr("Multiplayer"),
                     HomeTab::Packs => tr("Packs"),
@@ -96,10 +90,6 @@ impl Launcher {
         // The open tab's own buttons sit at the strip's end, as a list's header would.
         let (actions, body) = match open {
             HomeTab::Overview => (None, Some(overview.into_any_element())),
-            HomeTab::Mods => {
-                let (actions, body) = split(self.instance_mods_tab(cx));
-                (Some(actions), Some(body))
-            }
             HomeTab::Worlds => (
                 None,
                 self.worlds_section(cx).map(IntoElement::into_any_element),

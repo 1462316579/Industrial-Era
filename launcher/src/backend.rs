@@ -2454,7 +2454,6 @@ pub fn client_as(tag: &str, who: Option<&account::Player>) -> Result<Command, St
     })?;
     need_prepared(tag)?;
     complete_assets(tag);
-    crate::browser::industrial_era::before_play(&game_home());
     let mut cmd = client_command(tag);
     if let Some(file) = session {
         cmd.arg("--session-file").arg(file);
@@ -3132,10 +3131,6 @@ pub enum Msg {
     /// The owner gate's answer for the game about to start: the selected account's session
     /// file (none = offline) and why it plays offline, if it does.
     Session(Result<(Option<PathBuf>, Option<String>), crate::account::NoOwner>),
-    /// A modpack step's line (`modpacks`).
-    PackLine(String),
-    /// A modpack step ended: the pack as it now is.
-    PackDone(Result<Box<crate::modpacks::Imported>, String>),
     /// How many play IndustrialEra now, or none when the server can't be reached (`telemetry`).
     Playing(Option<u64>),
     /// How many play on the official server now, or none when it doesn't answer its status ping

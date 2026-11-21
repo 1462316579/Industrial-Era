@@ -24,14 +24,6 @@ impl Launcher {
             match import::what(&file) {
                 Err(e) => self.importing.note = Some(Err(e)),
                 Ok(Dropped::Instance) => self.import_instance(file, cx),
-                Ok(Dropped::Modpack) => {
-                    self.show_modpack(None);
-                    self.pack_job(move |log| industrial_era_launcher::modpacks::import(&file, log));
-                    self.importing.note = Some(Ok(trf(
-                        "{name} is a Java modpack: importing it on the Modpacks page.",
-                        &[("name", &name)],
-                    )));
-                }
                 Ok(Dropped::Pack(_)) => {
                     let Some(i) = self.selected_instance().cloned() else {
                         continue;
@@ -45,13 +37,6 @@ impl Launcher {
                         }),
                     );
                     self.game_packs.stale();
-                }
-                Ok(Dropped::DataPack) => {
-                    self.importing.note = Some(Err(trf(
-                        "{name} is a data pack: drop it on a world on Home, or install it into \
-                         one from there.",
-                        &[("name", &name)],
-                    )))
                 }
             }
         }

@@ -2,16 +2,12 @@
 //! IndustrialEra loads, say how well each result runs, and download a file only after its checksum
 //! matches (docs/mod-browser.md).
 //!
-//! Offered: Java mods (Fabric, NeoForge, Forge), whose content IndustrialEra ports and whose jar is
-//! checked before install ([`java`]), resource packs (`resourcepacks/`) and data packs
-//! (`installed::install_datapack`). Java code itself doesn't run in IndustrialEra (docs/mods.md).
+//! Offered: resource packs (`resourcepacks/`) and shader packs.
 pub mod curseforge;
 pub mod details;
 pub mod download;
 pub mod images;
-pub mod industrial_era;
 pub mod installed;
-pub mod java;
 pub mod java_instance;
 pub mod modrinth;
 
@@ -25,8 +21,6 @@ pub const GAME: &str = "26.3";
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Kind {
-    /// A Java mod: its content is ported ([`java`]).
-    Mod,
     /// One of IndustrialEra's own shader packs (`.hshader`, docs/shaders.md), from IndustrialEra's registry
     /// only.
     Shader,
@@ -35,11 +29,10 @@ pub enum Kind {
 }
 
 impl Kind {
-    pub const ALL: [Kind; 3] = [Kind::Mod, Kind::ResourcePack, Kind::Shader];
+    pub const ALL: [Kind; 2] = [Kind::ResourcePack, Kind::Shader];
 
     pub fn label(self) -> &'static str {
         match self {
-            Kind::Mod => "Mods",
             Kind::ResourcePack => "Resource packs",
             Kind::Shader => "Shader packs",
         }
@@ -51,7 +44,6 @@ impl Kind {
         match self {
             Kind::ResourcePack => Some("resourcepacks"),
             Kind::Shader => Some("shaderpacks"),
-            Kind::Mod => None,
         }
     }
 }
@@ -62,8 +54,6 @@ impl Kind {
 pub enum SourceId {
     Modrinth,
     CurseForge,
-    /// IndustrialEra's own registry of reviewed mods, modpacks and resource packs ([`industrial_era`]).
-    IndustrialEra,
 }
 
 impl SourceId {
@@ -71,7 +61,6 @@ impl SourceId {
         match self {
             SourceId::Modrinth => "Modrinth",
             SourceId::CurseForge => "CurseForge",
-            SourceId::IndustrialEra => "IndustrialEra",
         }
     }
 }
@@ -131,19 +120,6 @@ pub struct Project {
 impl Project {
     pub fn support(&self) -> Support {
         support(self.kind, &self.game_versions, &self.loaders)
-    }
-
-    /// The project as a data pack, for a search of data packs or an install into a world;
-    /// its page is Modrinth's data pack page.
-    pub fn as_datapack(self) -> Project {
-        Project {
-            page: match self.source {
-                SourceId::Modrinth => format!("https://modrinth.com/datapack/{}", self.slug),
-                _ => self.page,
-            },
-            kind: Kind::DataPack,
-            ..self
-        }
     }
 }
 
@@ -259,14 +235,10 @@ pub const CURSEFORGE_SOON: &str = "CurseForge support is coming soon.";
 pub const SHADERS_ON_HORIZON: &str =
     "IndustrialEra's shader packs are on IndustrialEra's registry: pick IndustrialEra.";
 
-/// The sources this launcher uses: Modrinth and IndustrialEra's registry. CurseForge support is coming
-/// soon: its API needs a paid key, so no search or install goes to it; `curseforge` is kept for
-/// then.
+/// The sources this launcher uses: Modrinth only. CurseForge support is coming soon: its API
+/// needs a paid key, so no search or install goes to it; `curseforge` is kept for then.
 pub fn sources() -> Vec<Box<dyn Source>> {
-    vec![
-        Box::new(modrinth::Modrinth),
-        Box::new(industrial_era::Registry),
-    ]
+    vec![Box::new(modrinth::Modrinth)]
 }
 
 /// The source of that id, when this launcher can use it.
@@ -275,16 +247,7 @@ pub fn source(id: SourceId) -> Option<Box<dyn Source>> {
 }
 
 /// How well a project of `kind` made for `game_versions` and `loaders` runs in IndustrialEra.
-pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Support {
-    if loaders.iter().any(|l| l == industrial_era::LOADER) {
-        // Made for IndustrialEra and reviewed: it runs when it is for the version IndustrialEra plays.
-        return match newest_release(game_versions)
-            .filter(|_| !game_versions.iter().any(|v| v == GAME))
-        {
-            Some(other) => Support::No(format!("Made for IndustrialEra on {other}.")),
-            None => Support::Works,
-        };
-    }
+pub fn support(kind: Kind, game_versions: &[String], _loaders: &[String]) -> Support {
     match kind {
         Kind::ResourcePack => {
             if game_versions.iter().any(|v| v == GAME) {
@@ -298,32 +261,7 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
                 Support::Partial("Lists no Minecraft version.".into())
             }
         }
-        Kind::Modpack => Support::Partial(
-            "IndustrialEra runs the mods it can port, from your own downloads.".into(),
-        ),
         Kind::Shader => Support::No("Not one of IndustrialEra's own shader packs.".into()),
-        Kind::DataPack => {
-            let made_for = match newest_release(game_versions) {
-                _ if game_versions.iter().any(|v| v == GAME) => String::new(),
-                Some(newest) => format!("Made for {newest}: the game may refuse it. "),
-                None => "Lists no Minecraft version. ".into(),
-            };
-            Support::Partial(format!("{made_for}{DATAPACK_SUPPORT}"))
-        }
-        Kind::Mod => {
-            if !loaders.iter().any(|l| java::LOADERS.contains(&l.as_str())) {
-                Support::No("Not a Fabric, NeoForge or Forge mod.".into())
-            } else if !game_versions.iter().any(|v| portable_version(v)) {
-                let newest = newest_release(game_versions).unwrap_or("an unknown version");
-                Support::No(format!(
-                    "Made for {newest}: IndustrialEra ports mods made for 1.21 and later."
-                ))
-            } else {
-                Support::Partial(
-                    "Not checked yet: the launcher reads its jar to say what of it ports.".into(),
-                )
-            }
-        }
     }
 }
 
@@ -332,17 +270,6 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
 pub const DATAPACK_SUPPORT: &str = "IndustrialEra runs a data pack's functions, function tags, \
      predicates and item modifiers; not yet its recipes, loot tables, advancements, other tags \
      or worldgen.";
-
-/// A Minecraft version whose mods port-pack carries over: 1.21 and later (the data folders
-/// took their current names in 1.21).
-pub fn portable_version(v: &str) -> bool {
-    let parts: Vec<u32> = v.split('.').map_while(|p| p.parse().ok()).collect();
-    match parts.as_slice() {
-        [1, minor, ..] => *minor >= 21 && v.split('.').count() == parts.len(),
-        [year, ..] => *year >= 26 && v.split('.').count() == parts.len(),
-        [] => false,
-    }
-}
 
 /// The newest plain release (`1.21.4`, `26.2`) in a list of Minecraft versions.
 fn newest_release(versions: &[String]) -> Option<&str> {
@@ -366,38 +293,8 @@ pub fn pick(kind: Kind, versions: &[Version], everything: bool) -> Option<&Versi
     let mut usable = versions
         .iter()
         .filter(|v| v.blocked.is_none() && v.file().is_some());
-    if versions
-        .iter()
-        .any(|v| v.loaders.iter().any(|l| l == industrial_era::LOADER))
-    {
-        return usable.find(|v| v.game_versions.iter().any(|g| g == GAME));
-    }
-    if kind == Kind::Mod {
-        let java = |v: &&Version| {
-            v.loaders
-                .iter()
-                .any(|l| java::LOADERS.contains(&l.as_str()))
-        };
-        let made_for = |v: &&Version| v.game_versions.iter().any(|g| g == GAME);
-        let ported = |v: &&Version| v.game_versions.iter().any(|g| portable_version(g));
-        return usable
-            .clone()
-            .filter(java)
-            .find(made_for)
-            .or_else(|| usable.filter(java).find(|v| everything && ported(v)));
-    }
-    if kind == Kind::DataPack {
-        // Most data packs on Modrinth ship a mod build too: only the data pack files.
-        let mut packs = usable.filter(|v| v.loaders.iter().any(|l| l == "datapack"));
-        let made_for = |v: &&Version| v.game_versions.iter().any(|g| g == GAME);
-        return packs
-            .clone()
-            .find(made_for)
-            .or_else(|| packs.find(|_| everything));
-    }
     let runs = |v: &&Version| match support(kind, &v.game_versions, &v.loaders) {
         Support::Works => true,
-        // A modpack's version is for its own Minecraft.
         Support::Partial(_) => kind != Kind::ResourcePack,
         Support::No(_) => false,
     };

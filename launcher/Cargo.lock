@@ -2944,7 +2944,6 @@ dependencies = [
  "industrial-era-core",
  "industrial-era-friends",
  "industrial-era-mcp",
- "industrial-era-port-pack",
  "industrial-era-prepare",
  "industrial-era-protocol",
  "industrial-era-release-sign",
@@ -2983,18 +2982,6 @@ name = "industrial-era-mcp"
 version = "0.1.0"
 dependencies = [
  "serde_json",
-]
-
-[[package]]
-name = "industrial-era-port-pack"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "sha1",
- "toml 1.1.8+spec-1.1.0",
- "ureq",
- "zip",
 ]
 
 [[package]]

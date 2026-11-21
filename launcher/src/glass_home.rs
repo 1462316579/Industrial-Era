@@ -35,33 +35,27 @@ impl Launcher {
             (None, Some(_)) => self.client_since = None,
             _ => {}
         }
-        let left =
-            div()
-                .flex()
-                .flex_col()
-                .flex_1()
-                .min_w_0()
-                .child(self.edition_tabs(java.is_some()))
-                .child(self.home_title())
-                .child(self.played_text(cx))
-                .child(
-                    div()
-                        .mt(px(32.))
-                        .flex()
-                        // One line, unlike the mockup's `flex-wrap`: at 1280 px the folder's ⋯
-                        // would wrap the row away from under the pointer, which hides it again.
-                        .items_center()
-                        .gap(px(10.))
-                        .child(self.play_group(tag, prepared || java.is_some(), cx))
-                        .children(java.is_none().then(|| self.glass_picker(cx)))
-                        .child(ui::big_icon("home-mods", "puzzle", &self.theme).on_click(
-                            cx.listener(|this, _: &ClickEvent, _, cx| {
-                                this.home_tab = home_tabs::HomeTab::Mods;
-                                cx.notify();
-                            }),
-                        ))
-                        .children(self.folder_group(java.is_none(), cx)),
-                );
+        let left = div()
+            .flex()
+            .flex_col()
+            .flex_1()
+            .min_w_0()
+            .child(self.edition_tabs(java.is_some()))
+            .child(self.home_title())
+            .child(self.played_text(cx))
+            .child(
+                div()
+                    .mt(px(32.))
+                    .flex()
+                    // One line, unlike the mockup's `flex-wrap`: at 1280 px the folder's ⋯
+                    // would wrap the row away from under the pointer, which hides it again.
+                    .items_center()
+                    .gap(px(10.))
+                    .child(self.play_group(tag, prepared || java.is_some(), cx))
+                    .children(java.is_none().then(|| self.glass_picker(cx)))
+                    .child(ui::big_icon("home-mods", "puzzle", &self.theme))
+                    .children(self.folder_group(java.is_none(), cx)),
+            );
         // The mockup's `xl:flex-row`: under 1280 px the invite code goes under the actions, as
         // wide as the page.
         let wide = self.window_width >= 1280.;
@@ -78,11 +72,7 @@ impl Launcher {
     /// The edition tabs (`Tabs`, size `sm`): the instance's own lit. An instance's edition is
     /// chosen when it is made, so the other one is shown but can't be picked.
     fn edition_tabs(&mut self, java: bool) -> Div {
-        let grass = self.vanilla_icon().and_then(|path| {
-            self.icon_image("mark:grass".into(), 18., false, move || {
-                std::fs::read(&path).ok()
-            })
-        });
+        let grass: Option<std::sync::Arc<gpui::RenderImage>> = None;
         let tab = |label: &'static str, icon: AnyElement, open: bool| {
             let d = div()
                 .flex()

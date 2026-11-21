@@ -11,10 +11,7 @@ pub struct Modrinth;
 fn project_type(kind: Kind) -> &'static str {
     match kind {
         Kind::ResourcePack => "resourcepack",
-        Kind::Modpack => "modpack",
-        Kind::Mod => "mod",
         Kind::Shader => "shader",
-        Kind::DataPack => "datapack",
     }
 }
 
@@ -24,7 +21,7 @@ fn project_type(kind: Kind) -> &'static str {
 fn kind_of(project_type: &str) -> Option<Kind> {
     Kind::ALL
         .into_iter()
-        .filter(|k| !matches!(k, Kind::Shader | Kind::DataPack))
+        .filter(|k| *k != Kind::Shader)
         .find(|k| self::project_type(*k) == project_type)
 }
 
@@ -34,9 +31,7 @@ pub(super) fn facets(query: &Query) -> String {
     let mut all = vec![vec![format!("project_type:{}", project_type(query.kind))]];
     match &f.game_version {
         Some(v) => all.push(vec![format!("versions:{v}")]),
-        None if !query.everything
-            && matches!(query.kind, Kind::ResourcePack | Kind::Mod | Kind::DataPack) =>
-        {
+        None if !query.everything && query.kind == Kind::ResourcePack => {
             all.push(vec![format!("versions:{GAME}")])
         }
         None => {}
@@ -211,10 +206,6 @@ impl Source for Modrinth {
             .into_iter()
             .flatten()
             .filter_map(parse_hit)
-            .map(|p| match query.kind {
-                Kind::DataPack => p.as_datapack(),
-                _ => p,
-            })
             .collect())
     }
 
@@ -256,14 +247,7 @@ impl Source for Modrinth {
             ));
         }
         let (c, l, v) = cached.as_ref().expect("filled above");
-        // Data packs share the mods' categories; their one loader is `datapack`.
-        let mut tags = match kind {
-            Kind::DataPack => details::modrinth_tags("mod", c, l, v),
-            _ => details::modrinth_tags(project_type(kind), c, l, v),
-        };
-        if kind == Kind::DataPack {
-            tags.loaders.clear();
-        }
+        let tags = details::modrinth_tags(project_type(kind), c, l, v);
         Ok(tags)
     }
 }

@@ -47,7 +47,7 @@ fn support_by_kind() {
         old.reason().unwrap().starts_with("Made for 1.21.10:"),
         "{old:?}"
     );
-    assert!(support(Kind::Modpack, &v(&["1.21.1"]), &v(&["neoforge"])).installable());
+    assert!(support(Kind::ResourcePack, &v(&["1.21.1"]), &v(&["minecraft"])).installable());
 }
 
 #[test]
@@ -70,51 +70,6 @@ fn picks_the_newest_version_that_runs() {
     let mut empty = version("empty", &[GAME], &["minecraft"]);
     empty.files.clear();
     assert!(pick(Kind::ResourcePack, &[blocked, empty], true).is_none());
-}
-
-#[test]
-fn data_packs_are_their_own_kind() {
-    // Most data packs on Modrinth also ship a mod build; only the data pack files are picked.
-    let versions = [
-        version("fabric", &[GAME], &["fabric", "neoforge"]),
-        version("pack", &[GAME], &["datapack"]),
-        version("old", &["1.21.4"], &["datapack"]),
-    ];
-    assert_eq!(pick(Kind::DataPack, &versions, false).unwrap().id, "pack");
-    assert!(pick(Kind::DataPack, &versions[2..], false).is_none());
-    assert_eq!(
-        pick(Kind::DataPack, &versions[2..], true).unwrap().id,
-        "old"
-    );
-    assert!(pick(Kind::DataPack, &versions[..1], true).is_none());
-
-    let now = support(Kind::DataPack, &v(&[GAME]), &v(&["datapack"]));
-    assert_eq!(now.reason(), Some(DATAPACK_SUPPORT));
-    let old = support(Kind::DataPack, &v(&["1.21.4"]), &v(&["datapack"]));
-    assert!(
-        old.reason().unwrap().starts_with("Made for 1.21.4"),
-        "{old:?}"
-    );
-    assert!(old.installable());
-
-    assert_eq!(
-        modrinth::facets(&Query::new("", Kind::DataPack)),
-        r#"[["project_type:datapack"],["versions:26.3"]]"#
-    );
-    // A data pack's hit says `mod`: the search for data packs marks it.
-    let hit = serde_json::json!({
-        "project_id": "bVrj3hwG", "project_type": "mod", "slug": "terralith",
-        "title": "Terralith", "categories": ["datapack", "fabric", "worldgen"],
-        "versions": [GAME],
-    });
-    let p = modrinth::parse_hit(&hit).unwrap();
-    assert_eq!(p.kind, Kind::Mod);
-    let p = p.as_datapack();
-    assert_eq!(
-        (p.kind, p.page.as_str()),
-        (Kind::DataPack, "https://modrinth.com/datapack/terralith")
-    );
-    assert_eq!(Kind::DataPack.folder(), None);
 }
 
 #[test]
@@ -164,45 +119,9 @@ fn modrinth_search_asks_for_what_runs() {
         r#"[["project_type:resourcepack"]]"#
     );
     assert_eq!(
-        modrinth::facets(&Query::new("", Kind::Modpack)),
-        r#"[["project_type:modpack"]]"#
+        modrinth::facets(&Query::new("", Kind::ResourcePack)),
+        r#"[["project_type:resourcepack"]]"#
     );
-    assert_eq!(
-        modrinth::facets(&Query::new("", Kind::Mod)),
-        r#"[["project_type:mod"],["versions:26.3"],["categories:neoforge","categories:fabric","categories:forge","categories:quilt"]]"#
-    );
-}
-
-#[test]
-fn java_mods_are_checked_for_1_21_and_later() {
-    assert_eq!(
-        support(Kind::Mod, &v(&["1.20.1"]), &v(&["forge"])),
-        Support::No("Made for 1.20.1: IndustrialEra ports mods made for 1.21 and later.".into())
-    );
-    assert!(!support(Kind::Mod, &v(&[GAME]), &v(&["rift"])).installable());
-    assert!(matches!(
-        support(Kind::Mod, &v(&["1.21.1"]), &v(&["neoforge"])),
-        Support::Partial(_)
-    ));
-    for (version, ok) in [
-        ("1.21", true),
-        ("1.21.11", true),
-        ("26.3", true),
-        ("1.20.6", false),
-        ("26.1-snapshot-2", false),
-        ("", false),
-    ] {
-        assert_eq!(portable_version(version), ok, "{version}");
-    }
-    let versions = [
-        version("snapshot", &["26.4-snapshot-1"], &["fabric"]),
-        version("plugin", &[GAME], &["bukkit"]),
-        version("now", &[GAME], &["neoforge"]),
-        version("older", &["1.21.1"], &["neoforge"]),
-    ];
-    assert_eq!(pick(Kind::Mod, &versions, false).unwrap().id, "now");
-    assert_eq!(pick(Kind::Mod, &versions[3..], false), None);
-    assert_eq!(pick(Kind::Mod, &versions[3..], true).unwrap().id, "older");
 }
 
 #[test]
@@ -224,14 +143,12 @@ fn modrinth_answers() {
     let jar = json!({"project_id": "AANobbMI", "project_type": "mod", "slug": "sodium",
         "versions": ["26.3"], "categories": ["fabric", "optimization"]});
     let sodium = modrinth::parse_hit(&jar).unwrap();
-    assert_eq!(sodium.kind, Kind::Mod);
-    assert_eq!(sodium.page, "https://modrinth.com/mod/sodium");
-    assert!(matches!(sodium.support(), Support::Partial(_)));
-    // Data packs, plugins and shader packs are not.
-    for project_type in ["plugin", "shader"] {
-        let hit = json!({"project_id": "x", "project_type": project_type, "slug": "p"});
-        assert!(modrinth::parse_hit(&hit).is_none(), "{project_type}");
-    }
+    assert_eq!(sodium.kind, Kind::ResourcePack);
+    assert_eq!(sodium.page, "https://modrinth.com/resourcepack/sodium");
+    assert!(matches!(sodium.support(), Support::Works));
+    // Shader packs are not.
+    let hit = json!({"project_id": "x", "project_type": "shader", "slug": "p"});
+    assert!(modrinth::parse_hit(&hit).is_none());
 
     let project = json!({
         "id": "HVnmMxH1", "project_type": "resourcepack", "slug": "fresh-animations",
@@ -294,7 +211,7 @@ fn curseforge_answers() {
     );
 
     let m = json!({
-        "id": 238222, "classId": 6, "slug": "jei", "name": "Just Enough Items",
+        "id": 238222, "classId": 12, "slug": "jei", "name": "Just Enough Items",
         "summary": "s", "authors": [{"name": "mezz"}], "downloadCount": 1.5e7,
         "links": {"websiteUrl": "https://www.curseforge.com/minecraft/mc-mods/jei"},
         "logo": {"thumbnailUrl": "https://media.forgecdn.net/avatars/thumbnails/x.png"},
@@ -303,17 +220,17 @@ fn curseforge_answers() {
     let p = curseforge::parse_mod(&m).unwrap();
     assert_eq!(
         (p.source, p.id.as_str(), p.kind),
-        (SourceId::CurseForge, "238222", Kind::Mod)
+        (SourceId::CurseForge, "238222", Kind::ResourcePack)
     );
     assert_eq!(p.game_versions, ["1.21.1"]);
     assert_eq!(p.loaders, ["neoforge"]);
     assert_eq!(p.author, "mezz");
     assert!(p.support().installable());
-    // Shader packs (class 6552) are not offered.
+    // Only resource packs (class 12) are offered; shader packs (6552) and anything else aren't.
     assert!(curseforge::parse_mod(&json!({"id": 1, "classId": 6552})).is_none());
     assert_eq!(
         curseforge::parse_mod(&json!({"id": 1, "classId": 6})).map(|p| p.kind),
-        Some(Kind::Mod)
+        None
     );
     assert!(curseforge::parse_mod(&json!({"id": 1, "classId": 17})).is_none());
 
@@ -449,6 +366,6 @@ fn live_modrinth_search_pick_and_download() {
 #[test]
 fn curseforge_is_coming_soon_and_never_searched() {
     let ids: Vec<SourceId> = sources().iter().map(|s| s.id()).collect();
-    assert_eq!(ids, [SourceId::Modrinth, SourceId::IndustrialEra]);
+    assert_eq!(ids, [SourceId::Modrinth]);
     assert!(source(SourceId::CurseForge).is_none());
 }
