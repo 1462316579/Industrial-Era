@@ -666,14 +666,8 @@ pub fn mod_api_level(tag: &str) -> u32 {
 }
 
 /// The mod API level in the game program at `path`: its mark's, else 0.
-fn program_mod_api_level(path: &Path) -> u32 {
-    let program = fs::read(path).unwrap_or_default();
-    let mark = b"industrial-era-mod-api-level-0";
-    if program.windows(mark.len()).any(|w| w == mark) {
-        0
-    } else {
-        0
-    }
+fn program_mod_api_level(_path: &Path) -> u32 {
+    0
 }
 
 /// Installed versions, newest tag first.
