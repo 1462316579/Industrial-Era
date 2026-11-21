@@ -3315,9 +3315,7 @@ impl OptionsUi {
                             Page::Controller,
                         )),
                     ),
-                    Row::Buttons(
-                        open("industrial-era.pages.open.extras", Page::Extras),
-                    ),
+                    Row::Buttons(open("industrial-era.pages.open.extras", Page::Extras)),
                     Row::Buttons(
                         open(
                             "industrial-era.pages.open.split_setup",

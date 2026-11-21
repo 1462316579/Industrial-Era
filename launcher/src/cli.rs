@@ -3563,6 +3563,4 @@ mod tests {
         ])
         .is_err());
     }
-
-    #[test]
-    fn export_mode_base_is_an_installed_release_not_a_native_build() {
+}
