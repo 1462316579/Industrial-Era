@@ -17,7 +17,6 @@ mod dev_options;
 mod export_page;
 mod frame;
 mod game_tools;
-mod github_mods_page;
 mod glass;
 mod glass_home;
 mod glass_home_lists;
@@ -40,7 +39,6 @@ mod line_edit;
 mod markdown;
 mod mcp;
 mod microsoft;
-mod modpacks_page;
 mod mods_page;
 mod mods_project;
 mod multiplayer_page;
@@ -347,7 +345,6 @@ struct Launcher {
     starting_pack: Option<std::path::PathBuf>,
     /// The Mods page: the browser's search, installs and updates (`mods_page.rs`).
     mods: mods_page::Mods,
-    github: github_mods_page::Github,
     /// The instances, for the sidebar and Play, and their dialog (`instances_page.rs`).
     instances: instances_page::Instances,
     /// Home's Worlds section, of the selected instance (`worlds_page.rs`).
@@ -572,7 +569,6 @@ impl Launcher {
             pack_error: None,
             starting_pack: None,
             mods: mods_page::Mods::new(cx),
-            github: github_mods_page::Github::new(cx),
             instances: instances_page::Instances::default(),
             worlds: worlds_page::Worlds::default(),
             multiplayer: multiplayer_page::Multiplayer::default(),
