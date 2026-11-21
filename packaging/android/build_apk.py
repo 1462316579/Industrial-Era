@@ -127,6 +127,17 @@ def build_library(profile, ndk, sdk, abi=ABI):
     )
 
 
+def build_libraries(profile, ndk, sdk, abis):
+    """Build the game library for every ABI in `abis`, returning {abi: path-to-lib}."""
+    libraries = {}
+    for abi in abis:
+        build_library(profile, ndk, sdk, abi)
+        triple, _, _ = TARGETS[abi]
+        profile_dir = "debug" if profile == "dev" else profile
+        libraries[abi] = ROOT / "target" / triple / profile_dir / f"lib{LIBRARY}.so"
+    return libraries
+
+
 def build_launchers(ndk, out, abi=ABI):
     """The `java` and `javac` industrial-era-prepare runs on the phone (native/java_launcher.c), with the
     C++ runtime the Java runtime's libraries need: an app runs programs only from its library
@@ -261,14 +272,16 @@ def link_resources(aapt2, android_jar, out, assets, variant, abi=ABI):
     )
 
 
-def add_code(base, libraries, dex, unsigned, abi=ABI):
+def add_code(base, libraries_by_abi, dex, unsigned):
     """`base` plus the activity's dex and the libraries, compressed: Android extracts them at
-    install (extractNativeLibs), as it must for the Java launchers to run."""
+    install (extractNativeLibs), as it must for the Java launchers to run. `libraries_by_abi` maps
+    each ABI to its {name: path} library dict; libraries are placed under lib/<abi>/."""
     shutil.copyfile(base, unsigned)
     with zipfile.ZipFile(unsigned, "a") as apk:
         apk.write(dex, "classes.dex", compress_type=zipfile.ZIP_DEFLATED)
-        for name, path in sorted(libraries.items()):
-            apk.write(path, f"lib/{abi}/{name}", compress_type=zipfile.ZIP_DEFLATED)
+        for abi in sorted(libraries_by_abi):
+            for name, path in sorted(libraries_by_abi[abi].items()):
+                apk.write(path, f"lib/{abi}/{name}", compress_type=zipfile.ZIP_DEFLATED)
 
 
 def sign(build_tools, aligned, apk, out):
@@ -321,8 +334,12 @@ def main():
         help=f"Industrial Era Preview ({APPLICATION_ID}{VARIANTS['preview'][0]}), the organisation's CI build",
     )
     parser.add_argument("--abi", choices=TARGETS, default=ABI, help="Android ABI (default: arm64-v8a)")
+    parser.add_argument(
+        "--universal", action="store_true",
+        help="build one APK with all ABIs (arm64-v8a, armeabi-v7a, x86, x86_64)",
+    )
     args = parser.parse_args()
-    triple, _, _ = TARGETS[args.abi]
+    abis = list(TARGETS) if args.universal else [args.abi]
 
     sdk = sdk_dir()
     ndk = Path(os.environ.get("ANDROID_NDK_HOME") or sdk / "ndk" / NDK)
@@ -333,35 +350,43 @@ def main():
             sys.exit(f"build_apk: missing {path}")
 
     if not args.no_build:
-        build_library(args.profile, ndk, sdk, args.abi)
+        build_libraries(args.profile, ndk, sdk, abis)
     profile_dir = "debug" if args.profile == "dev" else args.profile
-    built = ROOT / "target" / triple / profile_dir / f"lib{LIBRARY}.so"
-    if not built.is_file():
-        sys.exit(f"build_apk: {built} not built")
+    built_by_abi = {}
+    for abi in abis:
+        triple, _, _ = TARGETS[abi]
+        built = ROOT / "target" / triple / profile_dir / f"lib{LIBRARY}.so"
+        if not built.is_file():
+            sys.exit(f"build_apk: {built} not built")
+        built_by_abi[abi] = built
 
     out = ROOT / "target" / "android"
     out.mkdir(parents=True, exist_ok=True)
-    library = out / f"lib{LIBRARY}.so"
-    if args.keep_symbols:
-        shutil.copyfile(built, library)
-    else:
-        run(ndk_tool(ndk, "llvm-strip"), "--strip-unneeded", "-o", library, built)
+    libraries_by_abi = {}
+    for abi, built in built_by_abi.items():
+        library = out / f"lib{LIBRARY}-{abi}.so"
+        if args.keep_symbols:
+            shutil.copyfile(built, library)
+        else:
+            run(ndk_tool(ndk, "llvm-strip"), "--strip-unneeded", "-o", library, built)
+        libs = build_launchers(ndk, out, abi)
+        libs[library.name] = library
+        libraries_by_abi[abi] = libs
     if args.library_only:
         return
     if not args.keep_symbols:
-        # The same library with its symbols, never shipped: CI keeps it to read crash frames. Native-mod
-        # builds (--library-only) don't need one.
-        shutil.copyfile(built, out / f"lib{LIBRARY}-symbols.so")
+        # The same libraries with their symbols, never shipped: CI keeps them to read crash frames.
+        for abi, built in built_by_abi.items():
+            shutil.copyfile(built, out / f"lib{LIBRARY}-{abi}-symbols.so")
 
     variant = "dev" if args.dev else "preview" if args.preview else None
-    link_resources(tool(build_tools, "aapt2"), android_jar, out, assets(out), variant, args.abi)
+    link_resources(tool(build_tools, "aapt2"), android_jar, out, assets(out), variant, abis[0])
     dex = compile_java(build_tools, android_jar, out)
-    libraries = build_launchers(ndk, out, args.abi)
-    libraries[library.name] = library
-    add_code(out / "base.apk", libraries, dex, out / "unsigned.apk", args.abi)
+    add_code(out / "base.apk", libraries_by_abi, dex, out / "unsigned.apk")
     aligned = out / "aligned.apk"
     run(tool(build_tools, "zipalign"), "-P", "16", "-f", "4", out / "unsigned.apk", aligned)
-    apk = out / f"industrial-era{'-' + variant if variant else ''}-{VERSION_NAME}-{args.abi}.apk"
+    abi_suffix = "universal" if args.universal else abis[0]
+    apk = out / f"industrial-era{'-' + variant if variant else ''}-{VERSION_NAME}-{abi_suffix}.apk"
     sign(build_tools, aligned, apk, out)
     print(apk)
     if args.zip:

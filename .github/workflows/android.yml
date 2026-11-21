@@ -151,9 +151,88 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
 
+  universal:
+    # One APK holding every ABI (arm64-v8a, armeabi-v7a, x86, x86_64), so a phone
+    # downloads the single file that works on its architecture.
+    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Install the build-tools, platform and NDK build_apk.py pins
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install \
+            "build-tools;35.0.0" "platforms;android-36" "ndk;28.2.13676358" > /dev/null
+      - name: Install Rust for Android and cargo-ndk
+        run: |
+          rustup toolchain install stable --profile minimal --target aarch64-linux-android --target armv7-linux-androideabi --target i686-linux-android --target x86_64-linux-android
+          rustup default stable
+          cargo install cargo-ndk --version 3.5.4 --locked
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: android-universal
+          save-if: ${{ github.ref == 'refs/heads/android' || github.ref == 'refs/heads/main' }}
+      - name: Unpack the release key
+        if: env.RELEASE_BUILD == 'true'
+        env:
+          KEYSTORE: ${{ secrets.INDUSTRIAL_ERA_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE" || { echo "INDUSTRIAL_ERA_KEYSTORE_BASE64 is not set"; exit 1; }
+          echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/industrial-era-release.jks"
+          echo "HORIZON_ANDROID_KEYSTORE=$RUNNER_TEMP/industrial-era-release.jks" >> "$GITHUB_ENV"
+      - name: Make room for the release build
+        if: env.RELEASE_BUILD == 'true'
+        run: |
+          sudo swapoff -a || true
+          where=/mnt size=20G
+          avail=$(df --output=avail -BG "$where" 2>/dev/null | tail -1 | tr -dc 0-9)
+          if [ "${avail:-0}" -lt 30 ]; then where=$RUNNER_TEMP size=10G; fi
+          sudo fallocate -l "$size" "$where/release.swap"
+          sudo chmod 600 "$where/release.swap"
+          sudo mkswap "$where/release.swap" > /dev/null
+          sudo swapon "$where/release.swap"
+          free -h
+          echo "CARGO_BUILD_JOBS=3" >> "$GITHUB_ENV"
+      - name: Unpack the debug key
+        if: env.RELEASE_BUILD != 'true'
+        env:
+          KEYSTORE: ${{ secrets.INDUSTRIAL_ERA_DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE" || exit 0
+          mkdir -p target/android
+          echo "$KEYSTORE" | base64 -d > target/android/debug.keystore
+      - name: Build the universal APK
+        env:
+          HORIZON_ANDROID_KEY_ALIAS: ${{ env.RELEASE_BUILD == 'true' && secrets.INDUSTRIAL_ERA_KEY_ALIAS || 'industrial-era-debug' }}
+          HORIZON_ANDROID_STORE_PASSWORD: ${{ secrets.INDUSTRIAL_ERA_STORE_PASSWORD }}
+          HORIZON_ANDROID_KEY_PASSWORD: ${{ secrets.INDUSTRIAL_ERA_KEY_PASSWORD }}
+          PROFILE: ${{ env.RELEASE_BUILD == 'true' && 'fast' || 'quick' }}
+          VARIANT: ${{ env.PREVIEW == 'true' && '--preview' || '' }}
+        run: |
+          python packaging/android/build_apk.py --universal --profile "$PROFILE" $VARIANT ${{ inputs.keep_symbols && '--keep-symbols' || '' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: industrial-era-apk-universal
+          path: target/android/industrial-era-*-universal.apk
+          if-no-files-found: error
+          retention-days: ${{ inputs.release_key && 1 || 90 }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: industrial-era-symbols-universal
+          path: target/android/lib*-universal-symbols.so
+          if-no-files-found: ignore
+          retention-days: 90
+
   release:
     # Publish once, only after every architecture has built and signed successfully.
-    needs: apk
+    needs: [apk, universal]
     if: env.RELEASE_BUILD == 'true' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
