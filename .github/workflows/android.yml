@@ -34,8 +34,8 @@ on:
 permissions:
   contents: read
 env:
-  RELEASE_BUILD: ${{ (github.repository == 'starling-client/starling' && (startsWith(github.ref, 'refs/tags/v') || inputs.release_key)) && 'true' || 'false' }}
-  PREVIEW: ${{ !(github.repository == 'starling-client/starling' && (startsWith(github.ref, 'refs/tags/v') || inputs.release_key)) && 'true' || 'false' }}
+  RELEASE_BUILD: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.release_key) && 'true' || 'false' }}
+  PREVIEW: ${{ !(startsWith(github.ref, 'refs/tags/v') || inputs.release_key) && 'true' || 'false' }}
 concurrency:
   group: android-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -50,7 +50,7 @@ jobs:
           - { abi: x86, target: i686-linux-android }
           - { abi: x86_64, target: x86_64-linux-android }
     # The release key's environment, for a release build only (none otherwise).
-    environment: ${{ (github.repository == 'starling-client/starling' && (startsWith(github.ref, 'refs/tags/v') || inputs.release_key)) && 'release' || '' }}
+    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || '' }}
     runs-on: ubuntu-latest
     # A release's fast profile builds slower (fewer codegen units, fewer at once: below).
     timeout-minutes: 150
@@ -83,8 +83,8 @@ jobs:
           KEYSTORE: ${{ secrets.STARLING_KEYSTORE_BASE64 }}
         run: |
           test -n "$KEYSTORE" || { echo "STARLING_KEYSTORE_BASE64 is not set"; exit 1; }
-          echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/starling-release.jks"
-          echo "HORIZON_ANDROID_KEYSTORE=$RUNNER_TEMP/starling-release.jks" >> "$GITHUB_ENV"
+          echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/industrial-era-release.jks"
+          echo "HORIZON_ANDROID_KEYSTORE=$RUNNER_TEMP/industrial-era-release.jks" >> "$GITHUB_ENV"
       # The fast profile's 16 codegen units of the game's crate took more than the runner's 16 GB, and the runner
       # went: swap, on the large temporary disk where there is one, and three units at a time instead of four.
       - name: Make room for the release build
@@ -133,22 +133,20 @@ jobs:
           done
           bash packaging/android/native_build.sh . "$RUNNER_TEMP/native" "${bundles[@]}"
           mkdir -p target/android
-          for apk in "$RUNNER_TEMP"/native/starling-*.apk; do
+          for apk in "$RUNNER_TEMP"/native/industrial-era-*.apk; do
             cp "$apk" "target/android/$(basename "${apk%.apk}")-$(echo $MODS | tr ' ' '-').apk"
           done
       - uses: actions/upload-artifact@v4
         with:
-          name: starling-apk-${{ matrix.abi }}
-          path: target/android/starling-*.apk
+          name: industrial-era-apk-${{ matrix.abi }}
+          path: target/android/industrial-era-*.apk
           if-no-files-found: error
-          # A test build with the release key installs over a release: anyone may download a public
-          # repository's artifacts, so it goes after a day.
           retention-days: ${{ inputs.release_key && 1 || 90 }}
       # The library with its symbols, to read the frames of native crashes in diagnostic ZIPs
       # (docs/android-diagnostics.md). Builds with native mods don't make one.
       - uses: actions/upload-artifact@v4
         with:
-          name: starling-symbols-${{ matrix.abi }}
+          name: industrial-era-symbols-${{ matrix.abi }}
           path: target/android/lib*-symbols.so
           if-no-files-found: ignore
           retention-days: 90
@@ -156,7 +154,7 @@ jobs:
   release:
     # Publish once, only after every architecture has built and signed successfully.
     needs: apk
-    if: github.repository == 'starling-client/starling' && startsWith(github.ref, 'refs/tags/v')
+    if: env.RELEASE_BUILD == 'true' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -165,7 +163,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          pattern: starling-apk-*
+          pattern: industrial-era-apk-*
           path: target/android
           merge-multiple: true
       - name: Check all release APKs and build shared visuals
@@ -178,9 +176,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" target/android/starling-*.apk \
-            target/android/StarlingVisuals.zip \
-            --title "Starling $GITHUB_REF_NAME" --notes-file packaging/android/release-notes.md \
+          gh release create "$GITHUB_REF_NAME" target/android/industrial-era-*.apk \
+            target/android/IndustrialEraVisuals.zip \
+            --title "Industrial Era $GITHUB_REF_NAME" --notes-file packaging/android/release-notes.md \
             --latest
       # The release's game with the sets of native-mods/prebuilt.txt (a release made with this token
       # starts no other workflow by itself; a dispatch does).
@@ -188,4 +186,4 @@ jobs:
         if: env.RELEASE_BUILD == 'true' && startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run native-mods.yml -R "$GITHUB_REPOSITORY" --ref starling -f version="${GITHUB_REF_NAME#v}"
+        run: gh workflow run native-mods.yml -R "$GITHUB_REPOSITORY" --ref main -f version="${GITHUB_REF_NAME#v}"
