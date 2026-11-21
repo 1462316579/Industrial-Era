@@ -1,0 +1,7 @@
+[target.aarch64-linux-android]
+linker = "clang"
+rustflags = [
+  "-Clink-arg=-fuse-ld=lld",
+  "-Clink-arg=-target",
+  "-Clink-arg=aarch64-linux-android26",
+]

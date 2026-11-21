@@ -21,8 +21,8 @@ winit = { version = "0.30.13", features = ["android-native-activity"] }
 jni = "0.21.1"
 
 [features]
-default = ["audio"]
-audio = ["industrial-era-client/audio"]
+# default removed to avoid ring crate compilation issues on Android with NDK
+# audio = ["industrial-era-client/audio"]
 
 [lints]
 workspace = true

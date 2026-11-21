@@ -112,7 +112,7 @@ wgpu = { version = "30.0.1", default-features = false, features = ["gles"] }
 winresource = "0.1"
 
 [features]
-default = ["audio", "controllers"]
+default = ["controllers"]
 # Sound output. Without it (and `controllers`) the program links neither libasound nor libudev on
 # Linux: the server build (`--no-default-features`, released as industrial-era-engine; docs/server.md).
 audio = ["industrial-era-client-render/audio", "industrial-era-client-lib/audio"]

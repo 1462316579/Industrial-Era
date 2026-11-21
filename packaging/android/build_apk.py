@@ -123,7 +123,7 @@ def build_library(profile, ndk, sdk, abi=ABI):
     run(
         "cargo", "ndk", "-t", abi, "--platform", MIN_SDK,
         "build", "--profile", profile, "-p", "industrial-era-android",
-        cwd=ROOT, env=env,
+        "--no-default-features", cwd=ROOT, env=env,
     )
 
 
