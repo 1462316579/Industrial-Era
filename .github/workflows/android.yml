@@ -50,7 +50,7 @@ jobs:
           - { abi: x86, target: i686-linux-android }
           - { abi: x86_64, target: x86_64-linux-android }
     # The release key's environment, for a release build only (none otherwise).
-    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || '' }}
+    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || null }}
     runs-on: ubuntu-latest
     # A release's fast profile builds slower (fewer codegen units, fewer at once: below).
     timeout-minutes: 150
@@ -154,7 +154,7 @@ jobs:
   universal:
     # One APK holding every ABI (arm64-v8a, armeabi-v7a, x86, x86_64), so a phone
     # downloads the single file that works on its architecture.
-    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || '' }}
+    environment: ${{ env.RELEASE_BUILD == 'true' && 'release' || null }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
