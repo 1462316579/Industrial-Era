@@ -4058,17 +4058,16 @@ impl Launcher {
             )
             .children(self.import_error.clone().map(|e| notice(e, &t)));
         // Builds made here, not downloaded, are listed apart from the releases.
-        let page = page
-            .children(self.local_builds(
-                "Imported builds",
-                build_import::is_imported,
-                Some(tr(
-                    "Unsigned: you picked these programs yourself, and IndustrialEra can't \
-                    check where they came from. Updates never replace them.",
-                )),
-                &on_disk,
-                cx,
-            ));
+        let page = page.children(self.local_builds(
+            "Imported builds",
+            build_import::is_imported,
+            Some(tr(
+                "Unsigned: you picked these programs yourself, and IndustrialEra can't \
+                     check where they came from. Updates never replace them.",
+            )),
+            &on_disk,
+            cx,
+        ));
         let releases = match &self.releases {
             Load::Loading => return page.child(centered(tr("Loading releases…"), &t)),
             Load::Failed(e) => {

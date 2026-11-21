@@ -8,7 +8,7 @@
 //! Installing copies the carried-over folder mod into `industrial_era-mods/<mod id>/` beside
 //! `options.txt` and turns it on in `industrial_era-mods.txt`, where the game's Options > Mods reads it.
 use super::{installed::Entry, pick, FileRef, Kind, Project, Source, Support, Version};
-use crate::browser::{installed, mods_page, java_instance, Kind};
+use crate::browser::{installed, java_instance, mods_page, Kind};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::time::Duration;

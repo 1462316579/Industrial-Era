@@ -48,7 +48,9 @@ fn env_for(scheme: &str) -> Option<String> {
         "http" => "HTTP_PROXY",
         _ => "ALL_PROXY",
     };
-    std::env::var(env_var).ok().or_else(|| std::env::var("ALL_PROXY").ok())
+    std::env::var(env_var)
+        .ok()
+        .or_else(|| std::env::var("ALL_PROXY").ok())
 }
 
 /// Parse `spec` as a proxy address: `http://host:port`.

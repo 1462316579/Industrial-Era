@@ -76,13 +76,7 @@ fn base_for(
             selected
                 .filter(|s| usable(s))
                 .map(str::to_owned)
-                .or_else(|| {
-                    installed
-                        .iter()
-                        .rev()
-                        .find(|v| official(v))
-                        .cloned()
-                })
+                .or_else(|| installed.iter().rev().find(|v| official(v)).cloned())
                 .ok_or_else(|| {
                     tr("Install a release or Nightly first: an imported build plays with its game \
                     files.")
@@ -238,7 +232,9 @@ fn is_game(program: &[u8]) -> bool {
         &[b"\x7fELF"]
     };
     magic.iter().any(|m| program.starts_with(m))
-        && program.windows(27).any(|w| w == b"industrial-era-mod-api-level-0")
+        && program
+            .windows(27)
+            .any(|w| w == b"industrial-era-mod-api-level-0")
 }
 
 /// Installs `program` in `versions` as a copy of installed version `base` with it in place of
