@@ -30,7 +30,6 @@ mod home;
 mod home_tabs;
 mod import_page;
 mod instance_icons;
-mod instance_mods;
 mod instances_page;
 mod internet;
 mod language_page;
@@ -334,10 +333,6 @@ struct Launcher {
     home_strip: std::rc::Rc<std::cell::Cell<Option<gpui::Size<Pixels>>>>,
     /// When the running game was first seen running, for Home's "Playing for…".
     client_since: Option<Instant>,
-    /// The selected instance's mods, for Home's Mods tab (`instance_mods.rs`).
-    instance_mods: instance_mods::InstanceMods,
-    /// Modrinth projects' icon URLs (`instance_mods.rs`).
-    project_icons: instance_mods::ProjectIcons,
     play_pressed: Option<Instant>,
     /// `industrial_era-launcher benchmark` started this window to measure it.
     bench: Option<perf::Bench>,
@@ -555,8 +550,6 @@ impl Launcher {
             list_menu: None,
             home_strip: Default::default(),
             client_since: None,
-            instance_mods: Default::default(),
-            project_icons: Default::default(),
             play_pressed: None,
             bench: perf::Bench::from_env(),
             packs: Vec::new(),
