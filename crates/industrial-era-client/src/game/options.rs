@@ -463,12 +463,6 @@ impl Game<'_> {
                     self.reload_packs();
                 }
                 Event::OpenPackFolder => self.open_game_folder(&super::packs::packs_dir()),
-                Event::OpenModFolder => self
-                    .open_game_folder(&Self::game_dir().join(industrial_era_client::mod_list::DIR)),
-                #[cfg(target_os = "android")]
-                Event::OpenCatalog(shelf) => self.open_catalog_on(catalog_shelf(shelf)),
-                #[cfg(not(target_os = "android"))]
-                Event::OpenCatalog(_) => {}
                 Event::DataPacks(ids) => {
                     let resources = self.vanilla_root();
                     if let Some(title) = &mut self.title {

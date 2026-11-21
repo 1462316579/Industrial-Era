@@ -653,7 +653,7 @@ impl super::Game<'_> {
                 ),
                 Some(Kind::ResourcePack) => self.refresh_pack_lists(),
                 // The Mods page lists it at once; a mod with code runs as soon as it is turned on.
-                Some(Kind::Unknown) => self.start_mods(),
+                Some(Kind::Unknown) => {}
                 // A skin is worn at once (Skin Customization's Choose a File...).
                 Some(Kind::Skin) => {
                     if let Some(path) = self.imports.skin.take() {

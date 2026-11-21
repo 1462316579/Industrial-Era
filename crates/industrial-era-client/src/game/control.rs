@@ -878,7 +878,6 @@ impl Game<'_> {
                     "language" => Page::Language,
                     "font" => Page::Font,
                     "packs" => Page::Packs,
-                    "mods" => Page::Mods,
                     "shader-packs" => Page::ShaderPacks,
                     "graphics" => Page::Graphics,
                     "graphics-advanced" => Page::GraphicsAdvanced,

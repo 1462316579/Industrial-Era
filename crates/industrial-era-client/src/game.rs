@@ -2734,6 +2734,9 @@ struct Game<'a> {
     imports: imports::Imports,
     /// The offer of the Starling folder in shared storage (game/files_offer.rs).
     #[cfg(target_os = "android")]
+    files_offer: files_offer::FilesOffer,
+    /// The offer of Android app updates (game/update_offer.rs).
+    #[cfg(target_os = "android")]
     update_offer: update_offer::UpdateOffer,
     /// Bedrock Inventory with the pointer on its inventory window: the item tab the other window
     /// shows (the creative screen's selected tab is then the Survival Inventory, so every click

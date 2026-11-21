@@ -212,9 +212,6 @@ impl Game<'_> {
                 None => member,
             }
             .resolve_legacy();
-            let shown = text
-                .map(|text| Text::literal(text).resolve_legacy())
-                .unwrap_or(shown);
             let mut lines = Vec::new();
             // EntityRenderer.extractNameTags: the score shows within the
             // below-name distance (10), under the name.

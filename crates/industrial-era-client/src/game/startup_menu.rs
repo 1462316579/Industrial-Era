@@ -754,11 +754,6 @@ impl Loading {
                     let _ = std::fs::create_dir_all(&dir);
                     packs::open_folder(&dir);
                 }
-                Event::OpenModFolder => {
-                    let dir = Game::game_dir().join(industrial_era_client::mod_list::DIR);
-                    let _ = std::fs::create_dir_all(&dir);
-                    packs::open_folder(&dir);
-                }
                 Event::ButtonClick => {
                     if let Some(audio) = &mut self.audio {
                         audio.play_button_click();
@@ -769,8 +764,7 @@ impl Loading {
                     self.settings.shader_packs =
                         industrial_era_client::shader_pack_list::scan(&Game::shader_packs_dir());
                 }
-                // Before the game starts the mods are listed as it starts (`start_mods`).
-                Event::ListMods => {}
+                // Saved by `Changed`; the game reads the native mods' set as it starts.
                 Event::ShaderPack => self.save_menu_settings(),
                 Event::OpenCustomButtons => {
                     self.settings.custom_buttons = super::touch::saved_custom_buttons();
@@ -832,13 +826,7 @@ impl Loading {
                     self.settings.narrator(),
                     &mut self.menu.narrator_toast,
                 ),
-                // Mods' settings pages open only in a running game.
-                Event::NativeSettings(_)
-                | Event::NativeButton(..)
-                | Event::OpenCatalog(_)
-                | Event::NativeGame(_) => {}
                 // Saved by `Changed`; the game reads the native mods' set as it starts.
-                Event::ModToggled(_) => {}
                 // Options.createSoundSliderOptionInstance: the preview plays without a level,
                 // once the menu's sound output is up.
                 Event::Volume(source, volume) => {
